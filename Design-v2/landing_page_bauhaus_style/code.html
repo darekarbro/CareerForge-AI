@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CareerForge AI - Landing Page</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Space+Grotesk:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary": "#ffffff",
+                        "surface-container-low": "#f2ede5",
+                        "on-surface-variant": "#4a4a4a",
+                        "on-error": "#ffffff",
+                        "secondary-fixed": "#ffdad6",
+                        "error-container": "#ffdad6",
+                        "surface": "#f5f0e8",
+                        "surface-variant": "#e8e3da",
+                        "tertiary": "#0055ff",
+                        "on-tertiary-container": "#1a1a1a",
+                        "on-tertiary-fixed": "#1a1a1a",
+                        "on-secondary": "#1a1a1a",
+                        "on-error-container": "#93000a",
+                        "on-secondary-fixed-variant": "#1a1a1a",
+                        "primary-container": "#ffcc00",
+                        "on-primary": "#ffffff",
+                        "background": "#f5f0e8",
+                        "secondary-fixed-dim": "#ffb3ab",
+                        "inverse-surface": "#1a1a1a",
+                        "surface-container": "#eee9e0",
+                        "on-secondary-fixed": "#1a1a1a",
+                        "tertiary-fixed-dim": "#a8c6ff",
+                        "surface-bright": "#faf7f2",
+                        "tertiary-container": "#d6e3ff",
+                        "surface-container-high": "#e8e3da",
+                        "on-surface": "#1a1a1a",
+                        "on-background": "#1a1a1a",
+                        "on-primary-fixed-variant": "#1a1a1a",
+                        "secondary-container": "#ffdad6",
+                        "surface-container-lowest": "#ffffff",
+                        "inverse-primary": "#f5f0e8",
+                        "inverse-on-surface": "#f5f0e8",
+                        "primary-fixed-dim": "#e6b800",
+                        "outline-variant": "#d0cbc3",
+                        "error": "#cc0000",
+                        "tertiary-fixed": "#d6e3ff",
+                        "on-tertiary-fixed-variant": "#1a1a1a",
+                        "primary-fixed": "#ffcc00",
+                        "on-secondary-container": "#1a1a1a",
+                        "on-primary-container": "#1a1a1a",
+                        "primary": "#1a1a1a",
+                        "surface-dim": "#d6d1c9",
+                        "surface-tint": "#1a1a1a",
+                        "outline": "#1a1a1a",
+                        "surface-container-highest": "#e2ddd4",
+                        "secondary": "#e63b2e",
+                        "on-primary-fixed": "#1a1a1a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {},
+                    "fontFamily": {
+                        "headline": ["Space Grotesk"],
+                        "display": ["Space Grotesk"],
+                        "body": ["Inter"],
+                        "label": ["Space Grotesk"]
+                    },
+                    "fontSize": {}
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            background-color: theme('colors.background');
+            color: theme('colors.on-background');
+            font-family: theme('fontFamily.body');
+        }
+        
+        .neo-brutalist-border {
+            border: 3px solid theme('colors.primary');
+        }
+
+        .neo-brutalist-shadow {
+            box-shadow: 6px 6px 0px 0px theme('colors.primary');
+        }
+        
+        .neo-brutalist-shadow-hover:hover {
+            box-shadow: 2px 2px 0px 0px theme('colors.primary');
+            transform: translate(4px, 4px);
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+<!-- Navbar -->
+<header class="w-full border-b-4 border-primary bg-background sticky top-0 z-50">
+<div class="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
+<a class="font-headline font-black text-2xl uppercase tracking-widest text-primary flex items-center gap-2" href="#">
+<span class="material-symbols-outlined text-3xl">build</span>
+                CareerForge AI
+            </a>
+<nav class="hidden md:flex gap-8">
+<a class="font-headline font-bold text-lg text-primary hover:text-tertiary transition-colors" href="#features">Features</a>
+<a class="font-headline font-bold text-lg text-primary hover:text-tertiary transition-colors" href="#pricing">Pricing</a>
+<a class="font-headline font-bold text-lg text-primary hover:text-tertiary transition-colors" href="#about">About</a>
+</nav>
+<div class="flex items-center gap-4">
+<a class="hidden md:block font-headline font-bold text-primary hover:text-tertiary transition-colors uppercase" href="/login">Log In</a>
+<a class="bg-primary-container text-primary font-headline font-bold uppercase px-6 py-3 neo-brutalist-border neo-brutalist-shadow transition-all hover:bg-primary hover:text-on-primary" href="/signup">Start Forging</a>
+</div>
+</div>
+</header>
+<main class="flex-grow">
+<!-- Hero Section -->
+<section class="w-full py-24 px-6 overflow-hidden relative">
+<div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+<div class="flex flex-col gap-8 z-10">
+<h1 class="font-display font-black text-7xl md:text-8xl leading-none tracking-tighter text-primary uppercase">
+                        Forge a <br/>
+<span class="text-tertiary">career</span>-ready <br/>
+                        you.
+                    </h1>
+<p class="font-body text-xl md:text-2xl text-on-surface-variant max-w-xl font-medium border-l-4 border-secondary pl-6">
+                        Stop guessing. Start landing offers. AI-powered tools to tailor your resume, prep for interviews, and track your applications—built for the modern professional.
+                    </p>
+<div class="flex flex-col sm:flex-row gap-6 mt-4">
+<a class="bg-tertiary text-on-tertiary font-headline font-bold text-xl uppercase px-8 py-5 neo-brutalist-border neo-brutalist-shadow neo-brutalist-shadow-hover text-center transition-all inline-flex items-center justify-center gap-3" href="/signup">
+                            Launch CareerForge
+                            <span class="material-symbols-outlined">rocket_launch</span>
+</a>
+<a class="bg-surface text-primary font-headline font-bold text-xl uppercase px-8 py-5 neo-brutalist-border hover:bg-surface-variant transition-colors text-center inline-flex items-center justify-center gap-3" href="#demo">
+                            Watch Demo
+                            <span class="material-symbols-outlined">play_circle</span>
+</a>
+</div>
+<div class="flex items-center gap-4 mt-8 pt-8 border-t-2 border-primary w-fit">
+<div class="flex -space-x-4">
+<img alt="User" class="w-12 h-12 rounded-full neo-brutalist-border object-cover bg-surface-container" data-alt="A portrait of a young professional wearing modern business casual attire against a clean, bright neo-brutalist light-mode background. The aesthetic is bold and confident with high contrast lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCbvgymUlFGDVB993mvQmaHSiWHhWj_zB2IRBrWrKSIvDBzHroWFqcp4AtTJabebCKr5iAuUnsiB1c22qu7OksDOxZh1xxI8Jzh-hNlENUXngqaRpqkkARcKot8cXBD5_1a86X6nIhkHhdPQ1nmoM4WbTafM4tCM8MfuYFf7pXYziXxVxcYvRBbXMXk4QGnostVUJBgwYzKZ8jl1lDgvc_xe-dcf-DvmG7FkUcJviiddjGeB-WTKN4M"/>
+<img alt="User" class="w-12 h-12 rounded-full neo-brutalist-border object-cover bg-surface-container" data-alt="A portrait of an experienced software engineer looking determined in a modern office space, shot with sharp focus and bright, crisp lighting fitting a neo-brutalist UI theme." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB6usw2GIDVVNNEA602gglNz_R3Hujvn-_kYhRPunYh4FaJPPO6FM7-1twnEtemSANJpaCPIUujFZSiHiux_mXrA8_whr-8c1gqcDwZIcKG3slOsh1xl4AW1BkS1y8S_ZH-WxolBV_3s_QfPojQdNwwC7sBGz6_-Bmr-n0IphK0_Mx2Ym56_x-YEeiaW3cvYETFplyqYHfRvxz-cRxMTOefl51PMT5YN-Eqvlkj84BtK-c9YXRyku9d"/>
+<img alt="User" class="w-12 h-12 rounded-full neo-brutalist-border object-cover bg-surface-container" data-alt="A diverse professional woman smiling in an architectural setting, bright natural light, sharp contrast, fitting a neo-brutalist bold web design aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDJYI8K5Vz9Q1PjD16bh_8675qoM_w3Jy7CMMPLTJyXZ_OgPuTdl2kbusQRuJz6naE4-PNm9bVwINJgo-EGXfC21DqsnlCCG8FVdfeK6E8MOqmHZhQbUjok1D_Pgfd_a1kV4yk-lAwab3QqqfNjPZpeYdJpuJfNe9ojf3Spbj9uxAQjoeojMbC7H2GCr05Y7ugQbXY1rdSqJwl3GlRnylyIWy7yJD8WMGMMF5qH_WWlbSA5rai2Y-yY"/>
+</div>
+<p class="font-headline font-bold text-sm uppercase tracking-wide">Joined by 10,000+ <br/>job seekers</p>
+</div>
+</div>
+<div class="relative z-10 w-full h-[600px]">
+<!-- Abstract Dashboard Representation -->
+<div class="absolute inset-0 bg-primary-container neo-brutalist-border neo-brutalist-shadow p-6 flex flex-col gap-6 rotate-3 transform-gpu">
+<div class="flex justify-between items-center border-b-4 border-primary pb-4">
+<h3 class="font-headline font-black text-2xl uppercase tracking-wider text-primary">Resume Score</h3>
+<div class="bg-primary text-on-primary font-display font-black text-4xl px-4 py-2 neo-brutalist-border">98</div>
+</div>
+<div class="grid grid-cols-2 gap-4 flex-grow">
+<div class="bg-surface neo-brutalist-border p-4 flex flex-col justify-between">
+<span class="material-symbols-outlined text-4xl text-tertiary mb-4">work</span>
+<div>
+<p class="font-headline font-bold uppercase text-xs text-on-surface-variant">Keywords Found</p>
+<p class="font-display font-black text-3xl">42/45</p>
+</div>
+</div>
+<div class="bg-secondary text-on-error neo-brutalist-border p-4 flex flex-col justify-between">
+<span class="material-symbols-outlined text-4xl mb-4">psychology</span>
+<div>
+<p class="font-headline font-bold uppercase text-xs">Interview Readiness</p>
+<p class="font-display font-black text-3xl">High</p>
+</div>
+</div>
+<div class="col-span-2 bg-surface neo-brutalist-border p-4 h-full relative overflow-hidden">
+<div class="absolute top-4 right-4 bg-tertiary text-on-tertiary text-xs font-bold px-2 py-1 uppercase">Live Data</div>
+<p class="font-headline font-bold uppercase text-xs text-on-surface-variant mb-2">Application Pipeline</p>
+<div class="flex h-12 w-full gap-2 mt-4">
+<div class="h-full bg-primary flex-grow neo-brutalist-border"></div>
+<div class="h-full bg-primary w-1/3 neo-brutalist-border"></div>
+<div class="h-full bg-tertiary w-1/4 neo-brutalist-border"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Features Bento Grid -->
+<section class="w-full py-24 px-6 bg-surface-container border-y-4 border-primary" id="features">
+<div class="max-w-7xl mx-auto">
+<div class="mb-16 flex flex-col md:flex-row justify-between items-end gap-8 border-b-4 border-primary pb-8">
+<h2 class="font-display font-black text-6xl uppercase tracking-tighter text-primary">The Forge<br/>Tools</h2>
+<p class="font-body text-xl font-medium max-w-md text-right hidden md:block">Everything you need to systematically dismantle the job search process.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 auto-rows-[300px] gap-6">
+<!-- Feature 1: Tailor -->
+<div class="md:col-span-2 bg-primary-container neo-brutalist-border neo-brutalist-shadow p-8 flex flex-col justify-between group cursor-pointer hover:bg-primary hover:text-primary-container transition-colors duration-300">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-6xl group-hover:text-primary-container transition-colors">description</span>
+<span class="font-headline font-bold text-sm uppercase px-3 py-1 neo-brutalist-border group-hover:border-primary-container">01</span>
+</div>
+<div>
+<h3 class="font-display font-black text-4xl uppercase mb-2">Tailor Resumes</h3>
+<p class="font-body font-medium text-lg max-w-lg">Instantly align your resume with specific job descriptions using our AI analysis engine. Beat the ATS every time.</p>
+</div>
+</div>
+<!-- Feature 2: Practice -->
+<div class="bg-surface neo-brutalist-border neo-brutalist-shadow p-8 flex flex-col justify-between group cursor-pointer hover:bg-secondary hover:text-on-error transition-colors duration-300">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-6xl text-secondary group-hover:text-on-error transition-colors">psychology</span>
+<span class="font-headline font-bold text-sm uppercase px-3 py-1 neo-brutalist-border group-hover:border-on-error">02</span>
+</div>
+<div>
+<h3 class="font-display font-black text-3xl uppercase mb-2">Mock Interviews</h3>
+<p class="font-body font-medium text-base">Real-time voice AI practice tailored to the role.</p>
+</div>
+</div>
+<!-- Feature 3: Search -->
+<div class="bg-surface neo-brutalist-border neo-brutalist-shadow p-8 flex flex-col justify-between group cursor-pointer hover:bg-tertiary hover:text-on-tertiary transition-colors duration-300">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-6xl text-tertiary group-hover:text-on-tertiary transition-colors">search</span>
+<span class="font-headline font-bold text-sm uppercase px-3 py-1 neo-brutalist-border group-hover:border-on-tertiary">03</span>
+</div>
+<div>
+<h3 class="font-display font-black text-3xl uppercase mb-2">Smart Search</h3>
+<p class="font-body font-medium text-base">Find highly relevant roles that actually match your forged profile.</p>
+</div>
+</div>
+<!-- Feature 4: Track -->
+<div class="md:col-span-2 bg-primary text-on-primary neo-brutalist-border neo-brutalist-shadow p-8 flex flex-col justify-between relative overflow-hidden group cursor-pointer">
+<div class="relative z-10 flex flex-col h-full justify-between">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-6xl text-surface">assignment_turned_in</span>
+<span class="font-headline font-bold text-sm uppercase px-3 py-1 border-2 border-surface">04</span>
+</div>
+<div>
+<h3 class="font-display font-black text-4xl uppercase mb-2 text-surface">Pipeline Tracker</h3>
+<p class="font-body font-medium text-lg max-w-lg text-surface-dim">Never lose track of an application. Kanban boards, deadline alerts, and contact management in one raw interface.</p>
+</div>
+</div>
+<!-- Decorative background element -->
+<div class="absolute -bottom-10 -right-10 opacity-20 pointer-events-none transition-transform group-hover:scale-110 duration-500">
+<span class="material-symbols-outlined text-[300px]">cloud_download</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- CTA Section -->
+<section class="w-full py-32 px-6 bg-tertiary text-on-tertiary relative overflow-hidden">
+<div class="absolute inset-0 opacity-10 pointer-events-none flex items-center justify-center">
+<span class="material-symbols-outlined text-[800px] rotate-45">construction</span>
+</div>
+<div class="max-w-4xl mx-auto text-center relative z-10">
+<h2 class="font-display font-black text-6xl md:text-8xl uppercase tracking-tighter mb-8">
+                    Stop <br/> Waiting.
+                </h2>
+<p class="font-body text-2xl font-medium mb-12 max-w-2xl mx-auto">
+                    The tools are built. The system works. It's time to forge your next career move.
+                </p>
+<a class="bg-primary-container text-primary font-headline font-bold text-2xl uppercase px-12 py-6 neo-brutalist-border shadow-[8px_8px_0px_0px_rgba(26,26,26,1)] hover:shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] hover:translate-x-2 hover:translate-y-2 transition-all inline-block" href="/signup">
+                    Start Your Free Trial
+                </a>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="w-full bg-primary text-on-primary py-16 px-6 border-t-8 border-primary-container">
+<div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12">
+<div class="md:col-span-2">
+<a class="font-headline font-black text-3xl uppercase tracking-widest text-primary-container flex items-center gap-2 mb-6" href="#">
+<span class="material-symbols-outlined text-4xl">build</span>
+                    CareerForge
+                </a>
+<p class="font-body text-lg text-surface-dim max-w-md font-medium">
+                    Technical platform designed to aggressively optimize the job search process through AI-driven tooling and brutal efficiency.
+                </p>
+</div>
+<div>
+<h4 class="font-headline font-bold text-xl uppercase tracking-wider mb-6 text-surface">Product</h4>
+<ul class="flex flex-col gap-4">
+<li><a class="font-body text-surface-dim hover:text-primary-container transition-colors font-medium" href="#">Dashboard</a></li>
+<li><a class="font-body text-surface-dim hover:text-primary-container transition-colors font-medium" href="#">Resume Builder</a></li>
+<li><a class="font-body text-surface-dim hover:text-primary-container transition-colors font-medium" href="#">Interview Prep</a></li>
+<li><a class="font-body text-surface-dim hover:text-primary-container transition-colors font-medium" href="#">Job Search</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-headline font-bold text-xl uppercase tracking-wider mb-6 text-surface">Legal</h4>
+<ul class="flex flex-col gap-4">
+<li><a class="font-body text-surface-dim hover:text-primary-container transition-colors font-medium" href="#">Privacy Policy</a></li>
+<li><a class="font-body text-surface-dim hover:text-primary-container transition-colors font-medium" href="#">Terms of Service</a></li>
+<li><a class="font-body text-surface-dim hover:text-primary-container transition-colors font-medium" href="#">Contact</a></li>
+</ul>
+</div>
+</div>
+<div class="max-w-7xl mx-auto mt-16 pt-8 border-t-2 border-surface-variant flex flex-col md:flex-row justify-between items-center gap-4">
+<p class="font-body text-sm text-surface-dim font-medium uppercase tracking-widest">© 2024 CareerForge AI. All rights reserved.</p>
+<div class="flex gap-6">
+<a class="text-surface-dim hover:text-primary-container transition-colors" href="#"><span class="material-symbols-outlined">share</span></a>
+<a class="text-surface-dim hover:text-primary-container transition-colors" href="#"><span class="material-symbols-outlined">public</span></a>
+</div>
+</div>
+</footer>
+</body></html>

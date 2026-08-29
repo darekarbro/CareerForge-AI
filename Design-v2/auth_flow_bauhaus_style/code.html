@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CareerForge AI - Login / Register</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Space+Grotesk:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary": "#ffffff",
+                        "surface-container-low": "#f2ede5",
+                        "on-surface-variant": "#4a4a4a",
+                        "on-error": "#ffffff",
+                        "secondary-fixed": "#ffdad6",
+                        "error-container": "#ffdad6",
+                        "surface": "#f5f0e8",
+                        "surface-variant": "#e8e3da",
+                        "tertiary": "#0055ff",
+                        "on-tertiary-container": "#1a1a1a",
+                        "on-tertiary-fixed": "#1a1a1a",
+                        "on-secondary": "#1a1a1a",
+                        "on-error-container": "#93000a",
+                        "on-secondary-fixed-variant": "#1a1a1a",
+                        "primary-container": "#ffcc00",
+                        "on-primary": "#ffffff",
+                        "background": "#f5f0e8",
+                        "secondary-fixed-dim": "#ffb3ab",
+                        "inverse-surface": "#1a1a1a",
+                        "surface-container": "#eee9e0",
+                        "on-secondary-fixed": "#1a1a1a",
+                        "tertiary-fixed-dim": "#a8c6ff",
+                        "surface-bright": "#faf7f2",
+                        "tertiary-container": "#d6e3ff",
+                        "surface-container-high": "#e8e3da",
+                        "on-surface": "#1a1a1a",
+                        "on-background": "#1a1a1a",
+                        "on-primary-fixed-variant": "#1a1a1a",
+                        "secondary-container": "#ffdad6",
+                        "surface-container-lowest": "#ffffff",
+                        "inverse-primary": "#f5f0e8",
+                        "inverse-on-surface": "#f5f0e8",
+                        "primary-fixed-dim": "#e6b800",
+                        "outline-variant": "#d0cbc3",
+                        "error": "#cc0000",
+                        "tertiary-fixed": "#d6e3ff",
+                        "on-tertiary-fixed-variant": "#1a1a1a",
+                        "primary-fixed": "#ffcc00",
+                        "on-secondary-container": "#1a1a1a",
+                        "on-primary-container": "#1a1a1a",
+                        "primary": "#1a1a1a",
+                        "surface-dim": "#d6d1c9",
+                        "surface-tint": "#1a1a1a",
+                        "outline": "#1a1a1a",
+                        "surface-container-highest": "#e2ddd4",
+                        "secondary": "#e63b2e",
+                        "on-primary-fixed": "#1a1a1a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0px",
+                        "lg": "0px",
+                        "xl": "0px",
+                        "full": "0px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Space Grotesk", "sans-serif"],
+                        "display": ["Space Grotesk", "sans-serif"],
+                        "body": ["Inter", "sans-serif"],
+                        "label": ["Space Grotesk", "sans-serif"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .bauhaus-shadow {
+            box-shadow: 6px 6px 0px 0px #1a1a1a;
+        }
+        
+        .bg-mesh {
+            background-color: #f5f0e8;
+            background-image: radial-gradient(#1a1a1a 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        
+        /* Hide scrollbar for clean aesthetic */
+        ::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-background text-primary font-body antialiased min-h-screen flex items-center justify-center bg-mesh p-4 sm:p-8">
+<!-- Main Container -->
+<main class="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-0 border-[3px] border-primary bg-surface bauhaus-shadow relative z-10">
+<!-- Branding / Visual Side (Left on Desktop) -->
+<div class="hidden md:flex flex-col justify-between p-12 bg-primary text-on-primary border-r-[3px] border-primary relative overflow-hidden">
+<!-- Geometric accents -->
+<div class="absolute top-0 right-0 w-32 h-32 bg-primary-container rounded-bl-[100px] border-l-[3px] border-b-[3px] border-primary translate-x-4 -translate-y-4"></div>
+<div class="absolute bottom-12 left-0 w-24 h-24 bg-secondary border-t-[3px] border-r-[3px] border-primary rotate-45 -translate-x-12 translate-y-12"></div>
+<div class="relative z-10">
+<h1 class="font-headline font-black text-4xl uppercase tracking-widest mb-2">CareerForge</h1>
+<p class="font-headline text-lg text-primary-container uppercase tracking-widest border-b-[3px] border-primary-container inline-block pb-1">AI Platform</p>
+</div>
+<div class="relative z-10 mt-24">
+<h2 class="font-headline font-bold text-5xl leading-tight mb-6">
+                    SHAPE<br/>
+                    YOUR<br/>
+                    FUTURE.
+                </h2>
+<p class="text-lg opacity-90 max-w-sm">
+                    Leverage artificial intelligence to optimize your career trajectory. Precision tools for modern professionals.
+                </p>
+</div>
+<div class="relative z-10 flex gap-4 mt-12">
+<div class="w-8 h-8 bg-surface rounded-full border-[3px] border-primary"></div>
+<div class="w-8 h-8 bg-tertiary rounded-full border-[3px] border-primary"></div>
+<div class="w-8 h-8 bg-secondary rounded-full border-[3px] border-primary"></div>
+</div>
+</div>
+<!-- Forms Side (Right on Desktop) -->
+<div class="flex flex-col relative w-full h-full bg-surface">
+<!-- Mobile Branding Header (Visible only on mobile) -->
+<div class="md:hidden border-b-[3px] border-primary p-6 bg-primary text-on-primary">
+<h1 class="font-headline font-black text-2xl uppercase tracking-widest">CareerForge</h1>
+</div>
+<!-- Tab Navigation (Login / Register) -->
+<div class="flex border-b-[3px] border-primary">
+<button class="flex-1 py-4 font-headline font-bold text-xl uppercase border-r-[3px] border-primary bg-primary-container text-primary transition-colors hover:bg-primary hover:text-on-primary" id="tab-login">
+                    Login
+                </button>
+<button class="flex-1 py-4 font-headline font-bold text-xl uppercase bg-surface text-primary transition-colors hover:bg-primary-container" id="tab-register">
+                    Register
+                </button>
+</div>
+<div class="p-8 sm:p-12 relative flex-1 flex flex-col justify-center">
+<!-- Login Form -->
+<form class="flex flex-col gap-6 w-full max-w-sm mx-auto" id="form-login">
+<div class="text-center mb-6">
+<h2 class="font-headline font-bold text-3xl mb-2">ACCESS PORTAL</h2>
+<p class="text-on-surface-variant text-sm">Enter your credentials to continue.</p>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-headline font-bold text-sm uppercase tracking-wide" for="login-email">Email Address</label>
+<input class="bg-surface border-0 border-b-[3px] border-primary px-0 py-3 text-lg focus:ring-0 focus:border-secondary focus:bg-surface-bright transition-colors" id="login-email" placeholder="user@domain.com" type="email"/>
+</div>
+<div class="flex flex-col gap-1 mt-2">
+<label class="font-headline font-bold text-sm uppercase tracking-wide flex justify-between" for="login-password">
+                            Password
+                            <a class="text-tertiary hover:text-secondary lowercase font-body font-normal text-xs" href="#">Forgot?</a>
+</label>
+<input class="bg-surface border-0 border-b-[3px] border-primary px-0 py-3 text-lg focus:ring-0 focus:border-secondary focus:bg-surface-bright transition-colors" id="login-password" placeholder="••••••••" type="password"/>
+</div>
+<button class="mt-8 w-full bg-primary text-on-primary font-headline font-bold text-xl uppercase py-4 border-[3px] border-primary bauhaus-shadow hover:bg-secondary hover:text-on-primary hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all duration-200" type="button">
+                        Authenticate
+                    </button>
+<div class="mt-6 flex items-center justify-center gap-4 border-t-[3px] border-primary pt-6">
+<span class="font-headline font-bold text-xs uppercase text-on-surface-variant">SSO Options</span>
+</div>
+<div class="flex gap-4">
+<button class="flex-1 flex justify-center items-center py-3 border-[3px] border-primary bg-surface hover:bg-primary-container transition-colors bauhaus-shadow" type="button">
+<span class="font-headline font-bold uppercase text-sm">Google</span>
+</button>
+<button class="flex-1 flex justify-center items-center py-3 border-[3px] border-primary bg-surface hover:bg-primary-container transition-colors bauhaus-shadow" type="button">
+<span class="font-headline font-bold uppercase text-sm">GitHub</span>
+</button>
+</div>
+</form>
+<!-- Register Form (Hidden by default) -->
+<form class="flex flex-col gap-6 w-full max-w-sm mx-auto hidden" id="form-register">
+<div class="text-center mb-6">
+<h2 class="font-headline font-bold text-3xl mb-2">NEW INSTANCE</h2>
+<p class="text-on-surface-variant text-sm">Initialize your professional profile.</p>
+</div>
+<div class="flex gap-4">
+<div class="flex flex-col gap-1 flex-1">
+<label class="font-headline font-bold text-sm uppercase tracking-wide" for="reg-first">First</label>
+<input class="bg-surface border-0 border-b-[3px] border-primary px-0 py-3 text-lg focus:ring-0 focus:border-secondary focus:bg-surface-bright transition-colors" id="reg-first" placeholder="Jane" type="text"/>
+</div>
+<div class="flex flex-col gap-1 flex-1">
+<label class="font-headline font-bold text-sm uppercase tracking-wide" for="reg-last">Last</label>
+<input class="bg-surface border-0 border-b-[3px] border-primary px-0 py-3 text-lg focus:ring-0 focus:border-secondary focus:bg-surface-bright transition-colors" id="reg-last" placeholder="Doe" type="text"/>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-headline font-bold text-sm uppercase tracking-wide" for="reg-email">Email Address</label>
+<input class="bg-surface border-0 border-b-[3px] border-primary px-0 py-3 text-lg focus:ring-0 focus:border-secondary focus:bg-surface-bright transition-colors" id="reg-email" placeholder="jane.doe@domain.com" type="email"/>
+</div>
+<div class="flex flex-col gap-1 mt-2">
+<label class="font-headline font-bold text-sm uppercase tracking-wide" for="reg-password">Create Password</label>
+<input class="bg-surface border-0 border-b-[3px] border-primary px-0 py-3 text-lg focus:ring-0 focus:border-secondary focus:bg-surface-bright transition-colors" id="reg-password" placeholder="Minimum 12 chars" type="password"/>
+</div>
+<button class="mt-8 w-full bg-tertiary text-on-tertiary font-headline font-bold text-xl uppercase py-4 border-[3px] border-primary bauhaus-shadow hover:bg-primary hover:text-on-primary hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all duration-200" type="button">
+                        Initialize
+                    </button>
+</form>
+</div>
+<!-- Footer -->
+<div class="border-t-[3px] border-primary p-4 text-center">
+<p class="font-headline text-xs uppercase tracking-widest text-on-surface-variant">© 2024 CareerForge Systems</p>
+</div>
+</div>
+</main>
+<script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const tabLogin = document.getElementById('tab-login');
+            const tabRegister = document.getElementById('tab-register');
+            const formLogin = document.getElementById('form-login');
+            const formRegister = document.getElementById('form-register');
+
+            tabLogin.addEventListener('click', () => {
+                // Style Active Tab
+                tabLogin.classList.add('bg-primary-container');
+                tabLogin.classList.remove('bg-surface');
+                
+                // Style Inactive Tab
+                tabRegister.classList.remove('bg-primary-container');
+                tabRegister.classList.add('bg-surface');
+                
+                // Toggle Forms
+                formLogin.classList.remove('hidden');
+                formRegister.classList.add('hidden');
+            });
+
+            tabRegister.addEventListener('click', () => {
+                // Style Active Tab
+                tabRegister.classList.add('bg-primary-container');
+                tabRegister.classList.remove('bg-surface');
+                
+                // Style Inactive Tab
+                tabLogin.classList.remove('bg-primary-container');
+                tabLogin.classList.add('bg-surface');
+                
+                // Toggle Forms
+                formRegister.classList.remove('hidden');
+                formLogin.classList.add('hidden');
+            });
+        });
+    </script>
+</body></html>

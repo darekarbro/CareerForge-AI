@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CareerForge AI - Interview Prep</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700;900&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                            "on-tertiary": "#ffffff",
+                            "surface-container-low": "#f2ede5",
+                            "on-surface-variant": "#4a4a4a",
+                            "on-error": "#ffffff",
+                            "secondary-fixed": "#ffdad6",
+                            "error-container": "#ffdad6",
+                            "surface": "#f5f0e8",
+                            "surface-variant": "#e8e3da",
+                            "tertiary": "#0055ff",
+                            "on-tertiary-container": "#1a1a1a",
+                            "on-tertiary-fixed": "#1a1a1a",
+                            "on-secondary": "#1a1a1a",
+                            "on-error-container": "#93000a",
+                            "on-secondary-fixed-variant": "#1a1a1a",
+                            "primary-container": "#ffcc00",
+                            "on-primary": "#ffffff",
+                            "background": "#f5f0e8",
+                            "secondary-fixed-dim": "#ffb3ab",
+                            "inverse-surface": "#1a1a1a",
+                            "surface-container": "#eee9e0",
+                            "on-secondary-fixed": "#1a1a1a",
+                            "tertiary-fixed-dim": "#a8c6ff",
+                            "surface-bright": "#faf7f2",
+                            "tertiary-container": "#d6e3ff",
+                            "surface-container-high": "#e8e3da",
+                            "on-surface": "#1a1a1a",
+                            "on-background": "#1a1a1a",
+                            "on-primary-fixed-variant": "#1a1a1a",
+                            "secondary-container": "#ffdad6",
+                            "surface-container-lowest": "#ffffff",
+                            "inverse-primary": "#f5f0e8",
+                            "inverse-on-surface": "#f5f0e8",
+                            "primary-fixed-dim": "#e6b800",
+                            "outline-variant": "#d0cbc3",
+                            "error": "#cc0000",
+                            "tertiary-fixed": "#d6e3ff",
+                            "on-tertiary-fixed-variant": "#1a1a1a",
+                            "primary-fixed": "#ffcc00",
+                            "on-secondary-container": "#1a1a1a",
+                            "on-primary-container": "#1a1a1a",
+                            "primary": "#1a1a1a",
+                            "surface-dim": "#d6d1c9",
+                            "surface-tint": "#1a1a1a",
+                            "outline": "#1a1a1a",
+                            "surface-container-highest": "#e2ddd4",
+                            "secondary": "#e63b2e",
+                            "on-primary-fixed": "#1a1a1a"
+                    },
+                    "borderRadius": {
+                            "DEFAULT": "0px",
+                            "lg": "0px",
+                            "xl": "0px",
+                            "full": "0px"
+                    },
+                    "spacing": {},
+                    "fontFamily": {
+                            "headline": ["Space Grotesk", "sans-serif"],
+                            "display": ["Space Grotesk", "sans-serif"],
+                            "body": ["Inter", "sans-serif"],
+                            "label": ["Space Grotesk", "sans-serif"]
+                    },
+                    "fontSize": {}
+                },
+            },
+        }
+    </script>
+<style>
+        /* Bauhaus / Brutalist specific styles */
+        .bauhaus-border { border: 3px solid #1a1a1a; }
+        .bauhaus-shadow { box-shadow: 6px 6px 0px 0px #1a1a1a; }
+        .bauhaus-shadow-sm { box-shadow: 4px 4px 0px 0px #1a1a1a; }
+        .bauhaus-hover:hover { 
+            transform: translate(-2px, -2px);
+            box-shadow: 8px 8px 0px 0px #1a1a1a;
+        }
+        .bauhaus-active:active {
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0px 0px #1a1a1a;
+        }
+        .bauhaus-input {
+            border: none;
+            border-bottom: 3px solid #1a1a1a;
+            background: transparent;
+        }
+        .bauhaus-input:focus {
+            outline: none;
+            border-bottom-color: #0055ff;
+        }
+        
+        /* Pattern Background */
+        .bg-pattern {
+            background-image: radial-gradient(#1a1a1a 1px, transparent 1px);
+            background-size: 20px 20px;
+            background-position: -19px -19px;
+            opacity: 0.05;
+        }
+    </style>
+</head>
+<body class="bg-background text-primary font-body antialiased min-h-screen selection:bg-primary-container selection:text-primary">
+<!-- Pattern Overlay -->
+<div class="fixed inset-0 pointer-events-none bg-pattern z-0"></div>
+<!-- SideNavBar -->
+<nav class="fixed left-0 top-0 h-full flex flex-col p-4 bg-background dark:bg-primary h-screen w-64 border-r-2 border-primary dark:border-primary-fixed z-20">
+<!-- Brand -->
+<div class="mb-10 px-4">
+<h1 class="font-headline text-2xl font-black uppercase tracking-widest text-primary dark:text-primary-fixed">CareerForge</h1>
+<p class="font-headline uppercase tracking-tighter text-sm mt-1">Technical Platform</p>
+</div>
+<!-- Navigation Links -->
+<ul class="flex-1 space-y-2">
+<li>
+<a class="flex items-center gap-4 px-4 py-3 text-primary dark:text-on-primary-fixed hover:bg-surface-variant font-headline uppercase tracking-tighter" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span>Dashboard</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-4 px-4 py-3 text-primary dark:text-on-primary-fixed hover:bg-surface-variant font-headline uppercase tracking-tighter" href="#">
+<span class="material-symbols-outlined">description</span>
+<span>Resumes</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-4 px-4 py-3 bg-primary-container text-primary border-2 border-primary font-bold font-headline uppercase tracking-tighter" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">psychology</span>
+<span>Interview Prep</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-4 px-4 py-3 text-primary dark:text-on-primary-fixed hover:bg-surface-variant font-headline uppercase tracking-tighter" href="#">
+<span class="material-symbols-outlined">search</span>
+<span>Job Search</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-4 px-4 py-3 text-primary dark:text-on-primary-fixed hover:bg-surface-variant font-headline uppercase tracking-tighter" href="#">
+<span class="material-symbols-outlined">assignment_turned_in</span>
+<span>Applications</span>
+</a>
+</li>
+</ul>
+<!-- Bottom Actions -->
+<div class="mt-auto space-y-4">
+<a class="flex items-center gap-4 px-4 py-3 text-primary dark:text-on-primary-fixed hover:bg-surface-variant font-headline uppercase tracking-tighter" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span>Settings</span>
+</a>
+<button class="w-full py-3 bauhaus-border bg-primary text-on-primary font-headline uppercase tracking-tighter font-bold hover:bg-on-primary hover:text-primary transition-colors duration-100 active:translate-x-1 active:translate-y-1">
+                Upgrade Plan
+            </button>
+</div>
+</nav>
+<!-- TopAppBar -->
+<header class="flex justify-between items-center h-16 px-6 ml-64 w-[calc(100%-16rem)] bg-background dark:bg-primary w-full border-b-2 border-primary dark:border-primary-fixed fixed top-0 z-10">
+<div class="flex items-center gap-6">
+<span class="font-headline font-black text-xl uppercase">CareerForge AI</span>
+</div>
+<nav class="hidden md:flex items-center gap-6">
+<a class="text-primary dark:text-on-primary-fixed font-headline font-bold text-lg hover:text-secondary transition-colors" href="#">Network</a>
+<a class="text-primary dark:text-on-primary-fixed font-headline font-bold text-lg hover:text-secondary transition-colors" href="#">Resources</a>
+</nav>
+<div class="flex items-center gap-4">
+<!-- Search -->
+<div class="relative hidden lg:block">
+<input class="bauhaus-input py-1 px-2 w-48 font-headline text-sm uppercase placeholder:text-primary/50 focus:border-tertiary transition-colors" placeholder="SEARCH..." type="text"/>
+<span class="material-symbols-outlined absolute right-0 top-1 text-primary/50">search</span>
+</div>
+<button class="p-2 hover:text-secondary transition-colors active:scale-95">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 hover:text-secondary transition-colors active:scale-95">
+<img alt="User Status" class="w-8 h-8 bauhaus-border" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDcoqQyi2qJf-ReIp4ubGNl5WbIH-dZd5RTCrrm_2pmv2GqxJ4Bm93hHOzEBUD8FlHPj6tDY5MWkW2aPeVJii4UCDwmdc9NUQ5WwXhaJ-ilUzCPzjMctnjviEktp8yyeGHIoUsalpy7yLVKS967wIqLrOzbQOSaoWo9ebgfAfEX4dWpiUJpbIZNKoPa2B016Glq7gz9JT7n7Cet-TjF0b12mvs3PzjlZAybAUI0DskUAuJBj59yftC1"/>
+</button>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-64 mt-16 p-8 lg:p-12 min-h-[calc(100vh-4rem)] relative z-10 flex justify-center">
+<!-- Wizard Container -->
+<div class="w-full max-w-5xl">
+<!-- Header -->
+<div class="mb-12 border-b-4 border-primary pb-6 relative">
+<h2 class="font-headline text-5xl md:text-6xl font-black uppercase tracking-tighter leading-none mb-4">
+                    Setup <span class="text-secondary">Interview</span>
+</h2>
+<p class="font-body text-lg max-w-2xl font-medium">Configure your AI simulation parameters. Precision leads to perfect practice.</p>
+<!-- Abstract Geometric Decoration -->
+<div class="absolute right-0 top-0 w-24 h-24 bg-primary-container bauhaus-border bauhaus-shadow hidden md:block"></div>
+<div class="absolute right-12 top-12 w-16 h-16 bg-tertiary rounded-full bauhaus-border bauhaus-shadow hidden md:block mix-blend-multiply"></div>
+</div>
+<!-- Progress Tracker (Bauhaus Style) -->
+<div class="mb-12">
+<div class="flex justify-between items-center relative">
+<!-- Connecting Line -->
+<div class="absolute left-0 top-1/2 w-full h-1 bg-primary -z-10 transform -translate-y-1/2"></div>
+<!-- Step 1: Active -->
+<div class="flex flex-col items-center gap-3">
+<div class="w-12 h-12 bg-primary-container bauhaus-border flex items-center justify-center font-headline font-bold text-xl">1</div>
+<span class="font-headline uppercase text-sm font-bold bg-background px-2">Role &amp; Type</span>
+</div>
+<!-- Step 2: Pending -->
+<div class="flex flex-col items-center gap-3">
+<div class="w-12 h-12 bg-background bauhaus-border flex items-center justify-center font-headline font-bold text-xl text-primary/50">2</div>
+<span class="font-headline uppercase text-sm font-bold bg-background px-2 text-primary/50">Context</span>
+</div>
+<!-- Step 3: Pending -->
+<div class="flex flex-col items-center gap-3">
+<div class="w-12 h-12 bg-background bauhaus-border flex items-center justify-center font-headline font-bold text-xl text-primary/50">3</div>
+<span class="font-headline uppercase text-sm font-bold bg-background px-2 text-primary/50">Review</span>
+</div>
+</div>
+</div>
+<!-- Step 1 Content: Role Selection -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+<!-- Main Form Area -->
+<div class="lg:col-span-8 space-y-10">
+<!-- Role Title -->
+<section>
+<h3 class="font-headline text-2xl font-bold uppercase mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary">target</span>
+                            Target Role
+                        </h3>
+<input class="w-full text-xl p-4 bg-white bauhaus-border bauhaus-shadow-sm font-headline focus:outline-none focus:ring-0 focus:border-tertiary transition-colors" placeholder="e.g. Senior Frontend Engineer" type="text"/>
+</section>
+<!-- Interview Type Chips -->
+<section>
+<h3 class="font-headline text-2xl font-bold uppercase mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-tertiary">record_voice_over</span>
+                            Simulation Mode
+                        </h3>
+<div class="flex flex-wrap gap-4">
+<label class="cursor-pointer group">
+<input checked="" class="peer sr-only" name="sim_mode" type="radio"/>
+<div class="px-6 py-4 bg-white bauhaus-border peer-checked:bg-primary-container peer-checked:bauhaus-shadow peer-checked:-translate-y-1 transition-all duration-200">
+<span class="font-headline font-bold uppercase">Technical</span>
+</div>
+</label>
+<label class="cursor-pointer group">
+<input class="peer sr-only" name="sim_mode" type="radio"/>
+<div class="px-6 py-4 bg-white bauhaus-border peer-checked:bg-primary-container peer-checked:bauhaus-shadow peer-checked:-translate-y-1 transition-all duration-200">
+<span class="font-headline font-bold uppercase">Behavioral</span>
+</div>
+</label>
+<label class="cursor-pointer group">
+<input class="peer sr-only" name="sim_mode" type="radio"/>
+<div class="px-6 py-4 bg-white bauhaus-border peer-checked:bg-primary-container peer-checked:bauhaus-shadow peer-checked:-translate-y-1 transition-all duration-200">
+<span class="font-headline font-bold uppercase">System Design</span>
+</div>
+</label>
+</div>
+</section>
+</div>
+<!-- Sidebar Info / JD Input -->
+<div class="lg:col-span-4">
+<div class="bg-primary text-on-primary p-6 bauhaus-border bauhaus-shadow h-full flex flex-col">
+<h3 class="font-headline text-xl font-bold uppercase mb-4 text-primary-container">Quick Context</h3>
+<p class="font-body text-sm mb-6 opacity-90">Paste the job description here. The AI will analyze the requirements and tailor the interview questions specifically to the company's expectations.</p>
+<div class="flex-1 min-h-[200px] relative">
+<textarea class="w-full h-full bg-transparent border-2 border-on-primary/30 p-4 font-body text-sm resize-none focus:outline-none focus:border-primary-container placeholder:text-on-primary/50" placeholder="PASTE JD HERE..."></textarea>
+<div class="absolute bottom-4 right-4 text-on-primary/50 text-xs font-headline">0 / 2000</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Action Bar -->
+<div class="mt-12 flex justify-end border-t-4 border-primary pt-6">
+<button class="px-8 py-4 bg-secondary text-white font-headline font-black text-xl uppercase tracking-wider bauhaus-border bauhaus-hover bauhaus-active transition-all flex items-center gap-2">
+                    Next Step
+                    <span class="material-symbols-outlined font-bold">arrow_forward</span>
+</button>
+</div>
+</div>
+</main>
+</body></html>

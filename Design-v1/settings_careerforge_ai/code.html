@@ -1,0 +1,275 @@
+<!DOCTYPE html><html class="dark" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Settings - CareerForge AI</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&amp;family=Space+Grotesk:wght@600;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary-fixed-dim": "#3cddc7",
+                        "surface-dim": "#1d100c",
+                        "on-background": "#f7ddd5",
+                        "on-tertiary-fixed": "#001f28",
+                        "tertiary": "#59d5fb",
+                        "text-secondary": "#9AA0AB",
+                        "inverse-surface": "#f7ddd5",
+                        "bg-surface-raised": "#1D2127",
+                        "on-primary-fixed-variant": "#832600",
+                        "on-tertiary-fixed-variant": "#004e60",
+                        "success": "#3DD68C",
+                        "secondary-container": "#03c6b2",
+                        "surface-container-lowest": "#170b08",
+                        "primary-container": "#ff6b35",
+                        "surface-bright": "#463630",
+                        "accent-ember": "#FF6B35",
+                        "primary": "#ffb59d",
+                        "on-tertiary": "#003543",
+                        "bg-surface-hover": "#22262D",
+                        "on-error": "#690005",
+                        "on-secondary": "#003731",
+                        "on-secondary-fixed": "#00201c",
+                        "error-container": "#93000a",
+                        "bg-surface": "#15181D",
+                        "background": "#1d100c",
+                        "on-primary-fixed": "#390c00",
+                        "surface": "#1d100c",
+                        "tertiary-fixed": "#b5ebff",
+                        "surface-container": "#2a1c18",
+                        "surface-container-highest": "#41312c",
+                        "secondary-fixed": "#62fae3",
+                        "accent-steel-muted": "#0F2E2B",
+                        "on-tertiary-container": "#003744",
+                        "outline": "#a98a80",
+                        "primary-fixed-dim": "#ffb59d",
+                        "secondary": "#44e2cd",
+                        "tertiary-container": "#00a7cb",
+                        "outline-variant": "#594139",
+                        "surface-container-high": "#352722",
+                        "surface-variant": "#41312c",
+                        "on-primary": "#5d1900",
+                        "accent-steel": "#2DD4BF",
+                        "error": "#F2545B",
+                        "inverse-on-surface": "#3c2d28",
+                        "inverse-primary": "#ab3500",
+                        "border-strong": "#383D45",
+                        "surface-tint": "#ffb59d",
+                        "on-surface": "#f7ddd5",
+                        "bg-base": "#0B0D10",
+                        "text-muted": "#5B6070",
+                        "on-error-container": "#ffdad6",
+                        "surface-container-low": "#261814",
+                        "tertiary-fixed-dim": "#59d5fb",
+                        "primary-fixed": "#ffdbd0",
+                        "warning": "#F5B84F",
+                        "on-surface-variant": "#e1bfb5",
+                        "on-secondary-fixed-variant": "#005047",
+                        "on-secondary-container": "#004d44",
+                        "accent-ember-muted": "#3D2318",
+                        "on-primary-container": "#5f1900",
+                        "text-primary": "#EDEEF1",
+                        "border-subtle": "#262A31",
+                        "accent-ember-hover": "#FF8555"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "unit": "4px",
+                        "gutter": "16px",
+                        "lg": "24px",
+                        "md": "16px",
+                        "xl": "32px",
+                        "margin-desktop": "32px",
+                        "2xl": "48px",
+                        "sm": "8px",
+                        "xs": "4px",
+                        "margin-mobile": "16px",
+                        "3xl": "64px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Inter"],
+                        "headline-md": ["Space Grotesk"],
+                        "display-hero": ["Space Grotesk"],
+                        "headline-lg": ["Space Grotesk"],
+                        "mono-readout": ["JetBrains Mono"],
+                        "label-caps": ["Inter"],
+                        "headline-sm": ["Space Grotesk"],
+                        "body-sm": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-md": ["15px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "display-hero": ["48px", { "lineHeight": "56px", "fontWeight": "700" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "600" }],
+                        "mono-readout": ["14px", { "lineHeight": "20px", "fontWeight": "500" }],
+                        "label-caps": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500" }],
+                        "headline-sm": ["18px", { "lineHeight": "26px", "fontWeight": "600" }],
+                        "body-sm": ["13px", { "lineHeight": "20px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: #0B0D10; /* bg-base */
+            color: #EDEEF1; /* text-primary */
+        }
+    </style>
+</head>
+<body class="bg-base text-primary min-h-screen font-body-md selection:bg-accent-ember/30">
+<!-- TopAppBar -->
+<header class="bg-surface border-b border-border-subtle docked full-width top-0 h-16 flex justify-between items-center ml-[240px] px-margin-desktop w-[calc(100%-240px)] hidden md:flex sticky z-40">
+<div class="flex items-center gap-gutter">
+<span class="font-headline-md text-headline-md font-bold text-accent-ember">CareerForge AI</span>
+</div>
+<div class="flex items-center gap-lg">
+<button class="text-text-secondary hover:text-accent-ember transition-colors">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="text-text-secondary hover:text-accent-ember transition-colors">
+<span class="material-symbols-outlined" data-icon="sensors">sensors</span>
+</button>
+<div class="w-8 h-8 rounded-full overflow-hidden border border-border-subtle shrink-0 cursor-pointer">
+<img alt="User Profile" class="w-full h-full object-cover" data-alt="A futuristic avatar of a high-tech professional in a dark, ember-lit minimalist setting. High contrast, sharp focus, cinematic lighting. Dark mode technical UI aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBruTXS31TlcNa7wg29AMWUreri6gFC4txMwLr1m6KbYLBag4MRUCXlNsNU3BBnY-OriRWKBgAOr21mkaL9Qk290AlLp8kfKnbI4VD9ECpjs2A-CEZvq6k5dkmkP30ZxN7vkAJyBdBZNwx0sd_j24AxFJCzOfJ6l6a9x6fmCgHZMfIRYJbO_dpHsvhDwSv6zHKQWXkO3QxBBvmMBVycZCOSy0sOd1GTrw6jiz-PFYZZanG_c48eSgYy">
+</div>
+</div>
+</header>
+<!-- SideNavBar -->
+<nav class="bg-background w-[240px] h-screen fixed left-0 top-0 border-r border-border-subtle hidden md:flex flex-col gap-4 p-lg z-50">
+<div class="mb-lg">
+<span class="font-headline-md text-headline-md font-bold text-accent-ember block">CareerForge AI</span>
+<span class="font-mono-readout text-mono-readout text-text-secondary mt-xs block">Technical Console</span>
+</div>
+<button class="w-full bg-accent-ember text-base font-label-caps py-sm px-gutter rounded flex items-center justify-center gap-sm hover:bg-accent-ember-hover transition-colors duration-160 mb-lg active:scale-95 text-[#1d100c]">
+<span class="material-symbols-outlined text-sm" data-icon="add">add</span> New Analysis
+        </button>
+<div class="flex flex-col gap-xs flex-1">
+<a class="flex items-center gap-md py-sm px-md rounded font-headline-sm text-headline-sm text-text-secondary hover:text-text-primary hover:bg-bg-surface-hover transition-colors duration-160 active:scale-95" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span> Dashboard
+            </a>
+<a class="flex items-center gap-md py-sm px-md rounded font-headline-sm text-headline-sm text-text-secondary hover:text-text-primary hover:bg-bg-surface-hover transition-colors duration-160 active:scale-95" href="#">
+<span class="material-symbols-outlined" data-icon="description">description</span> Resumes
+            </a>
+<a class="flex items-center gap-md py-sm px-md rounded font-headline-sm text-headline-sm text-text-secondary hover:text-text-primary hover:bg-bg-surface-hover transition-colors duration-160 active:scale-95" href="#">
+<span class="material-symbols-outlined" data-icon="settings_voice">settings_voice</span> Interview Prep
+            </a>
+<a class="flex items-center gap-md py-sm px-md rounded font-headline-sm text-headline-sm text-text-secondary hover:text-text-primary hover:bg-bg-surface-hover transition-colors duration-160 active:scale-95" href="#">
+<span class="material-symbols-outlined" data-icon="search">search</span> Job Search
+            </a>
+<a class="flex items-center gap-md py-sm px-md rounded font-headline-sm text-headline-sm text-text-secondary hover:text-text-primary hover:bg-bg-surface-hover transition-colors duration-160 active:scale-95" href="#">
+<span class="material-symbols-outlined" data-icon="assignment">assignment</span> Applications
+            </a>
+<a class="flex items-center gap-md py-sm px-md rounded font-headline-sm text-headline-sm text-accent-ember font-bold border-r-2 border-accent-ember bg-accent-ember-muted/10 hover:bg-bg-surface-hover transition-colors duration-160 active:scale-95" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span> Settings
+            </a>
+</div>
+</nav>
+<!-- Main Content -->
+<main class="md:ml-[240px] p-margin-mobile md:p-margin-desktop w-full max-w-[720px] mx-auto pb-24 md:pb-margin-desktop">
+<header class="mb-xl">
+<h1 class="font-headline-lg text-headline-lg text-text-primary mb-sm">Settings</h1>
+<p class="font-body-md text-body-md text-text-secondary">Manage your profile, system health, and preferences.</p>
+</header>
+<div class="flex flex-col gap-lg">
+<!-- Profile Card -->
+<section class="bg-surface border border-border-subtle p-lg rounded-lg shadow-sm">
+<h2 class="font-headline-sm text-headline-sm text-text-primary mb-md border-b border-border-subtle pb-sm">Profile Details</h2>
+<div class="flex flex-col sm:flex-row gap-lg items-start sm:items-center mb-lg">
+<div class="relative w-24 h-24 rounded-full overflow-hidden border-2 border-border-subtle group cursor-pointer bg-surface-raised">
+<img alt="Avatar" class="w-full h-full object-cover" data-alt="A highly detailed close-up of a futuristic user avatar in a dark tech environment. Neon ember highlights on a sleek matte black surface. Crisp focus, high contrast, brutalist aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBWbsHMUP3hldx8E5k_07NUFjwUDL8Cw_-NdGArxCVK__tDbbGvPD7rLXg_DhrlJd2X412e0JrgLNb7tDKkoSgoZ4MW_TKGB-JfJ5kvsqMNI1hnxKlpjcRk6iByoX_EeyGpyW58GO_MbzwDTYNP7KTA2LjGcdAGc6BDirPzgkdPc1U44G8V3nZkRwLxNdtvfrVdsERQyAM_y458yOxaI5tuNGTg34PDukBTzcUxdlDGCrXwtFsdNZzF">
+<div class="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-text-primary" data-icon="upload">upload</span>
+</div>
+</div>
+<div class="flex-1 w-full">
+<label class="block font-label-caps text-label-caps text-text-secondary mb-xs">DISPLAY NAME</label>
+<input class="w-full bg-surface-raised border border-border-subtle rounded px-md py-sm font-body-md text-body-md text-text-primary focus:outline-none focus:border-accent-steel focus:ring-1 focus:ring-accent-steel transition-colors mb-md" type="text" value="Alex Denton">
+<label class="block font-label-caps text-label-caps text-text-secondary mb-xs">EMAIL ADDRESS</label>
+<input class="w-full bg-surface-raised border border-border-subtle rounded px-md py-sm font-body-md text-body-md text-text-primary focus:outline-none focus:border-accent-steel focus:ring-1 focus:ring-accent-steel transition-colors" type="email" value="alex.denton@example.com">
+</div>
+</div>
+<div class="flex justify-end">
+<button class="bg-accent-ember text-[#1d100c] font-label-caps text-label-caps py-sm px-lg rounded hover:bg-accent-ember-hover transition-colors duration-160 active:scale-95">Save Changes</button>
+</div>
+</section>
+<!-- AI Provider Health Card -->
+<section class="bg-surface border border-border-subtle p-lg rounded-lg shadow-sm">
+<div class="flex justify-between items-center mb-md border-b border-border-subtle pb-sm">
+<h2 class="font-headline-sm text-headline-sm text-text-primary">AI Provider Health</h2>
+<span class="material-symbols-outlined text-text-secondary" data-icon="monitoring">monitoring</span>
+</div>
+<p class="font-body-sm text-body-sm text-text-secondary mb-lg">Live diagnostic status of connected LLM endpoints.</p>
+<div class="flex flex-col gap-sm">
+<div class="flex items-center justify-between bg-surface-raised border border-border-subtle p-md rounded">
+<div class="flex items-center gap-md">
+<div class="w-2 h-2 rounded-full bg-success"></div>
+<span class="font-mono-readout text-mono-readout text-text-primary">OpenRouter (Primary)</span>
+</div>
+<span class="font-mono-readout text-mono-readout text-success">Operational / 12ms</span>
+</div>
+<div class="flex items-center justify-between bg-surface-raised border border-border-subtle p-md rounded">
+<div class="flex items-center gap-md">
+<div class="w-2 h-2 rounded-full bg-success"></div>
+<span class="font-mono-readout text-mono-readout text-text-primary">Gemini (Secondary)</span>
+</div>
+<span class="font-mono-readout text-mono-readout text-success">Operational / 45ms</span>
+</div>
+<div class="flex items-center justify-between bg-surface-raised border border-border-subtle p-md rounded">
+<div class="flex items-center gap-md">
+<div class="w-2 h-2 rounded-full bg-warning"></div>
+<span class="font-mono-readout text-mono-readout text-text-primary">Local Fallback</span>
+</div>
+<span class="font-mono-readout text-mono-readout text-warning">Standby</span>
+</div>
+</div>
+</section>
+<!-- Appearance Card -->
+<section class="bg-surface border border-border-subtle p-lg rounded-lg shadow-sm">
+<h2 class="font-headline-sm text-headline-sm text-text-primary mb-md border-b border-border-subtle pb-sm">Appearance</h2>
+<div class="flex items-center justify-between">
+<div>
+<p class="font-body-md text-body-md text-text-primary">Interface Theme</p>
+<p class="font-body-sm text-body-sm text-text-secondary">Select your preferred viewing environment.</p>
+</div>
+<div class="flex bg-surface-raised border border-border-subtle rounded p-xs">
+<button class="px-md py-xs rounded text-text-secondary hover:text-text-primary transition-colors font-label-caps text-label-caps flex items-center gap-xs">
+<span class="material-symbols-outlined text-sm" data-icon="light_mode">light_mode</span> Light
+                        </button>
+<button class="px-md py-xs rounded bg-accent-ember-muted/20 text-accent-ember font-label-caps text-label-caps flex items-center gap-xs shadow-sm">
+<span class="material-symbols-outlined text-sm" data-icon="dark_mode">dark_mode</span> Dark
+                        </button>
+<button class="px-md py-xs rounded text-text-secondary hover:text-text-primary transition-colors font-label-caps text-label-caps flex items-center gap-xs">
+<span class="material-symbols-outlined text-sm" data-icon="settings_suggest">settings_suggest</span> System
+                        </button>
+</div>
+</div>
+</section>
+<!-- Danger Zone Card -->
+<section class="bg-surface border border-error/50 p-lg rounded-lg shadow-sm relative overflow-hidden">
+<div class="absolute inset-0 bg-error/5 z-0 pointer-events-none"></div>
+<div class="relative z-10">
+<h2 class="font-headline-sm text-headline-sm text-error mb-md border-b border-error/20 pb-sm">Danger Zone</h2>
+<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-md">
+<div>
+<p class="font-body-md text-body-md text-text-primary">Delete Account</p>
+<p class="font-body-sm text-body-sm text-text-secondary">Permanently remove your account and all associated data.</p>
+</div>
+<button class="bg-transparent border border-error text-error font-label-caps text-label-caps py-sm px-lg rounded hover:bg-error hover:text-[#1d100c] transition-colors duration-160 active:scale-95 whitespace-nowrap">
+                            Delete Account
+                        </button>
+</div>
+</div>
+</section>
+</div>
+</main>
+</body></html>

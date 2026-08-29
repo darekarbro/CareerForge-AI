@@ -1,0 +1,284 @@
+<!DOCTYPE html><html class="dark" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Job Search | CareerForge AI</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&amp;family=Space+Grotesk:wght@600;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-dim": "#1d100c",
+                        "on-primary-fixed": "#390c00",
+                        "primary-fixed": "#ffdbd0",
+                        "tertiary-fixed": "#b5ebff",
+                        "text-muted": "#5B6070",
+                        "surface-container-low": "#261814",
+                        "surface-container-high": "#352722",
+                        "surface-container-lowest": "#170b08",
+                        "on-surface": "#f7ddd5",
+                        "on-tertiary-container": "#003744",
+                        "surface-container-highest": "#41312c",
+                        "bg-surface-hover": "#22262D",
+                        "secondary-container": "#03c6b2",
+                        "on-tertiary-fixed": "#001f28",
+                        "inverse-on-surface": "#3c2d28",
+                        "on-error-container": "#ffdad6",
+                        "secondary-fixed-dim": "#3cddc7",
+                        "on-primary-fixed-variant": "#832600",
+                        "background": "#1d100c",
+                        "on-tertiary-fixed-variant": "#004e60",
+                        "tertiary-container": "#00a7cb",
+                        "on-error": "#690005",
+                        "success": "#3DD68C",
+                        "inverse-surface": "#f7ddd5",
+                        "on-secondary": "#003731",
+                        "accent-ember": "#FF6B35",
+                        "secondary": "#44e2cd",
+                        "on-background": "#f7ddd5",
+                        "surface-bright": "#463630",
+                        "bg-surface": "#15181D",
+                        "secondary-fixed": "#62fae3",
+                        "surface-tint": "#ffb59d",
+                        "text-primary": "#EDEEF1",
+                        "border-strong": "#383D45",
+                        "accent-steel": "#2DD4BF",
+                        "on-secondary-container": "#004d44",
+                        "accent-ember-hover": "#FF8555",
+                        "surface-variant": "#41312c",
+                        "accent-ember-muted": "#3D2318",
+                        "on-secondary-fixed-variant": "#005047",
+                        "tertiary": "#59d5fb",
+                        "on-secondary-fixed": "#00201c",
+                        "on-primary-container": "#5f1900",
+                        "on-tertiary": "#003543",
+                        "surface": "#1d100c",
+                        "outline-variant": "#594139",
+                        "tertiary-fixed-dim": "#59d5fb",
+                        "error": "#F2545B",
+                        "surface-container": "#2a1c18",
+                        "primary-container": "#ff6b35",
+                        "text-secondary": "#9AA0AB",
+                        "bg-base": "#0B0D10",
+                        "bg-surface-raised": "#1D2127",
+                        "outline": "#a98a80",
+                        "primary": "#ffb59d",
+                        "accent-steel-muted": "#0F2E2B",
+                        "on-surface-variant": "#e1bfb5",
+                        "on-primary": "#5d1900",
+                        "primary-fixed-dim": "#ffb59d",
+                        "border-subtle": "#262A31",
+                        "error-container": "#93000a",
+                        "warning": "#F5B84F",
+                        "inverse-primary": "#ab3500"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "2xl": "48px",
+                        "xl": "32px",
+                        "xs": "4px",
+                        "gutter": "16px",
+                        "margin-mobile": "16px",
+                        "margin-desktop": "32px",
+                        "md": "16px",
+                        "3xl": "64px",
+                        "lg": "24px",
+                        "unit": "4px",
+                        "sm": "8px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Inter"],
+                        "display-hero": ["Space Grotesk"],
+                        "label-caps": ["Inter"],
+                        "headline-md": ["Space Grotesk"],
+                        "headline-sm": ["Space Grotesk"],
+                        "headline-lg": ["Space Grotesk"],
+                        "mono-readout": ["JetBrains Mono"],
+                        "body-sm": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-md": ["15px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "display-hero": ["48px", { "lineHeight": "56px", "fontWeight": "700" }],
+                        "label-caps": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "headline-sm": ["18px", { "lineHeight": "26px", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "600" }],
+                        "mono-readout": ["14px", { "lineHeight": "20px", "fontWeight": "500" }],
+                        "body-sm": ["13px", { "lineHeight": "20px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { background-color: theme('colors.bg-base'); color: theme('colors.text-primary'); }
+        .tech-border { border: 1px solid theme('colors.border-subtle'); }
+        .tech-focus:focus-within { border-color: theme('colors.accent-steel'); outline: none; }
+        .btn-ember { background-color: theme('colors.accent-ember'); color: theme('colors.bg-base'); }
+        .btn-ember:hover { background-color: theme('colors.accent-ember-hover'); }
+        .card-hover:hover { border-color: theme('colors.accent-ember'); box-shadow: 0 0 0 1px theme('colors.accent-ember'); }
+    </style>
+</head>
+<body class="antialiased min-h-screen flex font-body-md">
+<!-- SideNavBar -->
+<aside class="w-[240px] h-screen fixed left-0 top-0 bg-background dark:bg-background border-r border-border-subtle z-20 flex flex-col gap-4 p-lg hidden md:flex">
+<div class="mb-4">
+<h1 class="font-headline-md text-headline-md font-bold text-accent-ember">CareerForge AI</h1>
+<p class="font-mono-readout text-mono-readout text-text-secondary mt-1">Technical Console</p>
+</div>
+<nav class="flex-1 flex flex-col gap-unit">
+<a class="flex items-center gap-3 p-3 rounded text-text-secondary hover:text-text-primary hover:bg-bg-surface-hover transition-colors duration-160 active:scale-95 transition-transform font-headline-sm text-headline-sm" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+                Dashboard
+            </a>
+<a class="flex items-center gap-3 p-3 rounded text-text-secondary hover:text-text-primary hover:bg-bg-surface-hover transition-colors duration-160 active:scale-95 transition-transform font-headline-sm text-headline-sm" href="#">
+<span class="material-symbols-outlined" data-icon="description">description</span>
+                Resumes
+            </a>
+<a class="flex items-center gap-3 p-3 rounded text-text-secondary hover:text-text-primary hover:bg-bg-surface-hover transition-colors duration-160 active:scale-95 transition-transform font-headline-sm text-headline-sm" href="#">
+<span class="material-symbols-outlined" data-icon="settings_voice">settings_voice</span>
+                Interview Prep
+            </a>
+<a class="flex items-center gap-3 p-3 rounded text-accent-ember font-bold border-r-2 border-accent-ember bg-accent-ember-muted/10 transition-colors duration-160 active:scale-95 transition-transform font-headline-sm text-headline-sm" href="#">
+<span class="material-symbols-outlined" data-icon="search" style="font-variation-settings: 'FILL' 1;">search</span>
+                Job Search
+            </a>
+<a class="flex items-center gap-3 p-3 rounded text-text-secondary hover:text-text-primary hover:bg-bg-surface-hover transition-colors duration-160 active:scale-95 transition-transform font-headline-sm text-headline-sm" href="#">
+<span class="material-symbols-outlined" data-icon="assignment">assignment</span>
+                Applications
+            </a>
+</nav>
+<div class="mt-auto">
+<button class="w-full btn-ember py-2 px-4 rounded font-headline-sm text-headline-sm font-bold active:scale-95 transition-transform">
+                New Analysis
+            </button>
+<a class="flex items-center gap-3 p-3 mt-2 rounded text-text-secondary hover:text-text-primary hover:bg-bg-surface-hover transition-colors duration-160 active:scale-95 transition-transform font-headline-sm text-headline-sm" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+                Settings
+            </a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col md:ml-[240px] w-full md:w-[calc(100%-240px)] min-h-screen">
+<!-- TopAppBar -->
+<header class="bg-surface dark:bg-surface docked full-width top-0 h-16 border-b border-border-subtle flex justify-between items-center px-margin-desktop sticky z-10">
+<div class="flex items-center gap-4">
+<!-- Search could go here -->
+</div>
+<div class="flex items-center gap-4">
+<button class="text-text-secondary hover:text-accent-ember transition-colors">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="text-text-secondary hover:text-accent-ember transition-colors">
+<span class="material-symbols-outlined" data-icon="sensors">sensors</span>
+</button>
+<div class="w-8 h-8 rounded-full bg-surface-raised tech-border overflow-hidden cursor-pointer hover:border-accent-ember transition-colors">
+<img class="w-full h-full object-cover" data-alt="A futuristic avatar rendering in a dark technical console environment, glowing orange ember accents, minimalist geometry, high contrast, professional profile image placeholder." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDXpKZ_dp9eUvRZFqJWrKr1Lb24Sap0a4toF3hk1DJMdPcU7N1BzYADL2uZo97KtQdWv3wMOBWA_QJCeJ6YW75zy43CIYp9M2YxcS1mxrji7xhi7N8yGtT2LTDmgTbj-1dgocrMDHpuYi5aN5fjOaGFeh86RwJfx292IniC0I3SZQ4xCxmH0LZiuHS4QJCUCIVqBSXuLvQ3L8au2VXZlGVW3YDW6S--Lz7zR13IeAG_2GstpRd21aj0">
+</div>
+</div>
+</header>
+<!-- Canvas -->
+<div class="p-margin-mobile md:p-margin-desktop flex-1 flex flex-col gap-lg max-w-[1400px] mx-auto w-full">
+<header class="mb-4">
+<h2 class="font-headline-lg text-headline-lg font-bold text-text-primary">Search Hub</h2>
+<p class="font-body-md text-body-md text-text-secondary mt-1">Select a role template to generate optimized search queries across platforms.</p>
+</header>
+<!-- Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-gutter">
+<!-- Card 1 -->
+<article class="bg-surface rounded-lg p-lg tech-border card-hover transition-all duration-160 flex flex-col gap-4">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="font-headline-sm text-headline-sm text-text-primary">Software Development Engineer</h3>
+<span class="inline-block mt-2 px-2 py-1 bg-accent-steel-muted text-accent-steel rounded font-label-caps text-label-caps">SDE I / SDE II</span>
+</div>
+<span class="material-symbols-outlined text-text-secondary">code</span>
+</div>
+<div class="bg-base p-3 rounded tech-border mt-2">
+<p class="font-mono-readout text-mono-readout text-text-secondary text-sm break-all">
+                            "Software Engineer" OR "SDE" AND ("Java" OR "Python" OR "C++") AND "Distributed Systems"
+                        </p>
+</div>
+<div class="grid grid-cols-2 gap-2 mt-auto pt-4 border-t border-border-subtle">
+<button class="flex items-center justify-center gap-2 py-2 rounded tech-border hover:border-accent-ember hover:text-accent-ember transition-colors font-body-sm text-body-sm">
+                            LinkedIn
+                            <span class="material-symbols-outlined text-sm">open_in_new</span>
+</button>
+<button class="flex items-center justify-center gap-2 py-2 rounded tech-border hover:border-accent-ember hover:text-accent-ember transition-colors font-body-sm text-body-sm">
+                            Internshala
+                            <span class="material-symbols-outlined text-sm">open_in_new</span>
+</button>
+<button class="flex items-center justify-center gap-2 py-2 rounded tech-border hover:border-accent-ember hover:text-accent-ember transition-colors font-body-sm text-body-sm">
+                            Naukri
+                            <span class="material-symbols-outlined text-sm">open_in_new</span>
+</button>
+<button class="flex items-center justify-center gap-2 py-2 rounded tech-border hover:border-accent-ember hover:text-accent-ember transition-colors font-body-sm text-body-sm">
+                            Indeed
+                            <span class="material-symbols-outlined text-sm">open_in_new</span>
+</button>
+</div>
+</article>
+<!-- Card 2 -->
+<article class="bg-surface rounded-lg p-lg tech-border card-hover transition-all duration-160 flex flex-col gap-4">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="font-headline-sm text-headline-sm text-text-primary">Fullstack Developer</h3>
+<span class="inline-block mt-2 px-2 py-1 bg-accent-ember-muted text-accent-ember rounded font-label-caps text-label-caps">Web / App</span>
+</div>
+<span class="material-symbols-outlined text-text-secondary">layers</span>
+</div>
+<div class="bg-base p-3 rounded tech-border mt-2">
+<p class="font-mono-readout text-mono-readout text-text-secondary text-sm break-all">
+                            "Full Stack" AND ("React" OR "Angular") AND ("Node.js" OR "Django") AND "REST API"
+                        </p>
+</div>
+<div class="grid grid-cols-2 gap-2 mt-auto pt-4 border-t border-border-subtle">
+<button class="flex items-center justify-center gap-2 py-2 rounded tech-border hover:border-accent-ember hover:text-accent-ember transition-colors font-body-sm text-body-sm">
+                            LinkedIn
+                            <span class="material-symbols-outlined text-sm">open_in_new</span>
+</button>
+<button class="flex items-center justify-center gap-2 py-2 rounded tech-border hover:border-accent-ember hover:text-accent-ember transition-colors font-body-sm text-body-sm">
+                            Internshala
+                            <span class="material-symbols-outlined text-sm">open_in_new</span>
+</button>
+<button class="flex items-center justify-center gap-2 py-2 rounded tech-border hover:border-accent-ember hover:text-accent-ember transition-colors font-body-sm text-body-sm">
+                            Naukri
+                            <span class="material-symbols-outlined text-sm">open_in_new</span>
+</button>
+<button class="flex items-center justify-center gap-2 py-2 rounded tech-border hover:border-accent-ember hover:text-accent-ember transition-colors font-body-sm text-body-sm">
+                            Indeed
+                            <span class="material-symbols-outlined text-sm">open_in_new</span>
+</button>
+</div>
+</article>
+<!-- Custom Input Card -->
+<article class="bg-surface-raised rounded-lg p-lg tech-border tech-focus transition-all duration-160 flex flex-col gap-4 relative overflow-hidden">
+<div class="absolute inset-0 opacity-10 pointer-events-none" style="background-image: radial-gradient(theme('colors.accent-steel') 1px, transparent 1px); background-size: 16px 16px;"></div>
+<div class="flex justify-between items-start z-10">
+<div>
+<h3 class="font-headline-sm text-headline-sm text-text-primary">Custom Role</h3>
+<p class="font-body-sm text-body-sm text-text-secondary mt-1">Generate specific query strings.</p>
+</div>
+<span class="material-symbols-outlined text-accent-steel">build</span>
+</div>
+<div class="mt-2 z-10">
+<label class="sr-only" for="custom-role">Role Title</label>
+<input class="w-full bg-base tech-border rounded p-3 font-body-md text-text-primary focus:border-accent-steel focus:ring-1 focus:ring-accent-steel transition-colors outline-none placeholder-text-muted" id="custom-role" placeholder="e.g. Data Scientist, UX Designer" type="text">
+</div>
+<button class="w-full mt-auto py-3 rounded border border-accent-steel text-accent-steel hover:bg-accent-steel/10 transition-colors font-headline-sm text-headline-sm z-10">
+                        Generate Query
+                    </button>
+</article>
+</div>
+</div>
+</main>
+</body></html>

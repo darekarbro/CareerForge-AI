@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CareerForge AI - Application Tracker</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700;900&amp;family=Inter:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-tertiary": "#ffffff",
+                        "surface-container-low": "#f2ede5",
+                        "on-surface-variant": "#4a4a4a",
+                        "on-error": "#ffffff",
+                        "secondary-fixed": "#ffdad6",
+                        "error-container": "#ffdad6",
+                        "surface": "#f5f0e8",
+                        "surface-variant": "#e8e3da",
+                        "tertiary": "#0055ff",
+                        "on-tertiary-container": "#1a1a1a",
+                        "on-tertiary-fixed": "#1a1a1a",
+                        "on-secondary": "#1a1a1a",
+                        "on-error-container": "#93000a",
+                        "on-secondary-fixed-variant": "#1a1a1a",
+                        "primary-container": "#ffcc00",
+                        "on-primary": "#ffffff",
+                        "background": "#f5f0e8",
+                        "secondary-fixed-dim": "#ffb3ab",
+                        "inverse-surface": "#1a1a1a",
+                        "surface-container": "#eee9e0",
+                        "on-secondary-fixed": "#1a1a1a",
+                        "tertiary-fixed-dim": "#a8c6ff",
+                        "surface-bright": "#faf7f2",
+                        "tertiary-container": "#d6e3ff",
+                        "surface-container-high": "#e8e3da",
+                        "on-surface": "#1a1a1a",
+                        "on-background": "#1a1a1a",
+                        "on-primary-fixed-variant": "#1a1a1a",
+                        "secondary-container": "#ffdad6",
+                        "surface-container-lowest": "#ffffff",
+                        "inverse-primary": "#f5f0e8",
+                        "inverse-on-surface": "#f5f0e8",
+                        "primary-fixed-dim": "#e6b800",
+                        "outline-variant": "#d0cbc3",
+                        "error": "#cc0000",
+                        "tertiary-fixed": "#d6e3ff",
+                        "on-tertiary-fixed-variant": "#1a1a1a",
+                        "primary-fixed": "#ffcc00",
+                        "on-secondary-container": "#1a1a1a",
+                        "on-primary-container": "#1a1a1a",
+                        "primary": "#1a1a1a",
+                        "surface-dim": "#d6d1c9",
+                        "surface-tint": "#1a1a1a",
+                        "outline": "#1a1a1a",
+                        "surface-container-highest": "#e2ddd4",
+                        "secondary": "#e63b2e",
+                        "on-primary-fixed": "#1a1a1a"
+                    },
+                    borderRadius: {
+                        DEFAULT: "0.125rem",
+                        lg: "0.25rem",
+                        xl: "0.5rem",
+                        full: "0.75rem"
+                    },
+                    fontFamily: {
+                        headline: ["Space Grotesk", "sans-serif"],
+                        display: ["Space Grotesk", "sans-serif"],
+                        body: ["Inter", "sans-serif"],
+                        label: ["Space Grotesk", "sans-serif"]
+                    },
+                    boxShadow: {
+                        'brutal': '4px 4px 0px 0px #1a1a1a',
+                        'brutal-hover': '2px 2px 0px 0px #1a1a1a',
+                        'brutal-lg': '8px 8px 0px 0px #1a1a1a',
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: theme('colors.background');
+            color: theme('colors.primary');
+        }
+        /* Custom scrollbar for kanban columns */
+        .kanban-col::-webkit-scrollbar {
+            width: 8px;
+        }
+        .kanban-col::-webkit-scrollbar-track {
+            background: theme('colors.surface-variant');
+            border-left: 2px solid theme('colors.primary');
+        }
+        .kanban-col::-webkit-scrollbar-thumb {
+            background: theme('colors.primary');
+        }
+    </style>
+</head>
+<body class="font-body overflow-x-hidden">
+<!-- SideNavBar -->
+<nav class="fixed left-0 top-0 h-full flex flex-col p-4 bg-background dark:bg-primary h-screen w-64 border-r-2 border-primary dark:border-primary-fixed z-50">
+<div class="mb-8">
+<h1 class="font-headline text-2xl font-black uppercase tracking-widest text-primary dark:text-primary-fixed">CareerForge</h1>
+<p class="font-headline uppercase tracking-tighter text-sm mt-1">Technical Platform</p>
+</div>
+<ul class="flex-1 space-y-2">
+<li>
+<a class="flex items-center p-3 text-primary dark:text-on-primary-fixed hover:bg-surface-variant font-headline uppercase tracking-tighter hover:bg-primary hover:text-on-primary transition-colors duration-100 active:translate-x-1 active:translate-y-1" href="#">
+<span class="material-symbols-outlined mr-3">dashboard</span>
+                    Dashboard
+                </a>
+</li>
+<li>
+<a class="flex items-center p-3 text-primary dark:text-on-primary-fixed hover:bg-surface-variant font-headline uppercase tracking-tighter hover:bg-primary hover:text-on-primary transition-colors duration-100 active:translate-x-1 active:translate-y-1" href="#">
+<span class="material-symbols-outlined mr-3">description</span>
+                    Resumes
+                </a>
+</li>
+<li>
+<a class="flex items-center p-3 text-primary dark:text-on-primary-fixed hover:bg-surface-variant font-headline uppercase tracking-tighter hover:bg-primary hover:text-on-primary transition-colors duration-100 active:translate-x-1 active:translate-y-1" href="#">
+<span class="material-symbols-outlined mr-3">psychology</span>
+                    Interview Prep
+                </a>
+</li>
+<li>
+<a class="flex items-center p-3 text-primary dark:text-on-primary-fixed hover:bg-surface-variant font-headline uppercase tracking-tighter hover:bg-primary hover:text-on-primary transition-colors duration-100 active:translate-x-1 active:translate-y-1" href="#">
+<span class="material-symbols-outlined mr-3">search</span>
+                    Job Search
+                </a>
+</li>
+<li>
+<!-- ACTIVE NAV -->
+<a class="flex items-center p-3 bg-primary-container text-primary border-2 border-primary font-bold font-headline uppercase tracking-tighter hover:bg-primary hover:text-on-primary transition-colors duration-100 active:translate-x-1 active:translate-y-1 shadow-brutal" href="#">
+<span class="material-symbols-outlined mr-3" style="font-variation-settings: 'FILL' 1;">assignment_turned_in</span>
+                    Applications
+                </a>
+</li>
+<li>
+<a class="flex items-center p-3 text-primary dark:text-on-primary-fixed hover:bg-surface-variant font-headline uppercase tracking-tighter hover:bg-primary hover:text-on-primary transition-colors duration-100 active:translate-x-1 active:translate-y-1" href="#">
+<span class="material-symbols-outlined mr-3">settings</span>
+                    Settings
+                </a>
+</li>
+</ul>
+<div class="mt-auto border-t-2 border-primary pt-4">
+<button class="w-full bg-primary text-on-primary font-headline uppercase tracking-tighter p-3 border-2 border-primary hover:bg-primary-container hover:text-primary transition-colors shadow-brutal active:shadow-none active:translate-x-1 active:translate-y-1">
+                Upgrade Plan
+            </button>
+</div>
+</nav>
+<!-- TopAppBar -->
+<header class="flex justify-between items-center h-16 px-6 ml-64 w-[calc(100%-16rem)] bg-background dark:bg-primary border-b-2 border-primary dark:border-primary-fixed fixed top-0 z-40">
+<div class="flex items-center space-x-6">
+<span class="font-headline font-black text-xl uppercase text-primary dark:text-primary-fixed">CareerForge AI</span>
+<nav class="hidden lg:flex space-x-6">
+<a class="text-primary dark:text-on-primary-fixed hover:text-secondary transition-colors font-headline font-bold text-lg" href="#">Network</a>
+<a class="text-primary dark:text-on-primary-fixed hover:text-secondary transition-colors font-headline font-bold text-lg" href="#">Resources</a>
+</nav>
+</div>
+<div class="flex items-center space-x-4">
+<div class="relative">
+<input class="bg-surface-variant border-b-2 border-primary border-t-0 border-l-0 border-r-0 focus:ring-0 focus:border-secondary font-headline uppercase text-sm px-4 py-1 w-48" placeholder="SEARCH..." type="text"/>
+<span class="material-symbols-outlined absolute right-2 top-1 text-primary">search</span>
+</div>
+<button class="p-2 text-primary dark:text-on-primary-fixed hover:text-secondary transition-colors active:scale-95">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 text-primary dark:text-on-primary-fixed hover:text-secondary transition-colors active:scale-95">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-64 mt-16 p-8 min-h-screen">
+<!-- Header & Analytics Strip -->
+<div class="mb-8 border-2 border-primary p-6 bg-surface shadow-brutal-lg">
+<div class="flex justify-between items-end mb-6">
+<div>
+<h2 class="font-headline font-black text-5xl uppercase tracking-tighter">Application Tracker</h2>
+<p class="font-body text-lg mt-2">Manage your active pipeline.</p>
+</div>
+<button class="bg-secondary text-on-error border-2 border-primary font-headline uppercase font-bold px-6 py-3 shadow-brutal hover:bg-primary-container hover:text-primary transition-colors active:translate-x-1 active:translate-y-1 active:shadow-none">
+                    + New Application
+                </button>
+</div>
+<!-- Neo-Brutalist Analytics Strip -->
+<div class="grid grid-cols-4 gap-0 border-t-2 border-primary pt-6">
+<div class="border-r-2 border-primary px-4">
+<span class="block font-headline text-sm uppercase font-bold">Total Active</span>
+<span class="block font-headline font-black text-4xl text-primary">42</span>
+</div>
+<div class="border-r-2 border-primary px-4">
+<span class="block font-headline text-sm uppercase font-bold text-secondary">Interviews</span>
+<span class="block font-headline font-black text-4xl text-secondary">03</span>
+</div>
+<div class="border-r-2 border-primary px-4">
+<span class="block font-headline text-sm uppercase font-bold text-tertiary">Offers</span>
+<span class="block font-headline font-black text-4xl text-tertiary">01</span>
+</div>
+<div class="px-4">
+<span class="block font-headline text-sm uppercase font-bold">Rejection Rate</span>
+<span class="block font-headline font-black text-4xl">15%</span>
+</div>
+</div>
+</div>
+<!-- Kanban Board -->
+<div class="flex gap-6 overflow-x-auto pb-8 h-[calc(100vh-300px)]">
+<!-- Column: Saved -->
+<div class="min-w-[320px] w-[320px] flex flex-col border-2 border-primary bg-surface-variant">
+<div class="p-4 border-b-2 border-primary bg-primary text-on-primary flex justify-between items-center">
+<h3 class="font-headline font-bold uppercase text-lg">Saved <span class="bg-primary-container text-primary px-2 ml-2 text-sm border-2 border-primary">12</span></h3>
+<span class="material-symbols-outlined">bookmark</span>
+</div>
+<div class="p-4 flex-1 overflow-y-auto kanban-col space-y-4">
+<!-- Card -->
+<div class="bg-surface border-2 border-primary p-4 shadow-brutal cursor-pointer hover:-translate-y-1 hover:-translate-x-1 transition-transform group">
+<div class="flex justify-between items-start mb-2">
+<span class="bg-surface-dim border-2 border-primary px-2 py-0.5 text-xs font-bold uppercase">Frontend</span>
+<span class="material-symbols-outlined text-sm text-on-surface-variant">more_horiz</span>
+</div>
+<h4 class="font-headline font-bold text-xl uppercase leading-tight mb-1 group-hover:text-tertiary">Stripe</h4>
+<p class="font-body text-sm font-medium mb-4">Frontend Engineer</p>
+<div class="flex items-center text-xs font-bold border-t-2 border-primary pt-2 mt-2">
+<span class="material-symbols-outlined text-sm mr-1">schedule</span> Added 2d ago
+                        </div>
+</div>
+<!-- Card -->
+<div class="bg-surface border-2 border-primary p-4 shadow-brutal cursor-pointer hover:-translate-y-1 hover:-translate-x-1 transition-transform group">
+<div class="flex justify-between items-start mb-2">
+<span class="bg-surface-dim border-2 border-primary px-2 py-0.5 text-xs font-bold uppercase">Backend</span>
+<span class="material-symbols-outlined text-sm text-on-surface-variant">more_horiz</span>
+</div>
+<h4 class="font-headline font-bold text-xl uppercase leading-tight mb-1 group-hover:text-tertiary">Discord</h4>
+<p class="font-body text-sm font-medium mb-4">Backend Engineer, Core</p>
+<div class="flex items-center text-xs font-bold border-t-2 border-primary pt-2 mt-2">
+<span class="material-symbols-outlined text-sm mr-1">schedule</span> Added 3d ago
+                        </div>
+</div>
+</div>
+</div>
+<!-- Column: Applied -->
+<div class="min-w-[320px] w-[320px] flex flex-col border-2 border-primary bg-surface-variant">
+<div class="p-4 border-b-2 border-primary bg-tertiary text-on-tertiary flex justify-between items-center">
+<h3 class="font-headline font-bold uppercase text-lg">Applied <span class="bg-primary-container text-primary px-2 ml-2 text-sm border-2 border-primary">24</span></h3>
+<span class="material-symbols-outlined">send</span>
+</div>
+<div class="p-4 flex-1 overflow-y-auto kanban-col space-y-4">
+<!-- Card -->
+<div class="bg-surface border-2 border-primary p-4 shadow-brutal cursor-pointer hover:-translate-y-1 hover:-translate-x-1 transition-transform group">
+<div class="flex justify-between items-start mb-2">
+<span class="bg-surface-dim border-2 border-primary px-2 py-0.5 text-xs font-bold uppercase">Fullstack</span>
+<span class="material-symbols-outlined text-sm text-on-surface-variant">more_horiz</span>
+</div>
+<h4 class="font-headline font-bold text-xl uppercase leading-tight mb-1 group-hover:text-tertiary">Vercel</h4>
+<p class="font-body text-sm font-medium mb-4">Software Engineer</p>
+<div class="flex items-center text-xs font-bold border-t-2 border-primary pt-2 mt-2 text-tertiary">
+<span class="material-symbols-outlined text-sm mr-1">check_circle</span> Applied Oct 12
+                        </div>
+</div>
+</div>
+</div>
+<!-- Column: OA -->
+<div class="min-w-[320px] w-[320px] flex flex-col border-2 border-primary bg-surface-variant">
+<div class="p-4 border-b-2 border-primary bg-primary-container text-primary flex justify-between items-center">
+<h3 class="font-headline font-bold uppercase text-lg">Online Assessment <span class="bg-primary text-on-primary px-2 ml-2 text-sm border-2 border-primary">02</span></h3>
+<span class="material-symbols-outlined">code</span>
+</div>
+<div class="p-4 flex-1 overflow-y-auto kanban-col space-y-4">
+<!-- Card -->
+<div class="bg-surface border-2 border-primary p-4 shadow-brutal cursor-pointer hover:-translate-y-1 hover:-translate-x-1 transition-transform group border-l-8 border-l-primary-container">
+<div class="flex justify-between items-start mb-2">
+<span class="bg-surface-dim border-2 border-primary px-2 py-0.5 text-xs font-bold uppercase">Data</span>
+<span class="material-symbols-outlined text-sm text-on-surface-variant">more_horiz</span>
+</div>
+<h4 class="font-headline font-bold text-xl uppercase leading-tight mb-1 group-hover:text-tertiary">Netflix</h4>
+<p class="font-body text-sm font-medium mb-4">Data Engineer</p>
+<!-- Mini Alert in Card -->
+<div class="bg-surface-container border-2 border-primary p-2 mb-2">
+<p class="font-headline text-xs font-bold uppercase flex items-center">
+<span class="material-symbols-outlined text-sm mr-1">timer</span> Due in 2 days
+                            </p>
+</div>
+<div class="flex items-center text-xs font-bold border-t-2 border-primary pt-2 mt-2">
+<span class="material-symbols-outlined text-sm mr-1">mail</span> Received Oct 15
+                        </div>
+</div>
+</div>
+</div>
+<!-- Column: Interview -->
+<div class="min-w-[320px] w-[320px] flex flex-col border-2 border-primary bg-surface-variant">
+<div class="p-4 border-b-2 border-primary bg-secondary text-on-error flex justify-between items-center">
+<h3 class="font-headline font-bold uppercase text-lg">Interview <span class="bg-primary text-on-primary px-2 ml-2 text-sm border-2 border-primary">03</span></h3>
+<span class="material-symbols-outlined">forum</span>
+</div>
+<div class="p-4 flex-1 overflow-y-auto kanban-col space-y-4">
+<!-- Card -->
+<div class="bg-surface border-2 border-primary p-4 shadow-brutal cursor-pointer hover:-translate-y-1 hover:-translate-x-1 transition-transform group border-l-8 border-l-secondary">
+<div class="flex justify-between items-start mb-2">
+<span class="bg-surface-dim border-2 border-primary px-2 py-0.5 text-xs font-bold uppercase">Systems</span>
+<span class="material-symbols-outlined text-sm text-on-surface-variant">more_horiz</span>
+</div>
+<h4 class="font-headline font-bold text-xl uppercase leading-tight mb-1 group-hover:text-tertiary">Cloudflare</h4>
+<p class="font-body text-sm font-medium mb-4">Systems Engineer</p>
+<div class="bg-secondary-container border-2 border-primary p-2 mb-2 text-on-secondary-container">
+<p class="font-headline text-xs font-bold uppercase">Round 2: System Design</p>
+<p class="text-xs mt-1 font-body">Oct 20, 2:00 PM PST</p>
+</div>
+<div class="flex items-center text-xs font-bold border-t-2 border-primary pt-2 mt-2">
+<button class="font-headline uppercase underline hover:text-secondary">View Details</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Column: Offer / Rejected -->
+<div class="min-w-[320px] w-[320px] flex flex-col border-2 border-primary bg-surface-variant">
+<div class="p-4 border-b-2 border-primary bg-surface-dim text-primary flex justify-between items-center">
+<h3 class="font-headline font-bold uppercase text-lg">Closed <span class="bg-primary text-on-primary px-2 ml-2 text-sm border-2 border-primary">04</span></h3>
+<span class="material-symbols-outlined">archive</span>
+</div>
+<div class="p-4 flex-1 overflow-y-auto kanban-col space-y-4">
+<!-- Card (Offer) -->
+<div class="bg-surface border-2 border-primary p-4 shadow-brutal opacity-80 border-l-8 border-l-tertiary">
+<div class="flex justify-between items-start mb-2">
+<span class="bg-tertiary text-on-tertiary border-2 border-primary px-2 py-0.5 text-xs font-bold uppercase">OFFER</span>
+</div>
+<h4 class="font-headline font-bold text-xl uppercase leading-tight mb-1">TechCorp</h4>
+<p class="font-body text-sm font-medium mb-2">Junior Developer</p>
+<p class="font-headline font-bold text-lg">$120k / yr</p>
+</div>
+<!-- Card (Rejected) -->
+<div class="bg-surface-container border-2 border-primary p-4 opacity-60">
+<div class="flex justify-between items-start mb-2">
+<span class="bg-surface text-on-surface border-2 border-primary px-2 py-0.5 text-xs font-bold uppercase line-through">Rejected</span>
+</div>
+<h4 class="font-headline font-bold text-xl uppercase leading-tight mb-1 line-through">MegaDev</h4>
+<p class="font-body text-sm font-medium">Software Engineer</p>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

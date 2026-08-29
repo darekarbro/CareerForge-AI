@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Application Tracker - CareerForge AI</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&amp;family=Inter:wght@400;500&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-error-container": "#ffdad6",
+                    "accent-ember-muted": "#3D2318",
+                    "surface-container-high": "#352722",
+                    "success": "#3DD68C",
+                    "primary-fixed": "#ffdbd0",
+                    "surface-container": "#2a1c18",
+                    "text-primary": "#EDEEF1",
+                    "text-muted": "#5B6070",
+                    "secondary-fixed": "#62fae3",
+                    "surface-container-low": "#261814",
+                    "background": "#1d100c",
+                    "tertiary-fixed": "#b5ebff",
+                    "inverse-primary": "#ab3500",
+                    "on-primary": "#5d1900",
+                    "outline": "#a98a80",
+                    "surface-container-lowest": "#170b08",
+                    "surface-bright": "#463630",
+                    "bg-base": "#0B0D10",
+                    "error-container": "#93000a",
+                    "surface-variant": "#41312c",
+                    "on-tertiary-fixed-variant": "#004e60",
+                    "on-surface": "#f7ddd5",
+                    "accent-steel-muted": "#0F2E2B",
+                    "on-surface-variant": "#e1bfb5",
+                    "primary": "#ffb59d",
+                    "on-tertiary": "#003543",
+                    "inverse-on-surface": "#3c2d28",
+                    "bg-surface": "#15181D",
+                    "tertiary": "#59d5fb",
+                    "border-subtle": "#262A31",
+                    "on-primary-fixed-variant": "#832600",
+                    "inverse-surface": "#f7ddd5",
+                    "surface-tint": "#ffb59d",
+                    "accent-ember-hover": "#FF8555",
+                    "surface-dim": "#1d100c",
+                    "on-secondary-fixed": "#00201c",
+                    "surface": "#1d100c",
+                    "on-background": "#f7ddd5",
+                    "tertiary-fixed-dim": "#59d5fb",
+                    "accent-ember": "#FF6B35",
+                    "secondary-container": "#03c6b2",
+                    "on-tertiary-container": "#003744",
+                    "warning": "#F5B84F",
+                    "tertiary-container": "#00a7cb",
+                    "bg-surface-raised": "#1D2127",
+                    "on-secondary-fixed-variant": "#005047",
+                    "on-primary-container": "#5f1900",
+                    "on-tertiary-fixed": "#001f28",
+                    "text-secondary": "#9AA0AB",
+                    "primary-container": "#ff6b35",
+                    "secondary-fixed-dim": "#3cddc7",
+                    "on-primary-fixed": "#390c00",
+                    "secondary": "#44e2cd",
+                    "on-error": "#690005",
+                    "on-secondary-container": "#004d44",
+                    "outline-variant": "#594139",
+                    "primary-fixed-dim": "#ffb59d",
+                    "on-secondary": "#003731",
+                    "surface-container-highest": "#41312c",
+                    "error": "#F2545B",
+                    "bg-surface-hover": "#22262D",
+                    "accent-steel": "#2DD4BF",
+                    "border-strong": "#383D45"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "3xl": "64px",
+                    "gutter": "16px",
+                    "unit": "4px",
+                    "lg": "24px",
+                    "xl": "32px",
+                    "margin-mobile": "16px",
+                    "margin-desktop": "32px",
+                    "md": "16px",
+                    "sm": "8px",
+                    "2xl": "48px",
+                    "xs": "4px"
+            },
+            "fontFamily": {
+                    "headline-md": [
+                            "Space Grotesk"
+                    ],
+                    "body-sm": [
+                            "Inter"
+                    ],
+                    "headline-sm": [
+                            "Space Grotesk"
+                    ],
+                    "body-md": [
+                            "Inter"
+                    ],
+                    "label-caps": [
+                            "Inter"
+                    ],
+                    "headline-lg": [
+                            "Space Grotesk"
+                    ],
+                    "display-hero": [
+                            "Space Grotesk"
+                    ],
+                    "mono-readout": [
+                            "JetBrains Mono"
+                    ]
+            },
+            "fontSize": {
+                    "headline-md": [
+                            "24px",
+                            {
+                                    "lineHeight": "32px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "body-sm": [
+                            "13px",
+                            {
+                                    "lineHeight": "20px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "headline-sm": [
+                            "18px",
+                            {
+                                    "lineHeight": "26px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "body-md": [
+                            "15px",
+                            {
+                                    "lineHeight": "24px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "label-caps": [
+                            "12px",
+                            {
+                                    "lineHeight": "16px",
+                                    "letterSpacing": "0.02em",
+                                    "fontWeight": "500"
+                            }
+                    ],
+                    "headline-lg": [
+                            "32px",
+                            {
+                                    "lineHeight": "40px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "display-hero": [
+                            "48px",
+                            {
+                                    "lineHeight": "56px",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "mono-readout": [
+                            "14px",
+                            {
+                                    "lineHeight": "20px",
+                                    "fontWeight": "500"
+                            }
+                    ]
+            }
+    },
+        },
+      }
+    </script>
+<style>
+        /* Custom scrollbar for Kanban board */
+        .kanban-scroll::-webkit-scrollbar {
+            height: 6px;
+            width: 6px;
+        }
+        .kanban-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .kanban-scroll::-webkit-scrollbar-thumb {
+            background-color: #262A31;
+            border-radius: 9999px;
+        }
+        .kanban-scroll::-webkit-scrollbar-thumb:hover {
+            background-color: #383D45;
+        }
+    </style>
+</head>
+<body class="bg-base text-text-primary font-body-md antialiased overflow-hidden">
+<!-- TopAppBar -->
+<header class="bg-surface border-b border-border-subtle docked full-width top-0 h-16 flex justify-between items-center ml-[240px] px-margin-desktop w-[calc(100%-240px)] z-10 fixed focus-within:border-accent-steel transition-colors duration-160 shadow-none">
+<div class="flex items-center gap-4">
+<div class="relative w-64">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary text-[20px]" data-icon="search">search</span>
+<input class="w-full bg-surface-raised border border-border-subtle rounded-DEFAULT pl-10 pr-4 py-2 text-body-sm font-body-sm text-text-primary focus:border-accent-steel focus:ring-0 transition-colors placeholder:text-text-secondary h-10" placeholder="Search applications..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-4 text-text-secondary">
+<button class="hover:text-accent-ember transition-colors active:scale-95 duration-160">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="hover:text-accent-ember transition-colors active:scale-95 duration-160">
+<span class="material-symbols-outlined" data-icon="sensors">sensors</span>
+</button>
+</div>
+<div class="h-8 w-px bg-border-subtle"></div>
+<img alt="User Profile" class="w-8 h-8 rounded-full object-cover border border-border-subtle" data-alt="A professional user avatar image in a minimalist dark theme setting, showing a sharp, technical aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCzXYt5CPqvveUIGbqK9UaBiHtGtmjJui-9W4yprFsedQ3UxyEHEB3wBz_VpAJjfNxO9Kkw27FYAjCoR5ysT86frCy7gjpe7a0IU9_MgcihaJ_pOPisB8WV2JSSQeLJ6NeD-PrcuIG9YWS8SWuJyZByK2hP_x7PGZj0V6siQH81hDgMOukWaLzJJJvw0spSeC4MxbR1npgA9JnyKfVcRZKFi02OLC0Obs3yf6gQvfVywwU7szdZSsMS"/>
+</div>
+</header>
+<!-- SideNavBar -->
+<nav class="bg-background w-[240px] h-screen fixed left-0 top-0 border-r border-border-subtle flex flex-col gap-4 p-lg z-20 shadow-none">
+<div class="mb-8">
+<h1 class="font-headline-md text-headline-md font-bold text-accent-ember">CareerForge AI</h1>
+<p class="font-label-caps text-label-caps text-text-secondary uppercase mt-1 tracking-wider">Technical Console</p>
+</div>
+<div class="flex flex-col gap-2 flex-grow">
+<!-- Inactive -->
+<a class="flex items-center gap-3 px-4 py-3 rounded-DEFAULT text-text-secondary hover:text-text-primary hover:bg-bg-surface-hover transition-colors duration-160 active:scale-95" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="dashboard">dashboard</span>
+<span class="font-body-sm text-body-sm">Dashboard</span>
+</a>
+<!-- Inactive -->
+<a class="flex items-center gap-3 px-4 py-3 rounded-DEFAULT text-text-secondary hover:text-text-primary hover:bg-bg-surface-hover transition-colors duration-160 active:scale-95" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="description">description</span>
+<span class="font-body-sm text-body-sm">Resumes</span>
+</a>
+<!-- Inactive -->
+<a class="flex items-center gap-3 px-4 py-3 rounded-DEFAULT text-text-secondary hover:text-text-primary hover:bg-bg-surface-hover transition-colors duration-160 active:scale-95" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="settings_voice">settings_voice</span>
+<span class="font-body-sm text-body-sm">Interview Prep</span>
+</a>
+<!-- Inactive -->
+<a class="flex items-center gap-3 px-4 py-3 rounded-DEFAULT text-text-secondary hover:text-text-primary hover:bg-bg-surface-hover transition-colors duration-160 active:scale-95" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="search">search</span>
+<span class="font-body-sm text-body-sm">Job Search</span>
+</a>
+<!-- Active -->
+<a class="flex items-center gap-3 px-4 py-3 rounded-DEFAULT text-accent-ember font-bold border-r-2 border-accent-ember bg-accent-ember-muted/10 active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="assignment" data-weight="fill" style="font-variation-settings: 'FILL' 1;">assignment</span>
+<span class="font-body-sm text-body-sm">Applications</span>
+</a>
+<!-- Inactive -->
+<a class="flex items-center gap-3 px-4 py-3 rounded-DEFAULT text-text-secondary hover:text-text-primary hover:bg-bg-surface-hover transition-colors duration-160 active:scale-95" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="settings">settings</span>
+<span class="font-body-sm text-body-sm">Settings</span>
+</a>
+</div>
+<div class="mt-auto pt-4 border-t border-border-subtle">
+<button class="w-full bg-accent-ember text-bg-base font-body-sm text-body-sm font-semibold py-3 rounded-DEFAULT hover:bg-accent-ember-hover transition-colors duration-160 active:scale-95 flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                New Analysis
+            </button>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="ml-[240px] mt-16 p-margin-desktop h-[calc(100vh-64px)] overflow-hidden flex flex-col">
+<!-- Header & Action -->
+<div class="flex justify-between items-end mb-8 shrink-0">
+<div>
+<h2 class="font-headline-lg text-headline-lg text-text-primary mb-2">Application Tracker</h2>
+<p class="font-body-md text-body-md text-text-secondary">Manage and track your interview pipelines.</p>
+</div>
+<button class="bg-accent-ember text-bg-base font-body-sm text-body-sm font-semibold px-6 py-2.5 rounded-DEFAULT hover:bg-accent-ember-hover transition-colors duration-160 active:scale-95 flex items-center gap-2 shadow-[0_0_15px_rgba(255,107,53,0.3)]">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                Add Application
+            </button>
+</div>
+<!-- Analytics Strip -->
+<div class="grid grid-cols-4 gap-gutter mb-8 shrink-0">
+<div class="bg-surface border border-border-subtle p-lg rounded-DEFAULT flex flex-col gap-2 relative overflow-hidden group hover:border-accent-steel transition-colors duration-300">
+<div class="absolute -right-4 -top-4 text-accent-steel-muted/20 transform group-hover:scale-110 transition-transform duration-500">
+<span class="material-symbols-outlined text-7xl" data-icon="timeline">timeline</span>
+</div>
+<span class="font-label-caps text-label-caps text-text-secondary uppercase tracking-wider relative z-10">Apps This Week</span>
+<div class="flex items-baseline gap-3 relative z-10">
+<span class="font-display-hero text-display-hero text-text-primary">12</span>
+<span class="font-mono-readout text-mono-readout text-success flex items-center"><span class="material-symbols-outlined text-[16px]">arrow_upward</span> 24%</span>
+</div>
+</div>
+<div class="bg-surface border border-border-subtle p-lg rounded-DEFAULT flex flex-col gap-2 relative overflow-hidden group hover:border-accent-ember transition-colors duration-300">
+<div class="absolute -right-4 -top-4 text-accent-ember-muted/20 transform group-hover:scale-110 transition-transform duration-500">
+<span class="material-symbols-outlined text-7xl" data-icon="filter_alt">filter_alt</span>
+</div>
+<span class="font-label-caps text-label-caps text-text-secondary uppercase tracking-wider relative z-10">OA Conversion</span>
+<div class="flex items-baseline gap-3 relative z-10">
+<span class="font-display-hero text-display-hero text-text-primary">45%</span>
+<span class="font-mono-readout text-mono-readout text-text-secondary">Avg 38%</span>
+</div>
+</div>
+<div class="bg-surface border border-border-subtle p-lg rounded-DEFAULT flex flex-col gap-2">
+<span class="font-label-caps text-label-caps text-text-secondary uppercase tracking-wider">Interview Rate</span>
+<div class="flex items-baseline gap-3">
+<span class="font-display-hero text-display-hero text-text-primary">18%</span>
+<span class="font-mono-readout text-mono-readout text-success flex items-center"><span class="material-symbols-outlined text-[16px]">arrow_upward</span> 5%</span>
+</div>
+</div>
+<div class="bg-surface border border-border-subtle p-lg rounded-DEFAULT flex flex-col gap-2">
+<span class="font-label-caps text-label-caps text-text-secondary uppercase tracking-wider">Active Pipelines</span>
+<div class="flex items-baseline gap-3">
+<span class="font-display-hero text-display-hero text-text-primary">8</span>
+<span class="font-mono-readout text-mono-readout text-text-secondary">across 3 stages</span>
+</div>
+</div>
+</div>
+<!-- Kanban Board -->
+<div class="flex-grow flex gap-6 overflow-x-auto overflow-y-hidden kanban-scroll pb-4">
+<!-- Column 1: Saved -->
+<div class="w-[320px] shrink-0 flex flex-col gap-4">
+<div class="flex items-center justify-between border-b border-border-subtle pb-2">
+<h3 class="font-headline-sm text-headline-sm text-text-primary flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-text-secondary"></span>
+                        Saved
+                    </h3>
+<span class="font-mono-readout text-mono-readout text-text-secondary bg-surface-raised px-2 py-0.5 rounded-DEFAULT">3</span>
+</div>
+<div class="flex-grow overflow-y-auto kanban-scroll flex flex-col gap-3 pr-2">
+<!-- Card -->
+<div class="bg-surface border border-border-subtle p-4 rounded-DEFAULT hover:border-text-secondary cursor-pointer transition-colors group">
+<div class="flex justify-between items-start mb-3">
+<div>
+<h4 class="font-headline-sm text-[16px] text-text-primary group-hover:text-accent-ember transition-colors">Stripe</h4>
+<p class="font-body-sm text-body-sm text-text-secondary">Frontend Engineer</p>
+</div>
+<span class="material-symbols-outlined text-text-secondary text-[20px]">bookmark</span>
+</div>
+<div class="flex justify-between items-center mt-4 pt-3 border-t border-border-subtle">
+<div class="flex items-center gap-1.5 text-text-secondary font-mono-readout text-[12px]">
+<span class="material-symbols-outlined text-[14px]">calendar_today</span>
+                                Added Today
+                            </div>
+<span class="px-2 py-1 bg-surface-raised text-text-primary font-label-caps text-[10px] rounded-sm border border-border-subtle">LinkedIn</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Column 2: Applied -->
+<div class="w-[320px] shrink-0 flex flex-col gap-4">
+<div class="flex items-center justify-between border-b border-border-subtle pb-2">
+<h3 class="font-headline-sm text-headline-sm text-text-primary flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-tertiary"></span>
+                        Applied
+                    </h3>
+<span class="font-mono-readout text-mono-readout text-text-secondary bg-surface-raised px-2 py-0.5 rounded-DEFAULT">5</span>
+</div>
+<div class="flex-grow overflow-y-auto kanban-scroll flex flex-col gap-3 pr-2">
+<!-- Card -->
+<div class="bg-surface border border-border-subtle p-4 rounded-DEFAULT hover:border-tertiary cursor-pointer transition-colors group">
+<div class="flex justify-between items-start mb-3">
+<div>
+<h4 class="font-headline-sm text-[16px] text-text-primary group-hover:text-tertiary transition-colors">Vercel</h4>
+<p class="font-body-sm text-body-sm text-text-secondary">Software Engineer, Core</p>
+</div>
+<img alt="Company Logo" class="w-6 h-6 rounded-sm bg-surface-raised" data-alt="A small, stylized logo icon representing a modern tech company, rendered in dark mode with crisp edges." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAzMbnrwS2D-Ca2U9pnd_lHvgYtiXX3eKOeoOFATZZ2d8gIR0Spss_nLh3Q8u4KxeFwcmfdOTWPTfXwvM41CbxZSQp2WkxxeihmjzKZ2uz9-p2PJi8b6MNUYtYpsME3oJ3hVFenQBm3hN5SCqmvg9bb0eLF31ZeqHnVTLS-OBIJloxaNWiyV6NrT_lPnt8mGY-2it7110FXDRuiIzpE9nK0YeKj4tmhmvDB9d-RcXtzs_giqJUL3S63"/>
+</div>
+<div class="flex justify-between items-center mt-4 pt-3 border-t border-border-subtle">
+<div class="flex items-center gap-1.5 text-text-secondary font-mono-readout text-[12px]">
+<span class="material-symbols-outlined text-[14px]">send</span>
+                                Oct 12
+                            </div>
+<span class="px-2 py-1 bg-surface-raised text-text-primary font-label-caps text-[10px] rounded-sm border border-border-subtle">Direct</span>
+</div>
+</div>
+<!-- Card -->
+<div class="bg-surface border border-border-subtle p-4 rounded-DEFAULT hover:border-tertiary cursor-pointer transition-colors group">
+<div class="flex justify-between items-start mb-3">
+<div>
+<h4 class="font-headline-sm text-[16px] text-text-primary group-hover:text-tertiary transition-colors">Discord</h4>
+<p class="font-body-sm text-body-sm text-text-secondary">Full Stack Developer</p>
+</div>
+<img alt="Company Logo" class="w-6 h-6 rounded-sm bg-surface-raised" data-alt="A small, stylized logo icon representing a modern tech company, rendered in dark mode with crisp edges." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCCPT9GyYH8ZtatDiivZIGxSpAm6Ug8uJ-ATpFAABufUIicaZb6LapV2P0ZVUozW7kcBvh3eOftnx3dHentd9ADVfspFeVaowhGp4GQgm1TJwxp07qvhqpqKndohqYxj-1UES-Fu180sL78OYJgd57DL8ZGJDIy8RjS0StwshNAV_bhwfFfGmVKNc4cldnDCJRBSXjPe7WsvFavAr0mKCTUmoCZZHh7scHD4X8VWc5oHtNZfkE6UtPD"/>
+</div>
+<div class="flex justify-between items-center mt-4 pt-3 border-t border-border-subtle">
+<div class="flex items-center gap-1.5 text-text-secondary font-mono-readout text-[12px]">
+<span class="material-symbols-outlined text-[14px]">send</span>
+                                Oct 10
+                            </div>
+<span class="px-2 py-1 bg-surface-raised text-text-primary font-label-caps text-[10px] rounded-sm border border-border-subtle">Referral</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Column 3: OA -->
+<div class="w-[320px] shrink-0 flex flex-col gap-4">
+<div class="flex items-center justify-between border-b border-border-subtle pb-2">
+<h3 class="font-headline-sm text-headline-sm text-text-primary flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-warning"></span>
+                        OA
+                    </h3>
+<span class="font-mono-readout text-mono-readout text-text-secondary bg-surface-raised px-2 py-0.5 rounded-DEFAULT">2</span>
+</div>
+<div class="flex-grow overflow-y-auto kanban-scroll flex flex-col gap-3 pr-2">
+<!-- Card -->
+<div class="bg-surface border border-warning/50 p-4 rounded-DEFAULT hover:border-warning cursor-pointer transition-colors group relative overflow-hidden">
+<div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-warning to-transparent opacity-50"></div>
+<div class="flex justify-between items-start mb-3">
+<div>
+<h4 class="font-headline-sm text-[16px] text-text-primary group-hover:text-warning transition-colors">Roblox</h4>
+<p class="font-body-sm text-body-sm text-text-secondary">Backend Engineer</p>
+</div>
+<img alt="Company Logo" class="w-6 h-6 rounded-sm bg-surface-raised" data-alt="A small, stylized logo icon representing a modern tech company, rendered in dark mode with crisp edges." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDikFsfB3cUxA49w_dS_mGJBxf9J0f6qzRW1e7g9Ij2m9l7i-dkpvi_hlrEfSUU_-b-rVY4nzhTJ_zAGaggwc4Il36Bd963yjTjFPmOO5pUcgshGKodoKivFP45tbrmDKzm7aITp_T5D-aHFR1fQoISYG5jDrsv0MhzO7dqUgvrdKBJA9OVb5QY9j6IYqji3bHm9QIkjsv0r0df59CQL-sUQsyeObJ9lzNlTRttllb27OaRlqXpxYVH"/>
+</div>
+<div class="mt-2 mb-3 bg-surface-raised rounded-sm p-2 border border-border-subtle">
+<div class="flex justify-between text-[11px] font-mono-readout text-warning mb-1">
+<span>HackerRank</span>
+<span>Due: Oct 15</span>
+</div>
+</div>
+<div class="flex justify-between items-center pt-3 border-t border-border-subtle">
+<div class="flex items-center gap-1.5 text-text-secondary font-mono-readout text-[12px]">
+<span class="material-symbols-outlined text-[14px]">code</span>
+                                Pending
+                            </div>
+<span class="px-2 py-1 bg-surface-raised text-text-primary font-label-caps text-[10px] rounded-sm border border-border-subtle">Direct</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Column 4: Interview -->
+<div class="w-[320px] shrink-0 flex flex-col gap-4">
+<div class="flex items-center justify-between border-b border-border-subtle pb-2">
+<h3 class="font-headline-sm text-headline-sm text-text-primary flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-accent-ember"></span>
+                        Interview
+                    </h3>
+<span class="font-mono-readout text-mono-readout text-text-secondary bg-surface-raised px-2 py-0.5 rounded-DEFAULT">1</span>
+</div>
+<div class="flex-grow overflow-y-auto kanban-scroll flex flex-col gap-3 pr-2">
+<!-- Card -->
+<div class="bg-surface border border-accent-ember/50 p-4 rounded-DEFAULT hover:border-accent-ember cursor-pointer transition-colors group shadow-[0_0_10px_rgba(255,107,53,0.1)]">
+<div class="flex justify-between items-start mb-3">
+<div>
+<h4 class="font-headline-sm text-[16px] text-text-primary group-hover:text-accent-ember transition-colors">Anthropic</h4>
+<p class="font-body-sm text-body-sm text-text-secondary">Systems Engineer</p>
+</div>
+<img alt="Company Logo" class="w-6 h-6 rounded-sm bg-surface-raised" data-alt="A small, stylized logo icon representing a modern tech company, rendered in dark mode with crisp edges." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCdyARLVMrcJBJr3q7Pvkg0HeY9yTmRbpwbz1lGkr3MJ4VuHTXYt1R7_HdCkF1HtATsYIgRWMLFve4i9LKgucJBFuunPRsgkHEc7jc0pEhk-mawv1AMwduzBqxbr_f2gvMASWfckcMs6_G2vjcYSRHP0_1vfPrzyGft589Js6Ux4zqlLmaHRY10pjRBNeN7ByxPrY3s6NWySDmCoFF1qDdQzZz-dLobcreeCxoR2YSNWeKEG62uu8o7"/>
+</div>
+<div class="mt-2 mb-3 bg-accent-ember-muted/20 rounded-sm p-2 border border-accent-ember/30">
+<div class="flex items-center gap-2 text-[12px] font-mono-readout text-accent-ember">
+<span class="material-symbols-outlined text-[14px]">videocam</span>
+<span>Tech Screen (45m)</span>
+</div>
+<div class="text-[11px] text-text-secondary mt-1 ml-6">Tomorrow, 2:00 PM EST</div>
+</div>
+<div class="flex justify-between items-center pt-3 border-t border-border-subtle">
+<div class="flex items-center gap-1.5 text-text-secondary font-mono-readout text-[12px]">
+<span class="material-symbols-outlined text-[14px]">schedule</span>
+                                Stage 2/4
+                            </div>
+</div>
+</div>
+</div>
+</div>
+<!-- Column 5: Offer/Rejected -->
+<div class="w-[320px] shrink-0 flex flex-col gap-4">
+<div class="flex items-center justify-between border-b border-border-subtle pb-2">
+<h3 class="font-headline-sm text-headline-sm text-text-primary flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-success"></span>
+                        Closed
+                    </h3>
+<span class="font-mono-readout text-mono-readout text-text-secondary bg-surface-raised px-2 py-0.5 rounded-DEFAULT">2</span>
+</div>
+<div class="flex-grow overflow-y-auto kanban-scroll flex flex-col gap-3 pr-2 opacity-75">
+<!-- Card (Offer) -->
+<div class="bg-surface border border-success/30 p-4 rounded-DEFAULT cursor-pointer group">
+<div class="flex justify-between items-start mb-3">
+<div>
+<h4 class="font-headline-sm text-[16px] text-text-primary">Startup Inc</h4>
+<p class="font-body-sm text-body-sm text-text-secondary">UI/UX Developer</p>
+</div>
+<span class="px-2 py-0.5 bg-success/10 text-success border border-success/20 rounded-sm font-label-caps text-[10px]">OFFER</span>
+</div>
+<div class="flex justify-between items-center mt-4 pt-3 border-t border-border-subtle">
+<div class="flex items-center gap-1.5 text-text-secondary font-mono-readout text-[12px]">
+<span class="material-symbols-outlined text-[14px]">check_circle</span>
+                                Oct 01
+                            </div>
+</div>
+</div>
+<!-- Card (Rejected) -->
+<div class="bg-surface border border-border-subtle p-4 rounded-DEFAULT cursor-pointer group">
+<div class="flex justify-between items-start mb-3">
+<div>
+<h4 class="font-headline-sm text-[16px] text-text-secondary">MegaCorp</h4>
+<p class="font-body-sm text-body-sm text-text-secondary">Software Engineer II</p>
+</div>
+<span class="px-2 py-0.5 bg-surface-raised text-text-secondary border border-border-subtle rounded-sm font-label-caps text-[10px]">REJECTED</span>
+</div>
+<div class="flex justify-between items-center mt-4 pt-3 border-t border-border-subtle">
+<div class="flex items-center gap-1.5 text-text-secondary font-mono-readout text-[12px]">
+<span class="material-symbols-outlined text-[14px]">cancel</span>
+                                Sep 28
+                            </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

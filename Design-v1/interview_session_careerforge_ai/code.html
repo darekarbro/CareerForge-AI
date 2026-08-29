@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Interview Session - CareerForge AI</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@500&amp;family=Space+Grotesk:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-error-container": "#ffdad6",
+                      "accent-ember-muted": "#3D2318",
+                      "surface-container-high": "#352722",
+                      "success": "#3DD68C",
+                      "primary-fixed": "#ffdbd0",
+                      "surface-container": "#2a1c18",
+                      "text-primary": "#EDEEF1",
+                      "text-muted": "#5B6070",
+                      "secondary-fixed": "#62fae3",
+                      "surface-container-low": "#261814",
+                      "background": "#1d100c",
+                      "tertiary-fixed": "#b5ebff",
+                      "inverse-primary": "#ab3500",
+                      "on-primary": "#5d1900",
+                      "outline": "#a98a80",
+                      "surface-container-lowest": "#170b08",
+                      "surface-bright": "#463630",
+                      "bg-base": "#0B0D10",
+                      "error-container": "#93000a",
+                      "surface-variant": "#41312c",
+                      "on-tertiary-fixed-variant": "#004e60",
+                      "on-surface": "#f7ddd5",
+                      "accent-steel-muted": "#0F2E2B",
+                      "on-surface-variant": "#e1bfb5",
+                      "primary": "#ffb59d",
+                      "on-tertiary": "#003543",
+                      "inverse-on-surface": "#3c2d28",
+                      "bg-surface": "#15181D",
+                      "tertiary": "#59d5fb",
+                      "border-subtle": "#262A31",
+                      "on-primary-fixed-variant": "#832600",
+                      "inverse-surface": "#f7ddd5",
+                      "surface-tint": "#ffb59d",
+                      "accent-ember-hover": "#FF8555",
+                      "surface-dim": "#1d100c",
+                      "on-secondary-fixed": "#00201c",
+                      "surface": "#1d100c",
+                      "on-background": "#f7ddd5",
+                      "tertiary-fixed-dim": "#59d5fb",
+                      "accent-ember": "#FF6B35",
+                      "secondary-container": "#03c6b2",
+                      "on-tertiary-container": "#003744",
+                      "warning": "#F5B84F",
+                      "tertiary-container": "#00a7cb",
+                      "bg-surface-raised": "#1D2127",
+                      "on-secondary-fixed-variant": "#005047",
+                      "on-primary-container": "#5f1900",
+                      "on-tertiary-fixed": "#001f28",
+                      "text-secondary": "#9AA0AB",
+                      "primary-container": "#ff6b35",
+                      "secondary-fixed-dim": "#3cddc7",
+                      "on-primary-fixed": "#390c00",
+                      "secondary": "#44e2cd",
+                      "on-error": "#690005",
+                      "on-secondary-container": "#004d44",
+                      "outline-variant": "#594139",
+                      "primary-fixed-dim": "#ffb59d",
+                      "on-secondary": "#003731",
+                      "surface-container-highest": "#41312c",
+                      "error": "#F2545B",
+                      "bg-surface-hover": "#22262D",
+                      "accent-steel": "#2DD4BF",
+                      "border-strong": "#383D45"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "3xl": "64px",
+                      "gutter": "16px",
+                      "unit": "4px",
+                      "lg": "24px",
+                      "xl": "32px",
+                      "margin-mobile": "16px",
+                      "margin-desktop": "32px",
+                      "md": "16px",
+                      "sm": "8px",
+                      "2xl": "48px",
+                      "xs": "4px"
+              },
+              "fontFamily": {
+                      "headline-md": [
+                              "Space Grotesk"
+                      ],
+                      "body-sm": [
+                              "Inter"
+                      ],
+                      "headline-sm": [
+                              "Space Grotesk"
+                      ],
+                      "body-md": [
+                              "Inter"
+                      ],
+                      "label-caps": [
+                              "Inter"
+                      ],
+                      "headline-lg": [
+                              "Space Grotesk"
+                      ],
+                      "display-hero": [
+                              "Space Grotesk"
+                      ],
+                      "mono-readout": [
+                              "JetBrains Mono"
+                      ]
+              },
+              "fontSize": {
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-sm": [
+                              "13px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-sm": [
+                              "18px",
+                              {
+                                      "lineHeight": "26px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-md": [
+                              "15px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-caps": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.02em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "display-hero": [
+                              "48px",
+                              {
+                                      "lineHeight": "56px",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "mono-readout": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "500"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+        .progress-bar-sweep {
+            background: linear-gradient(90deg, theme('colors.accent-ember') 0%, theme('colors.accent-steel') 100%);
+            background-size: 200% 100%;
+            animation: sweep 2s ease-in-out infinite;
+        }
+        @keyframes sweep {
+            0% { background-position: 100% 0; }
+            100% { background-position: 0 0; }
+        }
+    </style>
+</head>
+<body class="bg-base text-text-primary min-h-screen flex flex-col font-body-md overflow-x-hidden">
+<!-- Top Navigation (Session Mode - Simplified) -->
+<header class="bg-surface border-b border-border-subtle h-16 w-full flex justify-between items-center px-margin-desktop sticky top-0 z-50">
+<div class="flex items-center gap-md">
+<span class="font-headline-md text-headline-md font-bold text-accent-ember">CareerForge AI</span>
+<span class="font-label-caps text-label-caps text-text-secondary uppercase tracking-wider ml-sm px-sm py-xs bg-surface-raised rounded">Session Active</span>
+</div>
+<div class="flex items-center gap-lg">
+<div class="text-right">
+<div class="font-mono-readout text-mono-readout text-text-primary">00:14:32</div>
+<div class="font-body-sm text-body-sm text-text-secondary">Elapsed</div>
+</div>
+<button class="flex items-center justify-center w-10 h-10 rounded-full border border-border-subtle text-text-secondary hover:text-accent-ember hover:border-accent-ember transition-colors">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-grow flex flex-col items-center justify-start pt-xl pb-2xl px-margin-desktop w-full max-w-4xl mx-auto">
+<!-- Progress Header -->
+<div class="w-full mb-lg flex flex-col gap-sm">
+<div class="flex justify-between items-end">
+<div>
+<h2 class="font-headline-sm text-headline-sm text-text-primary mb-xs">Technical Assessment</h2>
+<p class="font-body-sm text-body-sm text-text-secondary">Question 3 of 10</p>
+</div>
+<div class="font-mono-readout text-mono-readout text-accent-steel">30%</div>
+</div>
+<!-- Progress Bar -->
+<div class="w-full h-2 bg-surface-raised rounded-full overflow-hidden border border-border-subtle">
+<div class="h-full progress-bar-sweep rounded-full" style="width: 30%;"></div>
+</div>
+</div>
+<!-- Question Card -->
+<div class="w-full bg-surface border border-border-subtle rounded-lg p-xl mb-lg relative overflow-hidden group">
+<!-- Soft Glow effect on card -->
+<div class="absolute inset-0 border-2 border-transparent group-hover:border-accent-ember/20 rounded-lg transition-colors duration-300 pointer-events-none"></div>
+<div class="flex items-start justify-between gap-lg mb-md">
+<h3 class="font-headline-lg text-headline-lg text-text-primary">
+                    Explain the concept of closures in JavaScript and provide a practical use case where it's essential.
+                </h3>
+<span class="material-symbols-outlined text-accent-steel shrink-0 mt-2" style="font-variation-settings: 'FILL' 1;">terminal</span>
+</div>
+<div class="flex items-center gap-md mt-lg border-t border-border-subtle pt-md">
+<button class="flex items-center gap-sm text-text-secondary hover:text-accent-steel transition-colors font-body-sm text-body-sm" id="toggle-hint">
+<span class="material-symbols-outlined text-sm">visibility</span>
+                    Reveal Suggested Approach
+                </button>
+<div class="hidden flex-1 bg-surface-raised border border-border-subtle rounded p-md ml-md font-body-sm text-body-sm text-text-muted" id="hint-content">
+                    Focus on lexical scoping, state encapsulation (like private variables), and currying.
+                </div>
+</div>
+</div>
+<!-- Answer Input Area -->
+<div class="w-full flex flex-col gap-sm mb-xl">
+<label class="font-label-caps text-label-caps text-text-secondary uppercase tracking-wider ml-xs" for="answer-input">Your Answer</label>
+<div class="relative w-full">
+<textarea class="w-full bg-surface-raised border border-border-subtle rounded-lg p-md font-body-md text-text-primary focus:border-accent-steel focus:ring-0 transition-colors resize-none placeholder-text-muted" id="answer-input" placeholder="Begin typing your response here..." rows="8"></textarea>
+<div class="absolute bottom-md right-md flex items-center gap-md">
+<button class="w-8 h-8 rounded-full bg-surface border border-border-subtle flex items-center justify-center text-text-secondary hover:text-accent-ember hover:border-accent-ember transition-colors" title="Record Audio">
+<span class="material-symbols-outlined text-[18px]">mic</span>
+</button>
+<span class="font-mono-readout text-mono-readout text-text-secondary"><span id="char-count">0</span> / 2000</span>
+</div>
+</div>
+</div>
+<!-- Action Bar -->
+<div class="w-full flex justify-between items-center mt-auto">
+<button class="px-lg py-md border border-border-strong rounded font-label-caps text-label-caps text-text-primary uppercase tracking-wider hover:bg-bg-surface-hover transition-colors duration-160">
+                Skip Question
+            </button>
+<button class="px-xl py-md bg-accent-ember text-on-primary rounded font-label-caps text-label-caps uppercase tracking-wider hover:bg-accent-ember-hover transition-colors duration-160 flex items-center gap-sm">
+                Submit Answer
+                <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</div>
+</main>
+<script>
+        // Character count logic
+        const textarea = document.getElementById('answer-input');
+        const charCountDisplay = document.getElementById('char-count');
+        
+        textarea.addEventListener('input', function() {
+            charCountDisplay.textContent = this.value.length;
+        });
+
+        // Toggle hint logic
+        const toggleBtn = document.getElementById('toggle-hint');
+        const hintContent = document.getElementById('hint-content');
+        
+        toggleBtn.addEventListener('click', () => {
+            hintContent.classList.toggle('hidden');
+            const icon = toggleBtn.querySelector('.material-symbols-outlined');
+            if (hintContent.classList.contains('hidden')) {
+                icon.textContent = 'visibility';
+                toggleBtn.classList.remove('text-accent-steel');
+            } else {
+                icon.textContent = 'visibility_off';
+                toggleBtn.classList.add('text-accent-steel');
+            }
+        });
+    </script>
+</body></html>

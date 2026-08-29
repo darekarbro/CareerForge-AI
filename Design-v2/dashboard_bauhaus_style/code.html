@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CareerForge AI - Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700;900&amp;family=Inter:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary": "#ffffff",
+                        "surface-container-low": "#f2ede5",
+                        "on-surface-variant": "#4a4a4a",
+                        "on-error": "#ffffff",
+                        "secondary-fixed": "#ffdad6",
+                        "error-container": "#ffdad6",
+                        "surface": "#f5f0e8",
+                        "surface-variant": "#e8e3da",
+                        "tertiary": "#0055ff",
+                        "on-tertiary-container": "#1a1a1a",
+                        "on-tertiary-fixed": "#1a1a1a",
+                        "on-secondary": "#1a1a1a",
+                        "on-error-container": "#93000a",
+                        "on-secondary-fixed-variant": "#1a1a1a",
+                        "primary-container": "#ffcc00",
+                        "on-primary": "#ffffff",
+                        "background": "#f5f0e8",
+                        "secondary-fixed-dim": "#ffb3ab",
+                        "inverse-surface": "#1a1a1a",
+                        "surface-container": "#eee9e0",
+                        "on-secondary-fixed": "#1a1a1a",
+                        "tertiary-fixed-dim": "#a8c6ff",
+                        "surface-bright": "#faf7f2",
+                        "tertiary-container": "#d6e3ff",
+                        "surface-container-high": "#e8e3da",
+                        "on-surface": "#1a1a1a",
+                        "on-background": "#1a1a1a",
+                        "on-primary-fixed-variant": "#1a1a1a",
+                        "secondary-container": "#ffdad6",
+                        "surface-container-lowest": "#ffffff",
+                        "inverse-primary": "#f5f0e8",
+                        "inverse-on-surface": "#f5f0e8",
+                        "primary-fixed-dim": "#e6b800",
+                        "outline-variant": "#d0cbc3",
+                        "error": "#cc0000",
+                        "tertiary-fixed": "#d6e3ff",
+                        "on-tertiary-fixed-variant": "#1a1a1a",
+                        "primary-fixed": "#ffcc00",
+                        "on-secondary-container": "#1a1a1a",
+                        "on-primary-container": "#1a1a1a",
+                        "primary": "#1a1a1a",
+                        "surface-dim": "#d6d1c9",
+                        "surface-tint": "#1a1a1a",
+                        "outline": "#1a1a1a",
+                        "surface-container-highest": "#e2ddd4",
+                        "secondary": "#e63b2e",
+                        "on-primary-fixed": "#1a1a1a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Space Grotesk", "sans-serif"],
+                        "display": ["Space Grotesk", "sans-serif"],
+                        "body": ["Inter", "sans-serif"],
+                        "label": ["Space Grotesk", "sans-serif"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .bauhaus-shadow {
+            box-shadow: 6px 6px 0px 0px #1a1a1a;
+        }
+        .bauhaus-shadow-sm {
+            box-shadow: 4px 4px 0px 0px #1a1a1a;
+        }
+        .bauhaus-border {
+            border: 3px solid #1a1a1a;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body min-h-screen">
+<!-- SideNavBar -->
+<nav class="fixed left-0 top-0 h-full flex flex-col p-4 bg-background dark:bg-primary h-screen w-64 border-r-2 border-primary dark:border-primary-fixed z-50">
+<div class="mb-8">
+<h1 class="font-headline text-2xl font-black uppercase tracking-widest text-primary dark:text-primary-fixed">CareerForge</h1>
+<p class="font-headline uppercase tracking-tighter text-sm font-bold text-on-surface-variant">Technical Platform</p>
+</div>
+<div class="flex-1 space-y-2">
+<!-- Active Tab: Dashboard -->
+<a class="flex items-center space-x-3 p-3 bg-primary-container text-primary border-2 border-primary font-bold" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-headline uppercase tracking-tighter">Dashboard</span>
+</a>
+<!-- Inactive Tabs -->
+<a class="flex items-center space-x-3 p-3 text-primary dark:text-on-primary-fixed hover:bg-surface-variant hover:bg-primary hover:text-on-primary transition-colors duration-100 active:translate-x-1 active:translate-y-1" href="#">
+<span class="material-symbols-outlined">description</span>
+<span class="font-headline uppercase tracking-tighter">Resumes</span>
+</a>
+<a class="flex items-center space-x-3 p-3 text-primary dark:text-on-primary-fixed hover:bg-surface-variant hover:bg-primary hover:text-on-primary transition-colors duration-100 active:translate-x-1 active:translate-y-1" href="#">
+<span class="material-symbols-outlined">psychology</span>
+<span class="font-headline uppercase tracking-tighter">Interview Prep</span>
+</a>
+<a class="flex items-center space-x-3 p-3 text-primary dark:text-on-primary-fixed hover:bg-surface-variant hover:bg-primary hover:text-on-primary transition-colors duration-100 active:translate-x-1 active:translate-y-1" href="#">
+<span class="material-symbols-outlined">search</span>
+<span class="font-headline uppercase tracking-tighter">Job Search</span>
+</a>
+<a class="flex items-center space-x-3 p-3 text-primary dark:text-on-primary-fixed hover:bg-surface-variant hover:bg-primary hover:text-on-primary transition-colors duration-100 active:translate-x-1 active:translate-y-1" href="#">
+<span class="material-symbols-outlined">assignment_turned_in</span>
+<span class="font-headline uppercase tracking-tighter">Applications</span>
+</a>
+<a class="flex items-center space-x-3 p-3 text-primary dark:text-on-primary-fixed hover:bg-surface-variant hover:bg-primary hover:text-on-primary transition-colors duration-100 active:translate-x-1 active:translate-y-1" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-headline uppercase tracking-tighter">Settings</span>
+</a>
+</div>
+<div class="mt-auto pt-4 border-t-2 border-primary">
+<button class="w-full py-3 bg-secondary text-on-error font-headline font-bold uppercase tracking-widest bauhaus-border bauhaus-shadow-sm hover:bg-primary hover:text-on-primary transition-colors active:translate-x-1 active:translate-y-1 active:shadow-none">Upgrade Plan</button>
+</div>
+</nav>
+<!-- TopAppBar -->
+<header class="flex justify-between items-center h-16 px-6 ml-64 w-[calc(100%-16rem)] bg-background dark:bg-primary w-full border-b-2 border-primary dark:border-primary-fixed z-40 relative">
+<div class="flex items-center space-x-8">
+<h2 class="font-headline font-black text-xl uppercase text-primary dark:text-primary-fixed">CareerForge AI</h2>
+<nav class="hidden md:flex space-x-6">
+<a class="font-headline font-bold text-lg text-primary dark:text-on-primary-fixed hover:text-secondary transition-colors active:scale-95" href="#">Network</a>
+<a class="font-headline font-bold text-lg text-primary dark:text-on-primary-fixed hover:text-secondary transition-colors active:scale-95" href="#">Resources</a>
+</nav>
+</div>
+<div class="flex items-center space-x-6">
+<div class="relative hidden lg:block">
+<input class="bg-surface font-headline uppercase font-bold text-primary placeholder-on-surface-variant border-b-3 border-primary border-t-0 border-l-0 border-r-0 focus:ring-0 focus:border-secondary w-64 px-0 py-2" placeholder="SEARCH..." type="text"/>
+<span class="material-symbols-outlined absolute right-0 top-2 text-primary">search</span>
+</div>
+<button class="text-primary hover:text-secondary transition-colors active:scale-95">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">notifications</span>
+</button>
+<button class="w-10 h-10 rounded-none bg-primary-container bauhaus-border overflow-hidden hover:opacity-90 active:scale-95 transition-transform">
+<img alt="User Status" class="w-full h-full object-cover" data-alt="A striking minimalist portrait of a professional user in a highly stylized digital environment. Bold lighting highlights the geometric features of their face, adhering to a high-contrast Bauhaus aesthetic with sharp black lines and vibrant yellow accents. The background is a stark, textured off-white resembling aged paper, reinforcing the neo-brutalist identity." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBI85QW9hl7Y1Xa93jKSHAb0VHLYysaPgU2PUU9yYyfb16v_8ZRNgZlkWceW8ctdYJvpQmLb9k4iokgqa4pBBeDtCkEkpqEGOgT1ng08JPam0KnF3xWz2Qpq4MfjgF4fF9rHWTWV0JLyvbRT1J32wyDTj1yeWtTU18j8199670vPsSZKEqBNjHk_gUt8vq2HFuh3OaY-x64MYC5CmvxqjN9jndohy97anHpDvoESV6RSR-7UAijygld"/>
+</button>
+</div>
+</header>
+<!-- Main Content -->
+<main class="ml-64 p-8 pt-24 max-w-7xl mx-auto">
+<!-- Header -->
+<div class="mb-12 flex justify-between items-end border-b-3 border-primary pb-4">
+<div>
+<h2 class="font-headline text-5xl font-black uppercase tracking-tighter text-primary">Overview</h2>
+<p class="font-body text-lg font-bold text-on-surface-variant mt-2">METRICS &amp; INTELLIGENCE</p>
+</div>
+<div class="flex space-x-4">
+<button class="px-6 py-2 bg-background text-primary font-headline font-bold uppercase bauhaus-border hover:bg-primary hover:text-on-primary transition-colors">Export Data</button>
+<button class="px-6 py-2 bg-primary text-on-primary font-headline font-bold uppercase bauhaus-border bauhaus-shadow-sm hover:bg-secondary active:translate-y-1 active:translate-x-1 active:shadow-none transition-all">New Application</button>
+</div>
+</div>
+<!-- Metrics Grid (Bento Style) -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+<!-- Metric 1: Resumes -->
+<div class="bg-primary-container p-6 bauhaus-border bauhaus-shadow flex flex-col justify-between h-48 relative overflow-hidden group hover:-translate-y-1 transition-transform">
+<div class="flex justify-between items-start">
+<span class="font-headline font-bold uppercase tracking-widest text-primary">Active Resumes</span>
+<span class="material-symbols-outlined text-primary text-3xl">description</span>
+</div>
+<div class="mt-auto">
+<div class="font-headline text-6xl font-black text-primary">12</div>
+<div class="font-body font-bold text-sm text-primary flex items-center mt-1">
+<span class="material-symbols-outlined text-sm mr-1">arrow_upward</span>
+                        +2 THIS WEEK
+                    </div>
+</div>
+<!-- Decorative Graphic -->
+<div class="absolute -right-4 -bottom-4 w-24 h-24 bg-primary opacity-10 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
+</div>
+<!-- Metric 2: ATS Score -->
+<div class="bg-surface p-6 bauhaus-border bauhaus-shadow flex flex-col justify-between h-48 relative overflow-hidden group hover:-translate-y-1 transition-transform">
+<div class="flex justify-between items-start">
+<span class="font-headline font-bold uppercase tracking-widest text-primary">Avg ATS Score</span>
+<span class="material-symbols-outlined text-secondary text-3xl">speed</span>
+</div>
+<div class="mt-auto">
+<div class="font-headline text-6xl font-black text-secondary">86<span class="text-3xl">%</span></div>
+<div class="font-body font-bold text-sm text-on-surface-variant flex items-center mt-1">
+<span class="material-symbols-outlined text-sm mr-1">arrow_upward</span>
+                        +5% VS LAST MONTH
+                    </div>
+</div>
+</div>
+<!-- Metric 3: Interviews -->
+<div class="bg-tertiary p-6 bauhaus-border bauhaus-shadow flex flex-col justify-between h-48 relative overflow-hidden group hover:-translate-y-1 transition-transform">
+<div class="flex justify-between items-start">
+<span class="font-headline font-bold uppercase tracking-widest text-on-tertiary">Upcoming Interviews</span>
+<span class="material-symbols-outlined text-on-tertiary text-3xl">groups</span>
+</div>
+<div class="mt-auto">
+<div class="font-headline text-6xl font-black text-on-tertiary">04</div>
+<div class="font-body font-bold text-sm text-on-tertiary opacity-80 flex items-center mt-1">
+                        NEXT: TOMORROW 10AM
+                    </div>
+</div>
+<div class="absolute top-0 right-0 w-16 h-16 bg-primary transform rotate-45 translate-x-8 -translate-y-8"></div>
+</div>
+<!-- Metric 4: Applications -->
+<div class="bg-primary p-6 bauhaus-border bauhaus-shadow flex flex-col justify-between h-48 relative overflow-hidden group hover:-translate-y-1 transition-transform">
+<div class="flex justify-between items-start">
+<span class="font-headline font-bold uppercase tracking-widest text-on-primary">Total Applications</span>
+<span class="material-symbols-outlined text-primary-container text-3xl">send</span>
+</div>
+<div class="mt-auto">
+<div class="font-headline text-6xl font-black text-on-primary">47</div>
+<div class="font-body font-bold text-sm text-primary-container flex items-center mt-1">
+                        IN PROGRESS
+                    </div>
+</div>
+</div>
+</div>
+<!-- Main Content Area: Charts & Activity -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+<!-- Left Column: Charts -->
+<div class="lg:col-span-2 space-y-8">
+<!-- ATS Score Trend -->
+<div class="bg-surface p-6 bauhaus-border bauhaus-shadow">
+<div class="flex justify-between items-center mb-6">
+<h3 class="font-headline font-bold text-xl uppercase tracking-wider text-primary">ATS Score Velocity</h3>
+<div class="flex space-x-2">
+<span class="px-2 py-1 bg-primary text-on-primary text-xs font-bold uppercase bauhaus-border">30D</span>
+<span class="px-2 py-1 bg-background text-primary text-xs font-bold uppercase bauhaus-border cursor-pointer hover:bg-surface-variant">90D</span>
+</div>
+</div>
+<!-- Faux Chart Area (Using geometric shapes for the Bauhaus aesthetic) -->
+<div class="h-64 border-b-2 border-l-2 border-primary relative flex items-end justify-between pt-4 px-2">
+<!-- Y-Axis Labels -->
+<div class="absolute left-[-30px] top-0 bottom-0 flex flex-col justify-between text-xs font-bold font-headline text-on-surface-variant py-2">
+<span>100</span>
+<span>75</span>
+<span>50</span>
+<span>25</span>
+<span>0</span>
+</div>
+<!-- Trend Line (Visual representation) -->
+<div class="absolute inset-0 w-full h-full pointer-events-none opacity-20 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4IiBoZWlnaHQ9IjgiPgo8cmVjdCB3aWR0aD0iOCIgaGVpZ2h0PSI4IiBmaWxsPSIjZmZmIiAvPgo8cGF0aCBkPSJNMCAwTDggOFpNOCAwTDAgOFoiIHN0cm9rZT0iIzAwMCIgc3Ryb2tlLXdpZHRoPSIxIi8+Cjwvc3ZnPg==')]"></div>
+<!-- Data Points -->
+<div class="w-12 h-[40%] bg-primary relative group">
+<div class="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-primary text-on-primary text-xs font-bold py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity">40%</div>
+</div>
+<div class="w-12 h-[55%] bg-primary relative group">
+<div class="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-primary text-on-primary text-xs font-bold py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity">55%</div>
+</div>
+<div class="w-12 h-[60%] bg-primary relative group">
+<div class="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-primary text-on-primary text-xs font-bold py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity">60%</div>
+</div>
+<div class="w-12 h-[75%] bg-primary relative group">
+<div class="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-primary text-on-primary text-xs font-bold py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity">75%</div>
+</div>
+<div class="w-12 h-[82%] bg-secondary relative group">
+<div class="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-secondary text-on-error text-xs font-bold py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity">82%</div>
+</div>
+<div class="w-12 h-[86%] bg-primary-container border-2 border-primary relative group">
+<div class="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-primary text-on-primary text-xs font-bold py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity">86%</div>
+</div>
+</div>
+<!-- X-Axis Labels -->
+<div class="flex justify-between mt-2 px-2 text-xs font-bold font-headline text-on-surface-variant">
+<span>WK 1</span>
+<span>WK 2</span>
+<span>WK 3</span>
+<span>WK 4</span>
+<span>WK 5</span>
+<span>CURRENT</span>
+</div>
+</div>
+<!-- Application Funnel -->
+<div class="bg-surface p-6 bauhaus-border bauhaus-shadow">
+<h3 class="font-headline font-bold text-xl uppercase tracking-wider text-primary mb-6">Conversion Funnel</h3>
+<div class="space-y-4">
+<!-- Funnel Step 1 -->
+<div>
+<div class="flex justify-between text-sm font-bold font-headline uppercase mb-1">
+<span>Applied</span>
+<span>47 (100%)</span>
+</div>
+<div class="h-8 bg-surface-variant bauhaus-border w-full relative">
+<div class="absolute top-0 left-0 h-full bg-primary" style="width: 100%;"></div>
+</div>
+</div>
+<!-- Funnel Step 2 -->
+<div>
+<div class="flex justify-between text-sm font-bold font-headline uppercase mb-1">
+<span>Screening</span>
+<span>24 (51%)</span>
+</div>
+<div class="h-8 bg-surface-variant bauhaus-border w-full relative">
+<div class="absolute top-0 left-0 h-full bg-tertiary" style="width: 51%;"></div>
+</div>
+</div>
+<!-- Funnel Step 3 -->
+<div>
+<div class="flex justify-between text-sm font-bold font-headline uppercase mb-1">
+<span>Interview</span>
+<span>12 (25%)</span>
+</div>
+<div class="h-8 bg-surface-variant bauhaus-border w-full relative">
+<div class="absolute top-0 left-0 h-full bg-primary-container border-r-3 border-primary" style="width: 25%;"></div>
+</div>
+</div>
+<!-- Funnel Step 4 -->
+<div>
+<div class="flex justify-between text-sm font-bold font-headline uppercase mb-1">
+<span>Offer</span>
+<span class="text-secondary">2 (4%)</span>
+</div>
+<div class="h-8 bg-surface-variant bauhaus-border w-full relative">
+<div class="absolute top-0 left-0 h-full bg-secondary" style="width: 4%;"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column: Activity Feed -->
+<div class="lg:col-span-1">
+<div class="bg-surface p-6 bauhaus-border bauhaus-shadow h-full flex flex-col">
+<h3 class="font-headline font-bold text-xl uppercase tracking-wider text-primary mb-6 pb-2 border-b-3 border-primary">Recent Activity</h3>
+<div class="flex-1 space-y-6 overflow-y-auto pr-2">
+<!-- Activity Item -->
+<div class="relative pl-6 border-l-3 border-primary">
+<div class="absolute -left-[10px] top-0 w-4 h-4 bg-primary-container bauhaus-border rounded-none"></div>
+<div class="text-xs font-bold text-on-surface-variant mb-1">2 HOURS AGO</div>
+<h4 class="font-headline font-bold text-primary uppercase">Resume Optimized</h4>
+<p class="text-sm font-medium mt-1">"Frontend Dev v3" analyzed. ATS score improved from 72% to 88%.</p>
+<button class="mt-2 text-xs font-bold text-tertiary uppercase underline hover:text-primary">View Diff</button>
+</div>
+<!-- Activity Item -->
+<div class="relative pl-6 border-l-3 border-primary">
+<div class="absolute -left-[10px] top-0 w-4 h-4 bg-tertiary bauhaus-border rounded-none"></div>
+<div class="text-xs font-bold text-on-surface-variant mb-1">YESTERDAY</div>
+<h4 class="font-headline font-bold text-primary uppercase">Interview Scheduled</h4>
+<p class="text-sm font-medium mt-1">TechCorp Inc. scheduled a technical screen for Senior React Engineer role.</p>
+<div class="mt-2 inline-block px-2 py-1 bg-surface-variant bauhaus-border text-xs font-bold">MAR 15, 10:00 AM</div>
+</div>
+<!-- Activity Item -->
+<div class="relative pl-6 border-l-3 border-primary">
+<div class="absolute -left-[10px] top-0 w-4 h-4 bg-secondary bauhaus-border rounded-none"></div>
+<div class="text-xs font-bold text-on-surface-variant mb-1">2 DAYS AGO</div>
+<h4 class="font-headline font-bold text-primary uppercase">Application Rejected</h4>
+<p class="text-sm font-medium mt-1">GlobalNet decided to move forward with other candidates.</p>
+</div>
+<!-- Activity Item -->
+<div class="relative pl-6 border-l-3 border-primary">
+<div class="absolute -left-[10px] top-0 w-4 h-4 bg-primary bauhaus-border rounded-none"></div>
+<div class="text-xs font-bold text-on-surface-variant mb-1">3 DAYS AGO</div>
+<h4 class="font-headline font-bold text-primary uppercase">Application Submitted</h4>
+<p class="text-sm font-medium mt-1">Applied to DataSystems LLC for the Full Stack Developer position.</p>
+</div>
+</div>
+<button class="mt-6 w-full py-3 bg-transparent text-primary font-headline font-bold uppercase tracking-widest bauhaus-border hover:bg-primary hover:text-on-primary transition-colors">View All Logs</button>
+</div>
+</div>
+</div>
+</main>
+</body></html>

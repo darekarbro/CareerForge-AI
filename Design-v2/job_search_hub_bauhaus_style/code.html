@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CareerForge AI - Job Search Hub</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Space+Grotesk:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary": "#ffffff",
+                        "surface-container-low": "#f2ede5",
+                        "on-surface-variant": "#4a4a4a",
+                        "on-error": "#ffffff",
+                        "secondary-fixed": "#ffdad6",
+                        "error-container": "#ffdad6",
+                        "surface": "#f5f0e8",
+                        "surface-variant": "#e8e3da",
+                        "tertiary": "#0055ff",
+                        "on-tertiary-container": "#1a1a1a",
+                        "on-tertiary-fixed": "#1a1a1a",
+                        "on-secondary": "#1a1a1a",
+                        "on-error-container": "#93000a",
+                        "on-secondary-fixed-variant": "#1a1a1a",
+                        "primary-container": "#ffcc00",
+                        "on-primary": "#ffffff",
+                        "background": "#f5f0e8",
+                        "secondary-fixed-dim": "#ffb3ab",
+                        "inverse-surface": "#1a1a1a",
+                        "surface-container": "#eee9e0",
+                        "on-secondary-fixed": "#1a1a1a",
+                        "tertiary-fixed-dim": "#a8c6ff",
+                        "surface-bright": "#faf7f2",
+                        "tertiary-container": "#d6e3ff",
+                        "surface-container-high": "#e8e3da",
+                        "on-surface": "#1a1a1a",
+                        "on-background": "#1a1a1a",
+                        "on-primary-fixed-variant": "#1a1a1a",
+                        "secondary-container": "#ffdad6",
+                        "surface-container-lowest": "#ffffff",
+                        "inverse-primary": "#f5f0e8",
+                        "inverse-on-surface": "#f5f0e8",
+                        "primary-fixed-dim": "#e6b800",
+                        "outline-variant": "#d0cbc3",
+                        "error": "#cc0000",
+                        "tertiary-fixed": "#d6e3ff",
+                        "on-tertiary-fixed-variant": "#1a1a1a",
+                        "primary-fixed": "#ffcc00",
+                        "on-secondary-container": "#1a1a1a",
+                        "on-primary-container": "#1a1a1a",
+                        "primary": "#1a1a1a",
+                        "surface-dim": "#d6d1c9",
+                        "surface-tint": "#1a1a1a",
+                        "outline": "#1a1a1a",
+                        "surface-container-highest": "#e2ddd4",
+                        "secondary": "#e63b2e",
+                        "on-primary-fixed": "#1a1a1a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0px",
+                        "lg": "0px",
+                        "xl": "0px",
+                        "full": "0px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Space Grotesk"],
+                        "display": ["Space Grotesk"],
+                        "body": ["Inter"],
+                        "label": ["Space Grotesk"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        /* Neobrutalism offsets */
+        .neo-shadow {
+            box-shadow: 6px 6px 0px 0px var(--tw-shadow-color, #1a1a1a);
+        }
+        .neo-shadow-sm {
+            box-shadow: 4px 4px 0px 0px var(--tw-shadow-color, #1a1a1a);
+        }
+        .neo-shadow-hover:hover {
+            box-shadow: 2px 2px 0px 0px var(--tw-shadow-color, #1a1a1a);
+            transform: translate(4px, 4px);
+        }
+    </style>
+</head>
+<body class="bg-background text-primary font-body antialiased min-h-screen">
+<!-- SideNavBar (from JSON) -->
+<nav class="hidden md:flex flex-col p-4 bg-background dark:bg-primary h-screen w-64 border-r-[3px] border-primary dark:border-primary-fixed fixed left-0 top-0 z-50">
+<div class="mb-8 flex flex-col items-center justify-center p-4 border-[3px] border-primary bg-primary-container neo-shadow-sm">
+<h1 class="font-headline text-2xl font-black uppercase tracking-widest text-primary dark:text-primary-fixed text-center leading-none">Career<br/>Forge</h1>
+<p class="font-headline uppercase tracking-tighter text-xs font-bold mt-2">Technical Platform</p>
+</div>
+<ul class="flex flex-col gap-2 flex-grow">
+<!-- Inactive -->
+<li>
+<a class="flex items-center gap-4 p-3 text-primary dark:text-on-primary-fixed hover:bg-primary hover:text-on-primary transition-colors duration-100 border-[3px] border-transparent hover:border-primary font-headline uppercase font-bold text-sm" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+                    Dashboard
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-4 p-3 text-primary dark:text-on-primary-fixed hover:bg-primary hover:text-on-primary transition-colors duration-100 border-[3px] border-transparent hover:border-primary font-headline uppercase font-bold text-sm" href="#">
+<span class="material-symbols-outlined" data-icon="description">description</span>
+                    Resumes
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-4 p-3 text-primary dark:text-on-primary-fixed hover:bg-primary hover:text-on-primary transition-colors duration-100 border-[3px] border-transparent hover:border-primary font-headline uppercase font-bold text-sm" href="#">
+<span class="material-symbols-outlined" data-icon="psychology">psychology</span>
+                    Interview Prep
+                </a>
+</li>
+<!-- Active -->
+<li>
+<a class="flex items-center gap-4 p-3 bg-primary-container text-primary border-[3px] border-primary font-bold neo-shadow-sm active:translate-x-1 active:translate-y-1 font-headline uppercase text-sm" href="#">
+<span class="material-symbols-outlined" data-icon="search" style="font-variation-settings: 'FILL' 1;">search</span>
+                    Job Search
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-4 p-3 text-primary dark:text-on-primary-fixed hover:bg-primary hover:text-on-primary transition-colors duration-100 border-[3px] border-transparent hover:border-primary font-headline uppercase font-bold text-sm" href="#">
+<span class="material-symbols-outlined" data-icon="assignment_turned_in">assignment_turned_in</span>
+                    Applications
+                </a>
+</li>
+<li class="mt-auto">
+<a class="flex items-center gap-4 p-3 text-primary dark:text-on-primary-fixed hover:bg-primary hover:text-on-primary transition-colors duration-100 border-[3px] border-transparent hover:border-primary font-headline uppercase font-bold text-sm" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+                    Settings
+                </a>
+</li>
+</ul>
+<button class="mt-4 w-full bg-secondary text-on-error font-headline uppercase font-black tracking-wider py-4 border-[3px] border-primary neo-shadow-sm hover:bg-primary hover:text-on-primary transition-all active:translate-x-1 active:translate-y-1 active:shadow-none">
+            Upgrade Plan
+        </button>
+</nav>
+<!-- Main Content Area -->
+<div class="md:ml-64 min-h-screen flex flex-col">
+<!-- TopAppBar (from JSON) -->
+<header class="flex justify-between items-center h-20 px-6 w-full border-b-[3px] border-primary dark:border-primary-fixed bg-background dark:bg-primary sticky top-0 z-40">
+<div class="flex items-center gap-8">
+<h2 class="font-headline font-black text-2xl uppercase text-primary dark:text-primary-fixed tracking-tight">CareerForge AI</h2>
+<nav class="hidden lg:flex gap-6">
+<a class="font-headline font-bold text-lg text-primary dark:text-on-primary-fixed hover:text-secondary transition-colors uppercase" href="#">Network</a>
+<a class="font-headline font-bold text-lg text-primary dark:text-on-primary-fixed hover:text-secondary transition-colors uppercase" href="#">Resources</a>
+</nav>
+</div>
+<div class="flex items-center gap-6">
+<!-- Search on Right -->
+<div class="relative hidden sm:block">
+<input class="border-[3px] border-primary bg-surface-bright py-2 pl-4 pr-10 font-headline uppercase font-bold text-sm focus:outline-none focus:ring-0 focus:bg-primary-container transition-colors placeholder:text-on-surface-variant w-64" placeholder="SEARCH ROLES..." type="text"/>
+<span class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 font-bold" data-icon="search">search</span>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 border-[3px] border-primary bg-background hover:bg-primary hover:text-on-primary transition-colors neo-shadow-sm active:translate-x-1 active:translate-y-1 active:shadow-none">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="p-2 border-[3px] border-primary bg-tertiary text-on-tertiary hover:bg-primary hover:text-on-primary transition-colors neo-shadow-sm active:translate-x-1 active:translate-y-1 active:shadow-none">
+<span class="material-symbols-outlined" data-icon="account_circle">account_circle</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Page Content Canvas -->
+<main class="flex-grow p-6 lg:p-12">
+<!-- Hero / Search Input Area -->
+<div class="mb-16 border-[3px] border-primary bg-primary-container p-8 lg:p-12 neo-shadow">
+<h2 class="font-headline font-black text-5xl lg:text-7xl uppercase mb-4 tracking-tighter leading-none">Find Your<br/>Next Role</h2>
+<p class="font-body text-xl font-medium mb-8 max-w-2xl border-l-[4px] border-primary pl-4">Deploy our AI to aggregate, filter, and analyze the technical job market based on your unique profile vectors.</p>
+<div class="flex flex-col md:flex-row gap-4">
+<div class="flex-grow relative">
+<input class="w-full border-[3px] border-primary bg-surface-bright p-4 lg:p-6 font-headline uppercase font-black text-lg focus:outline-none focus:ring-0 focus:border-secondary transition-colors placeholder:text-on-surface-variant h-full" placeholder="ENTER JOB TITLE, SKILL, OR KEYWORD..." type="text"/>
+<span class="material-symbols-outlined absolute right-6 top-1/2 -translate-y-1/2 text-3xl" data-icon="terminal">terminal</span>
+</div>
+<button class="bg-primary text-on-primary font-headline uppercase font-black tracking-widest px-8 py-4 lg:py-6 text-xl border-[3px] border-primary hover:bg-secondary hover:text-primary transition-colors flex items-center justify-center gap-2 neo-shadow-sm">
+<span class="material-symbols-outlined" data-icon="radar">radar</span>
+                        Scan Market
+                    </button>
+</div>
+</div>
+<!-- Platform Filters -->
+<div class="mb-12">
+<h3 class="font-headline font-bold text-2xl uppercase mb-6 border-b-[3px] border-primary pb-2 inline-block">Target Platforms</h3>
+<div class="flex flex-wrap gap-4">
+<button class="px-6 py-2 border-[3px] border-primary bg-background font-headline uppercase font-bold hover:bg-primary hover:text-on-primary transition-colors neo-shadow-sm flex items-center gap-2">
+<span class="w-3 h-3 bg-tertiary rounded-full border border-primary"></span>
+                        LinkedIn
+                    </button>
+<button class="px-6 py-2 border-[3px] border-primary bg-primary text-on-primary font-headline uppercase font-bold hover:bg-background hover:text-primary transition-colors neo-shadow-sm flex items-center gap-2">
+<span class="w-3 h-3 bg-secondary rounded-full border border-primary"></span>
+                        Y Combinator
+                    </button>
+<button class="px-6 py-2 border-[3px] border-primary bg-background font-headline uppercase font-bold hover:bg-primary hover:text-on-primary transition-colors neo-shadow-sm flex items-center gap-2">
+<span class="w-3 h-3 bg-primary-container rounded-full border border-primary"></span>
+                        Wellfound
+                    </button>
+<button class="px-6 py-2 border-[3px] border-primary bg-background font-headline uppercase font-bold hover:bg-primary hover:text-on-primary transition-colors neo-shadow-sm flex items-center gap-2">
+<span class="w-3 h-3 bg-[#000] rounded-full border border-white"></span>
+                        GitHub Jobs
+                    </button>
+</div>
+</div>
+<!-- Category Grid (Bento style) -->
+<h3 class="font-headline font-bold text-2xl uppercase mb-6 border-b-[3px] border-primary pb-2 inline-block">Role Vectors</h3>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+<!-- Card 1 -->
+<div class="border-[3px] border-primary bg-surface-bright p-6 neo-shadow hover:neo-shadow-hover transition-all flex flex-col justify-between group cursor-pointer h-64">
+<div class="flex justify-between items-start">
+<div class="w-12 h-12 bg-tertiary border-[3px] border-primary flex items-center justify-center text-on-tertiary neo-shadow-sm">
+<span class="material-symbols-outlined text-2xl" data-icon="code">code</span>
+</div>
+<span class="font-headline font-black text-4xl text-primary opacity-20 group-hover:opacity-100 transition-opacity">01</span>
+</div>
+<div>
+<h4 class="font-headline font-black text-2xl uppercase mb-2">Frontend Eng</h4>
+<p class="font-body text-sm font-medium">React, Vue, WebGL specialists.</p>
+<div class="mt-4 flex gap-2">
+<span class="bg-primary text-on-primary text-xs font-bold px-2 py-1 uppercase">1,240 Open</span>
+</div>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="border-[3px] border-primary bg-primary-container p-6 neo-shadow hover:neo-shadow-hover transition-all flex flex-col justify-between group cursor-pointer h-64">
+<div class="flex justify-between items-start">
+<div class="w-12 h-12 bg-background border-[3px] border-primary flex items-center justify-center text-primary neo-shadow-sm">
+<span class="material-symbols-outlined text-2xl" data-icon="database">database</span>
+</div>
+<span class="font-headline font-black text-4xl text-primary opacity-20 group-hover:opacity-100 transition-opacity">02</span>
+</div>
+<div>
+<h4 class="font-headline font-black text-2xl uppercase mb-2">Backend Sys</h4>
+<p class="font-body text-sm font-medium">Rust, Go, Distributed Systems.</p>
+<div class="mt-4 flex gap-2">
+<span class="bg-primary text-on-primary text-xs font-bold px-2 py-1 uppercase">892 Open</span>
+<span class="bg-secondary text-on-error text-xs font-bold px-2 py-1 uppercase">Hot</span>
+</div>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="border-[3px] border-primary bg-surface-bright p-6 neo-shadow hover:neo-shadow-hover transition-all flex flex-col justify-between group cursor-pointer h-64">
+<div class="flex justify-between items-start">
+<div class="w-12 h-12 bg-secondary border-[3px] border-primary flex items-center justify-center text-on-error neo-shadow-sm">
+<span class="material-symbols-outlined text-2xl" data-icon="memory">memory</span>
+</div>
+<span class="font-headline font-black text-4xl text-primary opacity-20 group-hover:opacity-100 transition-opacity">03</span>
+</div>
+<div>
+<h4 class="font-headline font-black text-2xl uppercase mb-2">AI / ML</h4>
+<p class="font-body text-sm font-medium">PyTorch, LLMs, Data Eng.</p>
+<div class="mt-4 flex gap-2">
+<span class="bg-primary text-on-primary text-xs font-bold px-2 py-1 uppercase">2,105 Open</span>
+</div>
+</div>
+</div>
+<!-- Card 4 (Spans 2 columns on lg) -->
+<div class="border-[3px] border-primary bg-surface-bright p-6 neo-shadow hover:neo-shadow-hover transition-all flex flex-col justify-between group cursor-pointer md:col-span-2 lg:col-span-2 h-64 relative overflow-hidden">
+<div class="absolute right-0 bottom-0 opacity-10 translate-x-1/4 translate-y-1/4 pointer-events-none">
+<span class="material-symbols-outlined" data-icon="monitoring" style="font-size: 200px;">monitoring</span>
+</div>
+<div class="flex justify-between items-start relative z-10">
+<div class="w-12 h-12 bg-primary border-[3px] border-primary flex items-center justify-center text-on-primary neo-shadow-sm">
+<span class="material-symbols-outlined text-2xl" data-icon="leaderboard">leaderboard</span>
+</div>
+<span class="font-headline font-black text-4xl text-primary opacity-20 group-hover:opacity-100 transition-opacity">04</span>
+</div>
+<div class="relative z-10">
+<h4 class="font-headline font-black text-3xl uppercase mb-2">Product Management</h4>
+<p class="font-body text-base font-medium max-w-md">Technical PMs, Growth, Agile leaders driving product vision.</p>
+<div class="mt-4 flex gap-2">
+<span class="bg-primary text-on-primary text-xs font-bold px-2 py-1 uppercase">543 Open</span>
+</div>
+</div>
+</div>
+<!-- Card 5 -->
+<div class="border-[3px] border-primary bg-surface-bright p-6 neo-shadow hover:neo-shadow-hover transition-all flex flex-col justify-between group cursor-pointer h-64">
+<div class="flex justify-between items-start">
+<div class="w-12 h-12 bg-background border-[3px] border-primary flex items-center justify-center text-primary neo-shadow-sm">
+<span class="material-symbols-outlined text-2xl" data-icon="design_services">design_services</span>
+</div>
+<span class="font-headline font-black text-4xl text-primary opacity-20 group-hover:opacity-100 transition-opacity">05</span>
+</div>
+<div>
+<h4 class="font-headline font-black text-2xl uppercase mb-2">UX / UI Eng</h4>
+<p class="font-body text-sm font-medium">Design systems, Figma to Code.</p>
+<div class="mt-4 flex gap-2">
+<span class="bg-primary text-on-primary text-xs font-bold px-2 py-1 uppercase">312 Open</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

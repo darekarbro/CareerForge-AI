@@ -1,0 +1,135 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700;800;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-main: #f5f0e8;
+  --text-main: #1a1a1a;
+  --accent-yellow: #ffcc00;
+  --accent-red: #e63b2e;
+  --accent-blue: #0055ff;
+}
+
+body {
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  font-family: 'Inter', sans-serif;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6, .font-headline {
+  font-family: 'Space Grotesk', sans-serif;
+  letter-spacing: -0.02em;
+}
+
+/* Neo-Brutalist utility classes */
+.brutal-card {
+  border: 3px solid #1a1a1a;
+  background-color: #ffffff;
+  box-shadow: 5px 5px 0px #1a1a1a;
+  transition: all 0.15s ease-in-out;
+}
+
+.brutal-card:hover {
+  box-shadow: 7px 7px 0px #1a1a1a;
+  transform: translate(-2px, -2px);
+}
+
+.brutal-btn-primary {
+  border: 3px solid #1a1a1a;
+  background-color: #1a1a1a;
+  color: #ffffff;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  box-shadow: 4px 4px 0px #ffcc00;
+  transition: all 0.15s ease-in-out;
+}
+
+.brutal-btn-primary:hover {
+  background-color: #ffcc00;
+  color: #1a1a1a;
+  box-shadow: 6px 6px 0px #1a1a1a;
+  transform: translate(-2px, -2px);
+}
+
+.brutal-btn-yellow {
+  border: 3px solid #1a1a1a;
+  background-color: #ffcc00;
+  color: #1a1a1a;
+  font-weight: 700;
+  text-transform: uppercase;
+  box-shadow: 4px 4px 0px #1a1a1a;
+  transition: all 0.15s ease-in-out;
+}
+
+.brutal-btn-yellow:hover {
+  background-color: #1a1a1a;
+  color: #ffcc00;
+  box-shadow: 6px 6px 0px #1a1a1a;
+  transform: translate(-2px, -2px);
+}
+
+.brutal-btn-blue {
+  border: 3px solid #1a1a1a;
+  background-color: #0055ff;
+  color: #ffffff;
+  font-weight: 700;
+  text-transform: uppercase;
+  box-shadow: 4px 4px 0px #1a1a1a;
+  transition: all 0.15s ease-in-out;
+}
+
+.brutal-btn-blue:hover {
+  background-color: #1a1a1a;
+  color: #ffffff;
+  box-shadow: 6px 6px 0px #0055ff;
+  transform: translate(-2px, -2px);
+}
+
+.brutal-btn-red {
+  border: 3px solid #1a1a1a;
+  background-color: #e63b2e;
+  color: #ffffff;
+  font-weight: 700;
+  text-transform: uppercase;
+  box-shadow: 4px 4px 0px #1a1a1a;
+  transition: all 0.15s ease-in-out;
+}
+
+.brutal-btn-red:hover {
+  background-color: #1a1a1a;
+  color: #ffffff;
+  box-shadow: 6px 6px 0px #e63b2e;
+  transform: translate(-2px, -2px);
+}
+
+.brutal-input {
+  border: 3px solid #1a1a1a;
+  background-color: #ffffff;
+  color: #1a1a1a;
+  padding: 0.625rem 0.875rem;
+  font-weight: 500;
+  outline: none;
+  transition: all 0.15s ease-in-out;
+}
+
+.brutal-input:focus {
+  background-color: #faf7f2;
+  box-shadow: 4px 4px 0px #1a1a1a;
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #f5f0e8;
+  border-left: 2px solid #1a1a1a;
+}
+::-webkit-scrollbar-thumb {
+  background: #1a1a1a;
+}

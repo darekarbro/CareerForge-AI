@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CareerForge AI - Interview Session</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700;900&amp;family=Inter:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-tertiary": "#ffffff",
+                      "surface-container-low": "#f2ede5",
+                      "on-surface-variant": "#4a4a4a",
+                      "on-error": "#ffffff",
+                      "secondary-fixed": "#ffdad6",
+                      "error-container": "#ffdad6",
+                      "surface": "#f5f0e8",
+                      "surface-variant": "#e8e3da",
+                      "tertiary": "#0055ff",
+                      "on-tertiary-container": "#1a1a1a",
+                      "on-tertiary-fixed": "#1a1a1a",
+                      "on-secondary": "#1a1a1a",
+                      "on-error-container": "#93000a",
+                      "on-secondary-fixed-variant": "#1a1a1a",
+                      "primary-container": "#ffcc00",
+                      "on-primary": "#ffffff",
+                      "background": "#f5f0e8",
+                      "secondary-fixed-dim": "#ffb3ab",
+                      "inverse-surface": "#1a1a1a",
+                      "surface-container": "#eee9e0",
+                      "on-secondary-fixed": "#1a1a1a",
+                      "tertiary-fixed-dim": "#a8c6ff",
+                      "surface-bright": "#faf7f2",
+                      "tertiary-container": "#d6e3ff",
+                      "surface-container-high": "#e8e3da",
+                      "on-surface": "#1a1a1a",
+                      "on-background": "#1a1a1a",
+                      "on-primary-fixed-variant": "#1a1a1a",
+                      "secondary-container": "#ffdad6",
+                      "surface-container-lowest": "#ffffff",
+                      "inverse-primary": "#f5f0e8",
+                      "inverse-on-surface": "#f5f0e8",
+                      "primary-fixed-dim": "#e6b800",
+                      "outline-variant": "#d0cbc3",
+                      "error": "#cc0000",
+                      "tertiary-fixed": "#d6e3ff",
+                      "on-tertiary-fixed-variant": "#1a1a1a",
+                      "primary-fixed": "#ffcc00",
+                      "on-secondary-container": "#1a1a1a",
+                      "on-primary-container": "#1a1a1a",
+                      "primary": "#1a1a1a",
+                      "surface-dim": "#d6d1c9",
+                      "surface-tint": "#1a1a1a",
+                      "outline": "#1a1a1a",
+                      "surface-container-highest": "#e2ddd4",
+                      "secondary": "#e63b2e",
+                      "on-primary-fixed": "#1a1a1a"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {},
+              "fontFamily": {
+                      "headline": [
+                              "Space Grotesk"
+                      ],
+                      "display": [
+                              "Space Grotesk"
+                      ],
+                      "body": [
+                              "Inter"
+                      ],
+                      "label": [
+                              "Space Grotesk"
+                      ]
+              },
+              "fontSize": {}
+      },
+          },
+        }
+      </script>
+<style>
+        /* Neo-Brutalist utility classes not easily achievable with tailwind config alone */
+        .brutal-border {
+            border: 3px solid #1a1a1a;
+        }
+        .brutal-shadow {
+            box-shadow: 6px 6px 0px 0px #1a1a1a;
+        }
+        .brutal-shadow-sm {
+            box-shadow: 4px 4px 0px 0px #1a1a1a;
+        }
+        .brutal-input:focus {
+            outline: none;
+            border-color: #0055ff;
+            box-shadow: 4px 4px 0px 0px #0055ff;
+        }
+    </style>
+</head>
+<body class="bg-background text-primary font-body min-h-screen flex antialiased">
+<!-- Main Content Canvas (No Nav Shell per instructions - task focused) -->
+<main class="flex-1 flex flex-col min-h-screen w-full relative">
+<!-- Header / Progress Area -->
+<header class="w-full brutal-border border-l-0 border-r-0 border-t-0 p-6 flex justify-between items-center bg-surface-bright">
+<div class="flex items-center gap-4">
+<button class="flex items-center justify-center p-2 brutal-border brutal-shadow-sm bg-surface hover:bg-primary hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined font-bold">arrow_back</span>
+</button>
+<div>
+<h1 class="font-headline font-black text-2xl uppercase tracking-tighter text-primary">Senior Frontend Engineer</h1>
+<p class="font-body text-sm font-bold text-on-surface-variant">Question 4 of 10 • Technical Round</p>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="text-right">
+<div class="font-headline font-bold text-xl">12:45</div>
+<div class="font-body text-xs uppercase font-bold text-secondary">Time Remaining</div>
+</div>
+<button class="bg-secondary text-on-error px-6 py-3 font-headline uppercase font-bold brutal-border brutal-shadow hover:bg-primary transition-colors">
+                    End Session
+                </button>
+</div>
+</header>
+<!-- Session Content Grid -->
+<div class="flex-1 p-8 grid grid-cols-1 lg:grid-cols-12 gap-8 overflow-y-auto">
+<!-- Left Column: Question & Answer -->
+<div class="lg:col-span-8 flex flex-col gap-8">
+<!-- Question Card -->
+<div class="bg-surface-bright p-8 brutal-border brutal-shadow relative">
+<div class="absolute -top-4 -left-4 bg-primary-container text-primary font-headline font-black text-3xl px-4 py-2 brutal-border">
+                        Q4
+                    </div>
+<div class="flex justify-between items-start mb-6 mt-2">
+<h2 class="font-headline font-bold text-4xl leading-tight max-w-3xl">
+                            Explain the Virtual DOM in React. How does it improve performance compared to directly manipulating the real DOM?
+                        </h2>
+</div>
+<div class="flex gap-4">
+<span class="inline-block bg-surface-variant px-3 py-1 font-body text-xs font-bold uppercase brutal-border">React</span>
+<span class="inline-block bg-surface-variant px-3 py-1 font-body text-xs font-bold uppercase brutal-border">Performance</span>
+<span class="inline-block bg-surface-variant px-3 py-1 font-body text-xs font-bold uppercase brutal-border">Architecture</span>
+</div>
+<button class="mt-8 text-tertiary font-headline font-bold uppercase hover:text-primary transition-colors flex items-center gap-2 group">
+<span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">lightbulb</span>
+                        Reveal Suggested Talking Points
+                    </button>
+</div>
+<!-- Answer Input Area -->
+<div class="flex-1 flex flex-col gap-4">
+<div class="flex justify-between items-end">
+<h3 class="font-headline font-bold text-2xl uppercase tracking-tight">Your Response</h3>
+<div class="flex gap-2">
+<button class="p-3 bg-surface-bright brutal-border brutal-shadow-sm hover:bg-tertiary hover:text-on-tertiary transition-colors flex items-center justify-center" title="Record Audio">
+<span class="material-symbols-outlined font-bold">mic</span>
+</button>
+<button class="p-3 bg-surface-bright brutal-border brutal-shadow-sm hover:bg-tertiary hover:text-on-tertiary transition-colors flex items-center justify-center" title="Record Video">
+<span class="material-symbols-outlined font-bold">videocam</span>
+</button>
+</div>
+</div>
+<textarea class="w-full flex-1 min-h-[300px] p-6 bg-surface-bright font-body text-lg brutal-border brutal-shadow-sm brutal-input resize-none" placeholder="Type or dictate your answer here..."></textarea>
+<div class="flex justify-between items-center mt-4">
+<span class="font-body text-sm font-bold text-on-surface-variant">Press Ctrl+Enter to submit</span>
+<button class="bg-primary text-on-primary px-8 py-4 font-headline uppercase font-bold text-xl brutal-border brutal-shadow hover:bg-tertiary transition-colors flex items-center gap-3 group">
+                            Submit Answer
+                            <span class="material-symbols-outlined font-bold group-hover:translate-x-2 transition-transform">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Right Column: Real-time Analysis / Scorecard -->
+<div class="lg:col-span-4 flex flex-col gap-6">
+<!-- Live Analysis Header -->
+<div class="bg-primary text-on-primary p-6 brutal-border brutal-shadow">
+<h3 class="font-headline font-bold text-2xl uppercase mb-2 flex items-center gap-3">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">analytics</span>
+                        Live Analysis
+                    </h3>
+<p class="font-body text-sm opacity-80">AI is evaluating your response structure in real-time.</p>
+</div>
+<!-- Dimension Scorecards -->
+<div class="bg-surface-bright p-6 brutal-border brutal-shadow flex flex-col gap-6">
+<!-- Clarity -->
+<div>
+<div class="flex justify-between items-end mb-2">
+<h4 class="font-headline font-bold text-lg uppercase tracking-tight">Clarity</h4>
+<span class="font-headline font-bold text-xl text-primary">--/10</span>
+</div>
+<div class="w-full h-4 bg-surface-variant brutal-border overflow-hidden">
+<div class="h-full bg-primary-container w-[0%] transition-all duration-500"></div>
+</div>
+</div>
+<!-- Relevance -->
+<div>
+<div class="flex justify-between items-end mb-2">
+<h4 class="font-headline font-bold text-lg uppercase tracking-tight">Relevance</h4>
+<span class="font-headline font-bold text-xl text-primary">--/10</span>
+</div>
+<div class="w-full h-4 bg-surface-variant brutal-border overflow-hidden">
+<div class="h-full bg-tertiary w-[0%] transition-all duration-500"></div>
+</div>
+</div>
+<!-- Structure -->
+<div>
+<div class="flex justify-between items-end mb-2">
+<h4 class="font-headline font-bold text-lg uppercase tracking-tight">Structure</h4>
+<span class="font-headline font-bold text-xl text-primary">--/10</span>
+</div>
+<div class="w-full h-4 bg-surface-variant brutal-border overflow-hidden">
+<div class="h-full bg-secondary w-[0%] transition-all duration-500"></div>
+</div>
+</div>
+</div>
+<!-- Quick Tips Container -->
+<div class="bg-surface-variant p-6 brutal-border mt-auto">
+<h4 class="font-headline font-bold text-md uppercase mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">error</span>
+                        System Hint
+                    </h4>
+<p class="font-body text-sm font-medium leading-relaxed">
+                        Remember to structure your answer using the <strong>STAR</strong> method (Situation, Task, Action, Result) if providing a specific example.
+                    </p>
+</div>
+</div>
+</div>
+</main>
+</body></html>

@@ -1,0 +1,326 @@
+<!DOCTYPE html><html class="dark" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Interview Setup - CareerForge AI</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-dim": "#1d100c",
+                      "on-primary-fixed": "#390c00",
+                      "primary-fixed": "#ffdbd0",
+                      "tertiary-fixed": "#b5ebff",
+                      "text-muted": "#5B6070",
+                      "surface-container-low": "#261814",
+                      "surface-container-high": "#352722",
+                      "surface-container-lowest": "#170b08",
+                      "on-surface": "#f7ddd5",
+                      "on-tertiary-container": "#003744",
+                      "surface-container-highest": "#41312c",
+                      "bg-surface-hover": "#22262D",
+                      "secondary-container": "#03c6b2",
+                      "on-tertiary-fixed": "#001f28",
+                      "inverse-on-surface": "#3c2d28",
+                      "on-error-container": "#ffdad6",
+                      "secondary-fixed-dim": "#3cddc7",
+                      "on-primary-fixed-variant": "#832600",
+                      "background": "#1d100c",
+                      "on-tertiary-fixed-variant": "#004e60",
+                      "tertiary-container": "#00a7cb",
+                      "on-error": "#690005",
+                      "success": "#3DD68C",
+                      "inverse-surface": "#f7ddd5",
+                      "on-secondary": "#003731",
+                      "accent-ember": "#FF6B35",
+                      "secondary": "#44e2cd",
+                      "on-background": "#f7ddd5",
+                      "surface-bright": "#463630",
+                      "bg-surface": "#15181D",
+                      "secondary-fixed": "#62fae3",
+                      "surface-tint": "#ffb59d",
+                      "text-primary": "#EDEEF1",
+                      "border-strong": "#383D45",
+                      "accent-steel": "#2DD4BF",
+                      "on-secondary-container": "#004d44",
+                      "accent-ember-hover": "#FF8555",
+                      "surface-variant": "#41312c",
+                      "accent-ember-muted": "#3D2318",
+                      "on-secondary-fixed-variant": "#005047",
+                      "tertiary": "#59d5fb",
+                      "on-secondary-fixed": "#00201c",
+                      "on-primary-container": "#5f1900",
+                      "on-tertiary": "#003543",
+                      "surface": "#1d100c",
+                      "outline-variant": "#594139",
+                      "tertiary-fixed-dim": "#59d5fb",
+                      "error": "#F2545B",
+                      "surface-container": "#2a1c18",
+                      "primary-container": "#ff6b35",
+                      "text-secondary": "#9AA0AB",
+                      "bg-base": "#0B0D10",
+                      "bg-surface-raised": "#1D2127",
+                      "outline": "#a98a80",
+                      "primary": "#ffb59d",
+                      "accent-steel-muted": "#0F2E2B",
+                      "on-surface-variant": "#e1bfb5",
+                      "on-primary": "#5d1900",
+                      "primary-fixed-dim": "#ffb59d",
+                      "border-subtle": "#262A31",
+                      "error-container": "#93000a",
+                      "warning": "#F5B84F",
+                      "inverse-primary": "#ab3500"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "2xl": "48px",
+                      "xl": "32px",
+                      "xs": "4px",
+                      "gutter": "16px",
+                      "margin-mobile": "16px",
+                      "margin-desktop": "32px",
+                      "md": "16px",
+                      "3xl": "64px",
+                      "lg": "24px",
+                      "unit": "4px",
+                      "sm": "8px"
+              },
+              "fontFamily": {
+                      "body-md": [
+                              "Inter"
+                      ],
+                      "display-hero": [
+                              "Space Grotesk"
+                      ],
+                      "label-caps": [
+                              "Inter"
+                      ],
+                      "headline-md": [
+                              "Space Grotesk"
+                      ],
+                      "headline-sm": [
+                              "Space Grotesk"
+                      ],
+                      "headline-lg": [
+                              "Space Grotesk"
+                      ],
+                      "mono-readout": [
+                              "JetBrains Mono"
+                      ],
+                      "body-sm": [
+                              "Inter"
+                      ]
+              },
+              "fontSize": {
+                      "body-md": [
+                              "15px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "display-hero": [
+                              "48px",
+                              {
+                                      "lineHeight": "56px",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "label-caps": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.02em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-sm": [
+                              "18px",
+                              {
+                                      "lineHeight": "26px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "mono-readout": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "body-sm": [
+                              "13px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+<style>
+        body {
+            background-color: theme('colors.bg-base');
+            color: theme('colors.text-primary');
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.fill {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="font-body-md text-body-md antialiased overflow-x-hidden min-h-screen flex">
+<!-- SideNavBar -->
+<nav class="w-[240px] h-screen fixed left-0 top-0 border-r border-border-subtle bg-background dark:bg-background flex flex-col gap-4 p-lg hidden md:flex z-50">
+<div class="mb-xl">
+<h1 class="font-headline-md text-headline-md font-bold text-accent-ember">CareerForge AI</h1>
+<p class="font-mono-readout text-mono-readout text-text-secondary mt-xs">Technical Console</p>
+</div>
+<div class="flex-1 flex flex-col gap-sm">
+<a class="flex items-center gap-md px-md py-sm rounded-md text-text-secondary hover:text-text-primary hover:bg-bg-surface-hover transition-colors duration-160 active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-headline-sm text-headline-sm">Dashboard</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-md text-text-secondary hover:text-text-primary hover:bg-bg-surface-hover transition-colors duration-160 active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined">description</span>
+<span class="font-headline-sm text-headline-sm">Resumes</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-md text-accent-ember font-bold border-r-2 border-accent-ember bg-accent-ember-muted/10 active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined fill">settings_voice</span>
+<span class="font-headline-sm text-headline-sm">Interview Prep</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-md text-text-secondary hover:text-text-primary hover:bg-bg-surface-hover transition-colors duration-160 active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined">search</span>
+<span class="font-headline-sm text-headline-sm">Job Search</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-md text-text-secondary hover:text-text-primary hover:bg-bg-surface-hover transition-colors duration-160 active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined">assignment</span>
+<span class="font-headline-sm text-headline-sm">Applications</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-md text-text-secondary hover:text-text-primary hover:bg-bg-surface-hover transition-colors duration-160 active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-headline-sm text-headline-sm">Settings</span>
+</a>
+</div>
+<button class="w-full bg-accent-ember text-on-primary font-headline-sm text-headline-sm py-sm rounded-md hover:bg-accent-ember-hover transition-colors duration-160 mt-auto">
+            New Analysis
+        </button>
+</nav>
+<!-- Main Content Area -->
+<div class="flex-1 md:ml-[240px] flex flex-col min-h-screen relative">
+<!-- TopAppBar -->
+<header class="docked full-width top-0 h-16 border-b border-border-subtle bg-surface dark:bg-surface flex justify-between items-center px-margin-desktop z-40 sticky">
+<div class="md:hidden flex items-center gap-md">
+<h1 class="font-headline-md text-headline-md font-bold text-accent-ember">CareerForge AI</h1>
+</div>
+<div class="hidden md:block"></div> <!-- Spacer for desktop -->
+<div class="flex items-center gap-lg">
+<button class="text-text-secondary hover:text-accent-ember transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-text-secondary hover:text-accent-ember transition-colors">
+<span class="material-symbols-outlined">sensors</span>
+</button>
+<div class="w-8 h-8 rounded-full bg-surface-raised border border-border-subtle overflow-hidden">
+<img alt="User Profile" class="w-full h-full object-cover" data-alt="A small circular avatar placeholder image with a dark technical aesthetic, perhaps a stylized metallic wireframe globe or geometric shape on a deep black background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAW7unu69V_d94ZCDICEmBOZUK8af-jxjQJeVaOEeNVoelaMJkr41Vs4TNN7VTwdrlaF65QjuOtVGHMRWcWzSPC5YSmLLsPaoUJ-dSXTgQzsVvrq7WJ4U3MJSUNYVx1P-AqU2Q1q0oL2uuapk70ScsWzA1A1fjXMbvHeRXiy8PKEUrMy8oHLUtEx4Y70a-4xfa8_I_vLzLCeElVanHBrFX2eZXTwA-ejmuPP8Q6cnfDG3R02o_eSDCL">
+</div>
+</div>
+</header>
+<!-- Canvas -->
+<main class="flex-1 p-margin-mobile md:p-margin-desktop flex justify-center pb-2xl">
+<div class="w-full max-w-3xl">
+<div class="mb-xl">
+<h2 class="font-headline-lg text-headline-lg mb-xs">Configure Simulation</h2>
+<p class="font-body-md text-body-md text-text-secondary">Initialize the AI interviewer parameters based on your target technical role.</p>
+</div>
+<!-- Progress Tracker -->
+<div class="flex items-center gap-sm mb-2xl">
+<div class="flex items-center gap-sm flex-1">
+<div class="w-8 h-8 rounded-full bg-accent-ember text-on-primary flex items-center justify-center font-headline-sm text-headline-sm shadow-[0_0_8px_rgba(255,107,53,0.4)]">1</div>
+<div class="h-[2px] flex-1 bg-accent-ember"></div>
+</div>
+<div class="flex items-center gap-sm flex-1">
+<div class="w-8 h-8 rounded-full bg-surface-raised border border-border-subtle text-text-secondary flex items-center justify-center font-headline-sm text-headline-sm">2</div>
+<div class="h-[2px] flex-1 bg-border-subtle"></div>
+</div>
+<div class="flex items-center gap-sm">
+<div class="w-8 h-8 rounded-full bg-surface-raised border border-border-subtle text-text-secondary flex items-center justify-center font-headline-sm text-headline-sm">3</div>
+</div>
+</div>
+<!-- Step 1: Role Configuration -->
+<div class="bg-surface border border-border-subtle rounded-lg p-lg mb-xl">
+<div class="mb-lg">
+<h3 class="font-headline-md text-headline-md mb-xs flex items-center gap-sm">
+<span class="material-symbols-outlined text-accent-steel">terminal</span>
+                            Target Role Architecture
+                        </h3>
+<p class="font-body-sm text-body-sm text-text-secondary">Select the primary technical domain for the interview model to calibrate against.</p>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-md mb-xl">
+<!-- Chip: Selected -->
+<button class="flex flex-col items-start p-md rounded-md bg-accent-ember-muted/10 border border-accent-ember hover:bg-bg-surface-hover transition-colors text-left relative overflow-hidden group">
+<div class="absolute inset-0 bg-gradient-to-br from-accent-ember/5 to-transparent opacity-50"></div>
+<span class="material-symbols-outlined text-accent-ember mb-sm relative z-10">code</span>
+<span class="font-headline-sm text-headline-sm text-accent-ember relative z-10">Software Engineer</span>
+</button>
+<!-- Chip: Unselected -->
+<button class="flex flex-col items-start p-md rounded-md bg-surface-raised border border-border-subtle hover:border-text-secondary transition-colors text-left">
+<span class="material-symbols-outlined text-text-secondary mb-sm">database</span>
+<span class="font-headline-sm text-headline-sm text-text-primary">Data Scientist</span>
+</button>
+<button class="flex flex-col items-start p-md rounded-md bg-surface-raised border border-border-subtle hover:border-text-secondary transition-colors text-left">
+<span class="material-symbols-outlined text-text-secondary mb-sm">architecture</span>
+<span class="font-headline-sm text-headline-sm text-text-primary">Systems Architect</span>
+</button>
+<button class="flex flex-col items-start p-md rounded-md bg-surface-raised border border-border-subtle hover:border-text-secondary transition-colors text-left">
+<span class="material-symbols-outlined text-text-secondary mb-sm">memory</span>
+<span class="font-headline-sm text-headline-sm text-text-primary">DevOps Engineer</span>
+</button>
+<button class="flex flex-col items-start p-md rounded-md bg-surface-raised border border-border-subtle hover:border-text-secondary transition-colors text-left">
+<span class="material-symbols-outlined text-text-secondary mb-sm">web</span>
+<span class="font-headline-sm text-headline-sm text-text-primary">Frontend Dev</span>
+</button>
+<button class="flex flex-col items-start p-md rounded-md bg-surface-raised border border-border-subtle hover:border-text-secondary transition-colors text-left border-dashed">
+<span class="material-symbols-outlined text-text-secondary mb-sm">add</span>
+<span class="font-headline-sm text-headline-sm text-text-primary">Custom Role</span>
+</button>
+</div>
+</div>
+<div class="flex justify-end mt-xl">
+<button class="bg-accent-ember text-on-primary font-headline-sm text-headline-sm px-xl py-md rounded-md hover:bg-accent-ember-hover transition-colors duration-160 flex items-center gap-sm">
+                        Initialize Session
+                        <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+</div>
+</main>
+</div>
+</body></html>

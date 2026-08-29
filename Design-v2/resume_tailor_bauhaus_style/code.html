@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CareerForge AI - Resume Tailor</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700;900&amp;family=Inter:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-tertiary": "#ffffff",
+                    "surface-container-low": "#f2ede5",
+                    "on-surface-variant": "#4a4a4a",
+                    "on-error": "#ffffff",
+                    "secondary-fixed": "#ffdad6",
+                    "error-container": "#ffdad6",
+                    "surface": "#f5f0e8",
+                    "surface-variant": "#e8e3da",
+                    "tertiary": "#0055ff",
+                    "on-tertiary-container": "#1a1a1a",
+                    "on-tertiary-fixed": "#1a1a1a",
+                    "on-secondary": "#1a1a1a",
+                    "on-error-container": "#93000a",
+                    "on-secondary-fixed-variant": "#1a1a1a",
+                    "primary-container": "#ffcc00",
+                    "on-primary": "#ffffff",
+                    "background": "#f5f0e8",
+                    "secondary-fixed-dim": "#ffb3ab",
+                    "inverse-surface": "#1a1a1a",
+                    "surface-container": "#eee9e0",
+                    "on-secondary-fixed": "#1a1a1a",
+                    "tertiary-fixed-dim": "#a8c6ff",
+                    "surface-bright": "#faf7f2",
+                    "tertiary-container": "#d6e3ff",
+                    "surface-container-high": "#e8e3da",
+                    "on-surface": "#1a1a1a",
+                    "on-background": "#1a1a1a",
+                    "on-primary-fixed-variant": "#1a1a1a",
+                    "secondary-container": "#ffdad6",
+                    "surface-container-lowest": "#ffffff",
+                    "inverse-primary": "#f5f0e8",
+                    "inverse-on-surface": "#f5f0e8",
+                    "primary-fixed-dim": "#e6b800",
+                    "outline-variant": "#d0cbc3",
+                    "error": "#cc0000",
+                    "tertiary-fixed": "#d6e3ff",
+                    "on-tertiary-fixed-variant": "#1a1a1a",
+                    "primary-fixed": "#ffcc00",
+                    "on-secondary-container": "#1a1a1a",
+                    "on-primary-container": "#1a1a1a",
+                    "primary": "#1a1a1a",
+                    "surface-dim": "#d6d1c9",
+                    "surface-tint": "#1a1a1a",
+                    "outline": "#1a1a1a",
+                    "surface-container-highest": "#e2ddd4",
+                    "secondary": "#e63b2e",
+                    "on-primary-fixed": "#1a1a1a"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {},
+            "fontFamily": {
+                    "headline": [
+                            "Space Grotesk"
+                    ],
+                    "display": [
+                            "Space Grotesk"
+                    ],
+                    "body": [
+                            "Inter"
+                    ],
+                    "label": [
+                            "Space Grotesk"
+                    ]
+            },
+            "fontSize": {}
+    },
+        },
+      }
+    </script>
+<style>
+        /* Neo-Brutalist utility classes */
+        .brutal-border { border: 3px solid #1a1a1a; }
+        .brutal-shadow { box-shadow: 6px 6px 0px 0px #1a1a1a; }
+        .brutal-shadow-sm { box-shadow: 4px 4px 0px 0px #1a1a1a; }
+        .brutal-button { transition: all 0.2s; }
+        .brutal-button:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0px 0px #1a1a1a; }
+        .brutal-button:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0px 0px #1a1a1a; }
+        
+        /* Diff Colors */
+        .diff-add { background-color: #d6e3ff; color: #1a1a1a; }
+        .diff-remove { background-color: #ffdad6; color: #1a1a1a; text-decoration: line-through; }
+    </style>
+</head>
+<body class="bg-background text-primary font-body h-full selection:bg-primary-container selection:text-primary">
+<!-- SideNavBar -->
+<nav class="fixed left-0 top-0 h-full flex flex-col p-4 w-64 border-r-2 border-primary bg-background dark:bg-primary z-50">
+<div class="mb-12 mt-4 px-2">
+<h1 class="font-headline text-2xl font-black uppercase tracking-widest text-primary dark:text-primary-fixed leading-tight">CareerForge</h1>
+<p class="font-headline uppercase tracking-tighter text-xs font-bold mt-1">Technical Platform</p>
+</div>
+<ul class="flex flex-col gap-2 flex-grow">
+<li>
+<a class="flex items-center gap-3 p-3 text-primary dark:text-on-primary-fixed hover:bg-surface-variant font-headline uppercase tracking-tighter font-bold border-2 border-transparent transition-colors duration-100" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+                    Dashboard
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 p-3 bg-primary-container text-primary border-2 border-primary font-headline uppercase tracking-tighter font-bold brutal-shadow-sm active:translate-x-1 active:translate-y-1" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">description</span>
+                    Resumes
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 p-3 text-primary dark:text-on-primary-fixed hover:bg-surface-variant font-headline uppercase tracking-tighter font-bold border-2 border-transparent transition-colors duration-100" href="#">
+<span class="material-symbols-outlined">psychology</span>
+                    Interview Prep
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 p-3 text-primary dark:text-on-primary-fixed hover:bg-surface-variant font-headline uppercase tracking-tighter font-bold border-2 border-transparent transition-colors duration-100" href="#">
+<span class="material-symbols-outlined">search</span>
+                    Job Search
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 p-3 text-primary dark:text-on-primary-fixed hover:bg-surface-variant font-headline uppercase tracking-tighter font-bold border-2 border-transparent transition-colors duration-100" href="#">
+<span class="material-symbols-outlined">assignment_turned_in</span>
+                    Applications
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 p-3 text-primary dark:text-on-primary-fixed hover:bg-surface-variant font-headline uppercase tracking-tighter font-bold border-2 border-transparent transition-colors duration-100 mt-auto" href="#">
+<span class="material-symbols-outlined">settings</span>
+                    Settings
+                </a>
+</li>
+</ul>
+<div class="mt-8 border-t-2 border-primary pt-6">
+<button class="w-full bg-primary text-on-primary font-headline uppercase font-bold py-3 px-4 border-2 border-primary hover:bg-surface hover:text-primary transition-colors brutal-button flex items-center justify-center gap-2">
+<span class="material-symbols-outlined">bolt</span>
+                Upgrade Plan
+            </button>
+</div>
+</nav>
+<!-- TopAppBar -->
+<header class="flex justify-between items-center h-16 px-6 ml-64 w-[calc(100%-16rem)] border-b-2 border-primary bg-background dark:bg-primary z-40 fixed top-0">
+<div class="flex items-center gap-8">
+<span class="font-headline font-black text-xl uppercase">CareerForge AI</span>
+</div>
+<div class="flex items-center gap-6">
+<nav class="hidden md:flex gap-6">
+<a class="text-primary dark:text-on-primary-fixed font-headline font-bold text-lg hover:text-secondary transition-colors pb-1 border-b-2 border-transparent hover:border-secondary" href="#">Network</a>
+<a class="text-primary dark:text-on-primary-fixed font-headline font-bold text-lg hover:text-secondary transition-colors pb-1 border-b-2 border-transparent hover:border-secondary" href="#">Resources</a>
+</nav>
+<div class="flex items-center gap-4 ml-4 pl-4 border-l-2 border-primary">
+<button class="text-primary hover:text-secondary transition-colors active:scale-95">
+<span class="material-symbols-outlined text-2xl">notifications</span>
+</button>
+<div class="h-10 w-10 border-2 border-primary rounded-full overflow-hidden bg-surface-container">
+<img alt="User Status" class="w-full h-full object-cover" data-alt="A graphic vector style portrait of a professional avatar, simple lines, flat colors, light mode aesthetic, matching the neo-brutalist style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBgUmLIzj4p4-cS17g5oZhzhhi44PUVAc7LJkHlrPj-5STMoRCD80hXt6d-ESsLtXxvY-g-GzDJYUTwM6kibTlFe7u9oznrXJV73FXSGkMP8brdX63Rfd7PGNRyPbGdhGmRu9H9qflUDoiQrzN_MHaVCTDKr-Z7HPQpGCwNqBz24cYgMEvV_I5pwzArvE-Q7ghJCo3aoebiJyjMcXsj8hDyTi6REYg2E-_7iWGFl7IHhQkWLbmdhc4Q"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Main Content -->
+<main class="ml-64 pt-16 h-full flex flex-col lg:flex-row">
+<!-- Left Panel: Controls -->
+<section class="w-full lg:w-1/3 p-6 flex flex-col gap-6 border-r-2 border-primary overflow-y-auto h-[calc(100vh-4rem)] bg-surface">
+<div class="mb-4">
+<h2 class="font-headline text-4xl font-black uppercase tracking-tighter mb-2">Resume Tailor</h2>
+<p class="font-body text-sm font-medium text-on-surface-variant">Optimize your base resume against specific job descriptions.</p>
+</div>
+<!-- Role Selection -->
+<div class="brutal-border p-4 bg-background brutal-shadow-sm flex flex-col gap-4">
+<h3 class="font-headline font-bold uppercase text-lg flex items-center gap-2">
+<span class="material-symbols-outlined text-tertiary">work</span> Target Role
+                </h3>
+<div class="flex flex-col gap-2">
+<label class="font-body text-xs font-bold uppercase tracking-wider text-on-surface-variant">Select Base Resume</label>
+<select class="w-full bg-background border-b-2 border-x-0 border-t-0 border-primary font-body text-sm p-2 focus:ring-0 focus:border-tertiary rounded-none">
+<option>Senior Frontend Engineer (2024)</option>
+<option>Full Stack Developer (General)</option>
+<option>UI/UX Designer</option>
+</select>
+</div>
+<div class="flex flex-col gap-2">
+<label class="font-body text-xs font-bold uppercase tracking-wider text-on-surface-variant">Job Title</label>
+<input class="w-full bg-background border-b-2 border-x-0 border-t-0 border-primary font-body text-sm p-2 focus:ring-0 focus:border-tertiary rounded-none" type="text" value="Lead React Developer"/>
+</div>
+</div>
+<!-- Job Description Input -->
+<div class="brutal-border p-4 bg-background brutal-shadow-sm flex flex-col gap-4 flex-grow">
+<h3 class="font-headline font-bold uppercase text-lg flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary">description</span> Job Description
+                </h3>
+<p class="text-xs text-on-surface-variant font-medium">Paste the target JD here. Our AI will analyze key requirements and suggest tailored modifications to your resume.</p>
+<textarea class="w-full flex-grow min-h-[200px] bg-surface-bright border-2 border-primary font-body text-sm p-3 focus:ring-0 focus:border-tertiary rounded-none resize-none" placeholder="Paste Job Description here..."></textarea>
+<button class="w-full bg-primary-container text-primary font-headline uppercase font-black py-4 border-2 border-primary brutal-button hover:bg-primary hover:text-on-primary flex justify-center items-center gap-2 text-lg">
+<span class="material-symbols-outlined">auto_fix_high</span>
+                    Analyze &amp; Tailor
+                </button>
+</div>
+</section>
+<!-- Right Panel: Diff View -->
+<section class="w-full lg:w-2/3 p-6 flex flex-col h-[calc(100vh-4rem)] bg-surface-container-low overflow-hidden">
+<!-- Score Gauge & Actions Header -->
+<div class="flex justify-between items-end mb-6 border-b-2 border-primary pb-4">
+<div class="flex items-center gap-6">
+<div class="flex flex-col">
+<span class="font-headline uppercase font-bold text-xs tracking-widest text-on-surface-variant">Match Score</span>
+<div class="flex items-baseline gap-1 mt-1">
+<span class="font-headline font-black text-5xl text-primary">87</span>
+<span class="font-headline font-bold text-xl text-primary-fixed-dim">%</span>
+</div>
+</div>
+<div class="h-12 w-2 bg-primary"></div> <!-- Divider -->
+<div class="flex flex-col gap-2">
+<div class="flex items-center gap-2 text-sm font-medium">
+<span class="w-3 h-3 bg-tertiary-container border border-primary block"></span> Additions (12)
+                        </div>
+<div class="flex items-center gap-2 text-sm font-medium">
+<span class="w-3 h-3 bg-secondary-container border border-primary block"></span> Removals (4)
+                        </div>
+</div>
+</div>
+<div class="flex gap-4">
+<button class="bg-surface border-2 border-primary px-4 py-2 font-headline font-bold uppercase text-sm brutal-button hover:bg-secondary hover:text-on-error">
+                        Discard All
+                    </button>
+<button class="bg-primary text-on-primary border-2 border-primary px-6 py-2 font-headline font-black uppercase text-sm brutal-button flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">check_circle</span>
+                        Apply Changes
+                    </button>
+</div>
+</div>
+<!-- Diff Content Canvas -->
+<div class="flex-grow bg-background border-2 border-primary brutal-shadow overflow-y-auto p-8 relative">
+<!-- Resume Header -->
+<div class="border-b-4 border-primary pb-6 mb-8 text-center">
+<h1 class="font-headline font-black text-4xl uppercase tracking-tighter">Alex Chen</h1>
+<p class="font-body text-lg font-bold mt-2">Lead React Developer <span class="diff-remove px-1 mx-1">/ Frontend Engineer</span></p>
+<p class="font-body text-sm mt-2 text-on-surface-variant">San Francisco, CA • alex.chen@example.com</p>
+</div>
+<!-- Professional Summary -->
+<div class="mb-10">
+<h2 class="font-headline font-bold uppercase text-xl border-b-2 border-primary pb-2 mb-4">Professional Summary</h2>
+<p class="font-body text-sm leading-relaxed">
+                        Senior Frontend Engineer with 6+ years of experience building scalable web applications. 
+                        <span class="diff-add px-1 font-medium">Proven track record of leading UI architecture for enterprise React applications and mentoring junior developers.</span>
+                        Passionate about performance optimization and creating intuitive user experiences. <span class="diff-remove px-1">Currently exploring opportunities in Web3.</span>
+</p>
+</div>
+<!-- Experience -->
+<div class="mb-10">
+<h2 class="font-headline font-bold uppercase text-xl border-b-2 border-primary pb-2 mb-4">Experience</h2>
+<div class="mb-6">
+<div class="flex justify-between items-baseline mb-2">
+<h3 class="font-headline font-bold text-lg">Senior Frontend Developer</h3>
+<span class="font-body text-sm font-bold">TechCorp Inc. | 2021 - Present</span>
+</div>
+<ul class="list-none space-y-2 font-body text-sm pl-0">
+<li class="flex items-start gap-2">
+<span class="material-symbols-outlined text-sm mt-0.5 text-primary">arrow_right</span>
+<span>Spearheaded the migration of a legacy Angular application to <span class="font-bold">React 18</span>, improving performance by 40%.</span>
+</li>
+<li class="flex items-start gap-2 bg-tertiary-container/30 p-1 -ml-1 border-l-4 border-tertiary">
+<span class="material-symbols-outlined text-sm mt-0.5 text-tertiary">add</span>
+<span class="diff-add">Architected a micro-frontend architecture using Webpack Module Federation, enabling independent team deployments.</span>
+</li>
+<li class="flex items-start gap-2">
+<span class="material-symbols-outlined text-sm mt-0.5 text-primary">arrow_right</span>
+<span>Managed state using Redux Toolkit and implemented comprehensive unit testing with Jest and React Testing Library.</span>
+</li>
+</ul>
+</div>
+<div>
+<div class="flex justify-between items-baseline mb-2">
+<h3 class="font-headline font-bold text-lg">Frontend Developer</h3>
+<span class="font-body text-sm font-bold">StartupX | 2018 - 2021</span>
+</div>
+<ul class="list-none space-y-2 font-body text-sm pl-0">
+<li class="flex items-start gap-2 bg-error-container/30 p-1 -ml-1 border-l-4 border-secondary">
+<span class="material-symbols-outlined text-sm mt-0.5 text-secondary">remove</span>
+<span class="diff-remove">Developed marketing landing pages using HTML, CSS, and basic JavaScript.</span>
+</li>
+<li class="flex items-start gap-2 bg-tertiary-container/30 p-1 -ml-1 border-l-4 border-tertiary">
+<span class="material-symbols-outlined text-sm mt-0.5 text-tertiary">add</span>
+<span class="diff-add">Collaborated closely with cross-functional agile teams (Product, Design, QA) to deliver features on two-week sprint cycles.</span>
+</li>
+</ul>
+</div>
+</div>
+<!-- Skills -->
+<div>
+<h2 class="font-headline font-bold uppercase text-xl border-b-2 border-primary pb-2 mb-4">Core Competencies</h2>
+<div class="flex flex-wrap gap-2 font-body text-sm font-bold">
+<span class="border-2 border-primary px-3 py-1 bg-surface">React.js</span>
+<span class="border-2 border-primary px-3 py-1 bg-surface">TypeScript</span>
+<span class="border-2 border-tertiary px-3 py-1 diff-add">System Architecture</span>
+<span class="border-2 border-primary px-3 py-1 bg-surface">Next.js</span>
+<span class="border-2 border-secondary px-3 py-1 diff-remove">jQuery</span>
+<span class="border-2 border-tertiary px-3 py-1 diff-add">Agile Methodologies</span>
+<span class="border-2 border-primary px-3 py-1 bg-surface">GraphQL</span>
+</div>
+</div>
+</div>
+</section>
+</main>
+</body></html>

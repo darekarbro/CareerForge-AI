@@ -1,0 +1,57 @@
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  darkMode: 'class',
+  content: [
+    './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/components/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/app/**/*.{js,ts,jsx,tsx,mdx}',
+  ],
+  theme: {
+    extend: {
+      colors: {
+        background: '#f5f0e8',
+        'on-background': '#1a1a1a',
+        primary: '#1a1a1a',
+        'on-primary': '#ffffff',
+        'primary-container': '#ffcc00',
+        'on-primary-container': '#1a1a1a',
+        secondary: '#e63b2e',
+        'on-secondary': '#ffffff',
+        'secondary-container': '#ffdad6',
+        tertiary: '#0055ff',
+        'on-tertiary': '#ffffff',
+        'tertiary-container': '#d6e3ff',
+        surface: '#f5f0e8',
+        'surface-bright': '#faf7f2',
+        'surface-container-lowest': '#ffffff',
+        'surface-container-low': '#f2ede5',
+        'surface-container': '#eee9e0',
+        'surface-container-high': '#e8e3da',
+        'surface-container-highest': '#e2ddd4',
+        'on-surface': '#1a1a1a',
+        'on-surface-variant': '#4a4a4a',
+        outline: '#1a1a1a',
+        'outline-variant': '#d0cbc3',
+        error: '#cc0000',
+      },
+      fontFamily: {
+        headline: ['Space Grotesk', 'sans-serif'],
+        display: ['Space Grotesk', 'sans-serif'],
+        body: ['Inter', 'sans-serif'],
+        label: ['Space Grotesk', 'sans-serif'],
+      },
+      boxShadow: {
+        brutal: '4px 4px 0px 0px #1a1a1a',
+        'brutal-lg': '6px 6px 0px 0px #1a1a1a',
+        'brutal-xl': '8px 8px 0px 0px #1a1a1a',
+        'brutal-yellow': '4px 4px 0px 0px #ffcc00',
+        'brutal-red': '4px 4px 0px 0px #e63b2e',
+        'brutal-blue': '4px 4px 0px 0px #0055ff',
+      },
+      borderWidth: {
+        3: '3px',
+      },
+    },
+  },
+  plugins: [],
+};

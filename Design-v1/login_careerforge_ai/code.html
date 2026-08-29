@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CareerForge AI - Login</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400..700&amp;family=Inter:wght@400..700&amp;family=JetBrains+Mono:wght@400..700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-error-container": "#ffdad6",
+                        "accent-ember-muted": "#3D2318",
+                        "surface-container-high": "#352722",
+                        "success": "#3DD68C",
+                        "primary-fixed": "#ffdbd0",
+                        "surface-container": "#2a1c18",
+                        "text-primary": "#EDEEF1",
+                        "text-muted": "#5B6070",
+                        "secondary-fixed": "#62fae3",
+                        "surface-container-low": "#261814",
+                        "background": "#1d100c",
+                        "tertiary-fixed": "#b5ebff",
+                        "inverse-primary": "#ab3500",
+                        "on-primary": "#5d1900",
+                        "outline": "#a98a80",
+                        "surface-container-lowest": "#170b08",
+                        "surface-bright": "#463630",
+                        "bg-base": "#0B0D10",
+                        "error-container": "#93000a",
+                        "surface-variant": "#41312c",
+                        "on-tertiary-fixed-variant": "#004e60",
+                        "on-surface": "#f7ddd5",
+                        "accent-steel-muted": "#0F2E2B",
+                        "on-surface-variant": "#e1bfb5",
+                        "primary": "#ffb59d",
+                        "on-tertiary": "#003543",
+                        "inverse-on-surface": "#3c2d28",
+                        "bg-surface": "#15181D",
+                        "tertiary": "#59d5fb",
+                        "border-subtle": "#262A31",
+                        "on-primary-fixed-variant": "#832600",
+                        "inverse-surface": "#f7ddd5",
+                        "surface-tint": "#ffb59d",
+                        "accent-ember-hover": "#FF8555",
+                        "surface-dim": "#1d100c",
+                        "on-secondary-fixed": "#00201c",
+                        "surface": "#1d100c",
+                        "on-background": "#f7ddd5",
+                        "tertiary-fixed-dim": "#59d5fb",
+                        "accent-ember": "#FF6B35",
+                        "secondary-container": "#03c6b2",
+                        "on-tertiary-container": "#003744",
+                        "warning": "#F5B84F",
+                        "tertiary-container": "#00a7cb",
+                        "bg-surface-raised": "#1D2127",
+                        "on-secondary-fixed-variant": "#005047",
+                        "on-primary-container": "#5f1900",
+                        "on-tertiary-fixed": "#001f28",
+                        "text-secondary": "#9AA0AB",
+                        "primary-container": "#ff6b35",
+                        "secondary-fixed-dim": "#3cddc7",
+                        "on-primary-fixed": "#390c00",
+                        "secondary": "#44e2cd",
+                        "on-error": "#690005",
+                        "on-secondary-container": "#004d44",
+                        "outline-variant": "#594139",
+                        "primary-fixed-dim": "#ffb59d",
+                        "on-secondary": "#003731",
+                        "surface-container-highest": "#41312c",
+                        "error": "#F2545B",
+                        "bg-surface-hover": "#22262D",
+                        "accent-steel": "#2DD4BF",
+                        "border-strong": "#383D45"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "3xl": "64px",
+                        "gutter": "16px",
+                        "unit": "4px",
+                        "lg": "24px",
+                        "xl": "32px",
+                        "margin-mobile": "16px",
+                        "margin-desktop": "32px",
+                        "md": "16px",
+                        "sm": "8px",
+                        "2xl": "48px",
+                        "xs": "4px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Space Grotesk"],
+                        "body-sm": ["Inter"],
+                        "headline-sm": ["Space Grotesk"],
+                        "body-md": ["Inter"],
+                        "label-caps": ["Inter"],
+                        "headline-lg": ["Space Grotesk"],
+                        "display-hero": ["Space Grotesk"],
+                        "mono-readout": ["JetBrains Mono"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .gradient-mesh {
+            background: radial-gradient(circle at 15% 50%, rgba(255, 107, 53, 0.05) 0%, transparent 40%),
+                        radial-gradient(circle at 85% 30%, rgba(45, 212, 191, 0.05) 0%, transparent 40%);
+            background-color: #0B0D10;
+        }
+    </style>
+</head>
+<body class="bg-base text-text-primary antialiased min-h-screen flex items-center justify-center gradient-mesh relative overflow-hidden px-margin-mobile md:px-margin-desktop">
+<main class="w-full max-w-[400px] z-10 flex flex-col items-center">
+<!-- Logo -->
+<div class="mb-xl flex flex-col items-center">
+<div class="w-[80px] h-[80px] bg-surface rounded-lg border border-border-subtle flex items-center justify-center mb-md overflow-hidden">
+<img alt="CareerForge AI Logo" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDUUQ-ShU_cO8ljIQYIQ9TLOgtQgiUUETMk-VZDCX_-mMf4KrrMm4nvVa1jHfjpMZj7LaX9JvGsC9RDYYEnrjVXeFYaFtKCPnKVjtKueI2lwUwn5w0-9ETVWigixjkWr20CeTKtB0SqE-Dc5uW_a3gKK55lqFTtWNr6JTQSv4isGxxJGVoB9Rh3zjNMwnpDbzx5gPEkMcTsdCEfWmlZHMUcBKpxoJov4j6Zx-yD5Nwne14L_dwc8zQi"/>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-text-primary tracking-tight">CareerForge AI</h1>
+<p class="font-mono-readout text-mono-readout text-text-secondary mt-xs">v2.4.1 // INITIALIZING</p>
+</div>
+<!-- Login Card -->
+<div class="w-full bg-surface border border-border-subtle rounded-lg p-xl flex flex-col">
+<h2 class="font-headline-md text-headline-md text-text-primary mb-lg">Welcome back</h2>
+<form class="flex flex-col gap-lg w-full">
+<!-- Email Field -->
+<div class="flex flex-col gap-sm">
+<label class="font-label-caps text-label-caps text-text-secondary uppercase" for="email">Email Address</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-text-muted text-[20px]">mail</span>
+<input class="w-full bg-surface-raised border border-border-subtle rounded text-text-primary font-body-md text-body-md py-md pl-[44px] pr-md focus:border-accent-steel focus:ring-1 focus:ring-accent-steel focus:outline-none transition-colors" id="email" placeholder="operator@system.io" type="email"/>
+</div>
+</div>
+<!-- Password Field -->
+<div class="flex flex-col gap-sm">
+<div class="flex justify-between items-baseline">
+<label class="font-label-caps text-label-caps text-text-secondary uppercase" for="password">Password</label>
+<a class="font-body-sm text-body-sm text-accent-steel hover:text-accent-steel-muted transition-colors" href="#">Forgot password?</a>
+</div>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-text-muted text-[20px]">lock</span>
+<input class="w-full bg-surface-raised border border-border-subtle rounded text-text-primary font-body-md text-body-md py-md pl-[44px] pr-[44px] focus:border-accent-steel focus:ring-1 focus:ring-accent-steel focus:outline-none transition-colors" id="password" placeholder="••••••••" type="password"/>
+<button class="absolute right-md top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary transition-colors focus:outline-none" id="togglePassword" type="button">
+<span class="material-symbols-outlined text-[20px]" id="visibilityIcon">visibility</span>
+</button>
+</div>
+</div>
+<!-- Submit Button -->
+<button class="w-full bg-accent-ember hover:bg-accent-ember-hover text-surface-container-highest font-headline-sm text-headline-sm py-md rounded transition-all duration-160 mt-sm flex items-center justify-center gap-sm active:scale-[0.98]" type="submit">
+<span>Authenticate</span>
+<span class="material-symbols-outlined text-[20px]">login</span>
+</button>
+</form>
+</div>
+<!-- Footer Link -->
+<div class="mt-lg font-body-md text-body-md text-text-secondary">
+            Don't have an account? <a class="text-accent-ember hover:text-accent-ember-hover transition-colors font-medium" href="#">Request Access</a>
+</div>
+</main>
+<script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const togglePassword = document.getElementById('togglePassword');
+            const passwordField = document.getElementById('password');
+            const visibilityIcon = document.getElementById('visibilityIcon');
+
+            togglePassword.addEventListener('click', () => {
+                const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordField.setAttribute('type', type);
+                
+                visibilityIcon.textContent = type === 'password' ? 'visibility' : 'visibility_off';
+            });
+        });
+    </script>
+</body></html>

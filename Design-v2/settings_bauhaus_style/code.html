@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Settings - CareerForge AI</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Space+Grotesk:wght@500;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary": "#ffffff",
+                        "surface-container-low": "#f2ede5",
+                        "on-surface-variant": "#4a4a4a",
+                        "on-error": "#ffffff",
+                        "secondary-fixed": "#ffdad6",
+                        "error-container": "#ffdad6",
+                        "surface": "#f5f0e8",
+                        "surface-variant": "#e8e3da",
+                        "tertiary": "#0055ff",
+                        "on-tertiary-container": "#1a1a1a",
+                        "on-tertiary-fixed": "#1a1a1a",
+                        "on-secondary": "#1a1a1a",
+                        "on-error-container": "#93000a",
+                        "on-secondary-fixed-variant": "#1a1a1a",
+                        "primary-container": "#ffcc00",
+                        "on-primary": "#ffffff",
+                        "background": "#f5f0e8",
+                        "secondary-fixed-dim": "#ffb3ab",
+                        "inverse-surface": "#1a1a1a",
+                        "surface-container": "#eee9e0",
+                        "on-secondary-fixed": "#1a1a1a",
+                        "tertiary-fixed-dim": "#a8c6ff",
+                        "surface-bright": "#faf7f2",
+                        "tertiary-container": "#d6e3ff",
+                        "surface-container-high": "#e8e3da",
+                        "on-surface": "#1a1a1a",
+                        "on-background": "#1a1a1a",
+                        "on-primary-fixed-variant": "#1a1a1a",
+                        "secondary-container": "#ffdad6",
+                        "surface-container-lowest": "#ffffff",
+                        "inverse-primary": "#f5f0e8",
+                        "inverse-on-surface": "#f5f0e8",
+                        "primary-fixed-dim": "#e6b800",
+                        "outline-variant": "#d0cbc3",
+                        "error": "#cc0000",
+                        "tertiary-fixed": "#d6e3ff",
+                        "on-tertiary-fixed-variant": "#1a1a1a",
+                        "primary-fixed": "#ffcc00",
+                        "on-secondary-container": "#1a1a1a",
+                        "on-primary-container": "#1a1a1a",
+                        "primary": "#1a1a1a",
+                        "surface-dim": "#d6d1c9",
+                        "surface-tint": "#1a1a1a",
+                        "outline": "#1a1a1a",
+                        "surface-container-highest": "#e2ddd4",
+                        "secondary": "#e63b2e",
+                        "on-primary-fixed": "#1a1a1a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0px",
+                        "lg": "0px",
+                        "xl": "0px",
+                        "full": "0px"
+                    },
+                    "spacing": {},
+                    "fontFamily": {
+                        "headline": ["Space Grotesk"],
+                        "display": ["Space Grotesk"],
+                        "body": ["Inter"],
+                        "label": ["Space Grotesk"]
+                    },
+                    "fontSize": {}
+                },
+            },
+        }
+    </script>
+<style>
+        .bauhaus-shadow {
+            box-shadow: 6px 6px 0px 0px #1a1a1a;
+        }
+        .bauhaus-shadow-sm {
+            box-shadow: 4px 4px 0px 0px #1a1a1a;
+        }
+        .bauhaus-shadow:hover {
+            box-shadow: 8px 8px 0px 0px #1a1a1a;
+            transform: translate(-2px, -2px);
+        }
+    </style>
+</head>
+<body class="bg-background text-primary font-body antialiased flex h-screen overflow-hidden">
+<!-- SideNavBar (Shared Component) -->
+<nav class="hidden md:flex flex-col p-4 bg-background dark:bg-primary h-screen w-64 border-r-2 border-primary dark:border-primary-fixed fixed left-0 top-0 z-50">
+<!-- Brand Logo -->
+<div class="mb-10 mt-4 px-2">
+<h1 class="font-headline text-2xl font-black uppercase tracking-widest text-primary dark:text-primary-fixed">CareerForge</h1>
+<p class="font-headline uppercase tracking-tighter text-xs font-bold mt-1">Technical Platform</p>
+</div>
+<!-- Navigation Links -->
+<ul class="flex flex-col space-y-2 flex-grow">
+<li>
+<a class="flex items-center p-3 text-primary dark:text-on-primary-fixed hover:bg-surface-variant hover:bg-primary hover:text-on-primary transition-colors duration-100 active:translate-x-1 active:translate-y-1 font-headline uppercase tracking-tighter" href="#">
+<span class="material-symbols-outlined mr-3">dashboard</span>
+<span>Dashboard</span>
+</a>
+</li>
+<li>
+<a class="flex items-center p-3 text-primary dark:text-on-primary-fixed hover:bg-surface-variant hover:bg-primary hover:text-on-primary transition-colors duration-100 active:translate-x-1 active:translate-y-1 font-headline uppercase tracking-tighter" href="#">
+<span class="material-symbols-outlined mr-3">description</span>
+<span>Resumes</span>
+</a>
+</li>
+<li>
+<a class="flex items-center p-3 text-primary dark:text-on-primary-fixed hover:bg-surface-variant hover:bg-primary hover:text-on-primary transition-colors duration-100 active:translate-x-1 active:translate-y-1 font-headline uppercase tracking-tighter" href="#">
+<span class="material-symbols-outlined mr-3">psychology</span>
+<span>Interview Prep</span>
+</a>
+</li>
+<li>
+<a class="flex items-center p-3 text-primary dark:text-on-primary-fixed hover:bg-surface-variant hover:bg-primary hover:text-on-primary transition-colors duration-100 active:translate-x-1 active:translate-y-1 font-headline uppercase tracking-tighter" href="#">
+<span class="material-symbols-outlined mr-3">search</span>
+<span>Job Search</span>
+</a>
+</li>
+<li>
+<a class="flex items-center p-3 text-primary dark:text-on-primary-fixed hover:bg-surface-variant hover:bg-primary hover:text-on-primary transition-colors duration-100 active:translate-x-1 active:translate-y-1 font-headline uppercase tracking-tighter" href="#">
+<span class="material-symbols-outlined mr-3">assignment_turned_in</span>
+<span>Applications</span>
+</a>
+</li>
+<!-- Active Tab: Settings -->
+<li>
+<a class="flex items-center p-3 bg-primary-container text-primary border-2 border-primary font-bold hover:bg-primary hover:text-on-primary transition-colors duration-100 active:translate-x-1 active:translate-y-1 font-headline uppercase tracking-tighter" href="#">
+<span class="material-symbols-outlined mr-3" style="font-variation-settings: 'FILL' 1;">settings</span>
+<span>Settings</span>
+</a>
+</li>
+</ul>
+<!-- CTA & Profile -->
+<div class="mt-auto flex flex-col space-y-4 pt-6 border-t-2 border-primary">
+<button class="w-full bg-tertiary text-on-tertiary border-2 border-primary font-headline font-bold uppercase py-3 px-4 bauhaus-shadow-sm transition-all hover:bg-primary">
+                Upgrade Plan
+            </button>
+<div class="flex items-center px-2">
+<img alt="User Profile" class="w-10 h-10 border-2 border-primary bg-primary-container object-cover" data-alt="A stylized geometric vector portrait of a user avatar in high contrast black and white with a bright yellow accent background. The illustration uses thick black outlines and minimalist facial features, embodying a raw Bauhaus aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDdusqPUdT6ApJmiYt6kMkhi8-sCSVPbG_rmNBs0DWO8LzIV9RAikekeMMcdzCFotxdjNxSEnVFz81SSqgUgIIqG_A8FG6WNr4CDbY4aAtJLf5CW0C4vvv3gotslaayPqdxbSOw6MAMcuK1XAiOzIVNiejOd3feX0gALTPhpCsJib3p9JeJdJ-AGp2bz5y1-ZsVGG-F7Tpj5YW8TA3mWT_rwFVHC4K73Shx3tyH11tQu6LxsmcOV-M7"/>
+<div class="ml-3">
+<p class="font-headline font-bold text-sm">User ID: 9948</p>
+<p class="text-xs font-bold text-on-surface-variant">Pro Tier</p>
+</div>
+</div>
+</div>
+</nav>
+<!-- Main Content Area -->
+<div class="flex-1 flex flex-col md:ml-64 relative bg-background">
+<!-- TopAppBar (Shared Component) -->
+<header class="flex justify-between items-center h-16 px-6 w-full border-b-2 border-primary dark:border-primary-fixed bg-background dark:bg-primary z-40">
+<div class="flex items-center space-x-6">
+<h2 class="font-headline font-black text-xl uppercase text-primary dark:text-primary-fixed">CareerForge AI</h2>
+<!-- Navigation Links -->
+<nav class="hidden lg:flex space-x-6">
+<a class="text-primary dark:text-on-primary-fixed font-headline font-bold text-lg hover:text-secondary transition-colors active:scale-95" href="#">Network</a>
+<a class="text-primary dark:text-on-primary-fixed font-headline font-bold text-lg hover:text-secondary transition-colors active:scale-95" href="#">Resources</a>
+</nav>
+</div>
+<div class="flex items-center space-x-4">
+<!-- Trailing Icon Actions -->
+<button class="p-2 border-2 border-transparent hover:border-primary transition-all rounded-none text-primary hover:text-secondary active:scale-95">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 border-2 border-transparent hover:border-primary transition-all rounded-none text-primary hover:text-secondary active:scale-95">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</div>
+</header>
+<!-- Page Canvas -->
+<main class="flex-1 overflow-y-auto p-6 lg:p-12 pb-24">
+<div class="max-w-5xl mx-auto">
+<!-- Page Header -->
+<div class="mb-10 border-b-4 border-primary pb-6 flex justify-between items-end">
+<div>
+<h1 class="font-headline text-5xl md:text-7xl font-black uppercase tracking-tighter text-primary">Settings</h1>
+<p class="font-headline text-xl font-bold mt-2 text-on-surface-variant">System Configuration &amp; Identity</p>
+</div>
+</div>
+<!-- Bento Grid Layout for Settings -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+<!-- Profile Settings Card -->
+<section class="lg:col-span-2 border-4 border-primary bg-surface p-8 bauhaus-shadow relative overflow-hidden group">
+<!-- Decorative geometric accent -->
+<div class="absolute top-0 right-0 w-32 h-32 bg-primary-container -mt-16 -mr-16 rotate-45 border-4 border-primary z-0"></div>
+<div class="relative z-10">
+<div class="flex items-center mb-8 border-b-2 border-primary pb-4">
+<span class="material-symbols-outlined text-4xl mr-4">person</span>
+<h3 class="font-headline text-3xl font-black uppercase">Profile Identity</h3>
+</div>
+<form class="space-y-6">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="space-y-2">
+<label class="block font-headline font-bold uppercase text-sm tracking-wide">Full Name</label>
+<input class="w-full bg-background border-b-4 border-l-0 border-r-0 border-t-0 border-primary focus:border-secondary focus:ring-0 font-body text-lg font-bold p-2 uppercase" type="text" value="ALEXANDER WRIGHT"/>
+</div>
+<div class="space-y-2">
+<label class="block font-headline font-bold uppercase text-sm tracking-wide">Professional Title</label>
+<input class="w-full bg-background border-b-4 border-l-0 border-r-0 border-t-0 border-primary focus:border-secondary focus:ring-0 font-body text-lg font-bold p-2 uppercase" type="text" value="SENIOR SYSTEMS ARCHITECT"/>
+</div>
+</div>
+<div class="space-y-2">
+<label class="block font-headline font-bold uppercase text-sm tracking-wide">Primary Email</label>
+<input class="w-full bg-background border-b-4 border-l-0 border-r-0 border-t-0 border-primary focus:border-secondary focus:ring-0 font-body text-lg font-bold p-2" type="email" value="alexander.w@example.com"/>
+</div>
+<div class="space-y-2 pt-4">
+<label class="block font-headline font-bold uppercase text-sm tracking-wide mb-4">Avatar Sync</label>
+<div class="flex items-center space-x-6">
+<div class="w-24 h-24 border-4 border-primary bg-tertiary flex items-center justify-center overflow-hidden">
+<img alt="Current Avatar" class="w-full h-full object-cover mix-blend-luminosity" data-alt="A stark, minimalist profile photo featuring high contrast black and white lighting. The background is a solid flat blue. The subject is looking directly at the camera with a serious expression, styled in a neo-brutalist tech aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCUzzorQx2Lh1ZWAe1hNeUGLW97Ju6I4N3gNhgyzgyI38IL7oFttBHrIIXC9d-vGO9KYERmzRvusyq0r7WV09cixWeLTW4OpTBQR0a9ZDMey5Qb4Y-qXOdzmsKXNNrIouAc31rDV6r0CcBoP0fiUtJjLdm9PR2O7lysA6R-vngDYVFNGwMMQ_pNVT6PDs96VWWeRjYvqXQQCRFZwxjbv1m1Z-ukjEuEGNdDrbseJs2xxyhDUJQarfLz"/>
+</div>
+<button class="border-4 border-primary bg-background px-6 py-3 font-headline font-bold uppercase hover:bg-primary hover:text-on-primary transition-colors bauhaus-shadow-sm" type="button">
+                                            Upload New
+                                        </button>
+<button class="text-secondary font-headline font-bold uppercase hover:underline underline-offset-4 decoration-4" type="button">
+                                            Remove
+                                        </button>
+</div>
+</div>
+<div class="pt-8 flex justify-end">
+<button class="border-4 border-primary bg-primary-container px-8 py-4 font-headline text-xl font-black uppercase hover:bg-primary hover:text-on-primary transition-colors bauhaus-shadow" type="submit">
+                                        Save Changes
+                                    </button>
+</div>
+</form>
+</div>
+</section>
+<!-- AI Health Diagnostic (Sidebar Card) -->
+<section class="border-4 border-primary bg-background p-6 flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between border-b-2 border-primary pb-4 mb-6">
+<h3 class="font-headline text-2xl font-black uppercase leading-tight">AI Health<br/>Diagnostic</h3>
+<span class="material-symbols-outlined text-4xl text-tertiary">memory</span>
+</div>
+<div class="space-y-6">
+<div>
+<div class="flex justify-between font-headline font-bold uppercase text-sm mb-2">
+<span>Resume Parsing</span>
+<span>98%</span>
+</div>
+<div class="h-4 w-full bg-surface-variant border-2 border-primary">
+<div class="h-full bg-primary-container border-r-2 border-primary" style="width: 98%"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between font-headline font-bold uppercase text-sm mb-2">
+<span>Market Fit Analysis</span>
+<span>84%</span>
+</div>
+<div class="h-4 w-full bg-surface-variant border-2 border-primary">
+<div class="h-full bg-tertiary border-r-2 border-primary" style="width: 84%"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between font-headline font-bold uppercase text-sm mb-2">
+<span>Interview Readiness</span>
+<span class="text-secondary">62%</span>
+</div>
+<div class="h-4 w-full bg-surface-variant border-2 border-primary">
+<div class="h-full bg-secondary border-r-2 border-primary" style="width: 62%"></div>
+</div>
+</div>
+</div>
+</div>
+<button class="mt-8 w-full border-4 border-primary bg-background hover:bg-tertiary hover:text-on-tertiary py-3 font-headline font-bold uppercase transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined mr-2">refresh</span>
+                            Run Full Diagnostic
+                        </button>
+</section>
+<!-- Appearance Preferences -->
+<section class="border-4 border-primary bg-tertiary text-on-tertiary p-8 bauhaus-shadow-sm">
+<div class="flex items-center mb-6 border-b-2 border-primary pb-4">
+<span class="material-symbols-outlined text-3xl mr-3">palette</span>
+<h3 class="font-headline text-2xl font-black uppercase">Appearance</h3>
+</div>
+<div class="space-y-6">
+<div class="flex items-center justify-between">
+<div>
+<p class="font-headline font-bold uppercase text-lg">Dark Mode</p>
+<p class="text-sm font-medium opacity-80">Terminal aesthetic</p>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox" value=""/>
+<div class="w-14 h-7 bg-primary peer-focus:outline-none border-2 border-primary peer-checked:bg-primary-container peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-background after:border-2 after:border-primary after:h-5 after:w-5 after:transition-all"></div>
+</label>
+</div>
+<div class="flex items-center justify-between">
+<div>
+<p class="font-headline font-bold uppercase text-lg">High Contrast</p>
+<p class="text-sm font-medium opacity-80">Maximum legibility</p>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="w-14 h-7 bg-primary peer-focus:outline-none border-2 border-primary peer-checked:bg-primary-container peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-background after:border-2 after:border-primary after:h-5 after:w-5 after:transition-all"></div>
+</label>
+</div>
+</div>
+</section>
+<!-- Danger Zone -->
+<section class="lg:col-span-2 border-4 border-secondary bg-surface p-8 relative overflow-hidden">
+<!-- Striped caution background overlay -->
+<div class="absolute inset-0 opacity-10" style="background-image: repeating-linear-gradient(45deg, #e63b2e 25%, transparent 25%, transparent 75%, #e63b2e 75%, #e63b2e), repeating-linear-gradient(45deg, #e63b2e 25%, #f5f0e8 25%, #f5f0e8 75%, #e63b2e 75%, #e63b2e); background-position: 0 0, 10px 10px; background-size: 20px 20px;"></div>
+<div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+<div>
+<h3 class="font-headline text-3xl font-black uppercase text-secondary mb-2 flex items-center">
+<span class="material-symbols-outlined mr-2 text-4xl">warning</span>
+                                    Danger Zone
+                                </h3>
+<p class="font-body font-bold text-lg max-w-md">Permanently delete your account and all associated AI diagnostic data. This action cannot be reversed.</p>
+</div>
+<button class="border-4 border-secondary bg-background text-secondary px-6 py-4 font-headline text-xl font-black uppercase hover:bg-secondary hover:text-on-error transition-colors whitespace-nowrap self-start md:self-center">
+                                Delete Account
+                            </button>
+</div>
+</section>
+</div>
+</div>
+</main>
+</div>
+</body></html>

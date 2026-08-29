@@ -1,0 +1,464 @@
+<!DOCTYPE html><html class="dark" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>CareerForge AI - Landing Page</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400..700&amp;family=Inter:wght@400..600&amp;family=JetBrains+Mono:wght@400..700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-error-container": "#ffdad6",
+                      "accent-ember-muted": "#3D2318",
+                      "surface-container-high": "#352722",
+                      "success": "#3DD68C",
+                      "primary-fixed": "#ffdbd0",
+                      "surface-container": "#2a1c18",
+                      "text-primary": "#EDEEF1",
+                      "text-muted": "#5B6070",
+                      "secondary-fixed": "#62fae3",
+                      "surface-container-low": "#261814",
+                      "background": "#1d100c",
+                      "tertiary-fixed": "#b5ebff",
+                      "inverse-primary": "#ab3500",
+                      "on-primary": "#5d1900",
+                      "outline": "#a98a80",
+                      "surface-container-lowest": "#170b08",
+                      "surface-bright": "#463630",
+                      "bg-base": "#0B0D10",
+                      "error-container": "#93000a",
+                      "surface-variant": "#41312c",
+                      "on-tertiary-fixed-variant": "#004e60",
+                      "on-surface": "#f7ddd5",
+                      "accent-steel-muted": "#0F2E2B",
+                      "on-surface-variant": "#e1bfb5",
+                      "primary": "#ffb59d",
+                      "on-tertiary": "#003543",
+                      "inverse-on-surface": "#3c2d28",
+                      "bg-surface": "#15181D",
+                      "tertiary": "#59d5fb",
+                      "border-subtle": "#262A31",
+                      "on-primary-fixed-variant": "#832600",
+                      "inverse-surface": "#f7ddd5",
+                      "surface-tint": "#ffb59d",
+                      "accent-ember-hover": "#FF8555",
+                      "surface-dim": "#1d100c",
+                      "on-secondary-fixed": "#00201c",
+                      "surface": "#1d100c",
+                      "on-background": "#f7ddd5",
+                      "tertiary-fixed-dim": "#59d5fb",
+                      "accent-ember": "#FF6B35",
+                      "secondary-container": "#03c6b2",
+                      "on-tertiary-container": "#003744",
+                      "warning": "#F5B84F",
+                      "tertiary-container": "#00a7cb",
+                      "bg-surface-raised": "#1D2127",
+                      "on-secondary-fixed-variant": "#005047",
+                      "on-primary-container": "#5f1900",
+                      "on-tertiary-fixed": "#001f28",
+                      "text-secondary": "#9AA0AB",
+                      "primary-container": "#ff6b35",
+                      "secondary-fixed-dim": "#3cddc7",
+                      "on-primary-fixed": "#390c00",
+                      "secondary": "#44e2cd",
+                      "on-error": "#690005",
+                      "on-secondary-container": "#004d44",
+                      "outline-variant": "#594139",
+                      "primary-fixed-dim": "#ffb59d",
+                      "on-secondary": "#003731",
+                      "surface-container-highest": "#41312c",
+                      "error": "#F2545B",
+                      "bg-surface-hover": "#22262D",
+                      "accent-steel": "#2DD4BF",
+                      "border-strong": "#383D45"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "3xl": "64px",
+                      "gutter": "16px",
+                      "unit": "4px",
+                      "lg": "24px",
+                      "xl": "32px",
+                      "margin-mobile": "16px",
+                      "margin-desktop": "32px",
+                      "md": "16px",
+                      "sm": "8px",
+                      "2xl": "48px",
+                      "xs": "4px"
+              },
+              "fontFamily": {
+                      "headline-md": [
+                              "Space Grotesk"
+                      ],
+                      "body-sm": [
+                              "Inter"
+                      ],
+                      "headline-sm": [
+                              "Space Grotesk"
+                      ],
+                      "body-md": [
+                              "Inter"
+                      ],
+                      "label-caps": [
+                              "Inter"
+                      ],
+                      "headline-lg": [
+                              "Space Grotesk"
+                      ],
+                      "display-hero": [
+                              "Space Grotesk"
+                      ],
+                      "mono-readout": [
+                              "JetBrains Mono"
+                      ]
+              },
+              "fontSize": {
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-sm": [
+                              "13px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-sm": [
+                              "18px",
+                              {
+                                      "lineHeight": "26px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-md": [
+                              "15px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-caps": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.02em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "display-hero": [
+                              "48px",
+                              {
+                                      "lineHeight": "56px",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "mono-readout": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "500"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+        body {
+            background-color: #0B0D10; /* bg-base */
+            color: #EDEEF1; /* text-primary */
+        }
+        
+        /* Animated ember/steel mesh gradient */
+        .mesh-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: 
+                radial-gradient(circle at 15% 50%, rgba(255, 107, 53, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 85% 30%, rgba(45, 212, 191, 0.06) 0%, transparent 50%);
+            animation: meshPulse 15s ease-in-out infinite alternate;
+        }
+
+        @keyframes meshPulse {
+            0% {
+                background-position: 0% 0%;
+            }
+            100% {
+                background-position: 100% 100%;
+            }
+        }
+        
+        .glow-border {
+            position: relative;
+        }
+        
+        .glow-border::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            border-radius: inherit;
+            background: linear-gradient(45deg, #FF6B35, #2DD4BF, #FF6B35);
+            z-index: -1;
+            opacity: 0.15;
+            filter: blur(8px);
+            animation: borderGlow 4s linear infinite;
+        }
+
+        @keyframes borderGlow {
+            0% { opacity: 0.1; filter: blur(4px); }
+            50% { opacity: 0.25; filter: blur(12px); }
+            100% { opacity: 0.1; filter: blur(4px); }
+        }
+        
+        .step-connector {
+            position: absolute;
+            top: 24px;
+            left: calc(50% + 24px);
+            right: calc(-50% + 24px);
+            height: 2px;
+            background: #262A31; /* border-subtle */
+            z-index: 0;
+        }
+        
+        .step-connector-active {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 50%; /* Just for show in static state */
+            background: linear-gradient(90deg, #FF6B35, transparent);
+            z-index: 1;
+        }
+    </style>
+</head>
+<body class="font-body-md text-body-md antialiased relative min-h-screen flex flex-col">
+<div class="mesh-bg"></div>
+<!-- Top Navigation (Simplified for Landing Page context - suppressing full shell) -->
+<header class="w-full flex justify-between items-center px-margin-desktop py-lg border-b border-border-subtle bg-surface/80 backdrop-blur-md sticky top-0 z-50">
+<div class="font-headline-md text-headline-md font-bold text-accent-ember flex items-center gap-2">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">local_fire_department</span>
+            CareerForge AI
+        </div>
+<div class="hidden md:flex gap-lg items-center">
+<a class="text-text-secondary hover:text-text-primary transition-colors" href="#">Features</a>
+<a class="text-text-secondary hover:text-text-primary transition-colors" href="#">How it Works</a>
+<a class="text-text-secondary hover:text-text-primary transition-colors" href="#">Pricing</a>
+</div>
+<div class="flex items-center gap-md">
+<a class="text-text-primary hover:text-accent-ember transition-colors hidden md:block" href="#">Log In</a>
+<button class="bg-accent-ember text-white px-md py-sm rounded hover:bg-accent-ember-hover transition-colors font-label-caps text-label-caps uppercase">
+                Get Started
+            </button>
+</div>
+</header>
+<main class="flex-grow flex flex-col items-center">
+<!-- Hero Section -->
+<section class="w-full max-w-7xl mx-auto px-margin-desktop py-3xl flex flex-col items-center text-center mt-xl">
+<h1 class="font-display-hero text-display-hero text-text-primary mb-lg max-w-4xl tracking-tight">
+                Forge a career-ready you
+            </h1>
+<p class="font-body-md text-body-md text-text-secondary max-w-2xl mb-xl text-[18px] leading-[28px]">
+                Refine your professional materials through technical heat and pressure. The ultimate parse-tailor-prepare-apply pipeline for technical roles.
+            </p>
+<div class="flex flex-col sm:flex-row gap-md mb-3xl">
+<button class="bg-accent-ember text-white px-xl py-md rounded-DEFAULT hover:bg-accent-ember-hover transition-colors duration-160 font-label-caps text-label-caps uppercase flex items-center gap-2 active:scale-95">
+                    Get Started Free
+                    <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</button>
+<button class="border border-border-strong text-text-primary px-xl py-md rounded-DEFAULT hover:bg-bg-surface-hover transition-colors duration-160 font-label-caps text-label-caps uppercase flex items-center gap-2 active:scale-95">
+                    See how it works
+                    <span class="material-symbols-outlined text-[16px]">play_circle</span>
+</button>
+</div>
+<!-- Mockup Placeholder -->
+<div class="w-full max-w-5xl bg-surface border border-border-subtle rounded-lg p-unit shadow-2xl relative glow-border mt-lg">
+<div class="w-full h-[500px] bg-bg-base rounded relative overflow-hidden flex flex-col">
+<!-- Faux UI Header -->
+<div class="h-12 border-b border-border-subtle flex items-center px-md gap-4 bg-surface-raised">
+<div class="flex gap-2">
+<div class="w-3 h-3 rounded-full bg-border-strong"></div>
+<div class="w-3 h-3 rounded-full bg-border-strong"></div>
+<div class="w-3 h-3 rounded-full bg-border-strong"></div>
+</div>
+<div class="font-mono-readout text-mono-readout text-text-secondary opacity-50 ml-4">
+                             /dashboard/resume-analysis
+                         </div>
+</div>
+<!-- Faux UI Body -->
+<div class="flex-grow p-lg flex gap-lg relative">
+<!-- Sidebar -->
+<div class="w-64 border-r border-border-subtle pr-md flex flex-col gap-4 opacity-50 hidden md:flex">
+<div class="h-8 bg-surface-raised rounded w-full"></div>
+<div class="h-8 bg-surface-raised rounded w-3/4"></div>
+<div class="h-8 bg-surface-raised rounded w-5/6"></div>
+</div>
+<!-- Main Content Area -->
+<div class="flex-grow flex flex-col gap-md">
+<div class="flex justify-between items-center mb-sm">
+<div class="h-6 bg-surface-raised w-1/3 rounded"></div>
+<div class="h-6 bg-accent-ember-muted w-24 rounded border border-accent-ember/30"></div>
+</div>
+<!-- Bento Grid inside Mockup -->
+<div class="grid grid-cols-2 gap-md flex-grow">
+<div class="bg-surface-raised border border-border-subtle rounded p-md flex flex-col gap-3">
+<div class="h-4 bg-border-strong w-1/2 rounded"></div>
+<div class="h-20 bg-bg-base rounded border border-border-subtle mt-2"></div>
+<div class="h-2 bg-border-strong w-full rounded mt-auto"></div>
+<div class="h-2 bg-border-strong w-4/5 rounded"></div>
+</div>
+<div class="bg-surface-raised border border-border-subtle rounded p-md flex flex-col gap-3 relative overflow-hidden">
+<div class="h-4 bg-border-strong w-1/3 rounded"></div>
+<div class="absolute bottom-0 left-0 w-full h-1 bg-border-subtle">
+<div class="h-full bg-accent-ember w-2/3"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Feature Grid -->
+<section class="w-full max-w-7xl mx-auto px-margin-desktop py-3xl border-t border-border-subtle">
+<div class="text-center mb-2xl">
+<h2 class="font-headline-lg text-headline-lg text-text-primary mb-sm">Precision Engineering for Your Career</h2>
+<p class="font-body-md text-body-md text-text-secondary">Technical tools built for modern job seekers.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-lg">
+<!-- Feature 1 -->
+<div class="bg-surface border border-border-subtle p-lg rounded hover:border-accent-ember/50 transition-colors duration-160 flex flex-col gap-md group">
+<div class="w-12 h-12 rounded bg-surface-raised border border-border-strong flex items-center justify-center text-accent-ember group-hover:bg-accent-ember-muted/20 transition-colors">
+<span class="material-symbols-outlined">description</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-text-primary">Tailor Instantly</h3>
+<p class="font-body-sm text-body-sm text-text-secondary">Align your resume to specific job descriptions with precision targeting and ATS optimization.</p>
+</div>
+<!-- Feature 2 -->
+<div class="bg-surface border border-border-subtle p-lg rounded hover:border-accent-ember/50 transition-colors duration-160 flex flex-col gap-md group">
+<div class="w-12 h-12 rounded bg-surface-raised border border-border-strong flex items-center justify-center text-accent-steel group-hover:bg-accent-steel-muted/20 transition-colors">
+<span class="material-symbols-outlined">settings_voice</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-text-primary">Practice Realistically</h3>
+<p class="font-body-sm text-body-sm text-text-secondary">Simulate high-pressure technical interviews with dynamic AI interviewers and real-time feedback.</p>
+</div>
+<!-- Feature 3 -->
+<div class="bg-surface border border-border-subtle p-lg rounded hover:border-accent-ember/50 transition-colors duration-160 flex flex-col gap-md group">
+<div class="w-12 h-12 rounded bg-surface-raised border border-border-strong flex items-center justify-center text-tertiary group-hover:bg-tertiary/10 transition-colors">
+<span class="material-symbols-outlined">search</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-text-primary">Search Smarter</h3>
+<p class="font-body-sm text-body-sm text-text-secondary">Filter through the noise with semantic job matching that understands your technical stack.</p>
+</div>
+<!-- Feature 4 -->
+<div class="bg-surface border border-border-subtle p-lg rounded hover:border-accent-ember/50 transition-colors duration-160 flex flex-col gap-md group">
+<div class="w-12 h-12 rounded bg-surface-raised border border-border-strong flex items-center justify-center text-success group-hover:bg-success/10 transition-colors">
+<span class="material-symbols-outlined">assignment</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-text-primary">Track Everything</h3>
+<p class="font-body-sm text-body-sm text-text-secondary">Manage your entire pipeline from application to offer in one unified dashboard.</p>
+</div>
+</div>
+</section>
+<!-- Pipeline Timeline Section -->
+<section class="w-full bg-surface-raised py-3xl border-t border-b border-border-subtle relative overflow-hidden">
+<div class="max-w-7xl mx-auto px-margin-desktop">
+<div class="text-center mb-2xl">
+<h2 class="font-headline-lg text-headline-lg text-text-primary mb-sm">The Pipeline</h2>
+<p class="font-body-md text-body-md text-text-secondary">A systematic approach to landing your next role.</p>
+</div>
+<div class="flex flex-col md:flex-row justify-between relative mt-xl">
+<!-- Step 1 -->
+<div class="flex-1 flex flex-col items-center text-center relative z-10 group mb-lg md:mb-0">
+<div class="w-12 h-12 rounded-full bg-bg-base border-2 border-border-strong flex items-center justify-center text-text-secondary mb-md group-hover:border-accent-ember group-hover:text-accent-ember transition-colors relative z-10">
+<span class="material-symbols-outlined">upload_file</span>
+</div>
+<h4 class="font-headline-sm text-headline-sm text-text-primary mb-xs">Upload</h4>
+<p class="font-body-sm text-body-sm text-text-secondary max-w-[200px]">Ingest your raw career data and base resume.</p>
+</div>
+<!-- Step 2 -->
+<div class="flex-1 flex flex-col items-center text-center relative z-10 group mb-lg md:mb-0">
+<div class="w-12 h-12 rounded-full bg-bg-base border-2 border-border-strong flex items-center justify-center text-text-secondary mb-md group-hover:border-accent-ember group-hover:text-accent-ember transition-colors relative z-10">
+<span class="material-symbols-outlined">tune</span>
+</div>
+<h4 class="font-headline-sm text-headline-sm text-text-primary mb-xs">Tailor</h4>
+<p class="font-body-sm text-body-sm text-text-secondary max-w-[200px]">Refine materials for specific target roles.</p>
+</div>
+<!-- Step 3 -->
+<div class="flex-1 flex flex-col items-center text-center relative z-10 group mb-lg md:mb-0">
+<div class="w-12 h-12 rounded-full bg-bg-base border-2 border-border-strong flex items-center justify-center text-text-secondary mb-md group-hover:border-accent-ember group-hover:text-accent-ember transition-colors relative z-10">
+<span class="material-symbols-outlined">psychology</span>
+</div>
+<h4 class="font-headline-sm text-headline-sm text-text-primary mb-xs">Prepare</h4>
+<p class="font-body-sm text-body-sm text-text-secondary max-w-[200px]">Simulate interviews and technical screens.</p>
+</div>
+<!-- Step 4 -->
+<div class="flex-1 flex flex-col items-center text-center relative z-10 group">
+<div class="w-12 h-12 rounded-full bg-bg-base border-2 border-border-strong flex items-center justify-center text-text-secondary mb-md group-hover:border-accent-ember group-hover:text-accent-ember transition-colors relative z-10">
+<span class="material-symbols-outlined">rocket_launch</span>
+</div>
+<h4 class="font-headline-sm text-headline-sm text-text-primary mb-xs">Apply</h4>
+<p class="font-body-sm text-body-sm text-text-secondary max-w-[200px]">Execute with confidence and track progress.</p>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Standard Footer -->
+<footer class="w-full bg-surface border-t border-border-subtle py-2xl px-margin-desktop mt-auto">
+<div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start gap-xl">
+<div class="flex flex-col gap-md max-w-sm">
+<div class="font-headline-sm text-headline-sm font-bold text-text-primary flex items-center gap-2">
+<span class="material-symbols-outlined text-accent-ember" style="font-variation-settings: 'FILL' 1;">local_fire_department</span>
+                    CareerForge AI
+                </div>
+<p class="font-body-sm text-body-sm text-text-secondary">
+                    Technical console for modern professionals. Forge a career-ready you through advanced refinement and preparation tools.
+                </p>
+<div class="font-mono-readout text-mono-readout text-text-muted mt-md">
+                    STATUS: ONLINE | v1.0.4
+                </div>
+</div>
+<div class="flex gap-xl">
+<div class="flex flex-col gap-sm">
+<span class="font-label-caps text-label-caps text-text-muted uppercase mb-sm">Product</span>
+<a class="font-body-sm text-body-sm text-text-secondary hover:text-accent-ember transition-colors" href="#">Features</a>
+<a class="font-body-sm text-body-sm text-text-secondary hover:text-accent-ember transition-colors" href="#">Pricing</a>
+<a class="font-body-sm text-body-sm text-text-secondary hover:text-accent-ember transition-colors" href="#">Changelog</a>
+</div>
+<div class="flex flex-col gap-sm">
+<span class="font-label-caps text-label-caps text-text-muted uppercase mb-sm">Legal</span>
+<a class="font-body-sm text-body-sm text-text-secondary hover:text-accent-ember transition-colors" href="#">Privacy</a>
+<a class="font-body-sm text-body-sm text-text-secondary hover:text-accent-ember transition-colors" href="#">Terms</a>
+</div>
+</div>
+</div>
+<div class="max-w-7xl mx-auto mt-xl pt-lg border-t border-border-subtle flex justify-between items-center">
+<p class="font-body-sm text-body-sm text-text-muted">© 2024 CareerForge AI. All rights reserved.</p>
+</div>
+</footer>
+</body></html>

@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CareerForge AI - Interview History</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Space+Grotesk:wght@400;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-tertiary": "#ffffff",
+                        "surface-container-low": "#f2ede5",
+                        "on-surface-variant": "#4a4a4a",
+                        "on-error": "#ffffff",
+                        "secondary-fixed": "#ffdad6",
+                        "error-container": "#ffdad6",
+                        "surface": "#f5f0e8",
+                        "surface-variant": "#e8e3da",
+                        "tertiary": "#0055ff",
+                        "on-tertiary-container": "#1a1a1a",
+                        "on-tertiary-fixed": "#1a1a1a",
+                        "on-secondary": "#1a1a1a",
+                        "on-error-container": "#93000a",
+                        "on-secondary-fixed-variant": "#1a1a1a",
+                        "primary-container": "#ffcc00",
+                        "on-primary": "#ffffff",
+                        "background": "#f5f0e8",
+                        "secondary-fixed-dim": "#ffb3ab",
+                        "inverse-surface": "#1a1a1a",
+                        "surface-container": "#eee9e0",
+                        "on-secondary-fixed": "#1a1a1a",
+                        "tertiary-fixed-dim": "#a8c6ff",
+                        "surface-bright": "#faf7f2",
+                        "tertiary-container": "#d6e3ff",
+                        "surface-container-high": "#e8e3da",
+                        "on-surface": "#1a1a1a",
+                        "on-background": "#1a1a1a",
+                        "on-primary-fixed-variant": "#1a1a1a",
+                        "secondary-container": "#ffdad6",
+                        "surface-container-lowest": "#ffffff",
+                        "inverse-primary": "#f5f0e8",
+                        "inverse-on-surface": "#f5f0e8",
+                        "primary-fixed-dim": "#e6b800",
+                        "outline-variant": "#d0cbc3",
+                        "error": "#cc0000",
+                        "tertiary-fixed": "#d6e3ff",
+                        "on-tertiary-fixed-variant": "#1a1a1a",
+                        "primary-fixed": "#ffcc00",
+                        "on-secondary-container": "#1a1a1a",
+                        "on-primary-container": "#1a1a1a",
+                        "primary": "#1a1a1a",
+                        "surface-dim": "#d6d1c9",
+                        "surface-tint": "#1a1a1a",
+                        "outline": "#1a1a1a",
+                        "surface-container-highest": "#e2ddd4",
+                        "secondary": "#e63b2e",
+                        "on-primary-fixed": "#1a1a1a"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0rem",
+                        "lg": "0rem",
+                        "xl": "0rem",
+                        "full": "0rem"
+                    },
+                    fontFamily: {
+                        "headline": ["Space Grotesk", "sans-serif"],
+                        "display": ["Space Grotesk", "sans-serif"],
+                        "body": ["Inter", "sans-serif"],
+                        "label": ["Space Grotesk", "sans-serif"]
+                    },
+                    boxShadow: {
+                        'brutal': '6px 6px 0px 0px #1a1a1a',
+                        'brutal-sm': '4px 4px 0px 0px #1a1a1a',
+                        'brutal-hover': '2px 2px 0px 0px #1a1a1a',
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { background-color: theme('colors.background'); color: theme('colors.primary'); font-family: theme('fontFamily.body'); }
+        h1, h2, h3, h4, h5, h6 { font-family: theme('fontFamily.headline'); }
+        
+        /* Custom scrollbar for raw brutalist feel */
+        ::-webkit-scrollbar { width: 12px; height: 12px; }
+        ::-webkit-scrollbar-track { background: theme('colors.surface-variant'); border-left: 2px solid theme('colors.primary'); }
+        ::-webkit-scrollbar-thumb { background: theme('colors.primary'); border: 2px solid theme('colors.background'); }
+        
+        .brutal-border { border: 3px solid theme('colors.primary'); }
+        .brutal-shadow { box-shadow: 6px 6px 0px 0px theme('colors.primary'); transition: all 0.1s ease-in-out; }
+        .brutal-shadow:hover { box-shadow: 2px 2px 0px 0px theme('colors.primary'); transform: translate(4px, 4px); }
+        .brutal-shadow-static { box-shadow: 6px 6px 0px 0px theme('colors.primary'); }
+    </style>
+</head>
+<body class="bg-background text-primary antialiased min-h-screen flex">
+<!-- SideNavBar -->
+<nav class="fixed left-0 top-0 h-full flex flex-col p-4 bg-background dark:bg-primary h-screen w-64 border-r-4 border-primary dark:border-primary-fixed z-50">
+<div class="mb-8">
+<h1 class="font-headline text-2xl font-black uppercase tracking-widest text-primary dark:text-primary-fixed">CareerForge</h1>
+<p class="font-body text-xs font-bold uppercase tracking-widest mt-1">Technical Platform</p>
+</div>
+<div class="flex-1 space-y-2">
+<!-- Inactive -->
+<a class="flex items-center space-x-3 p-3 text-primary dark:text-on-primary-fixed hover:bg-surface-variant font-headline uppercase tracking-tighter hover:bg-primary hover:text-on-primary transition-colors duration-100 active:translate-x-1 active:translate-y-1 brutal-border" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span>Dashboard</span>
+</a>
+<!-- Inactive -->
+<a class="flex items-center space-x-3 p-3 text-primary dark:text-on-primary-fixed hover:bg-surface-variant font-headline uppercase tracking-tighter hover:bg-primary hover:text-on-primary transition-colors duration-100 active:translate-x-1 active:translate-y-1 brutal-border" href="#">
+<span class="material-symbols-outlined">description</span>
+<span>Resumes</span>
+</a>
+<!-- Active: Interview Prep context -->
+<a class="flex items-center space-x-3 p-3 bg-primary-container text-primary border-4 border-primary font-bold font-headline uppercase tracking-tighter hover:bg-primary hover:text-on-primary transition-colors duration-100 active:translate-x-1 active:translate-y-1 brutal-shadow-static" href="#">
+<span class="material-symbols-outlined">psychology</span>
+<span>Interview Prep</span>
+</a>
+<!-- Inactive -->
+<a class="flex items-center space-x-3 p-3 text-primary dark:text-on-primary-fixed hover:bg-surface-variant font-headline uppercase tracking-tighter hover:bg-primary hover:text-on-primary transition-colors duration-100 active:translate-x-1 active:translate-y-1 brutal-border" href="#">
+<span class="material-symbols-outlined">search</span>
+<span>Job Search</span>
+</a>
+<!-- Inactive -->
+<a class="flex items-center space-x-3 p-3 text-primary dark:text-on-primary-fixed hover:bg-surface-variant font-headline uppercase tracking-tighter hover:bg-primary hover:text-on-primary transition-colors duration-100 active:translate-x-1 active:translate-y-1 brutal-border" href="#">
+<span class="material-symbols-outlined">assignment_turned_in</span>
+<span>Applications</span>
+</a>
+<!-- Inactive -->
+<a class="flex items-center space-x-3 p-3 text-primary dark:text-on-primary-fixed hover:bg-surface-variant font-headline uppercase tracking-tighter hover:bg-primary hover:text-on-primary transition-colors duration-100 active:translate-x-1 active:translate-y-1 brutal-border" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span>Settings</span>
+</a>
+</div>
+<div class="mt-auto pt-4 border-t-4 border-primary">
+<button class="w-full bg-primary text-on-primary font-headline uppercase tracking-widest p-4 brutal-shadow hover:bg-secondary transition-colors font-bold">
+                Upgrade Plan
+            </button>
+</div>
+</nav>
+<!-- Main Content Area -->
+<div class="flex-1 ml-64 flex flex-col min-h-screen">
+<!-- TopAppBar -->
+<header class="flex justify-between items-center h-20 px-8 w-full border-b-4 border-primary dark:border-primary-fixed bg-background dark:bg-primary z-40 sticky top-0">
+<div class="flex items-center space-x-8">
+<h2 class="font-headline font-black text-3xl uppercase tracking-tighter text-primary dark:text-primary-fixed">CareerForge AI</h2>
+<nav class="hidden lg:flex space-x-6">
+<a class="text-primary dark:text-on-primary-fixed font-headline font-bold text-lg hover:text-secondary transition-colors active:scale-95 uppercase" href="#">Network</a>
+<a class="text-primary dark:text-on-primary-fixed font-headline font-bold text-lg hover:text-secondary transition-colors active:scale-95 uppercase" href="#">Resources</a>
+</nav>
+</div>
+<div class="flex items-center space-x-6">
+<!-- Search -->
+<div class="relative hidden md:block">
+<input class="bg-surface-variant border-4 border-primary p-2 pr-10 font-headline uppercase placeholder-primary text-primary focus:outline-none focus:border-secondary w-64 brutal-shadow-static" placeholder="SEARCH HISTORY..." type="text"/>
+<span class="material-symbols-outlined absolute right-3 top-2.5 text-primary">search</span>
+</div>
+<button class="p-2 border-4 border-primary hover:bg-primary hover:text-on-primary transition-colors brutal-shadow">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 border-4 border-primary hover:bg-primary hover:text-on-primary transition-colors brutal-shadow bg-primary-container">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</div>
+</header>
+<!-- Main Canvas -->
+<main class="flex-1 p-8 overflow-y-auto">
+<div class="max-w-7xl mx-auto space-y-12">
+<!-- Page Header -->
+<div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 pb-6 border-b-8 border-primary">
+<div>
+<h1 class="text-6xl md:text-8xl font-black font-headline uppercase tracking-tighter leading-none">Interview<br/><span class="text-secondary">History</span></h1>
+<p class="font-body text-xl mt-4 font-bold max-w-2xl">Analyze your past performance, identify critical vulnerabilities, and track your progression over time.</p>
+</div>
+<button class="bg-tertiary text-on-tertiary border-4 border-primary px-8 py-4 font-headline font-bold uppercase tracking-widest text-xl brutal-shadow hover:bg-primary transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined">add</span>
+                        New Session
+                    </button>
+</div>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+<!-- Trend Chart (Recharts placeholder style) -->
+<div class="lg:col-span-2 bg-surface border-4 border-primary p-6 brutal-shadow-static relative overflow-hidden">
+<!-- Decorative background element -->
+<div class="absolute -right-12 -top-12 opacity-10 pointer-events-none">
+<span class="material-symbols-outlined text-[300px]">trending_up</span>
+</div>
+<div class="flex justify-between items-center mb-8 relative z-10">
+<h3 class="font-headline text-3xl font-black uppercase tracking-tight">Performance Trend</h3>
+<select class="border-4 border-primary bg-background font-headline uppercase p-2 font-bold cursor-pointer hover:bg-primary-container focus:ring-0">
+<option>Last 30 Days</option>
+<option>Last 90 Days</option>
+<option>All Time</option>
+</select>
+</div>
+<!-- Pseudo-Chart Area -->
+<div class="h-80 w-full border-l-4 border-b-4 border-primary relative mt-4">
+<!-- Grid lines -->
+<div class="absolute inset-0 flex flex-col justify-between">
+<div class="w-full border-t border-dashed border-primary/30"></div>
+<div class="w-full border-t border-dashed border-primary/30"></div>
+<div class="w-full border-t border-dashed border-primary/30"></div>
+<div class="w-full border-t border-dashed border-primary/30"></div>
+<div class="w-full border-t border-dashed border-primary/30"></div>
+</div>
+<!-- Y-axis labels -->
+<div class="absolute -left-10 inset-y-0 flex flex-col justify-between text-xs font-headline font-bold py-1">
+<span>100</span>
+<span>75</span>
+<span>50</span>
+<span>25</span>
+<span>0</span>
+</div>
+<!-- Fake SVG Line Chart for Brutalist Vibe -->
+<svg class="absolute inset-0 h-full w-full" preserveaspectratio="none" viewbox="0 0 100 100">
+<polyline fill="none" points="0,80 15,60 30,65 45,40 60,35 75,20 90,30 100,10" stroke="theme('colors.secondary')" stroke-width="3"></polyline>
+<!-- Data points -->
+<circle cx="15" cy="60" fill="theme('colors.primary')" r="2"></circle>
+<circle cx="30" cy="65" fill="theme('colors.primary')" r="2"></circle>
+<circle cx="45" cy="40" fill="theme('colors.primary')" r="2"></circle>
+<circle cx="60" cy="35" fill="theme('colors.primary')" r="2"></circle>
+<circle cx="75" cy="20" fill="theme('colors.primary')" r="2"></circle>
+<circle cx="90" cy="30" fill="theme('colors.primary')" r="2"></circle>
+<circle cx="100" cy="10" fill="theme('colors.primary-container')" r="3" stroke="theme('colors.primary')" stroke-width="1"></circle>
+</svg>
+</div>
+</div>
+<!-- Vulnerability Heatmap -->
+<div class="bg-primary-container border-4 border-primary p-6 brutal-shadow-static flex flex-col">
+<div class="mb-6">
+<h3 class="font-headline text-3xl font-black uppercase tracking-tight">Vulnerability Matrix</h3>
+<p class="font-body text-sm font-bold mt-2">Areas requiring immediate attention based on AI analysis.</p>
+</div>
+<!-- Geometric Grid -->
+<div class="grid grid-cols-2 gap-4 flex-1">
+<div class="bg-secondary border-4 border-primary p-4 flex flex-col justify-between hover:-translate-y-1 transition-transform">
+<span class="material-symbols-outlined text-on-error mb-2">code</span>
+<div>
+<h4 class="font-headline font-bold text-on-error uppercase">System Design</h4>
+<p class="text-3xl font-black text-on-error">82% <span class="text-sm">FAIL</span></p>
+</div>
+</div>
+<div class="bg-surface border-4 border-primary p-4 flex flex-col justify-between hover:-translate-y-1 transition-transform">
+<span class="material-symbols-outlined text-primary mb-2">data_object</span>
+<div>
+<h4 class="font-headline font-bold text-primary uppercase">Algorithms</h4>
+<p class="text-3xl font-black text-primary">45% <span class="text-sm">WARN</span></p>
+</div>
+</div>
+<div class="bg-surface border-4 border-primary p-4 flex flex-col justify-between hover:-translate-y-1 transition-transform">
+<span class="material-symbols-outlined text-primary mb-2">forum</span>
+<div>
+<h4 class="font-headline font-bold text-primary uppercase">Behavioral</h4>
+<p class="text-3xl font-black text-primary">12% <span class="text-sm">SAFE</span></p>
+</div>
+</div>
+<div class="bg-tertiary border-4 border-primary p-4 flex flex-col justify-between hover:-translate-y-1 transition-transform">
+<span class="material-symbols-outlined text-on-tertiary mb-2">api</span>
+<div>
+<h4 class="font-headline font-bold text-on-tertiary uppercase">API Design</h4>
+<p class="text-3xl font-black text-on-tertiary">60% <span class="text-sm">WARN</span></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Session History Table -->
+<div class="bg-background border-4 border-primary brutal-shadow-static overflow-hidden mt-12">
+<div class="p-6 border-b-4 border-primary bg-surface flex justify-between items-center">
+<h3 class="font-headline text-3xl font-black uppercase tracking-tight">Raw Session Log</h3>
+<button class="font-headline font-bold uppercase underline hover:text-tertiary transition-colors">Export CSV</button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-primary text-on-primary font-headline uppercase tracking-widest text-sm">
+<th class="p-4 border-r-4 border-primary">Date</th>
+<th class="p-4 border-r-4 border-primary">Role Target</th>
+<th class="p-4 border-r-4 border-primary">AI Persona</th>
+<th class="p-4 border-r-4 border-primary text-center">Score</th>
+<th class="p-4">Action</th>
+</tr>
+</thead>
+<tbody class="font-body font-medium">
+<tr class="border-b-4 border-primary hover:bg-surface-variant transition-colors">
+<td class="p-4 border-r-4 border-primary font-bold">2023-10-24</td>
+<td class="p-4 border-r-4 border-primary">Senior Backend Eng</td>
+<td class="p-4 border-r-4 border-primary">Stripe Technical</td>
+<td class="p-4 border-r-4 border-primary text-center">
+<span class="inline-block bg-primary-container border-2 border-primary px-3 py-1 font-headline font-bold">88/100</span>
+</td>
+<td class="p-4">
+<button class="font-headline font-bold uppercase hover:text-tertiary flex items-center gap-1">
+                                            Review <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</td>
+</tr>
+<tr class="border-b-4 border-primary hover:bg-surface-variant transition-colors">
+<td class="p-4 border-r-4 border-primary font-bold">2023-10-20</td>
+<td class="p-4 border-r-4 border-primary">Staff Engineer</td>
+<td class="p-4 border-r-4 border-primary">Google System Design</td>
+<td class="p-4 border-r-4 border-primary text-center">
+<span class="inline-block bg-secondary text-on-error border-2 border-primary px-3 py-1 font-headline font-bold">42/100</span>
+</td>
+<td class="p-4">
+<button class="font-headline font-bold uppercase hover:text-tertiary flex items-center gap-1">
+                                            Review <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</td>
+</tr>
+<tr class="border-b-4 border-primary hover:bg-surface-variant transition-colors">
+<td class="p-4 border-r-4 border-primary font-bold">2023-10-15</td>
+<td class="p-4 border-r-4 border-primary">Frontend Developer</td>
+<td class="p-4 border-r-4 border-primary">React Deep Dive</td>
+<td class="p-4 border-r-4 border-primary text-center">
+<span class="inline-block bg-tertiary text-on-tertiary border-2 border-primary px-3 py-1 font-headline font-bold">75/100</span>
+</td>
+<td class="p-4">
+<button class="font-headline font-bold uppercase hover:text-tertiary flex items-center gap-1">
+                                            Review <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-surface-variant transition-colors">
+<td class="p-4 border-r-4 border-primary font-bold">2023-10-10</td>
+<td class="p-4 border-r-4 border-primary">Full Stack Eng</td>
+<td class="p-4 border-r-4 border-primary">Startup Generalist</td>
+<td class="p-4 border-r-4 border-primary text-center">
+<span class="inline-block bg-primary-container border-2 border-primary px-3 py-1 font-headline font-bold">92/100</span>
+</td>
+<td class="p-4">
+<button class="font-headline font-bold uppercase hover:text-tertiary flex items-center gap-1">
+                                            Review <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>
