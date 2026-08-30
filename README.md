@@ -1,6 +1,18 @@
-# CareerForge AI
+﻿# CareerForge AI
 
-CareerForge AI is a full-stack AI career readiness platform built to help users improve resumes, prepare for interviews, track job applications, and stay organized through a single workflow.
+[![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)](https://nextjs.org/)
+[![Express](https://img.shields.io/badge/Express-000000?style=for-the-badge&logo=express&logoColor=white)](https://expressjs.com/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white)](https://www.mongodb.com/)
+[![Redis](https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white)](https://redis.io/)
+[![OpenRouter](https://img.shields.io/badge/OpenRouter-AI-FF7A00?style=for-the-badge&logo=openai&logoColor=white)](https://openrouter.ai/)
+[![Gemini](https://img.shields.io/badge/Gemini-AI-4285F4?style=for-the-badge&logo=google&logoColor=white)](https://ai.google/)
+[![Cloudinary](https://img.shields.io/badge/Cloudinary-3448C5?style=for-the-badge&logo=cloudinary&logoColor=white)](https://cloudinary.com/)
+[![Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://vercel.com/)
+[![Render](https://img.shields.io/badge/Render-46E3B7?style=for-the-badge&logo=render&logoColor=black)](https://render.com/)
+
+CareerForge AI is a full-stack AI-powered career readiness platform that helps candidates parse resumes, score ATS performance, tailor resumes for target roles, evaluate interview readiness, and manage job applications from one place.
+
+It brings together resume intelligence, AI workflows, and productivity tools in a single, streamlined experience for job seekers.
 
 ## 1. Project Name
 
@@ -8,61 +20,80 @@ CareerForge AI
 
 ## 2. Problem Statement
 
-Job seekers often struggle with fragmented workflows: resume parsing is manual, ATS compatibility is hard to evaluate, tailoring a resume for different roles takes time, mock interview prep is disconnected, and application tracking is spread across multiple tools.
+Modern job seekers often use multiple disconnected tools to manage the hiring process:
 
-CareerForge AI solves this by combining resume analysis, AI-powered tailoring, ATS scoring, skill gap analysis, mock interview planning, and application tracking into one integrated platform.
+- resume writing happens in one place,
+- ATS analysis is done elsewhere,
+- job applications are tracked manually,
+- interview prep is separate,
+- and role tailoring usually requires repetitive manual work.
+
+This fragmentation makes the process slow, inconsistent, and difficult to optimize. CareerForge AI solves this by providing one unified system for resume parsing, ATS scoring, role-specific tailoring, mock interview prep, and application tracking.
 
 ## 3. Features
 
+### Core Features
+
 - Resume upload and parsing for PDF, DOCX, and TXT files
-- AI-powered structured extraction of contact details, education, experience, skills, and projects
-- ATS score analysis for formatting, structure, keyword alignment, and length
-- Role-based resume tailoring with diff view and PDF export
-- Job description gap analysis to identify missing skills and recommendations
-- Mock interview setup with AI-generated questions and evaluation
-- Interview history and performance tracking
-- Job search hub with curated external job discovery links
-- Application tracking dashboard with workflow stages
-- Real-time updates using Socket.IO
-- Authenticated user experience with JWT-based access control
-- Fallback deterministic AI engine when external providers fail
+- Structured extraction of contact info, skills, work history, education, projects, and certifications
+- ATS compatibility evaluation for formatting, structure, keyword alignment, and resume length
+- Role-based resume tailoring with diff comparison and PDF export
+- Gap analysis against job descriptions to highlight missing skills and recommendations
+- Mock interview generation with role-specific questions and evaluation
+- Interview history tracking and readiness insights
+- Job search hub with curated deep links for external job boards
+- Application tracking workflow with stage-based progress
+- Real-time processing events using Socket.IO
+- Authenticated flows using JWT
+- Deterministic fallback engine when AI providers are unavailable
+
+### Bonus Features
+
+- Live agent timeline for processing pipeline visibility
+- Resume version history and export management
+- Search and application analytics dashboard
+- Responsive Bauhaus neo-brutalist UI
+- Production-ready Express backend with CORS and rate limiting
 
 ## 4. Technology Stack
 
 ### Frontend
+
 - Next.js
 - React
 - Tailwind CSS
-- Lucide Icons
+- Lucide React icons
 - Socket.IO client
-- Zustand for state management
+- Zustand state management
 
 ### Backend
+
 - Node.js
 - Express.js
 - MongoDB with Mongoose
 - Redis with BullMQ
 - Socket.IO
-- JWT authentication
-- Multer for file uploads
+- JWT auth
+- Multer uploads
 
-### AI / External Services
+### AI and Cloud Services
+
 - OpenRouter API
 - Google Gemini API
 - Cloudinary
-- Deterministic offline fallback engine
+- Deterministic offline fallback provider
 
-### Other Tools
+### Dev and Infra Tools
+
+- Vercel
+- Render
 - Axios
-- Express Validator
 - Helmet
+- Express Validator
 - CORS
 - Compression
-- Rate limiting
 
 ## 5. Screenshots
-
-Below are key UI screens from the design system used in the project:
 
 ### Landing Page
 ![Landing Page](./Design-v2/landing_page_bauhaus_style/screen.png)
@@ -85,25 +116,29 @@ Below are key UI screens from the design system used in the project:
 ### Application Tracker
 ![Application Tracker](./Design-v2/application_tracker_bauhaus_style/screen.png)
 
-### Auth Flow
+### Authentication Flow
 ![Auth Flow](./Design-v2/auth_flow_bauhaus_style/screen.png)
 
-### Settings
+### Settings View
 ![Settings](./Design-v2/settings_bauhaus_style/screen.png)
 
 ## 6. Live Demo
 
-Live Demo (Vercel):
-- https://your-project.vercel.app
+### Frontend (Vercel)
 
-Replace this with your actual deployed frontend URL.
+https://careerforge-ai-three-eta.vercel.app
+
+### Backend (Render)
+
+https://careerforge-backend-mg0r.onrender.com
 
 ## 7. Backend
 
-Backend API (Render):
-- https://your-render-service.onrender.com
+The backend API is deployed on Render and exposes the application logic for auth, resume processing, ATS analysis, tailoring, gap analysis, interview orchestration, and application tracking.
 
-Replace this with your actual deployed backend URL.
+API health check:
+
+https://careerforge-backend-mg0r.onrender.com/api/health
 
 ## 8. Setup Instructions
 
@@ -112,9 +147,9 @@ Replace this with your actual deployed backend URL.
 - Node.js 18+
 - npm
 - MongoDB Atlas account or local MongoDB instance
-- Redis instance (or use fallback behavior)
-- Cloudinary account (optional for production uploads)
-- OpenRouter and Gemini API keys (optional if using deterministic fallback)
+- Redis instance or use fallback mode
+- Cloudinary account for production uploads
+- OpenRouter and Gemini API keys if using AI providers
 
 ### 1. Clone the repository
 
@@ -130,17 +165,18 @@ cd server
 npm install
 ```
 
-### 3. Configure environment variables
+### 3. Configure backend environment variables
 
-Create a `.env` file inside the `server` folder and add the required values.
+Create a `.env` file inside the `server` folder with the required values.
 
-### 4. Start the backend server
+### 4. Start the backend
 
 ```bash
 npm run dev
 ```
 
-The backend will run on:
+The backend runs on:
+
 - http://localhost:5000
 
 ### 5. Install frontend dependencies
@@ -152,7 +188,7 @@ npm install
 
 ### 6. Configure frontend environment variables
 
-Create a `.env.local` file inside the `client` folder and add the frontend variables.
+Create a `.env.local` file inside the `client` folder and add the required public variables.
 
 ### 7. Start the frontend
 
@@ -160,17 +196,19 @@ Create a `.env.local` file inside the `client` folder and add the frontend varia
 npm run dev
 ```
 
-The frontend will run on:
+The frontend runs on:
+
 - http://localhost:3000
 
-### 8. Access the application
+### 8. Access the app
 
-Open:
+Open the following URL in the browser:
+
 - http://localhost:3000
 
 ## 9. Environment Variables
 
-The following environment variables are required for full functionality. Do not expose real values in GitHub or public files.
+Do not expose real secret values in GitHub or public repositories.
 
 ### Server (`server/.env`)
 
@@ -198,88 +236,21 @@ NEXT_PUBLIC_API_URL
 NEXT_PUBLIC_SOCKET_URL
 ```
 
+## 10. Deployment Notes
+
+This project is designed for deployment on:
+
+- Vercel for the Next.js frontend
+- Render for the Express backend
+
+The frontend and backend should use their deployed URLs in environment variables instead of localhost for production.
+
 ## Project Summary
 
-CareerForge AI brings together resume intelligence, interview preparation, job search support, and application management in one AI-powered workflow. It is designed for users who want a structured, guided system to improve career readiness and increase job application effectiveness.
+CareerForge AI is built to help users modernize their career readiness workflow by combining resume intelligence, ATS scoring, personalized tailoring, interview preparation, and application tracking into a single powerful dashboard.
+
+It is designed for candidates who want a more structured, AI-assisted, and efficient job search process.
 
 ## License
 
-This project is for educational and portfolio use unless otherwise stated by the repository owner.shboard` — KPI console (Resumes, ATS Scores, Interview Readiness, App Pipeline).- `/resume/upload` — Drag-and-drop file upload with live agent streaming timeline.
-- `/resume/[id]` — Resume detail with structured JSON view, ATS score breakdown, versions.
-- `/resume/[id]/tailor` — Role selector, JD paste box, side-by-side visual diff, PDF download.
-- `/interview/setup` — Select role and resume for mock interview synthesis.
-- `/interview/session/[id]` — Interactive Q&A lab with model answers and 4-dimension scorecards.
-- `/interview/history` — Past interview logs, score progression charts, weak-topic heatmaps.
-- `/jobs` — Job Search Hub with resume-derived deep links (LinkedIn, Internshala, Naukri, Indeed).
-- `/applications` — Kanban tracker board with conversion rate funnel & weekly volume metrics.
-- `/settings` — Candidate profile management & live AI provider health diagnostics.
-
----
-
-## 📡 REST API Reference
-
-### Health & Auth
-- `GET  /api/health` — System heartbeat and AI provider availability status
-- `POST /api/auth/register` — Register account (`name`, `email`, `password`, `targetRolePreference`)
-- `POST /api/auth/login` — Authenticate and receive JWT token
-- `GET  /api/auth/me` — Fetch current authenticated profile
-- `PUT  /api/auth/me` — Update candidate profile & preferences
-
-### Resumes & Tailoring
-- `GET    /api/resumes/dashboard` — Aggregated KPI metrics for dashboard
-- `GET    /api/resumes` — List user's uploaded resumes
-- `POST   /api/resumes/upload` — Multipart upload (`file`, `title`) and start Parser Agent
-- `GET    /api/resumes/:id` — Get resume structured data & ATS scores
-- `DELETE /api/resumes/:id` — Delete resume and associated tailored versions
-- `POST   /api/resumes/:id/tailor` — Generate role-tailored version (`targetRole`, `jobDescriptionText`)
-- `GET    /api/resumes/:id/versions` — List tailored versions of a resume
-- `GET    /api/resumes/:id/ats-score` — Fetch or recompute ATS breakdown score
-- `POST   /api/resumes/:id/gap-analysis` — Compare against JD (`jobDescriptionText`, `targetRole`)
-- `GET    /api/resumes/:id/download/:versionId` — Download tailored version as PDF
-
-### Mock Interviews
-- `POST /api/interview/sessions` — Start mock session (`resumeId`, `targetRole`, `count`)
-- `GET  /api/interview/sessions` — List past interview sessions
-- `GET  /api/interview/sessions/:id` — Fetch session with questions and submitted evaluations
-- `POST /api/interview/sessions/:id/questions/:qid/answer` — Submit answer for 4-dimension scoring
-- `GET  /api/interview/sessions/:id/questions/:qid/suggested-answer` — Reveal model answer
-- `GET  /api/interview/analytics` — Score trend progression and weak-topic diagnostics
-
-### Job Search & Applications
-- `GET    /api/jobs/roles` — List supported job categories and default keywords
-- `POST   /api/jobs/search-links` — Generate pre-filtered deep search links (`targetRole`, `resumeId`)
-- `GET    /api/applications` — List tracked applications (`status`, `search`, `sort`)
-- `POST   /api/applications` — Add application (`company`, `roleTitle`, `sourcePlatform`, `status`)
-- `PUT    /api/applications/:id` — Update application status or notes
-- `DELETE /api/applications/:id` — Remove application from tracker
-- `GET    /api/applications/analytics` — Funnel stage conversions and weekly volume
-
-### Jobs & Notifications
-- `GET  /api/processing-jobs/:id` — Fetch background job state
-- `GET  /api/processing-jobs/:id/timeline` — Fetch full agent event audit logs
-- `POST /api/processing-jobs/:id/cancel` — Cancel running background job
-- `GET  /api/processing-jobs/health/providers` — Check active AI provider status
-- `GET  /api/notifications` — Fetch user activity notifications
-
----
-
-## 🎨 Bauhaus Neo-Brutalist Design System
-
-The frontend implements the Neo-Brutalist philosophy from `Design-v2`:
-- **Palette**: Near-black (`#1a1a1a`), Accent Yellow (`#ffcc00`), Accent Blue (`#0055ff`), Accent Red (`#e63b2e`), Paper Canvas (`#f5f0e8`).
-- **Borders & Elevation**: Hard 3px borders (`border-3 border-[#1a1a1a]`) and solid offset block shadows (`box-shadow: 5px 5px 0px #1a1a1a`). No soft blurred drop shadows.
-- **Typography**: Geometric display typography with **Space Grotesk** and readable body font **Inter**.
-
----
-
-## 🛡️ Security & Compliance
-
-- **No Scraper Policy**: No automated scraping, bots, or OAuth against LinkedIn, Internshala, Naukri, or Indeed. Search queries are generated as pre-filtered public URLs opening directly in the browser.
-- **Password Security**: Passwords hashed with bcrypt using cost factor 12.
-- **API Security**: Request bodies validated with `express-validator`, headers secured with `helmet`, compression enabled, and rate-limiting enforced on auth endpoints.
-
----
-
-## 📄 License
-
-MIT © CareerForge AI Team
+This project is intended for educational and portfolio use unless otherwise stated by the repository owner.
