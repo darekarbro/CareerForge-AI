@@ -18,6 +18,10 @@ It brings together resume intelligence, AI workflows, and productivity tools in 
 
 CareerForge AI
 
+### GitHub Repository
+
+https://github.com/darekarbro/CareerForge-AI
+
 ## 2. Problem Statement
 
 Modern job seekers often use multiple disconnected tools to manage the hiring process:
@@ -154,8 +158,8 @@ https://careerforge-backend-mg0r.onrender.com/api/health
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/darekarbro/Agentic-AI-Automation.git
-cd Agentic-AI-Automation
+git clone https://github.com/darekarbro/CareerForge-AI.git
+cd CareerForge-AI
 ```
 
 ### 2. Install backend dependencies
