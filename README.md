@@ -1,170 +1,210 @@
-# CareerForge AI — Career Readiness Platform
+# CareerForge AI
 
-[![Design](https://img.shields.io/badge/Design-Bauhaus%20Neo--Brutalist-ffcc00?style=for-the-badge&logo=airplayvideo&logoColor=black)](https://github.com)
-[![Stack](https://img.shields.io/badge/Stack-Next.js%2015%20%7C%20Node%20Express%20%7C%20MongoDB-0055ff?style=for-the-badge)](https://github.com)
-[![Pipeline](https://img.shields.io/badge/AI%20Agents-6%20Cooperating%20Modules-e63b2e?style=for-the-badge)](https://github.com)
+CareerForge AI is a full-stack AI career readiness platform built to help users improve resumes, prepare for interviews, track job applications, and stay organized through a single workflow.
 
-**CareerForge AI** is a full-stack AI Career Readiness Platform that takes a user's resume and turns it into an end-to-end job-readiness pipeline: **parse, tailor, score, prepare, and apply**.
+## 1. Project Name
 
-Built strictly in accordance with [SPECS_resume_project.md](./SPECS_resume_project.md) (single source of truth) and styled with the **Bauhaus Neo-Brutalist** design system from `Design-v2`.
+CareerForge AI
 
----
+## 2. Problem Statement
 
-## ⚡ Key Capabilities
+Job seekers often struggle with fragmented workflows: resume parsing is manual, ATS compatibility is hard to evaluate, tailoring a resume for different roles takes time, mock interview prep is disconnected, and application tracking is spread across multiple tools.
 
-1. **Structured Resume Extraction**: Decodes PDF/DOCX/TXT files into structured schema (contact, experience, projects, skills, education, certifications).
-2. **ATS Compatibility Scoring**: Heuristic and AI-driven ATS parser simulation analyzing section hierarchy, formatting, and keyword density.
-3. **Role-Aware Resume Tailoring & Diff View**: Customizes resumes for target personas (`SDE`, `Fullstack`, `Backend`, `Frontend`, `Data/ML`, `DevOps`, `Product`, `Custom`) with side-by-side visual diffs and instant PDF export.
-4. **JD-to-Resume Gap Analysis**: Compares a pasted job description against resume skills, outputting matched competencies (with line citations) and critical missing criteria.
-5. **Interactive Mock Interviews & 4-Dimension Scorecard**: Role-specific technical & behavioral STAR questions, AI model answers, and evaluation across Clarity, Relevance, Structure, and Technical Depth.
-6. **Curated Job Search Hub**: Dynamic deep-search URLs for LinkedIn, Internshala, Naukri, and Indeed powered by resume keywords (compliant with platform Terms of Service).
-7. **Application Tracker & Analytics**: Kanban board (`Saved → Applied → OA → Interview → Offer / Rejected`) with conversion funnel yield and weekly application velocity charts.
-8. **Real-Time Agentic Pipeline**: Live Socket.IO streaming timeline showing `Parser`, `Analyzer`, `Generator`, `Evaluator`, `Recovery`, and `Monitoring` agents at work.
+CareerForge AI solves this by combining resume analysis, AI-powered tailoring, ATS scoring, skill gap analysis, mock interview planning, and application tracking into one integrated platform.
 
----
+## 3. Features
 
-## 🏗️ Architecture & Agentic Pipeline
+- Resume upload and parsing for PDF, DOCX, and TXT files
+- AI-powered structured extraction of contact details, education, experience, skills, and projects
+- ATS score analysis for formatting, structure, keyword alignment, and length
+- Role-based resume tailoring with diff view and PDF export
+- Job description gap analysis to identify missing skills and recommendations
+- Mock interview setup with AI-generated questions and evaluation
+- Interview history and performance tracking
+- Job search hub with curated external job discovery links
+- Application tracking dashboard with workflow stages
+- Real-time updates using Socket.IO
+- Authenticated user experience with JWT-based access control
+- Fallback deterministic AI engine when external providers fail
 
-```
-                                  ┌──────────────────────────────┐
-                                  │   Next.js (Pages Router)     │
-                                  │   Tailwind Neo-Brutalist UI  │
-                                  │     Zustand + Socket.IO      │
-                                  └──────────────┬───────────────┘
-                                                 │ HTTP / WebSockets
-                                                 ▼
-                                  ┌──────────────────────────────┐
-                                  │    Express API Gateway       │
-                                  │    Routes → Controllers →    │
-                                  │        Services Layer        │
-                                  └──────┬───────────────┬───────┘
-                                         │               │
-                 ┌───────────────────────┴─┐           ┌─┴────────────────────────┐
-                 ▼                         ▼           ▼                          ▼
-       ┌───────────────────┐     ┌──────────────────┐┌───────────────────┐┌───────────────────┐
-       │   Agent Pipeline  │     │ Background Queue ││  Database Layer   ││ Real-time Server │
-       │ Parser / Analyzer │     │ BullMQ + Redis   ││  MongoDB Mongoose ││ Socket.IO Server │
-       │ Generator / Eval  │     │ (InMemory fallbk)││ (InMemory fallbk) ││ Event Timeline   │
-       │ Recovery / Monitor│     └──────────────────┘└───────────────────┘└───────────────────┘
-       └─────────┬─────────┘
-                 ▼
-       ┌───────────────────┐
-       │  Providers Layer  │
-       │ OpenRouter API    │
-       │ Gemini SDK        │
-       │ Deterministic Rule│
-       └───────────────────┘
-```
+## 4. Technology Stack
 
----
+### Frontend
+- Next.js
+- React
+- Tailwind CSS
+- Lucide Icons
+- Socket.IO client
+- Zustand for state management
 
-## 🚀 Quick Start (Zero-Config Local Development)
+### Backend
+- Node.js
+- Express.js
+- MongoDB with Mongoose
+- Redis with BullMQ
+- Socket.IO
+- JWT authentication
+- Multer for file uploads
 
-> 📖 **Environment & API Key Setup**: For a full step-by-step walkthrough on getting all API keys (Gemini, OpenRouter, MongoDB Atlas, Cloudinary, Upstash Redis), see [**ENV_SETUP_GUIDE.md**](./ENV_SETUP_GUIDE.md).
+### AI / External Services
+- OpenRouter API
+- Google Gemini API
+- Cloudinary
+- Deterministic offline fallback engine
 
-CareerForge AI is architected to run out of the box with **zero required API keys or databases**. If MongoDB, Redis, Cloudinary, or AI keys are omitted, the platform automatically engages:
-- **In-Memory MongoDB** (`mongodb-memory-server` fallback)
-- **In-Memory Queue Dispatcher** (automatic BullMQ/Redis fallback)
-- **Deterministic Rule & STAR Fallback Engine** (100% offline generation, parsing & evaluation)
-- **Local File Uploads Storage**
+### Other Tools
+- Axios
+- Express Validator
+- Helmet
+- CORS
+- Compression
+- Rate limiting
 
----
+## 5. Screenshots
 
-### Step 1: Clone Repository & Open Workspace
+Below are key UI screens from the design system used in the project:
+
+### Landing Page
+![Landing Page](./Design-v2/landing_page_bauhaus_style/screen.png)
+
+### Dashboard
+![Dashboard](./Design-v2/dashboard_bauhaus_style/screen.png)
+
+### Resume Tailor
+![Resume Tailor](./Design-v2/resume_tailor_bauhaus_style/screen.png)
+
+### Job Search Hub
+![Job Search Hub](./Design-v2/job_search_hub_bauhaus_style/screen.png)
+
+### Interview Setup
+![Interview Setup](./Design-v2/interview_setup_bauhaus_style/screen.png)
+
+### Interview Session
+![Interview Session](./Design-v2/interview_session_bauhaus_style/screen.png)
+
+### Application Tracker
+![Application Tracker](./Design-v2/application_tracker_bauhaus_style/screen.png)
+
+### Auth Flow
+![Auth Flow](./Design-v2/auth_flow_bauhaus_style/screen.png)
+
+### Settings
+![Settings](./Design-v2/settings_bauhaus_style/screen.png)
+
+## 6. Live Demo
+
+Live Demo (Vercel):
+- https://your-project.vercel.app
+
+Replace this with your actual deployed frontend URL.
+
+## 7. Backend
+
+Backend API (Render):
+- https://your-render-service.onrender.com
+
+Replace this with your actual deployed backend URL.
+
+## 8. Setup Instructions
+
+### Prerequisites
+
+- Node.js 18+
+- npm
+- MongoDB Atlas account or local MongoDB instance
+- Redis instance (or use fallback behavior)
+- Cloudinary account (optional for production uploads)
+- OpenRouter and Gemini API keys (optional if using deterministic fallback)
+
+### 1. Clone the repository
 
 ```bash
 git clone https://github.com/darekarbro/Agentic-AI-Automation.git
-cd "Agentic-AI-Automation"
+cd Agentic-AI-Automation
 ```
 
----
-
-### Step 2: Set Up Backend Server
-
-Open a terminal in the root workspace:
+### 2. Install backend dependencies
 
 ```bash
 cd server
 npm install
 ```
 
-*(Optional)* Create a `.env` file from the provided template:
+### 3. Configure environment variables
 
-```bash
-cp .env.example .env
-```
+Create a `.env` file inside the `server` folder and add the required values.
 
-Start the backend development server:
+### 4. Start the backend server
 
 ```bash
 npm run dev
 ```
 
-The server will start on: **`http://localhost:5000`**
-Health check endpoint: **`http://localhost:5000/api/health`**
+The backend will run on:
+- http://localhost:5000
 
----
-
-### Step 3: Set Up Frontend Client
-
-Open a second terminal window:
+### 5. Install frontend dependencies
 
 ```bash
-cd client
+cd ../client
 npm install
 ```
 
-*(Optional)* Create a `.env.local` file from the provided template:
+### 6. Configure frontend environment variables
 
-```bash
-cp .env.example .env.local
-```
+Create a `.env.local` file inside the `client` folder and add the frontend variables.
 
-Start the Next.js development server:
+### 7. Start the frontend
 
 ```bash
 npm run dev
 ```
 
-The frontend web app will open at: **`http://localhost:3000`**
+The frontend will run on:
+- http://localhost:3000
 
----
+### 8. Access the application
 
-## ⚙️ Environment Configuration
+Open:
+- http://localhost:3000
 
-### Backend (`server/.env`)
+## 9. Environment Variables
 
-| Variable | Required? | Default | Description |
-|---|---|---|---|
-| `PORT` | Optional | `5000` | Port for Express API server |
-| `CLIENT_URL` | Optional | `http://localhost:3000` | Allowed CORS origin |
-| `JWT_SECRET` | Optional | `careerforge-default-dev-secret` | Secret key for signing auth tokens |
-| `MONGODB_URI` | Optional | `In-Memory Server` | MongoDB Atlas connection string |
-| `OPENROUTER_API_KEY` | Optional | `""` | Primary AI provider key |
-| `OPENROUTER_MODEL` | Optional | `meta-llama/llama-3.3-70b-instruct:free` | OpenRouter model ID |
-| `GEMINI_API_KEY` | Optional | `""` | Fallback AI provider key |
-| `GEMINI_MODEL` | Optional | `gemini-1.5-flash` | Gemini model ID |
-| `CLOUDINARY_CLOUD_NAME` | Optional | `""` | Cloudinary storage account name |
-| `CLOUDINARY_API_KEY` | Optional | `""` | Cloudinary API Key |
-| `CLOUDINARY_API_SECRET` | Optional | `""` | Cloudinary API Secret |
-| `REDIS_URL` | Optional | `In-Memory Queue` | Redis URL for BullMQ queue worker |
+The following environment variables are required for full functionality. Do not expose real values in GitHub or public files.
 
-### Frontend (`client/.env.local`)
+### Server (`server/.env`)
 
-| Variable | Required? | Default | Description |
-|---|---|---|---|
-| `NEXT_PUBLIC_API_URL` | Optional | `http://localhost:5000/api` | Base URL of backend REST API |
-| `NEXT_PUBLIC_SOCKET_URL` | Optional | `http://localhost:5000` | Base URL for Socket.IO streaming |
+```env
+PORT
+NODE_ENV
+CLIENT_URL
+JWT_SECRET
+MONGODB_URI
+OPENROUTER_API_KEY
+OPENROUTER_MODEL
+GEMINI_API_KEY
+GEMINI_MODEL
+AI_PROVIDER_TIMEOUT_MS
+CLOUDINARY_CLOUD_NAME
+CLOUDINARY_API_KEY
+CLOUDINARY_API_SECRET
+REDIS_URL
+```
 
----
+### Client (`client/.env.local`)
 
-## 🧭 Application Routes
+```env
+NEXT_PUBLIC_API_URL
+NEXT_PUBLIC_SOCKET_URL
+```
 
-### Frontend Pages
-- `/` — Bauhaus Landing Page with platform overview & architecture highlights.
-- `/login` & `/register` — Authentication with JWT session persistence.
-- `/dashboard` — KPI console (Resumes, ATS Scores, Interview Readiness, App Pipeline).
-- `/resume/upload` — Drag-and-drop file upload with live agent streaming timeline.
+## Project Summary
+
+CareerForge AI brings together resume intelligence, interview preparation, job search support, and application management in one AI-powered workflow. It is designed for users who want a structured, guided system to improve career readiness and increase job application effectiveness.
+
+## License
+
+This project is for educational and portfolio use unless otherwise stated by the repository owner.shboard` — KPI console (Resumes, ATS Scores, Interview Readiness, App Pipeline).- `/resume/upload` — Drag-and-drop file upload with live agent streaming timeline.
 - `/resume/[id]` — Resume detail with structured JSON view, ATS score breakdown, versions.
 - `/resume/[id]/tailor` — Role selector, JD paste box, side-by-side visual diff, PDF download.
 - `/interview/setup` — Select role and resume for mock interview synthesis.
