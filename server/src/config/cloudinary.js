@@ -25,28 +25,35 @@ if (isConfigured) {
  */
 const uploadFile = async (fileSource, options = {}) => {
   if (isConfigured) {
-    return new Promise((resolve, reject) => {
-      const uploadOptions = {
-        folder: 'careerforge_resumes',
-        resource_type: 'auto',
-        ...options,
-      };
+    try {
+      const result = await new Promise((resolve, reject) => {
+        const uploadOptions = {
+          folder: 'careerforge_resumes',
+          resource_type: 'auto',
+          ...options,
+        };
 
-      if (Buffer.isBuffer(fileSource)) {
-        const stream = cloudinary.uploader.upload_stream(uploadOptions, (error, result) => {
-          if (error) return reject(error);
-          resolve(result);
-        });
-        stream.end(fileSource);
-      } else if (typeof fileSource === 'string') {
-        cloudinary.uploader.upload(fileSource, uploadOptions, (error, result) => {
-          if (error) return reject(error);
-          resolve(result);
-        });
-      } else {
-        reject(new Error('Invalid fileSource provided to uploadFile'));
-      }
-    });
+        if (Buffer.isBuffer(fileSource)) {
+          const stream = cloudinary.uploader.upload_stream(uploadOptions, (error, result) => {
+            if (error) return reject(error);
+            resolve(result);
+          });
+          stream.end(fileSource);
+        } else if (typeof fileSource === 'string') {
+          cloudinary.uploader.upload(fileSource, uploadOptions, (error, result) => {
+            if (error) return reject(error);
+            resolve(result);
+          });
+        } else {
+          reject(new Error('Invalid fileSource provided to uploadFile'));
+        }
+      });
+      return result;
+    } catch (cloudinaryError) {
+      console.warn(
+        `⚠️ Cloudinary upload failed (${cloudinaryError.message || cloudinaryError.http_code || 'Unknown error'}). Falling back to local uploads directory.`
+      );
+    }
   }
 
   // Fallback: Local storage simulation

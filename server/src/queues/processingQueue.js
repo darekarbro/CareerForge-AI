@@ -35,10 +35,27 @@ const inMemoryQueue = new InMemoryQueue();
 // Initialize BullMQ if REDIS_URL is provided
 if (env.REDIS_URL) {
   try {
-    const connection = new Redis(env.REDIS_URL, {
-      maxRetriesPerRequest: null,
-      enableReadyCheck: false,
-    });
+    // Parse the rediss:// URL manually to handle special chars in password
+    let redisOpts;
+    try {
+      const parsed = new URL(env.REDIS_URL);
+      redisOpts = {
+        host: parsed.hostname,
+        port: parseInt(parsed.port, 10) || 6379,
+        username: parsed.username || 'default',
+        password: decodeURIComponent(parsed.password),
+        tls: parsed.protocol === 'rediss:' ? {} : undefined,
+        maxRetriesPerRequest: null,
+        enableReadyCheck: false,
+      };
+    } catch (_parseErr) {
+      // Fallback: pass as raw URL string
+      redisOpts = env.REDIS_URL;
+    }
+
+    const connection = typeof redisOpts === 'string'
+      ? new Redis(redisOpts, { maxRetriesPerRequest: null, enableReadyCheck: false })
+      : new Redis(redisOpts);
 
     connection.on('connect', () => {
       isRedisAvailable = true;

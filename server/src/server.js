@@ -42,6 +42,19 @@ const startServer = async () => {
       console.log('====================================================');
     });
 
+    // Handle port already in use gracefully
+    server.on('error', (err) => {
+      if (err.code === 'EADDRINUSE') {
+        console.error(`\n❌ Port ${env.PORT} is already in use.`);
+        console.error(`   → Kill the existing process: npx kill-port ${env.PORT}`);
+        console.error(`   → Or change PORT in server/.env\n`);
+        process.exit(1);
+      } else {
+        console.error('❌ Server error:', err.message);
+        process.exit(1);
+      }
+    });
+
     // Graceful shutdown handling
     const shutdown = () => {
       console.log('\n🛑 Gracefully shutting down CareerForge AI Server...');
