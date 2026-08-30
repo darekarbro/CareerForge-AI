@@ -74,7 +74,15 @@ if (env.REDIS_URL) {
       async (bullJob) => {
         return orchestrator.runJob(bullJob.data.jobId);
       },
-      { connection, concurrency: 5 }
+      {
+        connection,
+        concurrency: 5,
+        // A single AI workflow can include two provider calls and a fallback.
+        // Keep the BullMQ lock valid for that full bounded execution window.
+        lockDuration: 180000,
+        lockRenewTime: 60000,
+        stalledInterval: 60000,
+      }
     );
 
     worker.on('failed', (job, err) => {

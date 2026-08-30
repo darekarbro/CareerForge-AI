@@ -3,7 +3,7 @@ const TailoredResume = require('../models/TailoredResume');
 const ProcessingJob = require('../models/ProcessingJob');
 const generatorAgent = require('../agents/generatorAgent');
 const analyzerAgent = require('../agents/analyzerAgent');
-const { enqueueJob } = require('../queues/processingQueue');
+const { runProcessingJob } = require('./processingJobLifecycle');
 const PDFDocument = require('pdfkit');
 
 class TailoringService {
@@ -35,40 +35,40 @@ class TailoringService {
       },
     });
 
-    // Enqueue background job
-    await enqueueJob('resume_tailor', { jobId: processingJob._id });
+    const { tailoredResume } = await runProcessingJob(processingJob, async () => {
+      const tailoredData = await generatorAgent.tailorResume({
+        resumeData: resume.parsedData,
+        targetRole,
+        jobDescriptionText,
+        jobId: processingJob._id,
+        userId,
+      });
 
-    // Execute synchronous creation for immediate return
-    const tailoredData = await generatorAgent.tailorResume({
-      resumeData: resume.parsedData,
-      targetRole,
-      jobDescriptionText,
-      jobId: processingJob._id,
-      userId,
-    });
+      const atsScore = await analyzerAgent.scoreATS({
+        resumeData: tailoredData,
+        rawText: '',
+        jobId: processingJob._id,
+        userId,
+      });
 
-    const atsScore = await analyzerAgent.scoreATS({
-      resumeData: tailoredData,
-      rawText: '',
-      jobId: processingJob._id,
-      userId,
-    });
+      const createdResume = await TailoredResume.create({
+        resumeId: resume._id,
+        owner: userId,
+        targetRole,
+        jobDescriptionText,
+        tailoredContent: {
+          summary: tailoredData.summary,
+          skills: tailoredData.skills,
+          workExperience: tailoredData.workExperience,
+          projects: tailoredData.projects,
+        },
+        atsScore,
+        diffFromOriginal: tailoredData.diffFromOriginal,
+        version: nextVersion,
+        aiProvider: tailoredData.aiProvider,
+      });
 
-    const tailoredResume = await TailoredResume.create({
-      resumeId: resume._id,
-      owner: userId,
-      targetRole,
-      jobDescriptionText,
-      tailoredContent: {
-        summary: tailoredData.summary,
-        skills: tailoredData.skills,
-        workExperience: tailoredData.workExperience,
-        projects: tailoredData.projects,
-      },
-      atsScore,
-      diffFromOriginal: tailoredData.diffFromOriginal,
-      version: nextVersion,
-      aiProvider: tailoredData.aiProvider,
+      return { tailoredResume: createdResume, aiProvider: tailoredData.aiProvider };
     });
 
     return {

@@ -6,13 +6,13 @@ export default function AppShell({ children, noSidebar = false }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-[#f5f0e8] flex flex-col selection:bg-[#ffcc00] selection:text-[#1a1a1a]">
+    <div className="min-h-screen bg-[var(--bg-main)] text-[var(--text-main)] flex flex-col selection:bg-[#ffcc00] selection:text-[#1a1a1a] transition-colors duration-200">
       <Navbar onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
-      <div className="flex-1 flex">
+      <div className="flex-1 flex lg:items-start">
         {!noSidebar && (
           <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
         )}
-        <main className="flex-1 p-4 lg:p-8 max-w-7xl w-full mx-auto overflow-y-auto">
+        <main className="flex-1 w-full max-w-7xl mx-auto p-4 lg:p-8 overflow-y-visible">
           {children}
         </main>
       </div>

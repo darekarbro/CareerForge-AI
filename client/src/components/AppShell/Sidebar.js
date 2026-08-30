@@ -28,7 +28,6 @@ export default function Sidebar({ isOpen, onClose }) {
 
   return (
     <>
-      {/* Mobile Backdrop */}
       {isOpen && (
         <div
           onClick={onClose}
@@ -37,7 +36,7 @@ export default function Sidebar({ isOpen, onClose }) {
       )}
 
       <aside
-        className={`fixed lg:static top-0 bottom-0 left-0 z-40 w-64 bg-[#f5f0e8] border-r-3 border-[#1a1a1a] flex flex-col justify-between transition-transform duration-200 ease-in-out ${
+        className={`fixed lg:sticky top-0 left-0 z-40 w-64 flex-shrink-0 flex flex-col justify-between border-r-3 border-[#1a1a1a] bg-[var(--panel-bg)] text-[var(--text-main)] transition-transform duration-200 ease-in-out lg:top-[72px] lg:h-[calc(100vh-72px)] lg:overflow-y-auto ${
           isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         }`}
       >
@@ -67,7 +66,7 @@ export default function Sidebar({ isOpen, onClose }) {
                   className={`flex items-center gap-3 px-3.5 py-2.5 font-headline font-bold text-xs uppercase tracking-wider border-2 transition-all ${
                     isActive
                       ? 'bg-[#ffcc00] border-[#1a1a1a] text-[#1a1a1a] shadow-brutal translate-x-1'
-                      : 'border-transparent text-[#1a1a1a] hover:bg-white hover:border-[#1a1a1a] hover:shadow-brutal'
+                      : 'border-transparent text-[var(--text-main)] hover:bg-[var(--surface-strong)] hover:border-[#1a1a1a] hover:shadow-brutal'
                   }`}
                 >
                   <Icon className={`w-4 h-4 ${isActive ? 'text-[#1a1a1a]' : 'text-[#0055ff]'}`} />
@@ -78,12 +77,11 @@ export default function Sidebar({ isOpen, onClose }) {
           </nav>
         </div>
 
-        {/* Footer info banner */}
-        <div className="p-4 border-t-3 border-[#1a1a1a] bg-white">
-          <div className="text-[10px] font-bold uppercase text-gray-500 mb-1">
+        <div className="p-4 border-t-3 border-[#1a1a1a] bg-[var(--surface-elevated)]">
+          <div className="text-[10px] font-bold uppercase text-[var(--text-muted)] mb-1">
             CareerForge AI v1.0.0
           </div>
-          <div className="text-xs font-black uppercase text-[#1a1a1a]">
+          <div className="text-xs font-black uppercase text-[var(--text-main)]">
             Bauhaus Edition
           </div>
         </div>

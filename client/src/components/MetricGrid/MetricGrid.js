@@ -47,7 +47,7 @@ export default function MetricGrid({ metrics }) {
             className={`brutal-card p-5 ${card.accent} flex flex-col justify-between`}
           >
             <div className="flex items-start justify-between">
-              <span className="font-headline font-bold text-xs uppercase tracking-wider text-gray-700">
+              <span className="font-headline font-bold text-xs uppercase tracking-wider text-[var(--text-main)]">
                 {card.title}
               </span>
               <div className={`p-2 border-2 border-[#1a1a1a] ${card.bgAccent}`}>
@@ -55,10 +55,10 @@ export default function MetricGrid({ metrics }) {
               </div>
             </div>
             <div className="mt-4">
-              <div className="font-headline font-black text-3xl sm:text-4xl text-[#1a1a1a]">
+              <div className="font-headline font-black text-3xl sm:text-4xl text-[var(--text-main)]">
                 {card.value}
               </div>
-              <div className="mt-1 text-xs font-bold text-gray-600 flex items-center gap-1">
+              <div className="mt-1 text-xs font-bold text-[var(--text-muted)] flex items-center gap-1">
                 <span>{card.label}</span>
               </div>
             </div>

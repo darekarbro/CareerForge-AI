@@ -1,31 +1,34 @@
 const dotenv = require('dotenv');
 const path = require('path');
 
+const trimEnv = (value) => (typeof value === 'string' ? value.trim() : value);
+
 // Load environment variables from server .env or root .env
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 dotenv.config();
 
 const env = {
-  NODE_ENV: process.env.NODE_ENV || 'development',
-  PORT: parseInt(process.env.PORT || '5000', 10),
-  CLIENT_URL: process.env.CLIENT_URL || 'http://localhost:3000',
-  MONGODB_URI: process.env.MONGODB_URI || '',
-  JWT_SECRET: process.env.JWT_SECRET || 'careerforge-default-dev-secret-key-change-in-prod',
-  JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN || '7d',
-  
+  NODE_ENV: trimEnv(process.env.NODE_ENV) || 'development',
+  PORT: parseInt(trimEnv(process.env.PORT) || '5000', 10),
+  CLIENT_URL: trimEnv(process.env.CLIENT_URL) || 'http://localhost:3000',
+  MONGODB_URI: trimEnv(process.env.MONGODB_URI) || '',
+  JWT_SECRET: trimEnv(process.env.JWT_SECRET) || 'careerforge-default-dev-secret-key-change-in-prod',
+  JWT_EXPIRES_IN: trimEnv(process.env.JWT_EXPIRES_IN) || '7d',
+
   // AI Keys
-  OPENROUTER_API_KEY: process.env.OPENROUTER_API_KEY || '',
-  OPENROUTER_MODEL: process.env.OPENROUTER_MODEL || 'meta-llama/llama-3.3-70b-instruct:free',
-  GEMINI_API_KEY: process.env.GEMINI_API_KEY || '',
-  GEMINI_MODEL: process.env.GEMINI_MODEL || 'gemini-1.5-flash',
+  OPENROUTER_API_KEY: trimEnv(process.env.OPENROUTER_API_KEY) || '',
+  OPENROUTER_MODEL: trimEnv(process.env.OPENROUTER_MODEL) || 'meta-llama/llama-3.3-70b-instruct:free',
+  GEMINI_API_KEY: trimEnv(process.env.GEMINI_API_KEY) || '',
+  GEMINI_MODEL: trimEnv(process.env.GEMINI_MODEL) || 'gemini-2.0-flash',
+  AI_PROVIDER_TIMEOUT_MS: Math.max(1000, parseInt(trimEnv(process.env.AI_PROVIDER_TIMEOUT_MS) || '15000', 10) || 15000),
 
   // Cloudinary
-  CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME || '',
-  CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY || '',
-  CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET || '',
+  CLOUDINARY_CLOUD_NAME: trimEnv(process.env.CLOUDINARY_CLOUD_NAME) || '',
+  CLOUDINARY_API_KEY: trimEnv(process.env.CLOUDINARY_API_KEY) || '',
+  CLOUDINARY_API_SECRET: trimEnv(process.env.CLOUDINARY_API_SECRET) || '',
 
   // Redis
-  REDIS_URL: process.env.REDIS_URL || '',
+  REDIS_URL: trimEnv(process.env.REDIS_URL) || '',
 };
 
 module.exports = env;

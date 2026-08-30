@@ -95,15 +95,20 @@ export default function ResumeTailorPage() {
             </div>
 
             {tailoredResult && (
-              <a
-                href={`http://localhost:5000/api/resumes/${id}/download/${tailoredResult._id}`}
-                target="_blank"
-                rel="noreferrer"
-                className="brutal-btn-yellow px-4 py-2 text-xs flex items-center gap-2"
-              >
-                <Download className="w-4 h-4" />
-                <span>Download Tailored PDF</span>
-              </a>
+             <button
+               type="button"
+               onClick={async () => {
+                 try {
+                   await api.download(`/resumes/${id}/download/${tailoredResult._id}`, `tailored_resume_${tailoredResult._id}.pdf`);
+                 } catch (err) {
+                   console.error('Resume PDF download failed:', err);
+                 }
+               }}
+               className="brutal-btn-yellow px-4 py-2 text-xs flex items-center gap-2"
+             >
+               <Download className="w-4 h-4" />
+               <span>Download Tailored PDF</span>
+             </button>
             )}
           </div>
 

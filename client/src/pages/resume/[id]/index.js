@@ -273,15 +273,20 @@ export default function ResumeDetailPage() {
                     </div>
 
                     <div className="flex items-center gap-2">
-                      <a
-                        href={`http://localhost:5000/api/resumes/${resume._id}/download/${ver._id}`}
-                        target="_blank"
-                        rel="noreferrer"
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          try {
+                            await api.download(`/resumes/${resume._id}/download/${ver._id}`, `tailored_resume_${ver._id}.pdf`);
+                          } catch (err) {
+                            console.error('Resume PDF export failed:', err);
+                          }
+                        }}
                         className="brutal-btn-yellow px-3 py-1.5 text-xs flex items-center gap-1"
                       >
                         <Download className="w-3.5 h-3.5" />
                         <span>PDF Export</span>
-                      </a>
+                      </button>
                     </div>
                   </div>
                 ))}

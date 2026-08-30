@@ -6,10 +6,19 @@
 
 :root {
   --bg-main: #f5f0e8;
+  --header-bg: rgba(245, 240, 232, 0.9);
+  --panel-bg: #f5f0e8;
+  --surface-elevated: #ffffff;
+  --surface-strong: #eee9e0;
   --text-main: #1a1a1a;
+  --text-muted: #5c5c5c;
   --accent-yellow: #ffcc00;
   --accent-red: #e63b2e;
   --accent-blue: #0055ff;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
@@ -17,6 +26,7 @@ body {
   color: var(--text-main);
   font-family: 'Inter', sans-serif;
   overflow-x: hidden;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 h1, h2, h3, h4, h5, h6, .font-headline {
@@ -27,7 +37,8 @@ h1, h2, h3, h4, h5, h6, .font-headline {
 /* Neo-Brutalist utility classes */
 .brutal-card {
   border: 3px solid #1a1a1a;
-  background-color: #ffffff;
+  background-color: var(--surface-elevated);
+  color: var(--text-main);
   box-shadow: 5px 5px 0px #1a1a1a;
   transition: all 0.15s ease-in-out;
 }
@@ -108,16 +119,20 @@ h1, h2, h3, h4, h5, h6, .font-headline {
 
 .brutal-input {
   border: 3px solid #1a1a1a;
-  background-color: #ffffff;
-  color: #1a1a1a;
+  background-color: var(--surface-elevated);
+  color: var(--text-main);
   padding: 0.625rem 0.875rem;
   font-weight: 500;
   outline: none;
   transition: all 0.15s ease-in-out;
 }
 
+.brutal-input::placeholder {
+  color: #6b7280;
+}
+
 .brutal-input:focus {
-  background-color: #faf7f2;
+  background-color: var(--surface-strong);
   box-shadow: 4px 4px 0px #1a1a1a;
 }
 
@@ -127,9 +142,10 @@ h1, h2, h3, h4, h5, h6, .font-headline {
   height: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: #f5f0e8;
+  background: var(--bg-main);
   border-left: 2px solid #1a1a1a;
 }
 ::-webkit-scrollbar-thumb {
-  background: #1a1a1a;
+  background: var(--text-main);
+  border-radius: 999px;
 }

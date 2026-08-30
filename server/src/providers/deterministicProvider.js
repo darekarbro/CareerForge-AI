@@ -13,7 +13,8 @@ class DeterministicProvider extends BaseProvider {
    * Parse resume raw text using rule-based and regex extraction
    */
   async parseResume(rawText = '') {
-    const text = String(rawText);
+    const text = String(rawText || '');
+    const escapeRegExp = (value = '') => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     
     // Extract Email
     const emailMatch = text.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
@@ -55,12 +56,14 @@ class DeterministicProvider extends BaseProvider {
     ];
 
     const detectedTech = techSkillPatterns.filter(skill => {
-      const regex = new RegExp(`\\b${skill.replace('.', '\\.')}\\b`, 'i');
+      const pattern = escapeRegExp(skill);
+      const regex = new RegExp(`\\b${pattern}\\b`, 'i');
       return regex.test(text);
     });
 
     const detectedSoft = softSkillPatterns.filter(skill => {
-      const regex = new RegExp(`\\b${skill}\\b`, 'i');
+      const pattern = escapeRegExp(skill);
+      const regex = new RegExp(`\\b${pattern}\\b`, 'i');
       return regex.test(text);
     });
 

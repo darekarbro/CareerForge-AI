@@ -1,6 +1,7 @@
 const axios = require('axios');
 const BaseProvider = require('./baseProvider');
 const env = require('../config/env');
+const { requestWithTimeout } = require('./requestWithTimeout');
 
 class OpenRouterProvider extends BaseProvider {
   constructor() {
@@ -15,26 +16,31 @@ class OpenRouterProvider extends BaseProvider {
   }
 
   async _callOpenRouter(systemPrompt, userPrompt) {
-    const response = await axios.post(
-      this.baseUrl,
-      {
-        model: this.model,
-        messages: [
-          { role: 'system', content: `${systemPrompt}\nRespond in valid JSON only without markdown code blocks.` },
-          { role: 'user', content: userPrompt },
-        ],
-        response_format: { type: 'json_object' },
-        temperature: 0.2,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${this.apiKey}`,
-          'HTTP-Referer': 'https://careerforge-ai.dev',
-          'X-Title': 'CareerForge AI Platform',
-          'Content-Type': 'application/json',
+    const response = await requestWithTimeout(
+      (signal) => axios.post(
+        this.baseUrl,
+        {
+          model: this.model,
+          messages: [
+            { role: 'system', content: `${systemPrompt}\nRespond in valid JSON only without markdown code blocks.` },
+            { role: 'user', content: userPrompt },
+          ],
+          response_format: { type: 'json_object' },
+          temperature: 0.2,
         },
-        timeout: 45000,
-      }
+        {
+          headers: {
+            Authorization: `Bearer ${this.apiKey}`,
+            'HTTP-Referer': 'https://careerforge-ai.dev',
+            'X-Title': 'CareerForge AI Platform',
+            'Content-Type': 'application/json',
+          },
+          signal,
+          timeout: env.AI_PROVIDER_TIMEOUT_MS,
+        }
+      ),
+      env.AI_PROVIDER_TIMEOUT_MS,
+      'OpenRouter'
     );
 
     const content = response.data?.choices?.[0]?.message?.content;
@@ -145,3 +151,4 @@ class OpenRouterProvider extends BaseProvider {
 }
 
 module.exports = OpenRouterProvider;
+

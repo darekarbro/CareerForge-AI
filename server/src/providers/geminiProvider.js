@@ -1,12 +1,13 @@
 const axios = require('axios');
 const BaseProvider = require('./baseProvider');
 const env = require('../config/env');
+const { requestWithTimeout } = require('./requestWithTimeout');
 
 class GeminiProvider extends BaseProvider {
   constructor() {
     super('gemini');
     this.apiKey = env.GEMINI_API_KEY;
-    this.model = env.GEMINI_MODEL || 'gemini-1.5-flash';
+    this.model = env.GEMINI_MODEL || 'gemini-2.0-flash';
   }
 
   isAvailable() {
@@ -16,23 +17,28 @@ class GeminiProvider extends BaseProvider {
   async _callGemini(prompt) {
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${this.model}:generateContent?key=${this.apiKey}`;
     
-    const response = await axios.post(
-      url,
-      {
-        contents: [
-          {
-            parts: [{ text: `${prompt}\n\nStrict requirement: Output valid raw JSON only without markdown code blocks or explanations.` }],
+    const response = await requestWithTimeout(
+      (signal) => axios.post(
+        url,
+        {
+          contents: [
+            {
+              parts: [{ text: `${prompt}\n\nStrict requirement: Output valid raw JSON only without markdown code blocks or explanations.` }],
+            },
+          ],
+          generationConfig: {
+            temperature: 0.2,
+            responseMimeType: 'application/json',
           },
-        ],
-        generationConfig: {
-          temperature: 0.2,
-          responseMimeType: 'application/json',
         },
-      },
-      {
-        headers: { 'Content-Type': 'application/json' },
-        timeout: 45000,
-      }
+        {
+          headers: { 'Content-Type': 'application/json' },
+          signal,
+          timeout: env.AI_PROVIDER_TIMEOUT_MS,
+        }
+      ),
+      env.AI_PROVIDER_TIMEOUT_MS,
+      'Gemini'
     );
 
     const text = response.data?.candidates?.[0]?.content?.parts?.[0]?.text;

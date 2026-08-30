@@ -4,7 +4,7 @@ const Resume = require('../models/Resume');
 const ProcessingJob = require('../models/ProcessingJob');
 const generatorAgent = require('../agents/generatorAgent');
 const evaluatorAgent = require('../agents/evaluatorAgent');
-const { enqueueJob } = require('../queues/processingQueue');
+const { runProcessingJob } = require('./processingJobLifecycle');
 
 class InterviewService {
   async startSession({ userId, targetRole, resumeId, jobDescriptionId, count = 5 }) {
@@ -43,34 +43,38 @@ class InterviewService {
       },
     });
 
-    await enqueueJob('question_generation', { jobId: processingJob._id });
+    const { questions: questionDocs, aiProvider } = await runProcessingJob(processingJob, async () => {
+      const generated = await generatorAgent.generateQuestions({
+        resumeData: resume.parsedData,
+        targetRole: session.targetRole,
+        count,
+        jobId: processingJob._id,
+        userId,
+      });
 
-    // Generate questions immediately
-    const generated = await generatorAgent.generateQuestions({
-      resumeData: resume.parsedData,
-      targetRole: session.targetRole,
-      count,
-      jobId: processingJob._id,
-      userId,
+      if (!generated.questions.length) {
+        throw new Error('No interview questions were generated');
+      }
+
+      const questions = await Promise.all(
+        generated.questions.map((q, idx) =>
+          InterviewQuestion.create({
+            sessionId: session._id,
+            order: idx + 1,
+            questionText: q.questionText,
+            category: q.category || 'technical',
+            topic: q.topic || 'General',
+            difficulty: q.difficulty || 'Medium',
+            suggestedAnswer: q.suggestedAnswer,
+            keyPoints: q.keyPoints || [],
+          })
+        )
+      );
+
+      return { questions, aiProvider: generated.aiProvider };
     });
 
-    // Persist questions
-    const questionDocs = await Promise.all(
-      generated.questions.map((q, idx) =>
-        InterviewQuestion.create({
-          sessionId: session._id,
-          order: idx + 1,
-          questionText: q.questionText,
-          category: q.category || 'technical',
-          topic: q.topic || 'General',
-          difficulty: q.difficulty || 'Medium',
-          suggestedAnswer: q.suggestedAnswer,
-          keyPoints: q.keyPoints || [],
-        })
-      )
-    );
-
-    session.aiProvider = generated.aiProvider;
+    session.aiProvider = aiProvider;
     await session.save();
 
     return {
@@ -157,16 +161,16 @@ class InterviewService {
       },
     });
 
-    await enqueueJob('answer_evaluation', { jobId: processingJob._id });
-
-    // 2. Evaluate answer
-    const feedback = await evaluatorAgent.evaluateAnswer({
-      question,
-      userAnswer,
-      suggestedAnswer: question.suggestedAnswer,
-      targetRole: session.targetRole,
-      jobId: processingJob._id,
-      userId,
+    const { feedback } = await runProcessingJob(processingJob, async () => {
+      const result = await evaluatorAgent.evaluateAnswer({
+        question,
+        userAnswer,
+        suggestedAnswer: question.suggestedAnswer,
+        targetRole: session.targetRole,
+        jobId: processingJob._id,
+        userId,
+      });
+      return { feedback: result, aiProvider: result.aiProvider };
     });
 
     question.userAnswer = userAnswer;

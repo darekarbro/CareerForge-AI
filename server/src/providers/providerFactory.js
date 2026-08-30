@@ -34,6 +34,18 @@ class ProviderFactory {
     };
   }
 
+  withProvider(result, provider) {
+    if (Array.isArray(result)) {
+      result.aiProvider = provider;
+      return result;
+    }
+
+    return {
+      ...result,
+      aiProvider: provider,
+    };
+  }
+
   /**
    * Executes an AI action through the fallback chain:
    * 1. OpenRouter -> 2. Gemini -> 3. Deterministic
@@ -44,10 +56,7 @@ class ProviderFactory {
       try {
         if (onProviderAttempt) onProviderAttempt('openrouter');
         const result = await this.openRouter[actionName](params);
-        return {
-          ...result,
-          aiProvider: 'openrouter',
-        };
+        return this.withProvider(result, 'openrouter');
       } catch (err) {
         console.warn(`[ProviderFactory] OpenRouter failed for ${actionName}: ${err.message}. Falling back...`);
       }
@@ -58,10 +67,7 @@ class ProviderFactory {
       try {
         if (onProviderAttempt) onProviderAttempt('gemini');
         const result = await this.gemini[actionName](params);
-        return {
-          ...result,
-          aiProvider: 'gemini',
-        };
+        return this.withProvider(result, 'gemini');
       } catch (err) {
         console.warn(`[ProviderFactory] Gemini failed for ${actionName}: ${err.message}. Falling back...`);
       }
@@ -70,10 +76,7 @@ class ProviderFactory {
     // 3. Fallback to Deterministic
     if (onProviderAttempt) onProviderAttempt('deterministic-fallback');
     const result = await this.deterministic[actionName](params);
-    return {
-      ...result,
-      aiProvider: 'deterministic-fallback',
-    };
+    return this.withProvider(result, 'deterministic-fallback');
   }
 }
 

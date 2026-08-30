@@ -10,19 +10,19 @@ export default function ProcessingTimeline({ events = [], isRunning = false, tit
           <div className="p-1.5 bg-[#1a1a1a] text-[#ffcc00] border-2 border-[#1a1a1a]">
             <Cpu className="w-4 h-4" />
           </div>
-          <h3 className="font-headline font-black text-base uppercase tracking-wider text-[#1a1a1a]">
+          <h3 className="font-headline font-black text-base uppercase tracking-wider text-[var(--text-main)]">
             {title}
           </h3>
         </div>
         {isRunning && (
-          <span className="px-2 py-0.5 bg-[#ffcc00] border border-[#1a1a1a] text-[10px] font-black uppercase animate-pulse">
+          <span className="px-2 py-0.5 bg-[#ffcc00] border border-[#1a1a1a] text-[10px] font-black uppercase animate-pulse text-[#1a1a1a]">
             Live Stream Active
           </span>
         )}
       </div>
 
       {events.length === 0 ? (
-        <div className="py-8 text-center text-gray-500 font-medium text-xs uppercase">
+        <div className="py-8 text-center text-[var(--text-muted)] font-medium text-xs uppercase">
           Waiting for agent pipeline execution to initiate...
         </div>
       ) : (
@@ -52,13 +52,13 @@ export default function ProcessingTimeline({ events = [], isRunning = false, tit
                   />
                 </div>
 
-                <div className="p-2.5 border-2 border-[#1a1a1a] bg-white shadow-brutal flex flex-col gap-1">
+                <div className="p-2.5 border-2 border-[#1a1a1a] bg-[var(--surface-elevated)] shadow-brutal flex flex-col gap-1">
                   <div className="flex flex-wrap items-center justify-between gap-1">
                     <LiveAgentBadge
                       agent={evt.agent || 'orchestrator'}
                       status={evt.level === 'success' ? 'success' : isLast && isRunning ? 'active' : 'idle'}
                     />
-                    <div className="flex items-center gap-2 text-[10px] font-bold text-gray-500">
+                    <div className="flex items-center gap-2 text-[10px] font-bold text-[var(--text-muted)]">
                       {evt.durationMs ? <span>{evt.durationMs}ms</span> : null}
                       <span>
                         {evt.timestamp
@@ -71,7 +71,7 @@ export default function ProcessingTimeline({ events = [], isRunning = false, tit
                     {evt.message}
                   </p>
                   {evt.metadata?.aiProvider && (
-                    <div className="mt-1 inline-flex items-center gap-1 text-[10px] font-bold uppercase text-gray-600 bg-[#f5f0e8] px-1.5 py-0.5 border border-[#1a1a1a] w-fit">
+                    <div className="mt-1 inline-flex items-center gap-1 text-[10px] font-bold uppercase text-[var(--text-main)] bg-[var(--surface-strong)] px-1.5 py-0.5 border border-[#1a1a1a] w-fit">
                       <ShieldCheck className="w-3 h-3 text-[#0055ff]" />
                       Provider: {evt.metadata.aiProvider}
                     </div>

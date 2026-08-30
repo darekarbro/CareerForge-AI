@@ -72,22 +72,6 @@ class ResumeService {
     // 4. Enqueue background processing job
     await enqueueJob('resume_parse', { jobId: processingJob._id });
 
-    // Also run quick synchronous parse fallback if background queue hasn't picked it up yet
-    setImmediate(async () => {
-      try {
-        const completedJob = await ProcessingJob.findById(processingJob._id);
-        if (completedJob && completedJob.status === 'COMPLETED' && completedJob.output) {
-          await Resume.findByIdAndUpdate(resume._id, {
-            rawText: completedJob.output.rawText,
-            parsedData: completedJob.output.parsedData,
-            atsScore: completedJob.output.atsScore,
-          });
-        }
-      } catch (err) {
-        console.error('Error updating resume from completed job:', err.message);
-      }
-    });
-
     return {
       resume,
       jobId: processingJob._id,

@@ -1,4 +1,5 @@
 const ProcessingJob = require('../models/ProcessingJob');
+const Resume = require('../models/Resume');
 const Notification = require('../models/Notification');
 const parserAgent = require('./parserAgent');
 const analyzerAgent = require('./analyzerAgent');
@@ -72,6 +73,17 @@ class Orchestrator {
             atsScore: atsResult,
             aiProvider: parseResult.aiProvider,
           };
+
+          await Resume.findOneAndUpdate(
+            { _id: job.inputRef.resumeId, owner: userId },
+            {
+              $set: {
+                rawText: output.rawText,
+                parsedData: output.parsedData,
+                atsScore: output.atsScore,
+              },
+            }
+          );
           break;
         }
 

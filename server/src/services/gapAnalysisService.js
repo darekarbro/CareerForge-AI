@@ -3,7 +3,7 @@ const JobDescription = require('../models/JobDescription');
 const GapAnalysis = require('../models/GapAnalysis');
 const ProcessingJob = require('../models/ProcessingJob');
 const analyzerAgent = require('../agents/analyzerAgent');
-const { enqueueJob } = require('../queues/processingQueue');
+const { runProcessingJob } = require('./processingJobLifecycle');
 
 class GapAnalysisService {
   async runGapAnalysis({ resumeId, userId, jobDescriptionText, targetRole, company }) {
@@ -40,27 +40,28 @@ class GapAnalysisService {
       },
     });
 
-    await enqueueJob('gap_analysis', { jobId: processingJob._id });
+    const { gapRecord } = await runProcessingJob(processingJob, async () => {
+      const analysis = await analyzerAgent.analyzeGap({
+        resumeData: resume.parsedData,
+        jobDescriptionText,
+        targetRole: jd.targetRole,
+        jobId: processingJob._id,
+        userId,
+      });
 
-    // Synchronous execution for immediate response
-    const analysis = await analyzerAgent.analyzeGap({
-      resumeData: resume.parsedData,
-      jobDescriptionText,
-      targetRole: jd.targetRole,
-      jobId: processingJob._id,
-      userId,
-    });
+      const createdGapRecord = await GapAnalysis.create({
+        resumeId: resume._id,
+        jobDescriptionId: jd._id,
+        owner: userId,
+        matchScore: analysis.matchScore,
+        mustHaveMissing: analysis.mustHaveMissing,
+        niceToHaveMissing: analysis.niceToHaveMissing,
+        matchedSkills: analysis.matchedSkills,
+        summaryRecommendations: analysis.summaryRecommendations,
+        aiProvider: analysis.aiProvider,
+      });
 
-    const gapRecord = await GapAnalysis.create({
-      resumeId: resume._id,
-      jobDescriptionId: jd._id,
-      owner: userId,
-      matchScore: analysis.matchScore,
-      mustHaveMissing: analysis.mustHaveMissing,
-      niceToHaveMissing: analysis.niceToHaveMissing,
-      matchedSkills: analysis.matchedSkills,
-      summaryRecommendations: analysis.summaryRecommendations,
-      aiProvider: analysis.aiProvider,
+      return { gapRecord: createdGapRecord, aiProvider: analysis.aiProvider };
     });
 
     return {

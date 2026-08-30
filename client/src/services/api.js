@@ -9,6 +9,25 @@ const api = axios.create({
   },
 });
 
+api.download = async (url, filename) => {
+  const response = await api.get(url, { responseType: 'blob' });
+
+  const blob = new Blob([response.data], {
+    type: response.headers['content-type'] || 'application/pdf',
+  });
+
+  const downloadUrl = window.URL.createObjectURL(blob);
+  const anchor = document.createElement('a');
+  anchor.href = downloadUrl;
+  anchor.download = filename || 'download.pdf';
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  window.URL.revokeObjectURL(downloadUrl);
+
+  return response;
+};
+
 // Request interceptor: attach token
 api.interceptors.request.use(
   (config) => {
@@ -51,3 +70,4 @@ api.interceptors.response.use(
 );
 
 export default api;
+
