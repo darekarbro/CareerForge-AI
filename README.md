@@ -60,6 +60,8 @@ Built strictly in accordance with [SPECS_resume_project.md](./SPECS_resume_proje
 
 ## 🚀 Quick Start (Zero-Config Local Development)
 
+> 📖 **Environment & API Key Setup**: For a full step-by-step walkthrough on getting all API keys (Gemini, OpenRouter, MongoDB Atlas, Cloudinary, Upstash Redis), see [**ENV_SETUP_GUIDE.md**](./ENV_SETUP_GUIDE.md).
+
 CareerForge AI is architected to run out of the box with **zero required API keys or databases**. If MongoDB, Redis, Cloudinary, or AI keys are omitted, the platform automatically engages:
 - **In-Memory MongoDB** (`mongodb-memory-server` fallback)
 - **In-Memory Queue Dispatcher** (automatic BullMQ/Redis fallback)
