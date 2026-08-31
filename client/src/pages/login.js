@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useAuthStore } from '../store/authStore';
@@ -12,30 +12,6 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-
-  useEffect(() => {
-    const firebaseConfig = {
-      apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-      authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-      projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-      storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-      messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-      appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
-    };
-
-    if (!firebaseConfig.apiKey || !firebaseConfig.authDomain) return;
-
-    const scriptId = 'firebase-identity-script';
-    const existing = document.getElementById(scriptId);
-    if (existing) return;
-
-    const script = document.createElement('script');
-    script.id = scriptId;
-    script.src = 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
-    script.async = true;
-    script.defer = true;
-    document.body.appendChild(script);
-  }, []);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -54,16 +30,18 @@ export default function LoginPage() {
 
   const handleFirebaseGoogleSignIn = async () => {
     const apiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
-    if (!apiKey || !window.firebase?.auth) {
-      setErrorMessage('Google sign-in is not configured. Add the Firebase web config to your client .env.local file.');
+    const authDomain = process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN;
+
+    if (!apiKey || !authDomain) {
+      setErrorMessage('Google sign-in is not configured. Add the Firebase web config to your client .env file.');
       return;
     }
 
     try {
-      const { initializeApp } = await import('firebase/app');
+      const { initializeApp, getApps } = await import('firebase/app');
       const { getAuth, GoogleAuthProvider, signInWithPopup } = await import('firebase/auth');
 
-      const firebaseApp = initializeApp({
+      const firebaseApp = getApps().length ? getApps()[0] : initializeApp({
         apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
         authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
         projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
@@ -74,6 +52,8 @@ export default function LoginPage() {
 
       const auth = getAuth(firebaseApp);
       const provider = new GoogleAuthProvider();
+      provider.setCustomParameters({ prompt: 'select_account' });
+
       const result = await signInWithPopup(auth, provider);
       const idToken = await result.user.getIdToken();
       const res = await firebaseLogin(idToken);
