@@ -7,6 +7,7 @@
 [![OpenRouter](https://img.shields.io/badge/OpenRouter-AI-FF7A00?style=for-the-badge&logo=openai&logoColor=white)](https://openrouter.ai/)
 [![Gemini](https://img.shields.io/badge/Gemini-AI-4285F4?style=for-the-badge&logo=google&logoColor=white)](https://ai.google/)
 [![Cloudinary](https://img.shields.io/badge/Cloudinary-3448C5?style=for-the-badge&logo=cloudinary&logoColor=white)](https://cloudinary.com/)
+[![Firebase Authentication](https://img.shields.io/badge/Firebase_Authentication-FFCA28?style=for-the-badge&logo=firebase&logoColor=black)](https://firebase.google.com/docs/auth)
 [![Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://vercel.com/)
 [![Render](https://img.shields.io/badge/Render-46E3B7?style=for-the-badge&logo=render&logoColor=black)](https://render.com/)
 
@@ -78,7 +79,7 @@ This fragmentation makes the process slow, inconsistent, and difficult to optimi
 - MongoDB with Mongoose
 - Redis with BullMQ
 - Socket.IO
-- JWT auth with Firebase Google sign-in integration
+- JWT auth with Firebase Authentication Google sign-in integration
 - Firebase Admin SDK for Google ID token verification
 - Multer uploads
 
