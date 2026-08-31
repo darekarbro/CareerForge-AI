@@ -9,24 +9,6 @@ const startServer = async () => {
     // 1. Connect database (with automatic in-memory fallback)
     await connectDB();
 
-    // Auto-seed default demo account if not exists
-    try {
-      const User = require('./models/User');
-      const demoExists = await User.findOne({ email: 'candidate@example.com' });
-      if (!demoExists) {
-        await User.create({
-          name: 'Demo Candidate',
-          email: 'candidate@example.com',
-          password: 'password123',
-          role: 'user',
-          targetRolePreference: 'Fullstack Developer',
-        });
-        console.log('👤 Seeded default demo account: candidate@example.com / password123');
-      }
-    } catch (seedErr) {
-      console.warn('⚠️ Demo user seed check skipped:', seedErr.message);
-    }
-
     // 2. Create HTTP server
     const server = http.createServer(app);
 

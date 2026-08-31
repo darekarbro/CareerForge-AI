@@ -15,6 +15,11 @@ const env = {
   JWT_SECRET: trimEnv(process.env.JWT_SECRET) || 'careerforge-default-dev-secret-key-change-in-prod',
   JWT_EXPIRES_IN: trimEnv(process.env.JWT_EXPIRES_IN) || '7d',
 
+  // Firebase Admin
+  FIREBASE_PROJECT_ID: trimEnv(process.env.FIREBASE_PROJECT_ID) || '',
+  FIREBASE_CLIENT_EMAIL: trimEnv(process.env.FIREBASE_CLIENT_EMAIL) || '',
+  FIREBASE_PRIVATE_KEY: trimEnv(process.env.FIREBASE_PRIVATE_KEY) || '',
+
   // AI Keys
   OPENROUTER_API_KEY: trimEnv(process.env.OPENROUTER_API_KEY) || '',
   OPENROUTER_MODEL: trimEnv(process.env.OPENROUTER_MODEL) || 'meta-llama/llama-3.3-70b-instruct:free',

@@ -3,6 +3,13 @@ const bcrypt = require('bcryptjs');
 
 const userSchema = new mongoose.Schema(
   {
+    firebaseUid: {
+      type: String,
+      default: '',
+      unique: true,
+      sparse: true,
+      trim: true,
+    },
     name: {
       type: String,
       required: [true, 'Name is required'],
@@ -26,6 +33,15 @@ const userSchema = new mongoose.Schema(
       type: String,
       enum: ['admin', 'user'],
       default: 'user',
+    },
+    authProvider: {
+      type: String,
+      enum: ['local', 'firebase'],
+      default: 'local',
+    },
+    avatarUrl: {
+      type: String,
+      default: '',
     },
     targetRolePreference: {
       type: String,

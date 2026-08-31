@@ -16,16 +16,24 @@ export const useAuthStore = create((set, get) => ({
         const parsed = JSON.parse(stored);
         if (parsed.token) {
           set({ token: parsed.token, user: parsed.user, isAuthenticated: true, isLoading: false });
-          // Fetch fresh user profile
-          const res = await api.get('/auth/me');
-          if (res.data?.data) {
-            set({ user: res.data.data });
+          try {
+            const res = await api.get('/auth/me');
+            if (res.data?.data) {
+              set({ user: res.data.data });
+            }
+          } catch (err) {
+            const status = err?.response?.status;
+            if (status !== 401 && status !== 403) {
+              console.warn('Auth initialization warning:', err?.message || 'Unable to refresh session');
+            }
+            set({ isAuthenticated: false, token: null, user: null });
+            localStorage.removeItem('careerforge_auth');
           }
           return;
         }
       }
     } catch (e) {
-      console.warn('Auth initialization error:', e.message);
+      console.warn('Auth initialization warning:', e.message);
     }
     set({ isLoading: false });
   },
@@ -55,6 +63,21 @@ export const useAuthStore = create((set, get) => ({
       return { success: true };
     } catch (err) {
       const msg = err.response?.data?.message || 'Registration failed';
+      set({ error: msg });
+      return { success: false, message: msg };
+    }
+  },
+
+  firebaseLogin: async (idToken) => {
+    set({ error: null });
+    try {
+      const res = await api.post('/auth/firebase', { idToken });
+      const { token, user } = res.data.data;
+      set({ token, user, isAuthenticated: true, error: null });
+      localStorage.setItem('careerforge_auth', JSON.stringify({ token, user }));
+      return { success: true };
+    } catch (err) {
+      const msg = err.response?.data?.message || 'Google sign-in failed';
       set({ error: msg });
       return { success: false, message: msg };
     }

@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useAuthStore } from '../store/authStore';
-import { ArrowRight, AlertCircle, Loader2, Lock, Mail, User, Briefcase } from 'lucide-react';
+import { ArrowRight, AlertCircle, Briefcase, Chrome, Loader2, Lock, Mail, User } from 'lucide-react';
 
 export default function RegisterPage() {
   const router = useRouter();
   const register = useAuthStore((state) => state.register);
+  const firebaseLogin = useAuthStore((state) => state.firebaseLogin);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -16,6 +17,30 @@ export default function RegisterPage() {
   });
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+
+  useEffect(() => {
+    const firebaseConfig = {
+      apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+      authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+      projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+      storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+      messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+      appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+    };
+
+    if (!firebaseConfig.apiKey || !firebaseConfig.authDomain) return;
+
+    const scriptId = 'firebase-identity-script';
+    const existing = document.getElementById(scriptId);
+    if (existing) return;
+
+    const script = document.createElement('script');
+    script.id = scriptId;
+    script.src = 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+    script.async = true;
+    script.defer = true;
+    document.body.appendChild(script);
+  }, []);
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -34,6 +59,45 @@ export default function RegisterPage() {
       router.push('/dashboard');
     } else {
       setErrorMessage(res.message || 'Registration failed');
+    }
+  };
+
+  const handleFirebaseGoogleSignUp = async () => {
+    const apiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
+    if (!apiKey || !window.firebase?.auth) {
+      setErrorMessage('Google sign-in is not configured. Add the Firebase web config to your client .env.local file.');
+      return;
+    }
+
+    try {
+      const { initializeApp } = await import('firebase/app');
+      const { getAuth, GoogleAuthProvider, signInWithPopup } = await import('firebase/auth');
+
+      const firebaseApp = initializeApp({
+        apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+        authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+        projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+        storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+        messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+        appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+      });
+
+      const auth = getAuth(firebaseApp);
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(auth, provider);
+      const idToken = await result.user.getIdToken();
+      const res = await firebaseLogin(idToken);
+
+      if (res.success) {
+        router.push('/dashboard');
+      } else {
+        setErrorMessage(res.message || 'Google sign-in failed');
+      }
+    } catch (err) {
+      const message = err?.code === 'auth/popup-closed-by-user'
+        ? 'Google sign-in was cancelled.'
+        : err?.message || 'Google sign-in failed';
+      setErrorMessage(message);
     }
   };
 
@@ -78,6 +142,22 @@ export default function RegisterPage() {
               <span>{errorMessage}</span>
             </div>
           )}
+
+          <button
+            type="button"
+            onClick={handleFirebaseGoogleSignUp}
+            className="w-full border-2 border-[#1a1a1a] bg-white hover:bg-[#eaf2ff] text-[#1a1a1a] font-headline font-black uppercase text-[11px] py-3 flex items-center justify-center gap-2 shadow-brutal transition-all"
+          >
+            <Chrome className="w-4 h-4" />
+            <span>Sign up with Google account</span>
+          </button>
+
+          <div className="relative flex items-center justify-center">
+            <div className="absolute inset-x-0 top-1/2 h-px bg-[#1a1a1a]" />
+            <span className="relative bg-white px-2 text-[10px] font-headline font-black uppercase tracking-[0.2em] text-gray-500">
+              Or create with email
+            </span>
+          </div>
 
           <form onSubmit={handleRegister} className="space-y-4">
             <div>

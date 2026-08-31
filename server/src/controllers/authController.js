@@ -28,6 +28,20 @@ const login = async (req, res, next) => {
   }
 };
 
+const firebaseLogin = async (req, res, next) => {
+  try {
+    const { idToken } = req.body;
+    const result = await authService.firebaseLogin({ idToken });
+    res.status(200).json({
+      success: true,
+      message: 'Google sign-in successful',
+      data: result,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 const getMe = async (req, res, next) => {
   try {
     const user = await authService.getMe(req.user._id);
@@ -56,6 +70,7 @@ const updateProfile = async (req, res, next) => {
 module.exports = {
   register,
   login,
+  firebaseLogin,
   getMe,
   updateProfile,
 };

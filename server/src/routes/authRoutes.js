@@ -27,6 +27,15 @@ router.post(
   authController.login
 );
 
+router.post(
+  '/firebase',
+  [
+    body('idToken').notEmpty().withMessage('Firebase ID token is required'),
+    validate,
+  ],
+  authController.firebaseLogin
+);
+
 router.get('/me', protect, authController.getMe);
 router.put('/me', protect, authController.updateProfile);
 
