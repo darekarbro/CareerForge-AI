@@ -38,7 +38,7 @@ Every AI-driven action (parsing, tailoring, scoring, question generation, answer
 | **Icons** | lucide-react |
 | **Backend runtime** | Node.js + Express |
 | **Database** | MongoDB + Mongoose |
-| **Auth** | JSON Web Tokens (JWT) + bcryptjs |
+| **Auth** | JSON Web Tokens (JWT) + bcryptjs + Firebase Google Sign-In (frontend Firebase Web SDK + backend firebase-admin verification) |
 | **Background jobs** | BullMQ on Redis (via ioredis), with in-memory fallback |
 | **Real-time server** | Socket.IO |
 | **Security middleware** | helmet, CORS, express-rate-limit |
@@ -60,11 +60,14 @@ Every AI-driven action (parsing, tailoring, scoring, question generation, answer
 
 ### 3.1 Authentication
 - User registration and login
-- JWT-based session handling
+- JWT-based session handling for the app shell after sign-in
+- Firebase Google Sign-In on the frontend using the Firebase Web SDK
+- Backend verification of Firebase ID tokens via firebase-admin before issuing the app JWT
 - Protected routes (frontend and backend)
 - `GET /api/auth/me` profile endpoint
 - Role separation: `admin` | `user`
 - Password hashing with bcrypt, cost factor 12
+- Google sign-ins create or link the Mongo user record and continue through the normal app JWT flow
 - Persistent login state on the client via Zustand
 
 ### 3.2 Resume Management

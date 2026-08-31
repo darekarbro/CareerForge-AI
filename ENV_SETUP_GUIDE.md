@@ -26,10 +26,19 @@ This comprehensive guide walks you through setting up all environment variables 
 | :--- | :--- | :--- | :--- |
 | `NEXT_PUBLIC_API_URL` | Client | **Recommended** | `http://localhost:5000/api` |
 | `NEXT_PUBLIC_SOCKET_URL` | Client | **Recommended** | `http://localhost:5000` |
+| `NEXT_PUBLIC_FIREBASE_API_KEY` | Client | **Required for Google login** | Firebase web config |
+| `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN` | Client | **Required for Google login** | Firebase web config |
+| `NEXT_PUBLIC_FIREBASE_PROJECT_ID` | Client | **Required for Google login** | Firebase web config |
+| `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET` | Client | Optional | Firebase web config |
+| `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID` | Client | Optional | Firebase web config |
+| `NEXT_PUBLIC_FIREBASE_APP_ID` | Client | **Required for Google login** | Firebase web config |
 | `PORT` | Server | Optional | `5000` |
 | `NODE_ENV` | Server | Optional | `development` |
 | `CLIENT_URL` | Server | Optional | `http://localhost:3000` |
 | `JWT_SECRET` | Server | **Required in Prod** | Default dev string provided |
+| `FIREBASE_PROJECT_ID` | Server | **Required for Google login** | Firebase service account project |
+| `FIREBASE_CLIENT_EMAIL` | Server | **Required for Google login** | Firebase service account email |
+| `FIREBASE_PRIVATE_KEY` | Server | **Required for Google login** | Firebase service account private key |
 | `MONGODB_URI` | Server | Optional | `mongodb-memory-server` (In-Memory) |
 | `GEMINI_API_KEY` | Server | Optional | Falls back to OpenRouter / Deterministic Rule Engine |
 | `GEMINI_MODEL` | Server | Optional | `gemini-1.5-flash` |
@@ -68,9 +77,17 @@ NEXT_PUBLIC_API_URL=http://localhost:5000/api
 
 # URL for Real-Time Socket.IO Server
 NEXT_PUBLIC_SOCKET_URL=http://localhost:5000
+
+# Firebase web config for Google Sign-In
+NEXT_PUBLIC_FIREBASE_API_KEY=your_firebase_web_api_key
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=your-project-id
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your-project.firebasestorage.app
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=123456789012
+NEXT_PUBLIC_FIREBASE_APP_ID=1:123456789012:web:abcdef123456
 ```
 
-> **Note**: For production deployments (e.g., Vercel), replace `http://localhost:5000` with your deployed backend server URL.
+> **Note**: For production deployments (e.g., Vercel), replace `http://localhost:5000` with your deployed backend server URL. Also ensure the Firebase Auth domain is configured for the deployed frontend domain.
 
 ---
 
@@ -104,17 +121,14 @@ CLIENT_URL=http://localhost:3000
 JWT_SECRET=your_super_secret_random_64_char_key_here
 
 # ==============================================================================
-# Database (Leave blank to use automatic in-memory MongoDB)
-# ==============================================================================
-MONGODB_URI=mongodb+srv://<username>:<password>@cluster0.xxxxx.mongodb.net/careerforge?retryWrites=true&w=majority
+# Firebase Admin (Required for Google Sign-In verification)
+# These values stay on the backend only and come from the Firebase service account JSON.
+# ============================================================================== 
+FIREBASE_PROJECT_ID=your-project-id
+FIREBASE_CLIENT_EMAIL=firebase-adminsdk@your-project.iam.gserviceaccount.com
+FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nYOUR_PRIVATE_KEY_HERE\n-----END PRIVATE KEY-----\n"
 
-# ==============================================================================
-# AI Provider: Google Gemini (Recommended primary provider)
-# ==============================================================================
-GEMINI_API_KEY=AIzaSy...your_gemini_api_key
-GEMINI_MODEL=gemini-1.5-flash
-
-# ==============================================================================
+# ============================================================================== 
 # AI Provider: OpenRouter (Fallback / Alternative provider)
 # ==============================================================================
 OPENROUTER_API_KEY=sk-or-v1-...your_openrouter_api_key

@@ -48,7 +48,8 @@ This fragmentation makes the process slow, inconsistent, and difficult to optimi
 - Job search hub with curated deep links for external job boards
 - Application tracking workflow with stage-based progress
 - Real-time processing events using Socket.IO
-- Authenticated flows using JWT
+- Email/password authentication with JWT, plus Firebase Google Sign-In for social login
+- Firebase-backed Google auth flow: frontend verifies the Google popup, backend validates the ID token via firebase-admin, then issues the app JWT session
 - Deterministic fallback engine when AI providers are unavailable
 
 ### Bonus Features
@@ -77,7 +78,8 @@ This fragmentation makes the process slow, inconsistent, and difficult to optimi
 - MongoDB with Mongoose
 - Redis with BullMQ
 - Socket.IO
-- JWT auth
+- JWT auth with Firebase Google sign-in integration
+- Firebase Admin SDK for Google ID token verification
 - Multer uploads
 
 ### AI and Cloud Services
@@ -192,7 +194,7 @@ npm install
 
 ### 6. Configure frontend environment variables
 
-Create a `.env.local` file inside the `client` folder and add the required public variables.
+Create a `.env.local` file inside the `client` folder and add the required public variables, including the Firebase web config for Google Sign-In.
 
 ### 7. Start the frontend
 
@@ -221,6 +223,9 @@ PORT
 NODE_ENV
 CLIENT_URL
 JWT_SECRET
+FIREBASE_PROJECT_ID
+FIREBASE_CLIENT_EMAIL
+FIREBASE_PRIVATE_KEY
 MONGODB_URI
 OPENROUTER_API_KEY
 OPENROUTER_MODEL
@@ -238,6 +243,12 @@ REDIS_URL
 ```env
 NEXT_PUBLIC_API_URL
 NEXT_PUBLIC_SOCKET_URL
+NEXT_PUBLIC_FIREBASE_API_KEY
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+NEXT_PUBLIC_FIREBASE_PROJECT_ID
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
+NEXT_PUBLIC_FIREBASE_APP_ID
 ```
 
 ## 10. Deployment Notes
