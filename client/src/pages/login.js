@@ -55,7 +55,7 @@ export default function LoginPage() {
       provider.setCustomParameters({ prompt: 'select_account' });
 
       const result = await signInWithPopup(auth, provider);
-      const idToken = await result.user.getIdToken();
+      const idToken = await result.user.getIdToken(true);
       const res = await firebaseLogin(idToken);
 
       if (res.success) {

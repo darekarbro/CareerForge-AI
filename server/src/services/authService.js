@@ -1,5 +1,6 @@
 const crypto = require('crypto');
 const admin = require('firebase-admin');
+const { getAuth } = require('firebase-admin/auth');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const env = require('../config/env');
@@ -11,13 +12,17 @@ class AuthService {
     if (env.FIREBASE_PROJECT_ID && env.FIREBASE_CLIENT_EMAIL && env.FIREBASE_PRIVATE_KEY) {
       try {
         const privateKey = env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n');
-        this.firebaseApp = admin.initializeApp({
-          credential: admin.cert({
-            projectId: env.FIREBASE_PROJECT_ID,
-            clientEmail: env.FIREBASE_CLIENT_EMAIL,
-            privateKey,
-          }),
-        });
+        if (admin.getApps().length === 0) {
+          this.firebaseApp = admin.initializeApp({
+            credential: admin.cert({
+              projectId: env.FIREBASE_PROJECT_ID,
+              clientEmail: env.FIREBASE_CLIENT_EMAIL,
+              privateKey,
+            }),
+          });
+        } else {
+          this.firebaseApp = admin.getApp();
+        }
       } catch (err) {
         console.warn('Firebase Admin initialization warning:', err.message);
       }
@@ -63,9 +68,14 @@ class AuthService {
     }
 
     try {
-      const decoded = await admin.auth().verifyIdToken(idToken);
+      const auth = getAuth(this.firebaseApp);
+      const decoded = await auth.verifyIdToken(idToken);
       return decoded;
     } catch (err) {
+      console.error('Firebase verification failed:', {
+        code: err.code,
+        message: err.message,
+      });
       const error = new Error('Invalid or expired Firebase token');
       error.statusCode = 401;
       error.details = err.message;

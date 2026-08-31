@@ -24,7 +24,8 @@ const app = express();
 // Security Middlewares
 app.use(
   helmet({
-    crossOriginResourcePolicy: { policy: 'cross-origin' },
+    crossOriginResourcePolicy: false,
+    crossOriginOpenerPolicy: false,
   })
 );
 
