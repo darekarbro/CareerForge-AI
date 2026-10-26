@@ -8,8 +8,10 @@ export default function QuestionCard({
   total,
   onSubmitAnswer,
   isSubmitting,
+  draft,
+  onDraftChange,
 }) {
-  const [userAnswer, setUserAnswer] = useState(question.userAnswer || '');
+  const userAnswer = draft ?? question.userAnswer ?? '';
   const [showSuggested, setShowSuggested] = useState(false);
 
   const isEvaluated = Boolean(question.feedback?.overallScore !== undefined);
@@ -97,13 +99,14 @@ export default function QuestionCard({
       {/* Candidate Answer Box */}
       {!isEvaluated ? (
         <form onSubmit={handleSubmit} className="space-y-3">
-          <label className="block font-headline font-bold text-xs uppercase text-[#1a1a1a]">
+          <label htmlFor={'answer-' + question._id} className="block font-headline font-bold text-xs uppercase text-[#1a1a1a]">
             Your Response (Technical explanation or STAR breakdown)
           </label>
           <textarea
+            id={'answer-' + question._id}
             rows={5}
             value={userAnswer}
-            onChange={(e) => setUserAnswer(e.target.value)}
+            onChange={(e) => onDraftChange?.(e.target.value)}
             placeholder="Structure your answer clearly. For behavioral questions, highlight Situation, Task, Action, and measurable Results..."
             className="brutal-input w-full text-xs leading-relaxed"
           />

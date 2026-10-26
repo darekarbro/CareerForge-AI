@@ -22,7 +22,7 @@ export default function MetricGrid({ metrics }) {
     {
       title: 'Avg Interview Score',
       value: `${metrics?.avgInterviewScore ?? 0}%`,
-      label: `${metrics?.interviewTrends?.length || 0} Sessions Evaluated`,
+      label: `${metrics?.completedInterviewCount || 0} Sessions Evaluated`,
       accent: 'border-l-8 border-l-[#e63b2e]',
       bgAccent: 'bg-[#e63b2e]/20',
       icon: Mic,

@@ -13,7 +13,9 @@ router.get('/roles', jobController.getSupportedRoles);
 router.post(
   '/search-links',
   [
-    body('targetRole').notEmpty().withMessage('targetRole is required'),
+    body('targetRole').isString().trim().isLength({ min: 1, max: 120 }),
+    body('location').optional().isString().trim().isLength({ min: 1, max: 120 }),
+    body('resumeId').optional().isMongoId(),
     validate,
   ],
   jobController.generateSearchLinks

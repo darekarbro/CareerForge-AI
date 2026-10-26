@@ -1,7 +1,7 @@
 import React from 'react';
 import { ExternalLink, Sparkles, Compass } from 'lucide-react';
 
-export default function JobRoleCard({ role, generatedLinks, keywords, onGenerateCustom }) {
+export default function JobRoleCard({ role, generatedLinks, keywords, onGenerateCustom, isGenerating = false, error = '' }) {
   const defaultKeywords = keywords || role.defaultKeywords || [];
 
   // Platform styling badges
@@ -68,6 +68,11 @@ export default function JobRoleCard({ role, generatedLinks, keywords, onGenerate
 
       {/* 4 Deep-Link Buttons */}
       <div className="pt-3 border-t-2 border-[#1a1a1a] space-y-2">
+        <button type="button" onClick={onGenerateCustom} disabled={isGenerating}
+          className="brutal-btn-yellow w-full p-2 text-xs disabled:opacity-50">
+          {isGenerating ? 'Generating search links...' : 'Personalize search links'}
+        </button>
+        {error && <p role="alert" className="text-xs text-red-800">{error}</p>}
         <span className="font-headline font-black text-[10px] uppercase text-gray-700 block">
           Open Filtered Public Search:
         </span>

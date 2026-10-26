@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import ProtectedRoute from '../../../components/ProtectedRoute/ProtectedRoute';
 import AppShell from '../../../components/AppShell/AppShell';
 import QuestionCard from '../../../components/QuestionCard/QuestionCard';
 import api from '../../../services/api';
+import { submitProcessingRequest } from '../../../services/processing';
 import {
   Mic,
   Award,
@@ -25,28 +26,37 @@ export default function InterviewSessionPage() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [drafts, setDrafts] = useState({});
+  const [error, setError] = useState('');
 
-  const fetchSession = async () => {
+  const fetchSession = useCallback(async (signal) => {
     if (!id) return;
+    setLoading(true);
     try {
-      const res = await api.get(`/interview/sessions/${id}`);
+      const res = await api.get(`/interview/sessions/${id}`, { signal });
       setSession(res.data.data.session);
       setQuestions(res.data.data.questions || []);
     } catch (err) {
-      console.error('Error fetching session:', err);
+      if (!signal?.aborted) setError(err.response?.data?.message || 'Unable to load interview');
     } finally {
-      setLoading(false);
+      if (!signal?.aborted) setLoading(false);
     }
-  };
-
-  useEffect(() => {
-    fetchSession();
   }, [id]);
 
+  useEffect(() => {
+    const controller = new AbortController();
+    setCurrentIndex(0);
+    setDrafts({});
+    fetchSession(controller.signal);
+    return () => controller.abort();
+  }, [fetchSession]);
+
   const handleSubmitAnswer = async (questionId, userAnswer) => {
+    if (isSubmitting) return;
     setIsSubmitting(true);
+    setError('');
     try {
-      const res = await api.post(`/interview/sessions/${id}/questions/${questionId}/answer`, {
+      const res = await submitProcessingRequest(`/interview/sessions/${id}/questions/${questionId}/answer`, {
         userAnswer,
       });
 
@@ -58,7 +68,7 @@ export default function InterviewSessionPage() {
       );
       setSession(updatedSession);
     } catch (err) {
-      console.error('Failed to submit answer:', err);
+      setError(err.response?.data?.message || err.message || 'Unable to evaluate the answer. Your draft has been kept.');
     } finally {
       setIsSubmitting(false);
     }
@@ -102,6 +112,7 @@ export default function InterviewSessionPage() {
     <ProtectedRoute>
       <AppShell>
         <div className="space-y-8 max-w-4xl mx-auto">
+          {error && <p role="alert" className="p-3 border-2 border-red-800 bg-red-50 text-red-900 text-sm">{error}</p>}
           {/* Header Banner */}
           <div className="p-5 border-3 border-[#1a1a1a] bg-[#ffcc00] shadow-brutal flex flex-wrap items-center justify-between gap-4">
             <div>
@@ -161,11 +172,14 @@ export default function InterviewSessionPage() {
           {/* Active Question Card */}
           {currentQ && (
             <QuestionCard
+              key={currentQ._id}
               question={currentQ}
               index={currentIndex}
               total={questions.length}
               onSubmitAnswer={handleSubmitAnswer}
               isSubmitting={isSubmitting}
+              draft={drafts[currentQ._id]}
+              onDraftChange={(value) => setDrafts((previous) => ({ ...previous, [currentQ._id]: value }))}
             />
           )}
 

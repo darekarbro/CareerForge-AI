@@ -23,7 +23,7 @@ const processingJobSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ['PENDING', 'RUNNING', 'COMPLETED', 'FAILED', 'RETRYING', 'CANCELLED'],
+      enum: ['PENDING', 'RUNNING', 'COMMITTING', 'COMPLETED', 'FAILED', 'RETRYING', 'CANCELLED'],
       default: 'PENDING',
       index: true,
     },

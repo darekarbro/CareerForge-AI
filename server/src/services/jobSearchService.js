@@ -63,7 +63,7 @@ class JobSearchService {
     let resumeSkills = [];
 
     if (resumeId) {
-      const resume = await Resume.findOne({ _id: resumeId, owner: userId });
+      const resume = await require('./resumeService').getReadyResume(resumeId, userId);
       if (resume && resume.parsedData?.skills?.all) {
         resumeSkills = resume.parsedData.skills.all.slice(0, 4);
       }

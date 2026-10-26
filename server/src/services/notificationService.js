@@ -1,6 +1,7 @@
 const Notification = require('../models/Notification');
 
 class NotificationService {
+  async unreadCount(userId) { return Notification.countDocuments({ owner: userId, isRead: false }); }
   async listUserNotifications(userId, { limit = 20 } = {}) {
     return Notification.find({ owner: userId })
       .sort({ createdAt: -1 })

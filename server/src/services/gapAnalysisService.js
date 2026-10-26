@@ -1,86 +1,37 @@
-const Resume = require('../models/Resume');
 const JobDescription = require('../models/JobDescription');
 const GapAnalysis = require('../models/GapAnalysis');
-const ProcessingJob = require('../models/ProcessingJob');
 const analyzerAgent = require('../agents/analyzerAgent');
-const { runProcessingJob } = require('./processingJobLifecycle');
+const { createJob, dispatchJob } = require('./jobService');
+const { plain } = require('../providers/resumeFacts');
 
 class GapAnalysisService {
-  async runGapAnalysis({ resumeId, userId, jobDescriptionText, targetRole, company }) {
-    const resume = await Resume.findOne({ _id: resumeId, owner: userId });
-    if (!resume) {
-      const error = new Error('Resume not found');
-      error.statusCode = 404;
-      throw error;
-    }
-
-    // Create JobDescription record
-    const jd = await JobDescription.create({
-      owner: userId,
-      rawText: jobDescriptionText,
-      targetRole: targetRole || 'Software Engineer',
-      company: company || 'Target Company',
-      title: `${targetRole || 'Target Role'} @ ${company || 'Target Company'}`,
-    });
-
-    // Create ProcessingJob
-    const processingJob = await ProcessingJob.create({
-      owner: userId,
-      jobType: 'gap_analysis',
-      status: 'PENDING',
-      inputRef: {
-        resumeId: resume._id,
-        jobDescriptionId: jd._id,
-        targetRole: jd.targetRole,
-        rawInput: {
-          resumeData: resume.parsedData,
-          jobDescriptionText,
-          targetRole: jd.targetRole,
-        },
-      },
-    });
-
-    const { gapRecord } = await runProcessingJob(processingJob, async () => {
-      const analysis = await analyzerAgent.analyzeGap({
-        resumeData: resume.parsedData,
-        jobDescriptionText,
-        targetRole: jd.targetRole,
-        jobId: processingJob._id,
-        userId,
-      });
-
-      const createdGapRecord = await GapAnalysis.create({
-        resumeId: resume._id,
-        jobDescriptionId: jd._id,
-        owner: userId,
-        matchScore: analysis.matchScore,
-        mustHaveMissing: analysis.mustHaveMissing,
-        niceToHaveMissing: analysis.niceToHaveMissing,
-        matchedSkills: analysis.matchedSkills,
-        summaryRecommendations: analysis.summaryRecommendations,
-        aiProvider: analysis.aiProvider,
-      });
-
-      return { gapRecord: createdGapRecord, aiProvider: analysis.aiProvider };
-    });
-
-    return {
-      gapAnalysis: gapRecord,
-      jobId: processingJob._id,
-    };
+  async runGapAnalysis({ resumeId, userId, jobDescriptionText, targetRole = 'Software Engineer', company = '' }) {
+    const resume = await require('./resumeService').getReadyResume(resumeId, userId);
+    const job = await createJob({ userId, jobType: 'gap_analysis', inputRef: {
+      resumeId: resume._id, targetRole, rawInput: { jobDescriptionText, targetRole, company },
+    } });
+    return dispatchJob(job);
   }
-
+  async processAnalysis({ job, checkpoint, commit }) {
+    const resume = await require('./resumeService').getReadyResume(job.inputRef.resumeId, job.owner);
+    const { jobDescriptionText, targetRole, company } = job.inputRef.rawInput;
+    const analysis = await analyzerAgent.analyzeGap({ resumeData: plain(resume.parsedData), jobDescriptionText, targetRole,
+      jobId: job._id, userId: job.owner });
+    await checkpoint();
+    return commit(async () => {
+      const jd = await JobDescription.create({ owner: job.owner, rawText: jobDescriptionText, targetRole,
+        company, title: targetRole + (company ? ' @ ' + company : '') });
+      try {
+        const gapAnalysis = await GapAnalysis.create({ ...analysis, owner: job.owner, resumeId: resume._id,
+          jobDescriptionId: jd._id });
+        return { gapAnalysis, aiProvider: analysis.aiProvider };
+      } catch (error) { await JobDescription.deleteOne({ _id: jd._id }); throw error; }
+    });
+  }
   async getAnalysisById(analysisId, userId) {
-    const analysis = await GapAnalysis.findOne({ _id: analysisId, owner: userId })
-      .populate('resumeId')
-      .populate('jobDescriptionId');
-    if (!analysis) {
-      const error = new Error('Gap analysis report not found');
-      error.statusCode = 404;
-      throw error;
-    }
+    const analysis = await GapAnalysis.findOne({ _id: analysisId, owner: userId }).populate('resumeId').populate('jobDescriptionId');
+    if (!analysis) throw Object.assign(new Error('Gap analysis report not found'), { statusCode: 404 });
     return analysis;
   }
 }
-
 module.exports = new GapAnalysisService();

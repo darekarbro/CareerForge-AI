@@ -5,14 +5,16 @@ const path = require('path');
 const storage = multer.memoryStorage();
 
 const fileFilter = (req, file, cb) => {
-  const allowedExtensions = ['.pdf', '.docx', '.doc', '.txt'];
+  const allowedExtensions = ['.pdf', '.docx', '.txt'];
   const ext = path.extname(file.originalname).toLowerCase();
 
   if (allowedExtensions.includes(ext)) {
     return cb(null, true);
   }
 
-  cb(new Error('Only .pdf, .docx, and .txt files are allowed!'), false);
+  const error = new Error('Only .pdf, .docx, and .txt files are allowed');
+  error.statusCode = 415;
+  cb(error, false);
 };
 
 const upload = multer({

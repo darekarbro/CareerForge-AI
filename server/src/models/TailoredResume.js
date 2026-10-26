@@ -27,9 +27,13 @@ const tailoredResumeSchema = new mongoose.Schema(
       type: String,
     },
     tailoredContent: {
+      contactInfo: mongoose.Schema.Types.Mixed,
+      education: [mongoose.Schema.Types.Mixed],
+      certifications: [mongoose.Schema.Types.Mixed],
       summary: String,
       skills: {
         technical: [String],
+        soft: [String],
         tools: [String],
         frameworks: [String],
         all: [String],
@@ -60,6 +64,9 @@ const tailoredResumeSchema = new mongoose.Schema(
       keywordScore: { type: Number, default: 0 },
       structureScore: { type: Number, default: 0 },
       formattingScore: { type: Number, default: 0 },
+      lengthScore: { type: Number, default: 0 },
+      strengths: [String],
+      improvements: [String],
       breakdown: [
         {
           category: String,
@@ -91,9 +98,10 @@ const tailoredResumeSchema = new mongoose.Schema(
     pdfDownloadUrl: {
       type: String,
     },
+    improvementSuggestions: [String],
     aiProvider: {
       type: String,
-      enum: ['openrouter', 'gemini', 'deterministic-fallback'],
+      enum: ['groq', 'openrouter', 'gemini', 'deterministic-fallback'],
       default: 'deterministic-fallback',
     },
   },
@@ -102,4 +110,5 @@ const tailoredResumeSchema = new mongoose.Schema(
   }
 );
 
+tailoredResumeSchema.index({ resumeId: 1, version: 1 }, { unique: true });
 module.exports = mongoose.model('TailoredResume', tailoredResumeSchema);

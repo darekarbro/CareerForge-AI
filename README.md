@@ -85,6 +85,7 @@ This fragmentation makes the process slow, inconsistent, and difficult to optimi
 
 ### AI and Cloud Services
 
+- Groq API (primary; configurable model)
 - OpenRouter API
 - Google Gemini API
 - Cloudinary
@@ -151,12 +152,12 @@ https://careerforge-backend-mg0r.onrender.com/api/health
 
 ### Prerequisites
 
-- Node.js 18+
+- Node.js 20.19+, 22.13+, or 24+
 - npm
 - MongoDB Atlas account or local MongoDB instance
 - Redis instance or use fallback mode
 - Cloudinary account for production uploads
-- OpenRouter and Gemini API keys if using AI providers
+- A Groq API key for primary AI generation; OpenRouter and Gemini are optional fallbacks
 
 ### 1. Clone the repository
 
@@ -175,6 +176,8 @@ npm install
 ### 3. Configure backend environment variables
 
 Create a `.env` file inside the `server` folder with the required values.
+
+Copy settings from `server/.env.example`. For Groq, set `GROQ_API_KEY` to your own key and keep `GROQ_MODEL=openai/gpt-oss-120b` (or use `openai/gpt-oss-20b` for lower latency). Restart the server after changes. The fallback order is Groq → OpenRouter → Gemini → offline extraction and heuristic scoring. See [environment setup](ENV_SETUP_GUIDE.md).
 
 ### 4. Start the backend
 
@@ -228,6 +231,9 @@ FIREBASE_PROJECT_ID
 FIREBASE_CLIENT_EMAIL
 FIREBASE_PRIVATE_KEY
 MONGODB_URI
+GROQ_API_KEY
+GROQ_MODEL
+GROQ_TIMEOUT_MS
 OPENROUTER_API_KEY
 OPENROUTER_MODEL
 GEMINI_API_KEY
@@ -237,6 +243,9 @@ CLOUDINARY_CLOUD_NAME
 CLOUDINARY_API_KEY
 CLOUDINARY_API_SECRET
 REDIS_URL
+AUTH_RATE_LIMIT_MAX
+AI_RATE_LIMIT_MAX
+TRUST_PROXY
 ```
 
 ### Client (`client/.env.local`)
@@ -260,6 +269,22 @@ This project is designed for deployment on:
 - Render for the Express backend
 
 The frontend and backend should use their deployed URLs in environment variables instead of localhost for production.
+
+Production requires an available `MONGODB_URI` and a private random `JWT_SECRET` of at least 32 characters. Configure exact allowed frontend origins in `CLIENT_URL` and trusted proxy hops/subnets in `TRUST_PROXY` when applicable. Development may use a temporary MongoDB; production fails startup if its database is unavailable.
+
+New uploads are private, and original downloads require ownership. Without Cloudinary, use persistent storage for `server/uploads`. Without Redis, jobs use a bounded in-process queue and do not survive a process restart. Startup repairs legacy empty Firebase UIDs, plaintext profile-assigned passwords, duplicate version numbers and inconsistent interview counts; back up a persistent database before deploying.
+
+## Validation
+
+From the repository root, run `npm test`, `npm run lint` and `npm run build`. Tests use synthetic data, isolated local MongoDB/HTTP/WebSocket services and mocked external providers. The frontend tests exercise actual React components in a DOM environment. The build uses Webpack.
+
+Resume parsing, tailoring, gap analysis and interview generation/evaluation return HTTP 202 with a processing job ID. The client reconciles live events with persisted job status until a terminal state.
+
+See [the original audit](PROJECT_BUG_AUDIT.md) and [the fixes and verification report](BUG_FIX_REPORT.md) for all 52 resolutions.
+
+Live Groq acceptance checks passed for all six AI actions; see [the live test report](GROQ_LIVE_TEST_REPORT.md). To repeat them with a configured key, run `npm --prefix server run test:groq` using Node 24. This opt-in command sends fictional data to Groq and consumes API quota; normal `npm test` remains offline with respect to external services.
+
+Generated resumes now include a complete preview, detailed source-based summaries and project contributions, grouped skills, and a readable PDF that can span multiple pages. The generator preserves source jobs, projects, skills and stated metrics; sparse entries show suggestions for verified details to add. Groq uses the complete current resume up to 48,000 characters instead of the previous 8,000-character parsing and 6,000-character tailoring slices. Database IDs are omitted from its tailoring input. Other providers keep their previous input limits. Long legacy resumes can be reparsed from their stored source during tailoring; previous versions are preserved.
 
 ## Project Summary
 

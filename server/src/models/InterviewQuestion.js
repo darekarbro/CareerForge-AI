@@ -39,6 +39,7 @@ const interviewQuestionSchema = new mongoose.Schema(
       type: String,
       default: '',
     },
+    evaluationJobId: { type: mongoose.Schema.Types.ObjectId, ref: 'ProcessingJob' },
     feedback: {
       clarityScore: { type: Number, min: 0, max: 100 },
       relevanceScore: { type: Number, min: 0, max: 100 },

@@ -9,6 +9,9 @@
     "build:server": "npm --prefix server install",
     "build:client": "npm --prefix client run build",
     "start:server": "npm --prefix server start",
-    "start:client": "npm --prefix client start"
+    "start:client": "npm --prefix client start",
+    "test": "npm --prefix server test && npm --prefix client test",
+    "lint": "npm --prefix client run lint",
+    "build": "npm run build:client"
   }
 }

@@ -6,7 +6,7 @@ import api from '../services/api';
 import { Settings, Cpu, ShieldCheck, User, Save, CheckCircle2, AlertCircle, RefreshCw } from 'lucide-react';
 
 export default function SettingsPage() {
-  const { user } = useAuthStore();
+  const { user, updateUser } = useAuthStore();
   const [providerHealth, setProviderHealth] = useState(null);
   const [profileData, setProfileData] = useState({
     name: '',
@@ -14,6 +14,8 @@ export default function SettingsPage() {
   });
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [saveError, setSaveError] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -33,19 +35,23 @@ export default function SettingsPage() {
 
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
+    setIsSaving(true);
+    setSaveError('');
     try {
-      await api.put('/auth/me', profileData);
+      const response = await api.put('/auth/me', profileData);
+      updateUser(response.data.data);
       setSaveSuccess(true);
       setTimeout(() => setSaveSuccess(false), 3000);
     } catch (err) {
-      console.error('Update profile error:', err);
-    }
+      setSaveError(err.response?.data?.message || 'Unable to save your profile');
+    } finally { setIsSaving(false); }
   };
 
   return (
     <ProtectedRoute>
       <AppShell>
         <div className="space-y-8 max-w-4xl mx-auto">
+          {saveError && <p role="alert" className="p-3 bg-red-50 border-2 border-red-800 text-red-900 text-sm">{saveError}</p>}
           {/* Header */}
           <div className="pb-4 border-b-3 border-[#1a1a1a] flex items-center justify-between">
             <div>
@@ -76,64 +82,40 @@ export default function SettingsPage() {
             </div>
 
             <p className="text-xs text-gray-600 font-medium leading-relaxed">
-              The agentic engine executes requests through a prioritized fallback order: OpenRouter → Gemini → Deterministic Rule-Based Fallback.
+              The agentic engine executes requests through a prioritized fallback order: Groq → OpenRouter → Gemini → Deterministic Rule-Based Fallback.
             </p>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
-              {/* OpenRouter */}
-              <div className="p-4 border-2 border-[#1a1a1a] bg-white shadow-brutal space-y-1">
-                <div className="flex items-center justify-between">
-                  <h4 className="font-headline font-bold text-xs uppercase text-[#1a1a1a]">
-                    1. OpenRouter
-                  </h4>
-                  <span
-                    className={`px-1.5 py-0.5 text-[9px] font-black uppercase border ${
-                      providerHealth?.openrouter?.configured
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+              {[
+                { key: 'groq', title: '1. Groq', model: 'openai/gpt-oss-120b' },
+                { key: 'openrouter', title: '2. OpenRouter' },
+                { key: 'gemini', title: '3. Gemini' },
+              ].map(({ key, title, model }) => (
+                <div key={key} className="p-4 border-2 border-[#1a1a1a] bg-white shadow-brutal space-y-1">
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-headline font-bold text-xs uppercase text-[#1a1a1a]">{title}</h4>
+                    <span className={'px-1.5 py-0.5 text-[9px] font-black uppercase border ' + (
+                      providerHealth?.[key]?.configured
                         ? 'bg-green-100 text-green-900 border-green-800'
                         : 'bg-gray-100 text-gray-600 border-gray-400'
-                    }`}
-                  >
-                    {providerHealth?.openrouter?.configured ? 'Configured' : 'Offline'}
-                  </span>
+                    )}>
+                      {providerHealth?.[key]?.configured ? 'Configured' : 'Offline'}
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-gray-500 font-mono break-all">
+                    {providerHealth?.[key]?.model || model || 'Not configured'}
+                  </p>
                 </div>
-                <p className="text-[11px] text-gray-500 font-mono">
-                  {providerHealth?.openrouter?.model || 'meta-llama/llama-3.3-70b-instruct:free'}
-                </p>
-              </div>
-
-              {/* Gemini */}
-              <div className="p-4 border-2 border-[#1a1a1a] bg-white shadow-brutal space-y-1">
-                <div className="flex items-center justify-between">
-                  <h4 className="font-headline font-bold text-xs uppercase text-[#1a1a1a]">
-                    2. Google Gemini
-                  </h4>
-                  <span
-                    className={`px-1.5 py-0.5 text-[9px] font-black uppercase border ${
-                      providerHealth?.gemini?.configured
-                        ? 'bg-green-100 text-green-900 border-green-800'
-                        : 'bg-gray-100 text-gray-600 border-gray-400'
-                    }`}
-                  >
-                    {providerHealth?.gemini?.configured ? 'Configured' : 'Offline'}
-                  </span>
-                </div>
-                <p className="text-[11px] text-gray-500 font-mono">
-                  {providerHealth?.gemini?.model || 'gemini-1.5-flash'}
-                </p>
-              </div>
-
-              {/* Deterministic */}
+              ))}
               <div className="p-4 border-2 border-[#1a1a1a] bg-[#ffcc00]/20 shadow-brutal space-y-1">
                 <div className="flex items-center justify-between">
-                  <h4 className="font-headline font-bold text-xs uppercase text-[#1a1a1a]">
-                    3. Rule-Based Fallback
-                  </h4>
+                  <h4 className="font-headline font-bold text-xs uppercase text-[#1a1a1a]">4. Rule-Based Fallback</h4>
                   <span className="px-1.5 py-0.5 text-[9px] font-black uppercase bg-green-200 text-green-950 border border-green-800">
                     Always Online
                   </span>
                 </div>
                 <p className="text-[11px] text-gray-700 font-medium">
-                  Regex parser, STAR evaluator, heuristic ATS scoring
+                  Offline extraction, answer rubric and heuristic ATS scoring
                 </p>
               </div>
             </div>
@@ -201,10 +183,11 @@ export default function SettingsPage() {
               <div className="flex justify-end pt-2">
                 <button
                   type="submit"
+                  disabled={isSaving}
                   className="brutal-btn-primary px-6 py-2.5 text-xs flex items-center gap-2"
                 >
                   <Save className="w-4 h-4" />
-                  <span>Save Profile</span>
+                  <span>{isSaving ? 'Saving...' : 'Save Profile'}</span>
                 </button>
               </div>
             </form>

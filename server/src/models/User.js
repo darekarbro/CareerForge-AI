@@ -5,7 +5,8 @@ const userSchema = new mongoose.Schema(
   {
     firebaseUid: {
       type: String,
-      default: '',
+      default: undefined,
+      set: (value) => typeof value === 'string' && value.trim() ? value.trim() : undefined,
       unique: true,
       sparse: true,
       trim: true,

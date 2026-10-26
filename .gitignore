@@ -34,6 +34,9 @@ yarn-error.log*
 # uploads / temp
 server/uploads/
 *.log
+.test-tmp/
+client/coverage/
+server/coverage/
 
 # vercel
 .vercel

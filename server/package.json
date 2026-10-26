@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
-    "test": "node test/api.test.js"
+    "test": "node --require ./test/setup.cjs --test --test-concurrency=1 test/*.test.js",
+    "test:groq": "node scripts/testGroqLive.js --live"
   },
   "keywords": [
     "careerforge",
@@ -44,6 +45,7 @@
     "socket.io": "^4.8.1"
   },
   "devDependencies": {
-    "nodemon": "^3.1.9"
+    "nodemon": "^3.1.9",
+    "socket.io-client": "^4.8.4"
   }
 }

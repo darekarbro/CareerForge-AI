@@ -9,8 +9,8 @@ router.get('/', (req, res) => {
   const dbStatus = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected';
   const providers = providerFactory.getProvidersStatus();
 
-  res.status(200).json({
-    status: 'healthy',
+  res.status(dbStatus === 'connected' ? 200 : 503).json({
+    status: dbStatus === 'connected' ? 'healthy' : 'not_ready',
     timestamp: new Date().toISOString(),
     service: 'CareerForge AI Platform API',
     environment: process.env.NODE_ENV || 'development',

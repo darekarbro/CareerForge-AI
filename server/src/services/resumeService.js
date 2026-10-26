@@ -1,144 +1,141 @@
 const Resume = require('../models/Resume');
 const TailoredResume = require('../models/TailoredResume');
 const ProcessingJob = require('../models/ProcessingJob');
+const ProcessingLog = require('../models/ProcessingLog');
 const InterviewSession = require('../models/InterviewSession');
+const InterviewQuestion = require('../models/InterviewQuestion');
+const GapAnalysis = require('../models/GapAnalysis');
+const JobDescription = require('../models/JobDescription');
+const Notification = require('../models/Notification');
 const Application = require('../models/Application');
-const { uploadFile } = require('../config/cloudinary');
-const { enqueueJob } = require('../queues/processingQueue');
+const { uploadFile, getOriginalDownload, deleteFile } = require('../config/cloudinary');
+const { createJob, dispatchJob } = require('./jobService');
+const { abortJob, waitForJobs, cancellationError } = require('./jobContext');
 const parserAgent = require('../agents/parserAgent');
 const analyzerAgent = require('../agents/analyzerAgent');
 
+const failure = (message, statusCode) => Object.assign(new Error(message), { statusCode });
 class ResumeService {
-  async listUserResumes(userId) {
-    return Resume.find({ owner: userId }).sort({ createdAt: -1 });
-  }
-
+  async listUserResumes(userId) { return Resume.find({ owner: userId, deleting: { $ne: true } }).sort({ createdAt: -1 }); }
   async getResumeById(resumeId, userId) {
-    const resume = await Resume.findOne({ _id: resumeId, owner: userId });
-    if (!resume) {
-      const error = new Error('Resume not found');
-      error.statusCode = 404;
-      throw error;
-    }
+    const resume = await Resume.findOne({ _id: resumeId, owner: userId, deleting: { $ne: true } });
+    if (!resume) throw failure('Resume not found', 404);
     return resume;
   }
-
+  async getReadyResume(resumeId, userId) {
+    const resume = await this.getResumeById(resumeId, userId);
+    const ready = resume.processingStatus === 'COMPLETED' || (!resume.processingJobId && Boolean(resume.rawText));
+    if (!ready) throw failure('Wait for resume processing to complete successfully before continuing', 409);
+    return resume;
+  }
+  async getOriginal(resumeId, userId) {
+    const resume = await this.getResumeById(resumeId, userId);
+    return { resume, download: getOriginalDownload(resume) };
+  }
   async deleteResume(resumeId, userId) {
-    const resume = await Resume.findOneAndDelete({ _id: resumeId, owner: userId });
-    if (!resume) {
-      const error = new Error('Resume not found');
-      error.statusCode = 404;
+    const resume = await Resume.findOneAndUpdate({ _id: resumeId, owner: userId, deleting: { $ne: true } },
+      { $set: { deleting: true } }, { new: true });
+    if (!resume) throw failure('Resume not found', 404);
+    try {
+      const sessions = await InterviewSession.find({ resumeId, owner: userId }).select('_id jobDescriptionId');
+      const sessionIds = sessions.map((session) => session._id);
+      const jobs = await ProcessingJob.find({ owner: userId, $or: [
+        { 'inputRef.resumeId': resumeId }, { 'inputRef.sessionId': { $in: sessionIds } },
+      ] }).select('_id');
+      const jobIds = jobs.map((job) => job._id);
+      await ProcessingJob.updateMany({ _id: { $in: jobIds }, status: { $in: ['PENDING', 'RUNNING', 'RETRYING'] } },
+        { $set: { status: 'CANCELLED', completedAt: new Date() }, $unset: { 'inputRef.rawInput': 1 } });
+      jobIds.forEach(abortJob);
+      await waitForJobs(jobIds);
+      // A worker in another process may already be committing; drain it before removing derived records.
+      const deadline = Date.now() + 15000;
+      while (await ProcessingJob.exists({ _id: { $in: jobIds }, status: { $in: ['RUNNING', 'COMMITTING'] } })) {
+        if (Date.now() > deadline) throw failure('Processing is still finishing; retry deletion shortly', 503);
+        await new Promise((resolve) => setTimeout(resolve, 100));
+      }
+      await deleteFile(resume);
+      const gaps = await GapAnalysis.find({ resumeId, owner: userId }).select('jobDescriptionId');
+      const versions = await TailoredResume.find({ resumeId, owner: userId }).select('jobDescriptionId');
+      const descriptions = [...sessions, ...gaps, ...versions].map((record) => record.jobDescriptionId).filter(Boolean);
+      await InterviewQuestion.deleteMany({ sessionId: { $in: sessionIds } });
+      await InterviewSession.deleteMany({ _id: { $in: sessionIds }, owner: userId });
+      await TailoredResume.deleteMany({ resumeId, owner: userId });
+      await GapAnalysis.deleteMany({ resumeId, owner: userId });
+      await ProcessingLog.deleteMany({ jobId: { $in: jobIds }, owner: userId });
+      await Notification.deleteMany({ jobId: { $in: jobIds }, owner: userId });
+      await ProcessingJob.deleteMany({ _id: { $in: jobIds }, owner: userId });
+      for (const id of new Set(descriptions.map(String))) {
+        const shared = await GapAnalysis.exists({ jobDescriptionId: id }) ||
+          await TailoredResume.exists({ jobDescriptionId: id }) || await InterviewSession.exists({ jobDescriptionId: id }) ||
+          await ProcessingJob.exists({ 'inputRef.jobDescriptionId': id, status: { $in: ['PENDING', 'RUNNING', 'COMMITTING'] } });
+        if (!shared) await JobDescription.deleteOne({ _id: id, owner: userId });
+      }
+      await Resume.deleteOne({ _id: resumeId, owner: userId });
+      await require('../models/ResumeVersionCounter').deleteOne({ _id: resumeId });
+      return { success: true, message: 'Resume and its associated private files and processing data were deleted' };
+    } catch (error) {
+      await Resume.updateOne({ _id: resumeId, owner: userId }, { $set: { deleting: false } });
       throw error;
     }
-    // Clean up related tailored versions
-    await TailoredResume.deleteMany({ resumeId });
-    return { success: true, message: 'Resume deleted successfully' };
   }
-
   async uploadAndProcessResume({ file, userId, title }) {
     const fileType = file.originalname.split('.').pop().toLowerCase();
-    
-    // 1. Upload to Cloudinary (or local fallback)
-    const uploadResult = await uploadFile(file.buffer, {
-      filename: file.originalname,
-      public_id: `resume_${userId}_${Date.now()}`,
-    });
-
-    // 2. Create initial Resume record in DB
-    const resume = await Resume.create({
-      owner: userId,
-      title: title || file.originalname.replace(/\.[^/.]+$/, ''),
-      originalFileName: file.originalname,
-      originalFileUrl: uploadResult.secure_url,
-      fileType: fileType === 'docx' ? 'docx' : fileType === 'txt' ? 'txt' : 'pdf',
-      parsedData: {},
-      atsScore: { score: 0 },
-    });
-
-    // 3. Create ProcessingJob record
-    const processingJob = await ProcessingJob.create({
-      owner: userId,
-      jobType: 'resume_parse',
-      status: 'PENDING',
-      inputRef: {
-        resumeId: resume._id,
-        rawInput: {
-          fileBuffer: file.buffer.toString('base64'),
-          fileType,
-        },
-      },
-    });
-
-    // 4. Enqueue background processing job
-    await enqueueJob('resume_parse', { jobId: processingJob._id });
-
-    return {
-      resume,
-      jobId: processingJob._id,
-    };
+    if (!['pdf', 'docx', 'txt'].includes(fileType)) throw failure('Unsupported resume file type', 415);
+    const upload = await uploadFile(file.buffer, { filename: file.originalname,
+      public_id: 'resume_' + userId + '_' + require('node:crypto').randomUUID() });
+    let resume;
+    try {
+      resume = await Resume.create({ owner: userId, title: title || file.originalname.replace(/\.[^/.]+$/, ''),
+        originalFileName: file.originalname, originalFileStorage: upload.storage, fileType, processingStatus: 'PENDING' });
+    } catch (error) { await deleteFile({ originalFileStorage: upload.storage }); throw error; }
+    const job = await createJob({ userId, jobType: 'resume_parse', inputRef: { resumeId: resume._id,
+      rawInput: { fileBuffer: file.buffer.toString('base64'), fileType } } });
+    resume.processingJobId = job._id;
+    resume.originalFileUrl = '/api/resumes/' + resume._id + '/original';
+    await resume.save();
+    try { await dispatchJob(job); }
+    catch (error) { await Resume.updateOne({ _id: resume._id }, { $set: { processingStatus: 'FAILED' } }); throw error; }
+    return { resume, jobId: job._id };
   }
-
+  async processUpload({ job, checkpoint, commit }) {
+    const { fileBuffer, fileType } = job.inputRef.rawInput || {};
+    const parsed = await parserAgent.parse({ fileBuffer: Buffer.from(fileBuffer, 'base64'), fileType,
+      jobId: job._id, userId: job.owner });
+    await checkpoint();
+    const atsScore = await analyzerAgent.scoreATS({ resumeData: parsed.parsedData, rawText: parsed.rawText,
+      jobId: job._id, userId: job.owner });
+    return commit(async () => {
+      const resume = await Resume.findOneAndUpdate({ _id: job.inputRef.resumeId, owner: job.owner, deleting: { $ne: true } }, {
+        $set: { rawText: parsed.rawText, parsedData: parsed.parsedData, atsScore, processingStatus: 'COMPLETED',
+          aiProvider: parsed.aiProvider, parsingWarnings: parsed.parsedData.warnings || [], parsingInputLength: parsed.inputCharacters },
+      }, { new: true, runValidators: true });
+      if (!resume) throw cancellationError();
+      return { resume, aiProvider: parsed.aiProvider };
+    });
+  }
   async getDashboardMetrics(userId) {
-    const resumes = await Resume.find({ owner: userId });
-    const tailoredResumes = await TailoredResume.find({ owner: userId });
-    const interviewSessions = await InterviewSession.find({ owner: userId }).sort({ createdAt: -1 });
-    const applications = await Application.find({ owner: userId });
-
-    const totalResumes = resumes.length;
-    const avgAtsScore = totalResumes > 0
-      ? Math.round(resumes.reduce((acc, r) => acc + (r.atsScore?.score || 0), 0) / totalResumes)
-      : 0;
-
-    const completedSessions = interviewSessions.filter(s => s.status === 'completed');
-    const avgInterviewScore = completedSessions.length > 0
-      ? Math.round(completedSessions.reduce((acc, s) => acc + (s.overallScore || 0), 0) / completedSessions.length)
-      : 0;
-
-    const interviewTrends = interviewSessions.slice(0, 10).reverse().map((s, idx) => ({
-      session: `S${idx + 1}`,
-      date: s.createdAt.toLocaleDateString(),
-      role: s.targetRole,
-      score: s.overallScore || 0,
-    }));
-
-    const applicationFunnel = {
-      saved: applications.filter(a => a.status === 'saved').length,
-      applied: applications.filter(a => a.status === 'applied').length,
-      oa: applications.filter(a => a.status === 'oa').length,
-      interview: applications.filter(a => a.status === 'interview').length,
-      offer: applications.filter(a => a.status === 'offer').length,
-      rejected: applications.filter(a => a.status === 'rejected').length,
-      total: applications.length,
-    };
-
+    const [resumes, tailoredCount, sessions, applications] = await Promise.all([
+      Resume.find({ owner: userId, deleting: { $ne: true } }).sort({ createdAt: -1 }),
+      TailoredResume.countDocuments({ owner: userId }),
+      InterviewSession.find({ owner: userId, status: 'completed' }).sort({ completedAt: -1 }),
+      Application.find({ owner: userId }).sort({ createdAt: -1 }),
+    ]);
+    const ready = resumes.filter((resume) => resume.processingStatus === 'COMPLETED');
+    const average = (list, value) => list.length ? Math.round(list.reduce((sum, item) => sum + value(item), 0) / list.length) : 0;
+    const applicationFunnel = Object.fromEntries(['saved', 'applied', 'oa', 'interview', 'offer', 'rejected']
+      .map((status) => [status, applications.filter((app) => app.status === status).length]));
+    applicationFunnel.total = applications.length;
     return {
-      totalResumes,
-      totalTailored: tailoredResumes.length,
-      avgAtsScore,
-      avgInterviewScore,
-      interviewTrends,
-      applicationFunnel,
-      recentResumes: resumes.slice(0, 5),
-      recentApplications: applications.slice(0, 5),
+      totalResumes: resumes.length, totalTailored: tailoredCount,
+      avgAtsScore: average(ready, (resume) => resume.atsScore?.score || 0),
+      avgInterviewScore: average(sessions, (session) => session.overallScore || 0),
+      completedInterviewCount: sessions.length,
+      interviewTrends: sessions.slice(0, 10).reverse().map((session, index) => ({
+        session: 'S' + (index + 1), date: session.completedAt?.toISOString(), role: session.targetRole, score: session.overallScore,
+      })),
+      applicationFunnel, recentResumes: resumes.slice(0, 5), recentApplications: applications.slice(0, 5),
     };
   }
-
-  async getAtsScore(resumeId, userId) {
-    const resume = await this.getResumeById(resumeId, userId);
-    
-    // Recompute if atsScore is 0
-    if (!resume.atsScore?.score || resume.atsScore.score === 0) {
-      const ats = await analyzerAgent.scoreATS({
-        resumeData: resume.parsedData,
-        rawText: resume.rawText,
-        userId,
-      });
-      resume.atsScore = ats;
-      await resume.save();
-    }
-
-    return resume.atsScore;
-  }
+  async getAtsScore(resumeId, userId) { return (await this.getReadyResume(resumeId, userId)).atsScore; }
 }
-
 module.exports = new ResumeService();

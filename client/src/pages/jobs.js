@@ -12,6 +12,8 @@ export default function JobsPage() {
   const [loading, setLoading] = useState(true);
   const [generatedLinksMap, setGeneratedLinksMap] = useState({});
   const [keywordsMap, setKeywordsMap] = useState({});
+  const [generating, setGenerating] = useState({});
+  const [errors, setErrors] = useState({});
 
   useEffect(() => {
     Promise.all([
@@ -20,7 +22,7 @@ export default function JobsPage() {
     ])
       .then(([rolesRes, resumesRes]) => {
         setRoles(rolesRes.data.data || []);
-        const resList = resumesRes.data.data || [];
+        const resList = (resumesRes.data.data || []).filter((resume) => resume.processingStatus === 'COMPLETED');
         setResumes(resList);
         if (resList.length > 0) {
           setSelectedResumeId(resList[0]._id);
@@ -31,6 +33,10 @@ export default function JobsPage() {
   }, []);
 
   const handleGenerateCustomLinks = async (targetRole) => {
+    const key = selectedResumeId + ':' + targetRole;
+    if (generating[key]) return;
+    setGenerating((previous) => ({ ...previous, [key]: true }));
+    setErrors((previous) => ({ ...previous, [key]: '' }));
     try {
       const res = await api.post('/jobs/search-links', {
         targetRole,
@@ -38,11 +44,11 @@ export default function JobsPage() {
       });
 
       const { links, generatedKeywords } = res.data.data;
-      setGeneratedLinksMap((prev) => ({ ...prev, [targetRole]: links }));
-      setKeywordsMap((prev) => ({ ...prev, [targetRole]: generatedKeywords }));
+      setGeneratedLinksMap((prev) => ({ ...prev, [key]: links }));
+      setKeywordsMap((prev) => ({ ...prev, [key]: generatedKeywords }));
     } catch (err) {
-      console.error('Error generating search links:', err);
-    }
+      setErrors((previous) => ({ ...previous, [key]: err.response?.data?.message || 'Unable to generate links. Please retry.' }));
+    } finally { setGenerating((previous) => ({ ...previous, [key]: false })); }
   };
 
   if (loading) {
@@ -113,8 +119,10 @@ export default function JobsPage() {
               <JobRoleCard
                 key={role.id}
                 role={role}
-                generatedLinks={generatedLinksMap[role.title]}
-                keywords={keywordsMap[role.title]}
+                generatedLinks={generatedLinksMap[selectedResumeId + ':' + role.title]}
+                keywords={keywordsMap[selectedResumeId + ':' + role.title]}
+                isGenerating={generating[selectedResumeId + ':' + role.title]}
+                error={errors[selectedResumeId + ':' + role.title]}
                 onGenerateCustom={() => handleGenerateCustomLinks(role.title)}
               />
             ))}

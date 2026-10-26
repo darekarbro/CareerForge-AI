@@ -7,6 +7,8 @@ export default function ApplicationModal({
   onSave,
   onDelete,
   initialData,
+  isSaving = false,
+  error = '',
 }) {
   const [formData, setFormData] = useState({
     company: '',
@@ -17,6 +19,7 @@ export default function ApplicationModal({
     salaryRange: '',
     location: '',
     notes: '',
+    appliedDate: '',
   });
 
   useEffect(() => {
@@ -30,6 +33,7 @@ export default function ApplicationModal({
         salaryRange: initialData.salaryRange || '',
         location: initialData.location || '',
         notes: initialData.notes || '',
+        appliedDate: initialData.appliedDate ? new Date(initialData.appliedDate).toISOString().slice(0, 10) : '',
       });
     } else {
       setFormData({
@@ -41,6 +45,7 @@ export default function ApplicationModal({
         salaryRange: '',
         location: '',
         notes: '',
+        appliedDate: '',
       });
     }
   }, [initialData, isOpen]);
@@ -49,7 +54,7 @@ export default function ApplicationModal({
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!formData.company.trim() || !formData.roleTitle.trim()) return;
+    if (isSaving || !formData.company.trim() || !formData.roleTitle.trim()) return;
     onSave(formData);
   };
 
@@ -71,6 +76,7 @@ export default function ApplicationModal({
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
+          {error && <p role="alert" className="p-3 bg-red-100 border-2 border-red-800 text-red-900 text-xs">{error}</p>}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block font-headline font-bold text-xs uppercase text-[#1a1a1a] mb-1">
@@ -169,6 +175,11 @@ export default function ApplicationModal({
           </div>
 
           <div>
+            <label htmlFor="applied-date" className="block font-headline font-bold text-xs uppercase mb-1">Applied date</label>
+            <input id="applied-date" type="date" className="brutal-input w-full text-xs" value={formData.appliedDate}
+              onChange={(e) => setFormData({ ...formData, appliedDate: e.target.value })} />
+          </div>
+          <div>
             <label className="block font-headline font-bold text-xs uppercase text-[#1a1a1a] mb-1">
               Personal Notes / Interview Timeline
             </label>
@@ -187,6 +198,7 @@ export default function ApplicationModal({
               <button
                 type="button"
                 onClick={() => onDelete(initialData._id)}
+                  disabled={isSaving}
                 className="brutal-btn-red px-3 py-2 text-xs flex items-center gap-1.5"
               >
                 <Trash2 className="w-3.5 h-3.5" />
@@ -206,10 +218,11 @@ export default function ApplicationModal({
               </button>
               <button
                 type="submit"
+                disabled={isSaving}
                 className="brutal-btn-primary px-5 py-2 text-xs flex items-center gap-1.5"
               >
                 <Save className="w-3.5 h-3.5" />
-                <span>Save Application</span>
+                <span>{isSaving ? 'Saving...' : 'Save Application'}</span>
               </button>
             </div>
           </div>

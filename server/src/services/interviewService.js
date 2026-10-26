@@ -1,273 +1,153 @@
 const InterviewSession = require('../models/InterviewSession');
 const InterviewQuestion = require('../models/InterviewQuestion');
-const Resume = require('../models/Resume');
-const ProcessingJob = require('../models/ProcessingJob');
+const JobDescription = require('../models/JobDescription');
 const generatorAgent = require('../agents/generatorAgent');
 const evaluatorAgent = require('../agents/evaluatorAgent');
-const { runProcessingJob } = require('./processingJobLifecycle');
+const { createJob, dispatchJob } = require('./jobService');
+const { plain } = require('../providers/resumeFacts');
+const fail = (message, statusCode) => Object.assign(new Error(message), { statusCode });
 
 class InterviewService {
   async startSession({ userId, targetRole, resumeId, jobDescriptionId, count = 5 }) {
-    const resume = await Resume.findOne({ _id: resumeId, owner: userId });
-    if (!resume) {
-      const error = new Error('Resume not found');
-      error.statusCode = 404;
-      throw error;
+    if (!Number.isInteger(count) || count < 1 || count > 10) throw fail('Choose 1 to 10 interview questions', 400);
+    const resume = await require('./resumeService').getReadyResume(resumeId, userId);
+    if (jobDescriptionId && !await JobDescription.exists({ _id: jobDescriptionId, owner: userId })) {
+      throw fail('Job description not found', 404);
     }
-
-    // 1. Create InterviewSession record
-    const session = await InterviewSession.create({
-      owner: userId,
-      targetRole: targetRole || 'Fullstack Developer',
-      resumeId: resume._id,
-      jobDescriptionId: jobDescriptionId || null,
-      status: 'in_progress',
-      totalQuestions: count,
-      startedAt: new Date(),
+    const job = await createJob({ userId, jobType: 'question_generation', inputRef: {
+      resumeId: resume._id, jobDescriptionId: jobDescriptionId || undefined,
+      targetRole, rawInput: { count },
+    } });
+    return dispatchJob(job);
+  }
+  async processQuestions({ job, checkpoint, commit }) {
+    const resume = await require('./resumeService').getReadyResume(job.inputRef.resumeId, job.owner);
+    const jd = job.inputRef.jobDescriptionId ?
+      await JobDescription.findOne({ _id: job.inputRef.jobDescriptionId, owner: job.owner }) : null;
+    if (job.inputRef.jobDescriptionId && !jd) throw fail('Job description not found', 404);
+    const generated = await generatorAgent.generateQuestions({
+      resumeData: plain(resume.parsedData), targetRole: job.inputRef.targetRole,
+      jobDescriptionText: jd?.rawText || '', count: job.inputRef.rawInput.count, jobId: job._id, userId: job.owner,
     });
-
-    // 2. Create ProcessingJob for question generation
-    const processingJob = await ProcessingJob.create({
-      owner: userId,
-      jobType: 'question_generation',
-      status: 'PENDING',
-      inputRef: {
-        sessionId: session._id,
-        resumeId: resume._id,
-        targetRole: session.targetRole,
-        rawInput: {
-          resumeData: resume.parsedData,
-          targetRole: session.targetRole,
-          count,
-        },
-      },
-    });
-
-    const { questions: questionDocs, aiProvider } = await runProcessingJob(processingJob, async () => {
-      const generated = await generatorAgent.generateQuestions({
-        resumeData: resume.parsedData,
-        targetRole: session.targetRole,
-        count,
-        jobId: processingJob._id,
-        userId,
+    if (!generated.questions.length) throw fail('No interview questions generated', 502);
+    await checkpoint();
+    return commit(async () => {
+      const session = await InterviewSession.create({
+        owner: job.owner, resumeId: resume._id, targetRole: job.inputRef.targetRole,
+        jobDescriptionId: jd?._id, totalQuestions: generated.questions.length,
+        aiProvider: generated.aiProvider, status: 'in_progress',
       });
-
-      if (!generated.questions.length) {
-        throw new Error('No interview questions were generated');
+      try {
+        const questions = await InterviewQuestion.insertMany(generated.questions.map((question, index) => ({
+          ...question, sessionId: session._id, order: index + 1,
+        })));
+        await require('../models/ProcessingJob').updateOne({ _id: job._id }, { $set: { 'inputRef.sessionId': session._id } });
+        return { session, questions, aiProvider: generated.aiProvider };
+      } catch (error) {
+        await InterviewQuestion.deleteMany({ sessionId: session._id });
+        await InterviewSession.deleteOne({ _id: session._id });
+        throw error;
       }
-
-      const questions = await Promise.all(
-        generated.questions.map((q, idx) =>
-          InterviewQuestion.create({
-            sessionId: session._id,
-            order: idx + 1,
-            questionText: q.questionText,
-            category: q.category || 'technical',
-            topic: q.topic || 'General',
-            difficulty: q.difficulty || 'Medium',
-            suggestedAnswer: q.suggestedAnswer,
-            keyPoints: q.keyPoints || [],
-          })
-        )
-      );
-
-      return { questions, aiProvider: generated.aiProvider };
     });
-
-    session.aiProvider = aiProvider;
-    await session.save();
-
-    return {
-      session,
-      questions: questionDocs,
-      jobId: processingJob._id,
-    };
   }
-
   async listSessions(userId) {
-    return InterviewSession.find({ owner: userId })
-      .populate('resumeId', 'title originalFileName')
-      .sort({ createdAt: -1 });
+    return InterviewSession.find({ owner: userId }).populate('resumeId', 'title originalFileName').sort({ createdAt: -1 });
   }
-
   async getSessionById(sessionId, userId) {
     const session = await InterviewSession.findOne({ _id: sessionId, owner: userId }).populate('resumeId');
-    if (!session) {
-      const error = new Error('Interview session not found');
-      error.statusCode = 404;
-      throw error;
-    }
-
-    const questions = await InterviewQuestion.find({ sessionId: session._id }).sort({ order: 1 });
-
-    return {
-      session,
-      questions,
-    };
+    if (!session) throw fail('Interview session not found', 404);
+    return { session, questions: await InterviewQuestion.find({ sessionId: session._id }).sort({ order: 1 }) };
   }
-
   async getSuggestedAnswer(sessionId, questionId, userId) {
-    const session = await InterviewSession.findOne({ _id: sessionId, owner: userId });
-    if (!session) {
-      const error = new Error('Interview session not found');
-      error.statusCode = 404;
-      throw error;
-    }
-
-    const question = await InterviewQuestion.findOne({ _id: questionId, sessionId: session._id });
-    if (!question) {
-      const error = new Error('Question not found');
-      error.statusCode = 404;
-      throw error;
-    }
-
-    return {
-      questionId: question._id,
-      suggestedAnswer: question.suggestedAnswer,
-      keyPoints: question.keyPoints,
-    };
+    const { questions } = await this.getSessionById(sessionId, userId);
+    const question = questions.find((item) => String(item._id) === String(questionId));
+    if (!question) throw fail('Question not found', 404);
+    return { questionId: question._id, suggestedAnswer: question.suggestedAnswer, keyPoints: question.keyPoints };
   }
-
   async submitAnswer({ sessionId, questionId, userId, userAnswer }) {
     const session = await InterviewSession.findOne({ _id: sessionId, owner: userId });
-    if (!session) {
-      const error = new Error('Interview session not found');
-      error.statusCode = 404;
+    if (!session) throw fail('Interview session not found', 404);
+    if (session.status !== 'in_progress') throw fail('This session no longer accepts answers', 409);
+    if (typeof userAnswer !== 'string' || !userAnswer.trim() || userAnswer.length > 12000) {
+      throw fail('Provide an answer between 1 and 12000 characters', 400);
+    }
+    const question = await InterviewQuestion.findOne({ _id: questionId, sessionId });
+    if (!question) throw fail('Question not found', 404);
+    if (question.answeredAt) throw fail('This question has already been answered', 409);
+    const job = await createJob({ userId, jobType: 'answer_evaluation', inputRef: {
+      resumeId: session.resumeId, sessionId: session._id, questionId: question._id,
+      targetRole: session.targetRole, rawInput: { userAnswer: userAnswer.trim() },
+    } });
+    const claimed = await InterviewQuestion.findOneAndUpdate({
+      _id: questionId, sessionId, evaluationJobId: null, answeredAt: { $exists: false },
+    }, { $set: { evaluationJobId: job._id } });
+    if (!claimed) {
+      await require('../models/ProcessingJob').deleteOne({ _id: job._id });
+      throw fail('This question is already being evaluated', 409);
+    }
+    try { return await dispatchJob(job); }
+    catch (error) {
+      await InterviewQuestion.updateOne({ _id: questionId, evaluationJobId: job._id }, { $unset: { evaluationJobId: 1 } });
       throw error;
     }
-
-    const question = await InterviewQuestion.findOne({ _id: questionId, sessionId: session._id });
-    if (!question) {
-      const error = new Error('Question not found');
-      error.statusCode = 404;
-      throw error;
-    }
-
-    // 1. Create ProcessingJob for evaluation
-    const processingJob = await ProcessingJob.create({
-      owner: userId,
-      jobType: 'answer_evaluation',
-      status: 'PENDING',
-      inputRef: {
-        sessionId: session._id,
-        questionId: question._id,
-        targetRole: session.targetRole,
-        rawInput: {
-          question,
-          userAnswer,
-          suggestedAnswer: question.suggestedAnswer,
-          targetRole: session.targetRole,
-        },
-      },
-    });
-
-    const { feedback } = await runProcessingJob(processingJob, async () => {
-      const result = await evaluatorAgent.evaluateAnswer({
-        question,
-        userAnswer,
-        suggestedAnswer: question.suggestedAnswer,
-        targetRole: session.targetRole,
-        jobId: processingJob._id,
-        userId,
-      });
-      return { feedback: result, aiProvider: result.aiProvider };
-    });
-
-    question.userAnswer = userAnswer;
-    question.feedback = {
-      ...feedback,
-      evaluatedAt: new Date(),
-      aiProvider: feedback.aiProvider,
-    };
-    question.answeredAt = new Date();
-    await question.save();
-
-    // 3. Update session aggregates
-    const allQuestions = await InterviewQuestion.find({ sessionId: session._id });
-    const answered = allQuestions.filter(q => q.feedback?.overallScore !== undefined);
-    
-    session.answeredCount = answered.length;
-    if (answered.length > 0) {
-      const totalScore = answered.reduce((sum, q) => sum + (q.feedback.overallScore || 0), 0);
-      session.overallScore = Math.round(totalScore / answered.length);
-
-      session.dimensionAverages = {
-        clarity: Math.round(answered.reduce((sum, q) => sum + (q.feedback.clarityScore || 0), 0) / answered.length),
-        relevance: Math.round(answered.reduce((sum, q) => sum + (q.feedback.relevanceScore || 0), 0) / answered.length),
-        structure: Math.round(answered.reduce((sum, q) => sum + (q.feedback.structureScore || 0), 0) / answered.length),
-        technical: Math.round(answered.reduce((sum, q) => sum + (q.feedback.technicalScore || 0), 0) / answered.length),
-      };
-
-      // Weak topics identification (< 70 score)
-      const weak = answered.filter(q => (q.feedback.overallScore || 0) < 70).map(q => q.topic);
-      session.weakTopics = Array.from(new Set(weak));
-
-      const strong = answered.filter(q => (q.feedback.overallScore || 0) >= 80).map(q => q.topic);
-      session.strongTopics = Array.from(new Set(strong));
-    }
-
-    if (session.answeredCount >= session.totalQuestions) {
-      session.status = 'completed';
-      session.completedAt = new Date();
-    }
-
-    await session.save();
-
-    return {
-      question,
-      session,
-      jobId: processingJob._id,
-    };
   }
-
+  async processAnswer({ job, checkpoint, commit }) {
+    const session = await InterviewSession.findOne({ _id: job.inputRef.sessionId, owner: job.owner, status: 'in_progress' });
+    const question = await InterviewQuestion.findOne({ _id: job.inputRef.questionId,
+      sessionId: job.inputRef.sessionId, evaluationJobId: job._id });
+    if (!session || !question) throw fail('Interview question is no longer available', 409);
+    const { userAnswer } = job.inputRef.rawInput;
+    const feedback = await evaluatorAgent.evaluateAnswer({ question: plain(question), userAnswer,
+      suggestedAnswer: question.suggestedAnswer, targetRole: session.targetRole, jobId: job._id, userId: job.owner });
+    await checkpoint();
+    return commit(async () => {
+      const updatedQuestion = await InterviewQuestion.findOneAndUpdate({ _id: question._id, evaluationJobId: job._id,
+        answeredAt: { $exists: false } }, {
+        $set: { userAnswer, feedback: { ...feedback, evaluatedAt: new Date() }, answeredAt: new Date() },
+        $unset: { evaluationJobId: 1 },
+      }, { new: true, runValidators: true });
+      if (!updatedQuestion) throw fail('Answer was already evaluated', 409);
+      const add = (field, value) => ({ $add: [{ $ifNull: ['$' + field, 0] }, value] });
+      const totals = { overall: feedback.overallScore, clarity: feedback.clarityScore,
+        relevance: feedback.relevanceScore, structure: feedback.structureScore, technical: feedback.technicalScore };
+      const totalUpdates = Object.fromEntries(Object.entries(totals).map(([key, value]) => [
+        'scoreTotals.' + key, add('scoreTotals.' + key, value),
+      ]));
+      const averages = Object.fromEntries(['clarity', 'relevance', 'structure', 'technical'].map((key) => [
+        'dimensionAverages.' + key, { $round: [{ $divide: ['$scoreTotals.' + key, '$answeredCount'] }, 0] },
+      ]));
+      const complete = { $gte: ['$answeredCount', '$totalQuestions'] };
+      const updatedSession = await InterviewSession.findOneAndUpdate({ _id: session._id, owner: job.owner, status: 'in_progress' }, [
+        { $set: { answeredCount: add('answeredCount', 1), ...totalUpdates,
+          weakTopics: { $setUnion: [{ $ifNull: ['$weakTopics', []] }, feedback.overallScore < 70 ? [question.topic] : []] },
+          strongTopics: { $setUnion: [{ $ifNull: ['$strongTopics', []] }, feedback.overallScore >= 80 ? [question.topic] : []] } } },
+        { $set: { overallScore: { $round: [{ $divide: ['$scoreTotals.overall', '$answeredCount'] }, 0] }, ...averages,
+          status: { $cond: [complete, 'completed', 'in_progress'] },
+          completedAt: { $cond: [complete, '$$NOW', '$$REMOVE'] } } },
+      ], { new: true });
+      if (!updatedSession) throw fail('Session no longer accepts answers', 409);
+      return { question: updatedQuestion, session: updatedSession, aiProvider: feedback.aiProvider };
+    });
+  }
   async getAnalytics(userId) {
-    const sessions = await InterviewSession.find({ owner: userId }).sort({ createdAt: 1 });
-    const questions = await InterviewQuestion.find({
-      sessionId: { $in: sessions.map(s => s._id) },
-      userAnswer: { $ne: '' },
+    const allSessions = await InterviewSession.find({ owner: userId }).sort({ createdAt: 1 });
+    const sessions = allSessions.filter((session) => session.status === 'completed');
+    const questions = await InterviewQuestion.find({ sessionId: { $in: allSessions.map((session) => session._id) },
+      answeredAt: { $exists: true }, 'feedback.overallScore': { $exists: true } });
+    const topics = new Map();
+    questions.forEach((question) => {
+      const key = question.topic || 'General', stats = topics.get(key) || { topic: key, sum: 0, count: 0, weak: 0 };
+      stats.sum += question.feedback.overallScore; stats.count++; stats.weak += question.feedback.overallScore < 70 ? 1 : 0;
+      topics.set(key, stats);
     });
-
-    const scoreTrends = sessions.map((s, idx) => ({
-      sessionId: s._id,
-      index: idx + 1,
-      targetRole: s.targetRole,
-      date: s.createdAt.toLocaleDateString(),
-      overallScore: s.overallScore || 0,
-      clarity: s.dimensionAverages?.clarity || 0,
-      technical: s.dimensionAverages?.technical || 0,
-      relevance: s.dimensionAverages?.relevance || 0,
-      structure: s.dimensionAverages?.structure || 0,
-    }));
-
-    // Weak-topic heatmap aggregation
-    const topicStats = {};
-    questions.forEach(q => {
-      const topic = q.topic || 'General';
-      if (!topicStats[topic]) {
-        topicStats[topic] = { topic, totalQuestions: 0, totalScore: 0, weakCount: 0 };
-      }
-      const score = q.feedback?.overallScore || 0;
-      topicStats[topic].totalQuestions += 1;
-      topicStats[topic].totalScore += score;
-      if (score < 70) {
-        topicStats[topic].weakCount += 1;
-      }
-    });
-
-    const topicHeatmap = Object.values(topicStats).map(t => ({
-      topic: t.topic,
-      averageScore: Math.round(t.totalScore / Math.max(1, t.totalQuestions)),
-      totalAttempts: t.totalQuestions,
-      needsImprovement: t.weakCount > 0,
-    }));
-
     return {
-      totalSessions: sessions.length,
-      completedSessions: sessions.filter(s => s.status === 'completed').length,
-      scoreTrends,
-      topicHeatmap,
+      totalSessions: allSessions.length, completedSessions: sessions.length,
+      scoreTrends: sessions.map((session, index) => ({ sessionId: session._id, index: index + 1,
+        targetRole: session.targetRole, date: session.completedAt?.toISOString(), overallScore: session.overallScore,
+        ...plain(session.dimensionAverages) })),
+      topicHeatmap: [...topics.values()].map((stats) => ({ topic: stats.topic, averageScore: Math.round(stats.sum / stats.count),
+        totalAttempts: stats.count, needsImprovement: stats.weak > 0 })),
     };
   }
 }
-
 module.exports = new InterviewService();

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import ProtectedRoute from '../../components/ProtectedRoute/ProtectedRoute';
 import AppShell from '../../components/AppShell/AppShell';
 import api from '../../services/api';
+import { submitProcessingRequest } from '../../services/processing';
 import { Mic, Sparkles, FileText, ArrowRight, Loader2, Award } from 'lucide-react';
 
 const supportedRoles = [
@@ -24,11 +25,12 @@ export default function InterviewSetupPage() {
   const [questionCount, setQuestionCount] = useState(5);
   const [loading, setLoading] = useState(true);
   const [isStarting, setIsStarting] = useState(false);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     api.get('/resumes')
       .then((res) => {
-        const list = res.data.data || [];
+        const list = (res.data.data || []).filter((resume) => resume.processingStatus === 'COMPLETED');
         setResumes(list);
         if (list.length > 0) {
           setSelectedResumeId(list[0]._id);
@@ -43,8 +45,9 @@ export default function InterviewSetupPage() {
     if (!selectedResumeId) return;
 
     setIsStarting(true);
+    setError('');
     try {
-      const res = await api.post('/interview/sessions', {
+      const res = await submitProcessingRequest('/interview/sessions', {
         resumeId: selectedResumeId,
         targetRole,
         count: questionCount,
@@ -53,7 +56,7 @@ export default function InterviewSetupPage() {
       const { session } = res.data.data;
       router.push(`/interview/session/${session._id}`);
     } catch (err) {
-      console.error('Failed to start interview:', err);
+      setError(err.response?.data?.message || err.message || 'Unable to generate interview questions');
       setIsStarting(false);
     }
   };
@@ -62,6 +65,7 @@ export default function InterviewSetupPage() {
     <ProtectedRoute>
       <AppShell>
         <div className="space-y-8 max-w-3xl mx-auto">
+          {error && <p role="alert" className="p-3 border-2 border-red-800 bg-red-50 text-red-900 text-sm">{error}</p>}
           {/* Header */}
           <div className="p-6 border-3 border-[#1a1a1a] bg-[#0055ff] text-white shadow-brutal flex flex-wrap items-center justify-between gap-4">
             <div>
@@ -84,7 +88,7 @@ export default function InterviewSetupPage() {
             <div className="brutal-card p-8 text-center space-y-4">
               <FileText className="w-10 h-10 mx-auto text-gray-400" />
               <h3 className="font-headline font-black text-xl uppercase text-[#1a1a1a]">
-                No Resume Found
+                No Completed Resume Found
               </h3>
               <p className="text-xs text-gray-600 max-w-sm mx-auto">
                 Please upload a resume first so the Generator Agent can synthesize personalized questions tailored to your skills.

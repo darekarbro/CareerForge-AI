@@ -1,120 +1,84 @@
 const { Queue, Worker } = require('bullmq');
 const Redis = require('ioredis');
 const env = require('../config/env');
-const orchestrator = require('../agents/orchestrator');
 
-let queue = null;
-let worker = null;
-let isRedisAvailable = false;
-
-// Simple in-memory asynchronous job dispatcher fallback
 class InMemoryQueue {
-  constructor() {
-    this.jobs = new Map();
+  constructor({ processor = (data) => require('../agents/orchestrator').runJob(data.jobId), concurrency = 5 } = {}) {
+    this.jobs = new Map(); this.pending = []; this.running = 0; this.processor = processor;
+    this.concurrency = concurrency; this.closed = false; this.idle = [];
   }
-
   async add(name, data) {
-    const jobKey = `mem_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
-    this.jobs.set(jobKey, { name, data, status: 'queued' });
-
-    // Execute asynchronously on next tick
-    setImmediate(async () => {
-      try {
-        await orchestrator.runJob(data.jobId);
-      } catch (err) {
-        console.error(`[InMemoryQueue] Execution error for job ${data.jobId}:`, err.message);
-      }
-    });
-
-    return { id: jobKey };
-  }
-}
-
-const inMemoryQueue = new InMemoryQueue();
-
-// Initialize BullMQ if REDIS_URL is provided
-if (env.REDIS_URL) {
-  try {
-    // Parse the rediss:// URL manually to handle special chars in password
-    let redisOpts;
-    try {
-      const parsed = new URL(env.REDIS_URL);
-      redisOpts = {
-        host: parsed.hostname,
-        port: parseInt(parsed.port, 10) || 6379,
-        username: parsed.username || 'default',
-        password: decodeURIComponent(parsed.password),
-        tls: parsed.protocol === 'rediss:' ? {} : undefined,
-        maxRetriesPerRequest: null,
-        enableReadyCheck: false,
-      };
-    } catch (_parseErr) {
-      // Fallback: pass as raw URL string
-      redisOpts = env.REDIS_URL;
+    if (this.closed) throw new Error('Queue is shutting down');
+    const id = String(data.jobId);
+    if (!this.jobs.has(id)) {
+      this.jobs.set(id, { name, data }); this.pending.push(id);
+      setImmediate(() => this.drain());
     }
-
-    const connection = typeof redisOpts === 'string'
-      ? new Redis(redisOpts, { maxRetriesPerRequest: null, enableReadyCheck: false })
-      : new Redis(redisOpts);
-
-    connection.on('connect', () => {
-      isRedisAvailable = true;
-      console.log('✅ Connected to Redis for BullMQ background queue');
-    });
-
-    connection.on('error', (err) => {
-      console.warn('⚠️ Redis connection error. Reverting to in-memory queue fallback:', err.message);
-      isRedisAvailable = false;
-    });
-
-    queue = new Queue('careerforge_jobs', { connection });
-
-    worker = new Worker(
-      'careerforge_jobs',
-      async (bullJob) => {
-        return orchestrator.runJob(bullJob.data.jobId);
-      },
-      {
-        connection,
-        concurrency: 5,
-        // A single AI workflow can include two provider calls and a fallback.
-        // Keep the BullMQ lock valid for that full bounded execution window.
-        lockDuration: 180000,
-        lockRenewTime: 60000,
-        stalledInterval: 60000,
-      }
-    );
-
-    worker.on('failed', (job, err) => {
-      console.error(`[BullMQ Worker] Job ${job?.id} failed:`, err.message);
-    });
-  } catch (err) {
-    console.warn('⚠️ BullMQ setup failed. Using in-memory queue fallback:', err.message);
+    return { id };
   }
-} else {
-  console.log('⚡ No REDIS_URL configured. Running with in-memory background queue.');
+  drain() {
+    while (this.running < this.concurrency && this.pending.length) {
+      const id = this.pending.shift(), entry = this.jobs.get(id);
+      this.running++;
+      Promise.resolve().then(() => this.processor(entry.data)).catch((error) => {
+        console.error('Background processing failed:', error.message);
+      }).finally(() => {
+        this.jobs.delete(id); this.running--; this.drain();
+        if (!this.running && !this.pending.length) this.idle.splice(0).forEach((resolve) => resolve());
+      });
+    }
+  }
+  async close() {
+    this.closed = true;
+    if (this.running || this.pending.length) await new Promise((resolve) => this.idle.push(resolve));
+  }
 }
-
-/**
- * Enqueue a processing job
- */
-const enqueueJob = async (jobType, data) => {
-  if (isRedisAvailable && queue) {
-    return queue.add(jobType, data, {
-      attempts: 3,
-      backoff: {
-        type: 'exponential',
-        delay: 2000,
-      },
-      removeOnComplete: 100,
-      removeOnFail: 200,
+const inMemoryQueue = new InMemoryQueue();
+let queue, worker, producer, workerConnection, initialized = false, available = false, closed = false;
+function initQueue() {
+  if (initialized || closed) return;
+  initialized = true;
+  if (!env.REDIS_URL) return;
+  try {
+    // ioredis parses the complete URL, including its logical database and escaped credentials.
+    producer = new Redis(env.REDIS_URL, { maxRetriesPerRequest: 1, enableOfflineQueue: false,
+      connectTimeout: 2000, retryStrategy: (times) => Math.min(times * 500, 5000) });
+    producer.on('ready', () => { available = true; });
+    producer.on('error', () => { available = false; });
+    producer.on('close', () => { available = false; });
+    workerConnection = new Redis(env.REDIS_URL, { maxRetriesPerRequest: null, connectTimeout: 2000 });
+    workerConnection.on('error', () => {});
+    queue = new Queue('careerforge_jobs', { connection: producer });
+    queue.on('error', () => { available = false; });
+    worker = new Worker('careerforge_jobs', (job) => require('../agents/orchestrator').runJob(job.data.jobId), {
+      connection: workerConnection, concurrency: 5, lockDuration: 180000, lockRenewTime: 60000,
     });
+    worker.on('error', () => { available = false; });
+    worker.on('failed', (_job, error) => console.error('Background processing failed:', error.message));
+  } catch (error) { available = false; console.warn('Using local queue:', error.message); }
+}
+async function enqueueJob(jobType, data) {
+  if (closed) { const error = new Error('Server is shutting down'); error.statusCode = 503; throw error; }
+  initQueue();
+  if (available && queue) {
+    let timer;
+    try {
+      return await Promise.race([
+        queue.add(jobType, data, { jobId: String(data.jobId), attempts: 1, removeOnComplete: 100, removeOnFail: 100 }),
+        new Promise((_resolve, reject) => { timer = setTimeout(() => reject(new Error('Queue request timed out')), 2500); }),
+      ]);
+    } catch (_error) { available = false; }
+    finally { clearTimeout(timer); }
   }
-
+  // Worker claims the MongoDB job atomically, preventing double execution after an ambiguous Redis failure.
   return inMemoryQueue.add(jobType, data);
-};
-
-module.exports = {
-  enqueueJob,
-  isRedisAvailable: () => isRedisAvailable,
-};
+}
+async function closeQueue() {
+  closed = true;
+  await inMemoryQueue.close();
+  if (worker) await worker.close();
+  if (queue) await queue.close();
+  producer?.disconnect(); workerConnection?.disconnect();
+  available = false;
+}
+module.exports = { enqueueJob, initQueue, closeQueue, InMemoryQueue, isRedisAvailable: () => available };

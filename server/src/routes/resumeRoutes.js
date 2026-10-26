@@ -4,6 +4,7 @@ const resumeController = require('../controllers/resumeController');
 const { protect } = require('../middlewares/auth');
 const { validate } = require('../middlewares/validate');
 const upload = require('../middlewares/upload');
+const { aiLimiter } = require('../middlewares/rateLimits');
 
 const router = express.Router();
 
@@ -15,15 +16,18 @@ router.get('/', resumeController.listResumes);
 
 router.post(
   '/upload',
+  aiLimiter,
   upload.single('file'),
   resumeController.uploadResume
 );
 
 router.get('/:id', resumeController.getResume);
+router.get('/:id/original', resumeController.downloadOriginal);
 router.delete('/:id', resumeController.deleteResume);
 
 router.post(
   '/:id/tailor',
+  aiLimiter,
   [
     body('targetRole').trim().notEmpty().withMessage('Target role is required'),
     validate,
@@ -36,6 +40,7 @@ router.get('/:id/ats-score', resumeController.getAtsScore);
 
 router.post(
   '/:id/gap-analysis',
+  aiLimiter,
   [
     body('jobDescriptionText').trim().notEmpty().withMessage('Job description text is required'),
     validate,

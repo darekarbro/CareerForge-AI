@@ -61,8 +61,12 @@ api.interceptors.response.use(
         window.location.pathname === '/';
 
       if (!isAuthPage) {
-        localStorage.removeItem('careerforge_auth');
-        window.location.href = '/login';
+        const current = JSON.parse(localStorage.getItem('careerforge_auth') || '{}');
+        if (error.config?.headers?.Authorization === `Bearer ${current.token}`) {
+          window.dispatchEvent(new Event('careerforge:unauthorized'));
+          localStorage.removeItem('careerforge_auth');
+          window.location.href = '/login';
+        }
       }
     }
     return Promise.reject(error);
@@ -70,4 +74,3 @@ api.interceptors.response.use(
 );
 
 export default api;
-

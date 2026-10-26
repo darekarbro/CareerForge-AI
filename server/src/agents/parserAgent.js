@@ -12,7 +12,8 @@ class ParserAgent {
 
     if (type.includes('pdf')) {
       try {
-        const data = await pdfParse(buffer);
+        // Isolate PDF.js byte operations from Node Buffer's shared-view semantics.
+        const data = await pdfParse(new Uint8Array(buffer));
         return data.text || '';
       } catch (err) {
         throw new Error(`PDF text extraction error: ${err.message}`);
@@ -96,6 +97,7 @@ class ParserAgent {
       rawText: text,
       parsedData: parsedResult,
       aiProvider: parsedResult.aiProvider,
+      inputCharacters: ['groq', 'deterministic-fallback'].includes(parsedResult.aiProvider) ? text.length : Math.min(text.length, 8000),
     };
   }
 }

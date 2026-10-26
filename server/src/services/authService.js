@@ -87,15 +87,19 @@ class AuthService {
     const decoded = await this.verifyFirebaseToken(idToken);
     const profile = this.normalizeFirebaseProfile(decoded);
 
-    if (!profile.email) {
-      const error = new Error('Firebase user email is required');
+    if (!profile.uid || !profile.email || decoded.email_verified !== true ||
+        decoded.firebase?.sign_in_provider !== 'google.com') {
+      const error = new Error('A verified Google account is required');
       error.statusCode = 401;
       throw error;
     }
 
-    let user = await User.findOne({ email: profile.email.toLowerCase() });
-    if (!user) {
-      user = await User.findOne({ firebaseUid: profile.uid || '' });
+    let user = await User.findOne({ firebaseUid: profile.uid });
+    if (!user) user = await User.findOne({ email: profile.email });
+    if (user?.firebaseUid && user.firebaseUid !== profile.uid) {
+      const error = new Error('This account is already linked to a different Google identity');
+      error.statusCode = 409;
+      throw error;
     }
 
     if (!user) {
@@ -207,12 +211,42 @@ class AuthService {
   }
 
   async updateProfile(userId, updateData) {
+    const allowed = new Set(['name', 'targetRolePreference']);
+    if (Object.keys(updateData).some((key) => !allowed.has(key))) {
+      const error = new Error('Only name and targetRolePreference can be updated here');
+      error.statusCode = 400;
+      throw error;
+    }
+    for (const [key, value] of Object.entries(updateData)) {
+      if (typeof value !== 'string' || !value.trim() || value.trim().length > 120) {
+        const error = new Error(`${key} must contain between 1 and 120 characters`);
+        error.statusCode = 400;
+        throw error;
+      }
+    }
     const user = await User.findByIdAndUpdate(
       userId,
-      { $set: updateData },
+      { $set: Object.fromEntries(Object.entries(updateData).map(([key, value]) => [key, value.trim()])) },
       { new: true, runValidators: true }
     ).select('-password');
     return user;
+  }
+
+  async changePassword(userId, { currentPassword, newPassword }) {
+    if (typeof currentPassword !== 'string' || typeof newPassword !== 'string' || newPassword.length < 8 || newPassword.length > 128) {
+      const error = new Error('Provide your current password and a new password of 8 to 128 characters');
+      error.statusCode = 400;
+      throw error;
+    }
+    const user = await User.findById(userId).select('+password');
+    if (!user || user.authProvider !== 'local' || !await user.comparePassword(currentPassword)) {
+      const error = new Error('Current password is incorrect');
+      error.statusCode = 401;
+      throw error;
+    }
+    user.password = newPassword;
+    await user.save();
+    return { success: true };
   }
 }
 

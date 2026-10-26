@@ -1,342 +1,118 @@
-# 🛠️ Complete Environment Setup & API Key Acquisition Guide
+# Environment setup
 
-This comprehensive guide walks you through setting up all environment variables for both the **Backend (`server`)** and **Frontend (`client`)** of CareerForge AI, along with step-by-step instructions on **how to obtain all required and optional API keys**.
+Use Node.js 20.19+, 22.13+, or 24+ with npm. Install dependencies in both server and client.
 
----
+## Server
 
-## 📋 Table of Contents
-1. [Quick Summary of Environment Variables](#1-quick-summary-of-environment-variables)
-2. [Client Environment Setup (`client/.env.local`)](#2-client-environment-setup-clientenvlocal)
-3. [Server Environment Setup (`server/.env`)](#3-server-environment-setup-serverenv)
-4. [Step-by-Step: How to Obtain Every API Key & Credential](#4-step-by-step-how-to-obtain-every-api-key--credential)
-   - [A. Google Gemini API Key](#a-google-gemini-api-key-free)
-   - [B. OpenRouter API Key](#b-openrouter-api-key-free--paid-options)
-   - [C. MongoDB Connection URI (Atlas)](#c-mongodb-connection-uri-mongodb-atlas-free)
-   - [D. Cloudinary Storage API Credentials](#d-cloudinary-storage-credentials-free)
-   - [E. Redis Connection URL (Upstash Redis)](#e-redis-connection-url-upstash-redis-free)
-   - [F. JWT Secret Generation](#f-jwt-secret-generation)
-5. [Understanding Fallback Modes (Zero-Config)](#5-understanding-fallback-modes-zero-config)
-6. [Verification & Health Check](#6-verification--health-check)
+Copy server/.env.example to server/.env if you do not already have one. For an existing file, merge the settings you need.
 
----
+### Groq
 
-## 1. Quick Summary of Environment Variables
+Add these settings to server/.env and replace the placeholder with your own key:
 
-| Variable | Scope | Required? | Default / Fallback |
-| :--- | :--- | :--- | :--- |
-| `NEXT_PUBLIC_API_URL` | Client | **Recommended** | `http://localhost:5000/api` |
-| `NEXT_PUBLIC_SOCKET_URL` | Client | **Recommended** | `http://localhost:5000` |
-| `NEXT_PUBLIC_FIREBASE_API_KEY` | Client | **Required for Google login** | Firebase web config |
-| `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN` | Client | **Required for Google login** | Firebase web config |
-| `NEXT_PUBLIC_FIREBASE_PROJECT_ID` | Client | **Required for Google login** | Firebase web config |
-| `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET` | Client | Optional | Firebase web config |
-| `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID` | Client | Optional | Firebase web config |
-| `NEXT_PUBLIC_FIREBASE_APP_ID` | Client | **Required for Google login** | Firebase web config |
-| `PORT` | Server | Optional | `5000` |
-| `NODE_ENV` | Server | Optional | `development` |
-| `CLIENT_URL` | Server | Optional | `http://localhost:3000` |
-| `JWT_SECRET` | Server | **Required in Prod** | Default dev string provided |
-| `FIREBASE_PROJECT_ID` | Server | **Required for Google login** | Firebase service account project |
-| `FIREBASE_CLIENT_EMAIL` | Server | **Required for Google login** | Firebase service account email |
-| `FIREBASE_PRIVATE_KEY` | Server | **Required for Google login** | Firebase service account private key |
-| `MONGODB_URI` | Server | Optional | `mongodb-memory-server` (In-Memory) |
-| `GEMINI_API_KEY` | Server | Optional | Falls back to OpenRouter / Deterministic Rule Engine |
-| `GEMINI_MODEL` | Server | Optional | `gemini-1.5-flash` |
-| `OPENROUTER_API_KEY` | Server | Optional | Falls back to Gemini / Deterministic Rule Engine |
-| `OPENROUTER_MODEL` | Server | Optional | `meta-llama/llama-3.3-70b-instruct:free` |
-| `CLOUDINARY_CLOUD_NAME` | Server | Optional | Local file system (`uploads/`) |
-| `CLOUDINARY_API_KEY` | Server | Optional | Local file system (`uploads/`) |
-| `CLOUDINARY_API_SECRET` | Server | Optional | Local file system (`uploads/`) |
-| `REDIS_URL` | Server | Optional | In-Memory BullMQ fallback worker |
-
----
-
-## 2. Client Environment Setup (`client/.env.local`)
-
-### Step 1: Navigate to the `client` directory
-```bash
-cd client
-```
-
-### Step 2: Create `.env.local`
-You can copy `.env.example` to `.env.local`:
-
-**On Windows (PowerShell):**
-```powershell
-Copy-Item .env.example .env.local
-```
-**On Linux/macOS:**
-```bash
-cp .env.example .env.local
-```
-
-### Step 3: Populate `.env.local`
 ```env
-# URL for Express REST API Gateway
+GROQ_API_KEY=your_groq_api_key_here
+GROQ_MODEL=openai/gpt-oss-120b
+GROQ_TIMEOUT_MS=30000
+```
+
+Restart the backend after changing environment variables. Settings displays Groq as the active provider when configured. Placeholder keys are ignored.
+
+The default is openai/gpt-oss-120b; openai/gpt-oss-20b is an alternative for lower latency. Both support strict structured outputs. Model availability is documented in the [Groq model catalog](https://console.groq.com/docs/models) and [Structured Outputs guide](https://console.groq.com/docs/structured-outputs). Create/manage your key in the [Groq console](https://console.groq.com/keys).
+
+All six AI operations use the same order: Groq → OpenRouter → Gemini → offline fallback. Failed requests, timeouts, invalid JSON and invalid result shapes move to the next configured provider. Cancellation stops the chain. These are server secrets; never add them as NEXT_PUBLIC variables.
+
+### Server settings
+
+| Variable | Default / purpose |
+| --- | --- |
+| PORT | 5000 |
+| NODE_ENV | development; set production for deployed servers |
+| CLIENT_URL | http://localhost:3000; comma-separated exact allowed frontend origins |
+| JWT_SECRET | Development fallback only; production requires a private random secret of at least 32 characters |
+| JWT_EXPIRES_IN | 7d |
+| TRUST_PROXY | Blank by default; set only the trusted proxy hops/subnets for your deployment |
+| AUTH_RATE_LIMIT_MAX | 100 authentication requests per IP per 15 minutes |
+| AI_RATE_LIMIT_MAX | 30 expensive generation requests per account per 15 minutes; an additional IP limit is three times this value |
+| MONGODB_URI | Required in production; development falls back to a temporary MongoDB if absent or unreachable |
+| GROQ_API_KEY | Optional primary AI key |
+| GROQ_MODEL | openai/gpt-oss-120b |
+| GROQ_TIMEOUT_MS | 30000 per Groq attempt |
+| OPENROUTER_API_KEY | Optional next provider |
+| OPENROUTER_MODEL | Choose a model available to your OpenRouter account |
+| GEMINI_API_KEY | Optional next provider |
+| GEMINI_MODEL | gemini-3.8-flash; choose a model available to your Gemini account |
+| AI_PROVIDER_TIMEOUT_MS | 15000 per OpenRouter/Gemini attempt |
+| CLOUDINARY_CLOUD_NAME | Configure together with the Cloudinary key and secret |
+| CLOUDINARY_API_KEY | Backend Cloudinary key |
+| CLOUDINARY_API_SECRET | Backend Cloudinary secret |
+| REDIS_URL | Optional redis:// or rediss:// URI; the database index in the URI is preserved |
+| FIREBASE_PROJECT_ID | Required for Google sign-in; service-account project |
+| FIREBASE_CLIENT_EMAIL | Required for Google sign-in; service-account email |
+| FIREBASE_PRIVATE_KEY | Required for Google sign-in; service-account PEM key with escaped \n newlines |
+
+Generate a production JWT secret locally:
+
+```powershell
+node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"
+```
+
+Put the generated value in JWT_SECRET. The repository's old example/default secrets and placeholder values are rejected in production.
+
+### Other service credentials
+
+- [Firebase console](https://console.firebase.google.com/): enable Google sign-in, configure authorized frontend domains, and obtain the web config and backend service account. The backend requires verified Google identity claims.
+- [MongoDB Atlas](https://www.mongodb.com/cloud/atlas): create a database user and copy the connection URI. Limit network access to the deployment's trusted hosts.
+- [OpenRouter keys](https://openrouter.ai/keys) and [Google AI Studio](https://aistudio.google.com/): optional fallback keys. Select models currently available to those accounts.
+- [Cloudinary console](https://console.cloudinary.com/): copy the cloud name, API key and API secret together.
+- Redis: copy your service's complete Redis connection URL, including TLS scheme and database index.
+
+Without Cloudinary, originals are stored under server/uploads and served through an authenticated, ownership-checked API. New Cloudinary uploads use authenticated delivery and short-lived signed download URLs. Use persistent private storage for a deployed server.
+
+Without Redis, a bounded in-process queue runs background jobs. It is not durable across process restarts. Redis is recommended when job durability is required. Development MongoDB fallback data is temporary; production fails startup rather than falling back.
+
+## Client
+
+Copy client/.env.example to client/.env.local if needed. Merge into an existing file:
+
+```env
 NEXT_PUBLIC_API_URL=http://localhost:5000/api
-
-# URL for Real-Time Socket.IO Server
 NEXT_PUBLIC_SOCKET_URL=http://localhost:5000
-
-# Firebase web config for Google Sign-In
 NEXT_PUBLIC_FIREBASE_API_KEY=your_firebase_web_api_key
 NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
 NEXT_PUBLIC_FIREBASE_PROJECT_ID=your-project-id
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your-project.firebasestorage.app
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=123456789012
-NEXT_PUBLIC_FIREBASE_APP_ID=1:123456789012:web:abcdef123456
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=
+NEXT_PUBLIC_FIREBASE_APP_ID=your_firebase_app_id
 ```
 
-> **Note**: For production deployments (e.g., Vercel), replace `http://localhost:5000` with your deployed backend server URL. Also ensure the Firebase Auth domain is configured for the deployed frontend domain.
+Firebase web configuration is public client configuration. The service-account private key and Groq, OpenRouter, Gemini, Cloudinary and JWT secrets belong only in server/.env.
 
----
+For deployment, use the actual frontend and backend origins. Rebuild/restart the client after changing NEXT_PUBLIC values.
 
-## 3. Server Environment Setup (`server/.env`)
+## Run and verify
 
-### Step 1: Navigate to the `server` directory
-```bash
-cd server
-```
+Start the backend and frontend in separate terminals from the repository root:
 
-### Step 2: Create `.env`
-You can copy `.env.example` to `.env`:
-
-**On Windows (PowerShell):**
 ```powershell
-Copy-Item .env.example .env
-```
-**On Linux/macOS:**
-```bash
-cp .env.example .env
+npm run dev:server
+npm run dev:client
 ```
 
-### Step 3: Populate `.env`
-```env
-# ==============================================================================
-# Server Configuration
-# ==============================================================================
-PORT=5000
-NODE_ENV=development
-CLIENT_URL=http://localhost:3000
-JWT_SECRET=your_super_secret_random_64_char_key_here
+Run validation from the repository root:
 
-# ==============================================================================
-# Firebase Admin (Required for Google Sign-In verification)
-# These values stay on the backend only and come from the Firebase service account JSON.
-# ============================================================================== 
-FIREBASE_PROJECT_ID=your-project-id
-FIREBASE_CLIENT_EMAIL=firebase-adminsdk@your-project.iam.gserviceaccount.com
-FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nYOUR_PRIVATE_KEY_HERE\n-----END PRIVATE KEY-----\n"
-
-# ============================================================================== 
-# AI Provider: OpenRouter (Fallback / Alternative provider)
-# ==============================================================================
-OPENROUTER_API_KEY=sk-or-v1-...your_openrouter_api_key
-OPENROUTER_MODEL=meta-llama/llama-3.3-70b-instruct:free
-
-# ==============================================================================
-# Cloudinary Storage (Leave blank to store uploads in server/uploads/)
-# ==============================================================================
-CLOUDINARY_CLOUD_NAME=your_cloud_name
-CLOUDINARY_API_KEY=your_cloudinary_api_key
-CLOUDINARY_API_SECRET=your_cloudinary_api_secret
-
-# ==============================================================================
-# Redis Queue (Leave blank to use in-memory asynchronous worker)
-# ==============================================================================
-REDIS_URL=rediss://default:your_password@your-redis-host.upstash.io:6379
+```powershell
+npm test
+npm run lint
+npm run build
 ```
 
----
+GET http://localhost:5000/api/health returns 200 when MongoDB is connected and 503 when it is unavailable. Provider configuration is shown in Settings. Configuration status does not prove the remote account has sufficient quota.
 
-## 4. Step-by-Step: How to Obtain Every API Key & Credential
+If a build hits memory limits, set NEXT_BUILD_WORKERS=1 and use Node 24. The final clean verification used Node 24.22.1 with NODE_OPTIONS=--max-old-space-size=512. This optional worker cap does not change normal builds.
 
-### A. Google Gemini API Key (Free)
-Google Gemini provides a generous free tier for developers with high throughput.
+Resume upload, tailoring, gap analysis, question generation and answer evaluation return HTTP 202 with a jobId. The client follows the owned processing-job status/timeline until COMPLETED, FAILED or CANCELLED. A parsed-text event alone does not indicate completion.
 
-1. **Visit Google AI Studio**: Go to [https://aistudio.google.com/](https://aistudio.google.com/).
-2. **Sign In**: Log in using any standard Google account.
-3. **Get API Key**:
-   - Click on the **"Get API key"** button on the top left navigation menu.
-   - Click **"Create API key"**.
-   - Choose **"Create API key in new project"** (or select an existing Google Cloud project).
-4. **Copy the Key**:
-   - Copy the generated key (starts with `AIzaSy...`).
-5. **Paste into `server/.env`**:
-   ```env
-   GEMINI_API_KEY=AIzaSyxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-   GEMINI_MODEL=gemini-1.5-flash
-   ```
+Startup applies compatibility repairs for legacy empty Firebase UIDs, plaintext profile-assigned passwords, duplicate tailored version numbers and inconsistent interview counts. Back up a persistent database before deploying schema changes.
 
----
-
-### B. OpenRouter API Key (Free & Paid Options)
-OpenRouter provides a unified API to access models from Meta (Llama), Anthropic (Claude), Mistral, and others.
-
-1. **Visit OpenRouter**: Go to [https://openrouter.ai/](https://openrouter.ai/).
-2. **Sign Up / Sign In**: Click **Sign In** and connect with Google, GitHub, or Email.
-3. **Navigate to Keys**:
-   - Click on your profile icon in the top right corner and select **"Keys"** (or navigate to [https://openrouter.ai/keys](https://openrouter.ai/keys)).
-4. **Create a Key**:
-   - Click **"Create Key"**.
-   - Give it a descriptive name (e.g. `CareerForge-Local`).
-   - (Optional) Set a credit limit if you added paid balance, or leave default.
-   - Click **"Create"**.
-5. **Copy the Key**:
-   - Copy the key immediately (starts with `sk-or-v1-...`). It will not be shown again.
-6. **Paste into `server/.env`**:
-   ```env
-   OPENROUTER_API_KEY=sk-or-v1-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-   OPENROUTER_MODEL=meta-llama/llama-3.3-70b-instruct:free
-   ```
-
----
-
-### C. MongoDB Connection URI (MongoDB Atlas - Free)
-If you want persistent data storage rather than the default in-memory database:
-
-1. **Visit MongoDB Atlas**: Go to [https://www.mongodb.com/cloud/atlas/register](https://www.mongodb.com/cloud/atlas/register).
-2. **Create an Account / Sign In**.
-3. **Create a Free Cluster**:
-   - Select the **M0 Free** cluster tier.
-   - Select your preferred cloud provider (AWS / Google Cloud) and closest region.
-   - Click **"Create Deployment"**.
-4. **Set Up Security & Credentials**:
-   - **Database User**: Create a username (e.g. `careerforge_user`) and a secure password. *Note down the password!*
-   - **Network Access (IP Whitelist)**: Under **"Network Access"** -> **"IP Access List"**, click **"Add IP Address"** -> choose **"Allow Access from Anywhere"** (`0.0.0.0/0`) for local testing.
-5. **Get Connection String**:
-   - Go to **"Database"** -> Click **"Connect"** next to your cluster.
-   - Choose **"Drivers"** (Node.js).
-   - Copy the connection string format:
-     ```text
-     mongodb+srv://<username>:<password>@cluster0.xxxxx.mongodb.net/?retryWrites=true&w=majority
-     ```
-6. **Replace `<username>` and `<password>` and append database name**:
-   ```env
-   MONGODB_URI=mongodb+srv://careerforge_user:YourStrongPassword123@cluster0.abcde.mongodb.net/careerforge?retryWrites=true&w=majority
-   ```
-
----
-
-### D. Cloudinary Storage Credentials (Free)
-Cloudinary provides free cloud storage for user profile pictures and resume documents.
-
-1. **Visit Cloudinary**: Go to [https://cloudinary.com/users/register_free](https://cloudinary.com/users/register_free).
-2. **Sign Up**: Register for a free account.
-3. **Open the Dashboard**:
-   - Once logged in, go to the **Cloudinary Console Dashboard** ([https://console.cloudinary.com/pm](https://console.cloudinary.com/pm)).
-4. **Locate Product Environment Credentials**:
-   - In the **"Product Environment Credentials"** box on the dashboard, you will find:
-     - **Cloud Name** (e.g. `dxy7abc12`)
-     - **API Key** (e.g. `123456789012345`)
-     - **API Secret** (click the eye icon or "Copy API Secret")
-5. **Paste into `server/.env`**:
-   ```env
-   CLOUDINARY_CLOUD_NAME=dxy7abc12
-   CLOUDINARY_API_KEY=123456789012345
-   CLOUDINARY_API_SECRET=your_cloudinary_api_secret_here
-   ```
-
----
-
-### E. Redis Connection URL (Upstash Redis - Free)
-If you want persistent background jobs with BullMQ instead of the in-memory fallback queue:
-
-1. **Visit Upstash**: Go to [https://upstash.com/](https://upstash.com/).
-2. **Sign In**: Log in with GitHub or Google.
-3. **Create Database**:
-   - Click **"Create Database"** under the **Redis** tab.
-   - Enter a name (e.g., `careerforge-redis`).
-   - Select the region closest to you.
-   - Click **"Create"**.
-4. **Copy Redis URI**:
-   - Scroll down to the **"Connect your database"** section.
-   - Select the **"ioredis"** or **"Node"** tab, or find the **`UPSTASH_REDIS_REST_URL` / `REDIS_URL`**.
-   - Copy the connection string starting with `rediss://...`:
-     ```text
-     rediss://default:xxxxxxxxxxxxxxxx@your-instance.upstash.io:6379
-     ```
-5. **Paste into `server/.env`**:
-   ```env
-   REDIS_URL=rediss://default:xxxxxxxxxxxxxxxx@your-instance.upstash.io:6379
-   ```
-
----
-
-### F. JWT Secret Generation
-The JWT secret is used to cryptographically sign authentication tokens.
-
-You can generate a secure 64-character random hex string directly in your terminal:
-
-**Using Node.js (cross-platform):**
-```bash
-node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
-```
-
-**Using OpenSSL (Linux / Git Bash / macOS):**
-```bash
-openssl rand -hex 32
-```
-
-Copy the resulting string and paste it into `server/.env`:
-```env
-JWT_SECRET=4a8f9c2d1e0b5a7c3e9f8a1d2c4b6e8a0f2d4b6c8e0a2d4f6a8c0e2b4d6f8a0c
-```
-
----
-
-## 5. Understanding Fallback Modes (Zero-Config)
-
-CareerForge AI is resiliently built to work out of the box even without external accounts:
-
-```
-┌─────────────────────────┬───────────────────────────┬───────────────────────────────────────────┐
-│ Feature                 │ Provided Cloud Service    │ Automatic Fallback if Left Empty          │
-├─────────────────────────┼───────────────────────────┼───────────────────────────────────────────┤
-│ AI Parsing & Tailoring  │ Google Gemini / OpenRouter│ Deterministic Rule & STAR Fallback Engine │
-│ Database Persistence    │ MongoDB Atlas Cloud       │ In-Memory MongoDB (`mongodb-memory-server`)│
-│ File & Resume Uploads   │ Cloudinary CDN            │ Local Disk (`server/uploads/`)            │
-│ Task & Pipeline Queues  │ Upstash / Redis BullMQ    │ In-Memory Microtask Job Dispatcher        │
-└─────────────────────────┴───────────────────────────┴───────────────────────────────────────────┘
-```
-
----
-
-## 6. Verification & Health Check
-
-To verify that your environment variables and services are configured correctly:
-
-### 1. Start Server
-```bash
-cd server
-npm run dev
-```
-
-### 2. Start Client
-```bash
-cd client
-npm run dev
-```
-
-### 3. Check System Health Endpoint
-Open your browser or make a request to the backend health endpoint:
-```text
-http://localhost:5000/api/health
-```
-
-You should receive a JSON response showing the active environment, database connectivity, and provider statuses:
-```json
-{
-  "success": true,
-  "data": {
-    "status": "healthy",
-    "timestamp": "2026-08-30T07:30:00.000Z",
-    "environment": "development",
-    "services": {
-      "database": "connected (mongodb-memory-server / atlas)",
-      "queue": "ready (in-memory / redis)",
-      "aiProvider": "gemini / openrouter / deterministic"
-    }
-  }
-}
-```
+See BUG_FIX_REPORT.md for the 52 audit resolutions and validation scope.
