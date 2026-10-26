@@ -3,10 +3,11 @@ import { useRouter } from 'next/router';
 import Link from 'next/link';
 import ProtectedRoute from '../../../components/ProtectedRoute/ProtectedRoute';
 import AppShell from '../../../components/AppShell/AppShell';
-import ResumeDiffView from '../../../components/ResumeDiffView/ResumeDiffView';
+import ReviewEditor from '../../../components/ResumeEditor/ReviewEditor';
 import api from '../../../services/api';
 import { submitProcessingRequest } from '../../../services/processing';
-import { Sparkles, Download, ArrowLeft, Loader2, CheckCircle2, FileText } from 'lucide-react';
+import { useAuthStore } from '../../../store/authStore';
+import { Sparkles, ArrowLeft, Loader2 } from 'lucide-react';
 
 const supportedRoles = [
   'Fullstack Developer',
@@ -21,7 +22,8 @@ const supportedRoles = [
 
 export default function ResumeTailorPage() {
   const router = useRouter();
-  const { id } = router.query;
+  const { id, version } = router.query;
+  const userId = useAuthStore((state) => state.user?.id || state.user?._id);
 
   const [resume, setResume] = useState(null);
   const [selectedRole, setSelectedRole] = useState('Fullstack Developer');
@@ -33,14 +35,23 @@ export default function ResumeTailorPage() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    if (!id) return;
-    api.get(`/resumes/${id}`)
+    if (!id || !userId) return;
+    const controller = new AbortController(); setLoading(true); setResume(null); setTailoredResult(null);
+    api.get(`/resumes/${id}`, { signal: controller.signal })
       .then((res) => {
-        setResume(res.data.data);
+        if (!controller.signal.aborted) setResume(res.data.data);
       })
-      .catch((err) => console.error(err))
-      .finally(() => setLoading(false));
-  }, [id]);
+      .catch((err) => { if (!controller.signal.aborted) setError(err.response?.data?.message || 'Unable to load your resume'); })
+      .finally(() => { if (!controller.signal.aborted) setLoading(false); });
+    return () => controller.abort();
+  }, [id, userId]);
+  useEffect(() => {
+    if (!id || !version) return;
+    const controller = new AbortController();
+    api.get(`/resumes/${id}/versions/${version}`, { signal: controller.signal }).then((response) => { if (!controller.signal.aborted) setTailoredResult(response.data.data); })
+      .catch((failure) => { if (!controller.signal.aborted) setError(failure.response?.data?.message || 'Unable to load this version'); });
+    return () => controller.abort();
+  }, [id, version, userId]);
 
   const handleTailorSubmit = async (e) => {
     e.preventDefault();
@@ -54,7 +65,7 @@ export default function ResumeTailorPage() {
         targetRole: finalRole,
         jobDescriptionText: jdText,
       });
-      setTailoredResult(res.data.data.tailoredResume);
+      if (userId === (useAuthStore.getState().user?.id || useAuthStore.getState().user?._id)) setTailoredResult(res.data.data.tailoredResume);
     } catch (err) {
       setError(err.response?.data?.message || err.message || 'Unable to tailor this resume');
     } finally {
@@ -62,7 +73,7 @@ export default function ResumeTailorPage() {
     }
   };
 
-  if (loading) {
+  if (loading || resume && String(resume.owner) !== userId) {
     return (
       <ProtectedRoute>
         <AppShell>
@@ -92,29 +103,13 @@ export default function ResumeTailorPage() {
                 <ArrowLeft className="w-3.5 h-3.5" /> Back to Resume Details
               </Link>
               <h1 className="font-headline font-black text-3xl uppercase tracking-tight text-[#1a1a1a]">
-                Role-Aware Resume Tailor
+                Tailor your resume
               </h1>
               <p className="text-xs text-gray-600 font-medium">
                 Build a detailed resume with clear achievements, project contributions and relevant skills from your experience.
               </p>
             </div>
 
-            {tailoredResult && (
-             <button
-               type="button"
-               onClick={async () => {
-                 try {
-                   await api.download(`/resumes/${id}/download/${tailoredResult._id}`, `tailored_resume_${tailoredResult._id}.pdf`);
-                 } catch (err) {
-                   setError(err.response?.data?.message || 'Unable to download this resume');
-                 }
-               }}
-               className="brutal-btn-yellow px-4 py-2 text-xs flex items-center gap-2"
-             >
-               <Download className="w-4 h-4" />
-               <span>Download Tailored PDF</span>
-             </button>
-            )}
           </div>
 
           {!tailoredResult ? (
@@ -196,7 +191,7 @@ export default function ResumeTailorPage() {
             <div className="space-y-6">
               <div className="flex items-center justify-between p-3 border-2 border-[#1a1a1a] bg-white">
                 <span className="font-headline font-black text-xs uppercase text-[#0055ff]">
-                  Tailoring Complete • Served by [{tailoredResult.aiProvider}]
+                  Resume ready for your review
                 </span>
                 <button
                   onClick={() => setTailoredResult(null)}
@@ -206,13 +201,8 @@ export default function ResumeTailorPage() {
                 </button>
               </div>
 
-              <ResumeDiffView
-                diff={tailoredResult.diffFromOriginal}
-                originalResume={resume}
-                tailoredContent={tailoredResult.tailoredContent}
-                targetRole={tailoredResult.targetRole}
-                improvementSuggestions={tailoredResult.improvementSuggestions}
-              />
+              <ReviewEditor key={tailoredResult._id} version={tailoredResult} onSaved={setTailoredResult} />
+              {tailoredResult.sourceRevision < (resume?.contentRevision || 1) && <p role="status" className="p-4 bg-amber-50 text-sm">This version uses original resume revision {tailoredResult.sourceRevision}. The original is now revision {resume.contentRevision}. Tailor again to include your latest verified facts.</p>}
             </div>
           )}
         </div>

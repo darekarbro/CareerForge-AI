@@ -81,4 +81,4 @@ async function closeQueue() {
   producer?.disconnect(); workerConnection?.disconnect();
   available = false;
 }
-module.exports = { enqueueJob, initQueue, closeQueue, InMemoryQueue, isRedisAvailable: () => available };
+module.exports = { enqueueJob, enqueueRecovery: (type, data) => inMemoryQueue.add(type, data), initQueue, closeQueue, InMemoryQueue, isRedisAvailable: () => available };

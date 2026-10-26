@@ -14,6 +14,7 @@ const env = {
   MONGODB_URI: trimEnv(process.env.MONGODB_URI) || '',
   JWT_SECRET: trimEnv(process.env.JWT_SECRET) || 'careerforge-default-dev-secret-key-change-in-prod',
   JWT_EXPIRES_IN: trimEnv(process.env.JWT_EXPIRES_IN) || '7d',
+  JOB_PAYLOAD_SECRET: trimEnv(process.env.JOB_PAYLOAD_SECRET) || '',
 
   // Firebase Admin
   FIREBASE_PROJECT_ID: trimEnv(process.env.FIREBASE_PROJECT_ID) || '',

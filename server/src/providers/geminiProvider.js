@@ -44,6 +44,8 @@ class GeminiProvider extends BaseProvider {
     );
 
     const text = response.data?.candidates?.[0]?.content?.parts?.[0]?.text;
+    const scope = require('../services/jobContext').context.getStore();
+    if (scope && response.data?.usageMetadata) scope.providerUsage = { inputTokens: response.data.usageMetadata.promptTokenCount, outputTokens: response.data.usageMetadata.candidatesTokenCount };
     if (!text) {
       throw new Error('Empty response from Google Gemini API');
     }
@@ -130,8 +132,8 @@ Return JSON:
     return this._callGemini(prompt);
   }
 
-  async generateQuestions({ resumeData, targetRole, jobDescriptionText, count = 5 }) {
-    const prompt = `Generate ${count} interview questions for role "${targetRole}".
+  async generateQuestions({ resumeData, targetRole, jobDescriptionText, count = 5, difficulty = 'Medium', topicFocus = '' }) {
+    const prompt = `Generate ${count} ${difficulty} difficulty interview questions for role "${targetRole}". Set every difficulty to ${difficulty}. ${topicFocus ? 'Focus on ' + topicFocus + ' with follow-up questions about reasoning and failure cases.' : ''}
 Candidate Skills: ${(resumeData?.skills?.all || []).join(', ')}
 Job Description: ${jobDescriptionText || 'No job description provided'}
 

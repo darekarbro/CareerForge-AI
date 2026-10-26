@@ -3,192 +3,48 @@ import { useRouter } from 'next/router';
 import Link from 'next/link';
 import ProtectedRoute from '../../components/ProtectedRoute/ProtectedRoute';
 import AppShell from '../../components/AppShell/AppShell';
-import api from '../../services/api';
+import useOwnedResource from '../../hooks/useOwnedResource';
+import usePersistentDraft from '../../hooks/usePersistentDraft';
 import { submitProcessingRequest } from '../../services/processing';
-import { Mic, Sparkles, FileText, ArrowRight, Loader2, Award } from 'lucide-react';
-
-const supportedRoles = [
-  'Fullstack Developer',
-  'Software Development Engineer (SDE)',
-  'Backend Engineer',
-  'Frontend Engineer',
-  'Data / ML Engineer',
-  'DevOps & Cloud Engineer',
-  'Product Manager',
-];
-
+const empty = { resumeId: '', targetRole: 'Fullstack Developer', workspaceId: '', jobDescriptionId: '', count: 5, difficulty: 'Medium', timeLimitSeconds: 0, feedbackMode: 'instant', topicFocus: '' };
 export default function InterviewSetupPage() {
-  const router = useRouter();
-  const [resumes, setResumes] = useState([]);
-  const [selectedResumeId, setSelectedResumeId] = useState('');
-  const [targetRole, setTargetRole] = useState('Fullstack Developer');
-  const [questionCount, setQuestionCount] = useState(5);
-  const [loading, setLoading] = useState(true);
-  const [isStarting, setIsStarting] = useState(false);
-  const [error, setError] = useState('');
-
+  const router = useRouter(), resumes = useOwnedResource('/resumes'), workspaces = useOwnedResource('/workspaces'), descriptions = useOwnedResource('/interview/descriptions');
+  const draft = usePersistentDraft('interview-setup', { userId: resumes.userId, revision: 0, value: empty });
+  const [starting, setStarting] = useState(false), [error, setError] = useState('');
+  const list = (resumes.data || []).filter((item) => item.processingStatus === 'COMPLETED');
   useEffect(() => {
-    api.get('/resumes')
-      .then((res) => {
-        const list = (res.data.data || []).filter((resume) => resume.processingStatus === 'COMPLETED');
-        setResumes(list);
-        if (list.length > 0) {
-          setSelectedResumeId(list[0]._id);
-        }
-      })
-      .catch((err) => console.error(err))
-      .finally(() => setLoading(false));
-  }, []);
-
-  const handleStartSession = async (e) => {
-    e.preventDefault();
-    if (!selectedResumeId) return;
-
-    setIsStarting(true);
-    setError('');
-    try {
-      const res = await submitProcessingRequest('/interview/sessions', {
-        resumeId: selectedResumeId,
-        targetRole,
-        count: questionCount,
-      });
-
-      const { session } = res.data.data;
-      router.push(`/interview/session/${session._id}`);
-    } catch (err) {
-      setError(err.response?.data?.message || err.message || 'Unable to generate interview questions');
-      setIsStarting(false);
-    }
+    if (!draft.ready || !router.query.workspace || !workspaces.data) return;
+    const item = workspaces.data.find((entry) => entry._id === router.query.workspace);
+    if (item && draft.value.workspaceId !== item._id) draft.change({ ...draft.value, workspaceId: item._id, resumeId: item.resumeId || '', targetRole: item.title, jobDescriptionId: item.jobDescriptionId || '' });
+  }, [draft, router.query.workspace, workspaces.data]);
+  const field = (key, value) => draft.change({ ...draft.value, [key]: value });
+  const chooseWorkspace = (id) => {
+    const item = workspaces.data?.find((entry) => entry._id === id);
+    draft.change({ ...draft.value, workspaceId: id, ...(item ? { resumeId: item.resumeId || '', targetRole: item.title, jobDescriptionId: item.jobDescriptionId || '' } : {}) });
   };
-
-  return (
-    <ProtectedRoute>
-      <AppShell>
-        <div className="space-y-8 max-w-3xl mx-auto">
-          {error && <p role="alert" className="p-3 border-2 border-red-800 bg-red-50 text-red-900 text-sm">{error}</p>}
-          {/* Header */}
-          <div className="p-6 border-3 border-[#1a1a1a] bg-[#0055ff] text-white shadow-brutal flex flex-wrap items-center justify-between gap-4">
-            <div>
-              <span className="text-[10px] font-black uppercase tracking-wider text-[#ffcc00]">
-                Interactive Q&A Simulation
-              </span>
-              <h1 className="font-headline font-black text-2xl sm:text-3xl uppercase">
-                Mock Interview Setup
-              </h1>
-              <p className="text-xs text-blue-100 font-medium mt-1">
-                Configure your role persona to synthesize resume-aware technical & behavioral questions.
-              </p>
-            </div>
-            <div className="p-3 bg-white border-2 border-[#1a1a1a] text-[#1a1a1a] shadow-brutal">
-              <Mic className="w-6 h-6 text-[#0055ff]" />
-            </div>
-          </div>
-
-          {resumes.length === 0 && !loading ? (
-            <div className="brutal-card p-8 text-center space-y-4">
-              <FileText className="w-10 h-10 mx-auto text-gray-400" />
-              <h3 className="font-headline font-black text-xl uppercase text-[#1a1a1a]">
-                No Completed Resume Found
-              </h3>
-              <p className="text-xs text-gray-600 max-w-sm mx-auto">
-                Please upload a resume first so the Generator Agent can synthesize personalized questions tailored to your skills.
-              </p>
-              <Link href="/resume/upload" className="brutal-btn-primary px-5 py-2.5 text-xs inline-flex items-center gap-2">
-                <span>Upload Resume Now</span>
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-            </div>
-          ) : (
-            <div className="brutal-card p-6 border-3 border-[#1a1a1a]">
-              <form onSubmit={handleStartSession} className="space-y-6">
-                {/* Select Target Role */}
-                <div>
-                  <label className="block font-headline font-bold text-xs uppercase text-[#1a1a1a] mb-2">
-                    1. Choose Interview Target Role
-                  </label>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
-                    {supportedRoles.map((role) => (
-                      <button
-                        type="button"
-                        key={role}
-                        onClick={() => setTargetRole(role)}
-                        className={`p-3 border-2 font-headline font-black text-xs uppercase text-left transition-all ${
-                          targetRole === role
-                            ? 'bg-[#ffcc00] border-[#1a1a1a] shadow-brutal translate-x-0.5'
-                            : 'bg-white border-[#1a1a1a] hover:bg-[#faf7f2]'
-                        }`}
-                      >
-                        {role}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Select Base Resume */}
-                <div>
-                  <label className="block font-headline font-bold text-xs uppercase text-[#1a1a1a] mb-1">
-                    2. Select Resume for Personalization
-                  </label>
-                  <select
-                    value={selectedResumeId}
-                    onChange={(e) => setSelectedResumeId(e.target.value)}
-                    className="brutal-input w-full text-xs font-bold"
-                  >
-                    {resumes.map((r) => (
-                      <option key={r._id} value={r._id}>
-                        {r.title} (ATS Score: {r.atsScore?.score || 0}%)
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Number of Questions */}
-                <div>
-                  <label className="block font-headline font-bold text-xs uppercase text-[#1a1a1a] mb-1">
-                    3. Question Count
-                  </label>
-                  <div className="flex gap-3">
-                    {[3, 5, 8].map((count) => (
-                      <button
-                        key={count}
-                        type="button"
-                        onClick={() => setQuestionCount(count)}
-                        className={`px-4 py-2 border-2 font-headline font-black text-xs uppercase ${
-                          questionCount === count
-                            ? 'bg-[#1a1a1a] text-white border-[#1a1a1a] shadow-brutal'
-                            : 'bg-white border-[#1a1a1a] hover:bg-[#faf7f2]'
-                        }`}
-                      >
-                        {count} Questions
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Submit Action */}
-                <button
-                  type="submit"
-                  disabled={isStarting || !selectedResumeId}
-                  className="brutal-btn-primary w-full py-4 text-xs sm:text-sm flex items-center justify-center gap-2 disabled:opacity-50"
-                >
-                  {isStarting ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin text-[#ffcc00]" />
-                      <span>Generator Agent Synthesizing Question Bank...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles className="w-4 h-4" />
-                      <span>Launch Live Mock Interview Session</span>
-                      <ArrowRight className="w-4 h-4" />
-                    </>
-                  )}
-                </button>
-              </form>
-            </div>
-          )}
-        </div>
-      </AppShell>
-    </ProtectedRoute>
-  );
+  const start = async (event) => {
+    event.preventDefault(); if (starting) return;
+    setStarting(true); setError('');
+    const { workspaceId, ...input } = draft.value;
+    try {
+      const response = await submitProcessingRequest(workspaceId ? '/workspaces/' + workspaceId + '/interview' : '/interview/sessions', input);
+      draft.discard(); router.push('/interview/session/' + response.data.data.session._id);
+    } catch (failure) { setError(failure.response?.data?.message || failure.message || 'Unable to start this interview'); setStarting(false); }
+  };
+  return <ProtectedRoute><AppShell><div className="space-y-6 max-w-3xl mx-auto"><h1 className="text-3xl font-bold">Interview practice</h1><p className="text-sm">Choose a saved job or practise for a role. Your setup is kept while you navigate.</p>
+    {resumes.loading ? <p role="status">Loading resumes…</p> : resumes.error ? <p role="alert">{resumes.error}</p> : !list.length ? <p className="brutal-card p-6">Add a resume to personalise your questions. <Link href="/profile" className="underline">Build your profile</Link> or <Link href="/resume/upload" className="underline">upload a resume</Link>.</p> : draft.ready && <form onSubmit={start} className="brutal-card p-6 grid sm:grid-cols-2 gap-5">
+      {error && <p role="alert" className="sm:col-span-2">{error}</p>}
+      <label className="text-sm font-semibold sm:col-span-2">Saved job workspace<select className="brutal-input block w-full mt-1" value={draft.value.workspaceId} onChange={(event) => chooseWorkspace(event.target.value)}><option value="">Practise without a workspace</option>{(workspaces.data || []).map((item) => <option key={item._id} value={item._id}>{item.title} at {item.company}</option>)}</select></label>
+      <label className="text-sm font-semibold">Target role<input required disabled={Boolean(draft.value.workspaceId)} maxLength={120} value={draft.value.targetRole} onChange={(event) => field('targetRole', event.target.value)} className="brutal-input block w-full mt-1" /></label>
+      <label className="text-sm font-semibold">Resume<select required disabled={Boolean(draft.value.workspaceId)} className="brutal-input block w-full mt-1" value={draft.value.resumeId} onChange={(event) => field('resumeId', event.target.value)}><option value="">Choose a resume</option>{list.map((item) => <option key={item._id} value={item._id}>{item.title}</option>)}</select></label>
+      {!draft.value.workspaceId && <label className="text-sm font-semibold sm:col-span-2">Saved job description (optional)<select value={draft.value.jobDescriptionId} onChange={(event) => field('jobDescriptionId', event.target.value)} className="brutal-input block w-full mt-1"><option value="">General role practice</option>{(descriptions.data || []).map((item) => <option key={item._id} value={item._id}>{item.title}</option>)}</select></label>}
+      <label className="text-sm font-semibold">Difficulty<select className="brutal-input block w-full mt-1" value={draft.value.difficulty} onChange={(event) => field('difficulty', event.target.value)}>{['Easy', 'Medium', 'Hard'].map((item) => <option key={item}>{item}</option>)}</select></label>
+      <label className="text-sm font-semibold">Questions<select className="brutal-input block w-full mt-1" value={draft.value.count} onChange={(event) => field('count', Number(event.target.value))}>{[3, 5, 8, 10].map((item) => <option key={item} value={item}>{item} questions</option>)}</select></label>
+      <label className="text-sm font-semibold">Practice timer per question<select className="brutal-input block w-full mt-1" value={draft.value.timeLimitSeconds} onChange={(event) => field('timeLimitSeconds', Number(event.target.value))}>{[0, 60, 120, 180, 300].map((item) => <option key={item} value={item}>{item ? item / 60 + ' minutes' : 'Untimed'}</option>)}</select></label>
+      <label className="text-sm font-semibold">Feedback<select className="brutal-input block w-full mt-1" value={draft.value.feedbackMode} onChange={(event) => field('feedbackMode', event.target.value)}><option value="instant">After each answer</option><option value="end">After completing the session</option></select></label>
+      <label className="text-sm font-semibold sm:col-span-2">Focus topic (optional)<input maxLength={150} className="brutal-input block w-full mt-1" value={draft.value.topicFocus} onChange={(event) => field('topicFocus', event.target.value)} placeholder="e.g. API design, debugging or leadership" /></label>
+      <p className="text-sm sm:col-span-2">The practice timer keeps running when you switch questions or refresh. It reminds you when time is up; you choose when to submit.</p>
+      <button disabled={starting || !draft.value.resumeId} className="brutal-btn-primary sm:col-span-2 px-4 py-3 text-sm disabled:opacity-40">{starting ? 'Preparing questions… You can return through Activity.' : 'Start practice'}</button>
+    </form>}
+  </div></AppShell></ProtectedRoute>;
 }

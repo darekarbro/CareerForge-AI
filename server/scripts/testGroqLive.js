@@ -81,7 +81,7 @@ for (const provider of [factory.openRouter, factory.gemini, factory.deterministi
 const execute = factory.execute.bind(factory);
 factory.execute = async (action, params, onAttempt) => {
   if (Number.isFinite(quota?.remaining) && quota.remaining < (action === 'tailorResume' ? 6000 : 3000) && quota.resetAt > Date.now()) {
-    const pause = Math.min(65000, quota.resetAt - Date.now() + 1000);
+    const pause = Math.min(60000, quota.resetAt - Date.now() + 1000);
     output({ quotaPauseSeconds: Math.ceil(pause / 1000), nextAction: action });
     await sleep(pause);
   }
@@ -279,12 +279,18 @@ async function main() {
   assert(Number.isFinite(gap.gapAnalysis.matchScore));
   assert([...gap.gapAnalysis.mustHaveMissing, ...gap.gapAnalysis.niceToHaveMissing].some((item) => /Docker|Kubernetes/i.test(item.skill)));
   check('Groq JD gap analysis and saved report', { matchScore: gap.gapAnalysis.matchScore });
+  const rewritten = await successfulJob(await request('POST', '/api/resumes/' + resumeId + '/versions/' + version._id + '/regenerate', { section: 'projects', index: 0 }));
+  assert.equal(rewritten.aiProvider, 'groq'); assert.equal(rewritten.section, 'projects');
+  assert.equal(rewritten.value.title, version.sourceContent.projects[0].title);
+  check('Groq scoped project rewrite retains the original project identity');
 
   const generated = await successfulJob(await request('POST', '/api/interview/sessions', {
     resumeId, targetRole: 'Backend Engineer', jobDescriptionId: gap.gapAnalysis.jobDescriptionId, count: 3,
+    difficulty: 'Hard', topicFocus: 'API design', timeLimitSeconds: 120,
   }));
   assert.equal(generated.aiProvider, 'groq'); assert.equal(generated.session.aiProvider, 'groq');
   assert.equal(generated.questions.length, 3);
+  assert(generated.questions.every((question) => question.difficulty === 'Hard'));
   assert.equal(new Set(generated.questions.map((question) => question.questionText)).size, 3);
   check('Groq interview questions and suggested answers', { questions: generated.questions.length });
   for (const question of generated.questions) {
@@ -298,6 +304,14 @@ async function main() {
   assert.equal(session.data.data.session.status, 'completed');
   assert.equal(session.data.data.session.answeredCount, 3);
   check('Groq answer evaluation, feedback persistence and session completion', { answers: 3, overallScore: session.data.data.session.overallScore });
+  const improved = await successfulJob(await request('POST', '/api/interview/sessions/' + generated.session._id + '/questions/' + generated.questions[0]._id + '/answer', {
+    retry: true, userAnswer: 'I first define the API requirements, schema and error contract. I compare alternatives and failure cases, implement authenticated routes with validation, then write contract tests, measure latency and error rates, and plan rollback and recovery before release.',
+  }));
+  assert.equal(improved.aiProvider, 'groq'); assert.equal(improved.session.answeredCount, 3); assert.equal(improved.question.attempts.length, 1);
+  check('Groq improved-answer retry preserves the session question count');
+  const usage = await request('GET', '/api/processing-jobs/usage');
+  assert(usage.data.data.providerTokenReports > 0); assert(usage.data.data.inputTokens > 0);
+  check('Groq token usage is visible without storing request text in metrics');
   for (const id of jobIds) {
     const timeline = await request('GET', '/api/processing-jobs/' + id + '/timeline');
     assert(timeline.data.data.some((event) => event.step === 'job_completed'));

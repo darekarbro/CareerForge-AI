@@ -6,7 +6,7 @@ import { useAuthStore } from '../../store/authStore';
 import NotificationsDrawer from './NotificationsDrawer';
 import { useNotifications } from '../../hooks/useNotifications';
 
-export default function Navbar({ onToggleSidebar }) {
+export default function Navbar({ onToggleSidebar, sidebarOpen = false }) {
   const router = useRouter();
   const { user, logout, isAuthenticated } = useAuthStore();
   const [showNotifications, setShowNotifications] = useState(false);
@@ -18,6 +18,7 @@ export default function Navbar({ onToggleSidebar }) {
         <div className="flex items-center gap-4">
           <button
             onClick={onToggleSidebar}
+            aria-label="Toggle navigation" aria-expanded={sidebarOpen} aria-controls="main-navigation"
             className="lg:hidden p-1.5 border-2 border-[#1a1a1a] bg-[var(--surface-elevated)] hover:bg-[#ffcc00] transition-colors"
           >
             <Menu className="w-5 h-5 text-[var(--text-main)]" />
@@ -32,7 +33,7 @@ export default function Navbar({ onToggleSidebar }) {
                 CareerForge<span className="text-[#0055ff]">.AI</span>
               </span>
               <span className="hidden sm:inline-block ml-2 px-1.5 py-0.2 bg-[#ffcc00] border border-[#1a1a1a] text-[10px] font-black uppercase text-[#1a1a1a]">
-                Bauhaus Engine
+                Career workspace
               </span>
             </div>
           </Link>

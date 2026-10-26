@@ -49,7 +49,7 @@ class GeneratorAgent {
   /**
    * Generate role-aware & resume-aware mock interview questions
    */
-  async generateQuestions({ resumeData, targetRole, jobDescriptionText, count = 5, jobId, userId }) {
+  async generateQuestions({ resumeData, targetRole, jobDescriptionText, count = 5, difficulty = 'Medium', topicFocus = '', jobId, userId }) {
     const startTime = Date.now();
 
     await monitoringAgent.logEvent({
@@ -63,7 +63,7 @@ class GeneratorAgent {
 
     const questions = await providerFactory.execute(
       'generateQuestions',
-      { resumeData, targetRole, jobDescriptionText, count },
+      { resumeData, targetRole, jobDescriptionText, count, difficulty, topicFocus },
       (providerName) => {
         monitoringAgent.logEvent({
           jobId,

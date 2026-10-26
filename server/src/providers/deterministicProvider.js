@@ -151,7 +151,7 @@ class DeterministicProvider extends BaseProvider {
     };
   }
 
-  async generateQuestions({ resumeData = {}, targetRole = 'Fullstack Developer', jobDescriptionText = '', count = 5 }) {
+  async generateQuestions({ resumeData = {}, targetRole = 'Fullstack Developer', jobDescriptionText = '', count = 5, difficulty = 'Medium', topicFocus = '' }) {
     if (!Number.isInteger(count) || count < 1 || count > 10) throw new Error('Question count must be an integer from 1 to 10');
     const topics = {
       sde: ['algorithm complexity', 'data structures', 'testing edge cases', 'concurrency', 'system design', 'code review', 'debugging', 'trade-offs', 'reliability', 'API design'],
@@ -162,16 +162,16 @@ class DeterministicProvider extends BaseProvider {
       devops: ['deployment rollbacks', 'infrastructure as code', 'container security', 'monitoring', 'incident response', 'CI/CD', 'secrets management', 'capacity planning', 'disaster recovery', 'networking'],
       product: ['product discovery', 'success metrics', 'roadmap prioritization', 'user research', 'A/B testing', 'stakeholder alignment', 'trade-offs', 'delivery risks', 'launch planning', 'feedback analysis'],
     }[roleId(targetRole)];
-    const candidates = [...extractSkills(jobDescriptionText), ...(resumeData.skills?.all || []), ...topics];
+    const candidates = topicFocus ? Array.from({ length: count }, (_, index) => topicFocus + [' fundamentals', ' implementation', ' trade-offs', ' debugging', ' testing', ' scaling', ' security', ' failure recovery', ' design review', ' real examples'][index]) : [...extractSkills(jobDescriptionText), ...(resumeData.skills?.all || []), ...topics];
     const selected = [...new Set(candidates)].slice(0, count), project = resumeData.projects?.[0]?.title;
     return selected.map((topic, index) => {
       const behavioral = index === 2 || index === 6;
       return {
         order: index + 1, category: behavioral ? 'behavioral' : index % 4 === 3 ? 'system_design' : 'role_specific',
-        topic, difficulty: index % 4 === 3 ? 'Hard' : 'Medium',
+        topic: topicFocus || topic, difficulty,
         questionText: behavioral
           ? 'Describe how you handled a challenge involving ' + topic + (project ? ' in ' + project : ' in a project, course or job') + '. Explain your decisions and actual outcome.'
-          : 'For a ' + targetRole + ' role, how would you approach ' + topic + '? Explain constraints, trade-offs, validation and failure cases.',
+          : 'For a ' + targetRole + ' role, how would you approach ' + topic + '? ' + (difficulty === 'Easy' ? 'Explain the basic steps and give a simple example.' : difficulty === 'Hard' ? 'Evaluate production scale constraints, competing trade-offs, validation and failure recovery.' : 'Explain constraints, trade-offs, validation and failure cases.'),
         suggestedAnswer: behavioral
           ? 'Use a real example. Describe the situation and goal, your own actions, alternatives you considered, and the actual result. State what you learned without inventing metrics.'
           : 'Define the goal and constraints for ' + topic + '. Compare practical alternatives, explain your chosen approach and its trade-offs, then discuss validation, monitoring and failure recovery.',

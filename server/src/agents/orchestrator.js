@@ -7,6 +7,8 @@ class Orchestrator {
       switch (job.jobType) {
         case 'resume_parse': return require('../services/resumeService').processUpload(execution);
         case 'resume_tailor': return require('../services/tailoringService').processTailoring(execution);
+        case 'section_rewrite': return require('../services/sectionService').processSection(execution);
+        case 'ats_score': return require('../services/assessmentService').processAssessment(execution);
         case 'gap_analysis': return require('../services/gapAnalysisService').processAnalysis(execution);
         case 'question_generation': return require('../services/interviewService').processQuestions(execution);
         case 'answer_evaluation': return require('../services/interviewService').processAnswer(execution);
