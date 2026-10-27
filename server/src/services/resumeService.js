@@ -85,6 +85,9 @@ class ResumeService {
     }
   }
   async uploadAndProcessResume({ file, userId, title }) {
+    const account = await require('../models/User').findOne({ _id: userId, deleting: { $ne: true } });
+    if (!account) throw failure('Account unavailable', 401);
+    if (!account.emailVerifiedAt) throw Object.assign(failure('Verify your email before starting AI processing', 403), { code: 'EMAIL_UNVERIFIED' });
     const fileType = file.originalname.split('.').pop().toLowerCase();
     if (!['pdf', 'docx', 'txt'].includes(fileType)) throw failure('Unsupported resume file type', 415);
     const upload = await uploadFile(file.buffer, { filename: file.originalname,
@@ -94,8 +97,10 @@ class ResumeService {
       resume = await Resume.create({ owner: userId, title: title || file.originalname.replace(/\.[^/.]+$/, ''),
         originalFileName: file.originalname, originalFileStorage: upload.storage, fileType, processingStatus: 'PENDING' });
     } catch (error) { await deleteFile({ originalFileStorage: upload.storage }); throw error; }
-    const job = await createJob({ userId, jobType: 'resume_parse', inputRef: { resumeId: resume._id,
-      rawInput: { fileBuffer: file.buffer.toString('base64'), fileType } } });
+    let job;
+    try { job = await createJob({ userId, jobType: 'resume_parse', inputRef: { resumeId: resume._id,
+      rawInput: { fileBuffer: file.buffer.toString('base64'), fileType } } }); }
+    catch (error) { await deleteFile(resume); await Resume.deleteOne({ _id: resume._id }); throw error; }
     resume.processingJobId = job._id;
     resume.originalFileUrl = '/api/resumes/' + resume._id + '/original';
     await resume.save();

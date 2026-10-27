@@ -11,7 +11,7 @@ async function runProcessingJob(jobOrId, task) {
   const leaseOwner = require('node:crypto').randomUUID();
   const job = await ProcessingJob.findOneAndUpdate(
     { _id: id, status: { $in: ['PENDING', 'RETRYING'] } },
-    { $set: { status: 'RUNNING', startedAt: new Date(), leaseOwner, leaseExpiresAt: new Date(Date.now() + 90000) } }, { new: true }
+    { $set: { status: 'RUNNING', startedAt: new Date(), leaseOwner, leaseExpiresAt: new Date(Date.now() + 90000), executionOwner: leaseOwner, executionExpiresAt: new Date(Date.now() + 90000) } }, { new: true }
   );
   if (!job) return (await ProcessingJob.findById(id))?.output;
   const controller = new AbortController();
@@ -21,6 +21,7 @@ async function runProcessingJob(jobOrId, task) {
   const checkpoint = async () => {
     throwIfCancelled();
     if (!await ProcessingJob.exists({ _id: id, status: 'RUNNING', leaseOwner })) throw cancellationError();
+    if (!await require('../models/User').exists({ _id: job.owner, deleting: { $ne: true } })) throw cancellationError();
   };
   let committing = false;
   const commit = async (write) => {
@@ -42,6 +43,8 @@ async function runProcessingJob(jobOrId, task) {
   const heartbeat = setInterval(() => ProcessingJob.updateOne({ _id: id, leaseOwner, status: { $in: ['RUNNING', 'COMMITTING'] } },
     { $set: { leaseExpiresAt: new Date(Date.now() + 90000) } }).catch(() => {}), 10000);
   heartbeat.unref?.();
+  const executionHeartbeat = setInterval(() => ProcessingJob.updateOne({ _id: id, executionOwner: leaseOwner }, { $set: { executionExpiresAt: new Date(Date.now() + 90000) } }).catch(() => {}), 10000);
+  executionHeartbeat.unref?.();
   try {
     return await context.run({ signal: controller.signal, jobId: id, owner: job.owner }, async () => {
       await monitoring.logEvent({ jobId: id, userId: job.owner, agent: 'orchestrator',
@@ -91,6 +94,8 @@ async function runProcessingJob(jobOrId, task) {
   } finally {
     clearInterval(poll);
     clearInterval(heartbeat);
+    clearInterval(executionHeartbeat);
+    await ProcessingJob.updateOne({ _id: id, executionOwner: leaseOwner }, { $unset: { executionOwner: 1, executionExpiresAt: 1 } });
     active.delete(String(id));
     release();
   }

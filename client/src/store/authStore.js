@@ -76,7 +76,9 @@ export const useAuthStore = create((set, get) => ({
       set({ error: message }); return { success: false, message };
     }
   },
-  logout: () => {
+  logout: (revoke = true) => {
+    const token = get().token;
+    if (revoke && token) api.post('/auth/logout', {}, { headers: { Authorization: `Bearer ${token}` } }).catch(() => {});
     revision++;
     clearUserDrafts(get().user?.id || get().user?._id);
     if (typeof window !== 'undefined') localStorage.removeItem('careerforge_auth');

@@ -1,0 +1,11 @@
+**/node_modules
+**/.next
+**/.env*
+.env*
+.git
+.agents
+.codex
+.test-tmp
+server/uploads
+**/*.log
+**/coverage

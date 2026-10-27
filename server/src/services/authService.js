@@ -1,7 +1,6 @@
 const crypto = require('crypto');
 const admin = require('firebase-admin');
 const { getAuth } = require('firebase-admin/auth');
-const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const env = require('../config/env');
 
@@ -29,18 +28,12 @@ class AuthService {
     }
   }
 
-  generateToken(user) {
-    return jwt.sign(
-      {
-        id: user._id,
-        email: user.email,
-        role: user.role,
-      },
-      env.JWT_SECRET,
-      {
-        expiresIn: env.JWT_EXPIRES_IN,
-      }
-    );
+  generateToken(user, agent) { return require('./sessionService').issue(user, agent); }
+
+  publicUser(user) {
+    return { id: user._id, name: user.name, email: user.email, role: user.role,
+      targetRolePreference: user.targetRolePreference, avatarUrl: user.avatarUrl || '', authProvider: user.authProvider,
+      emailVerifiedAt: user.emailVerifiedAt || null, createdAt: user.createdAt };
   }
 
   normalizeFirebaseProfile(profile = {}) {
@@ -83,7 +76,7 @@ class AuthService {
     }
   }
 
-  async firebaseLogin({ idToken }) {
+  async firebaseLogin({ idToken, userAgent }) {
     const decoded = await this.verifyFirebaseToken(idToken);
     const profile = this.normalizeFirebaseProfile(decoded);
 
@@ -114,6 +107,7 @@ class AuthService {
         lastLogin: new Date(),
       });
     } else {
+      if (user.deleting) throw Object.assign(new Error('This account is being deleted'), { statusCode: 403 });
       user.firebaseUid = user.firebaseUid || profile.uid || user.firebaseUid;
       user.name = user.name || profile.name || 'Google User';
       user.avatarUrl = user.avatarUrl || profile.picture || '';
@@ -121,24 +115,14 @@ class AuthService {
       user.lastLogin = new Date();
       await user.save();
     }
-
-    const token = this.generateToken(user);
-
-    return {
-      token,
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        targetRolePreference: user.targetRolePreference,
-        avatarUrl: user.avatarUrl,
-      },
-    };
+    if (!user.emailVerifiedAt) { user.emailVerifiedAt = new Date(); await user.save(); }
+    const token = await this.generateToken(user, userAgent);
+    return { token, user: this.publicUser(user) };
   }
 
-  async register({ name, email, password, targetRolePreference }) {
-    const existingUser = await User.findOne({ email: email.toLowerCase() });
+  async register({ name, email, password, targetRolePreference, userAgent }) {
+    if (typeof password !== 'string' || password.length < 8 || Buffer.byteLength(password) > 72) throw Object.assign(new Error('Password must contain at least 8 characters and at most 72 UTF-8 bytes'), { statusCode: 400 });
+    const existingUser = await User.findOne({ email: email.trim().toLowerCase() });
     if (existingUser) {
       const error = new Error('An account with this email already exists');
       error.statusCode = 400;
@@ -147,30 +131,21 @@ class AuthService {
 
     const user = await User.create({
       name,
-      email: email.toLowerCase(),
+      email: email.trim().toLowerCase(),
       password,
       targetRolePreference: targetRolePreference || 'Fullstack Developer',
       authProvider: 'local',
       lastLogin: new Date(),
     });
 
-    const token = this.generateToken(user);
-
-    return {
-      token,
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        targetRolePreference: user.targetRolePreference,
-      },
-    };
+    const token = await this.generateToken(user, userAgent);
+    await require('./accountMailService').request(user.email, 'verify');
+    return { token, user: this.publicUser(user) };
   }
 
-  async login({ email, password }) {
-    const user = await User.findOne({ email: email.toLowerCase() }).select('+password');
-    if (!user) {
+  async login({ email, password, userAgent }) {
+    const user = await User.findOne({ email: email.trim().toLowerCase() }).select('+password');
+    if (!user || user.deleting) {
       const error = new Error('Invalid email or password');
       error.statusCode = 401;
       throw error;
@@ -186,18 +161,8 @@ class AuthService {
     user.lastLogin = new Date();
     await user.save();
 
-    const token = this.generateToken(user);
-
-    return {
-      token,
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        targetRolePreference: user.targetRolePreference,
-      },
-    };
+    const token = await this.generateToken(user, userAgent);
+    return { token, user: this.publicUser(user) };
   }
 
   async getMe(userId) {
@@ -207,7 +172,7 @@ class AuthService {
       error.statusCode = 404;
       throw error;
     }
-    return user;
+    return this.publicUser(user);
   }
 
   async updateProfile(userId, updateData) {
@@ -229,24 +194,48 @@ class AuthService {
       { $set: Object.fromEntries(Object.entries(updateData).map(([key, value]) => [key, value.trim()])) },
       { new: true, runValidators: true }
     ).select('-password');
-    return user;
+    return this.publicUser(user);
   }
 
   async changePassword(userId, { currentPassword, newPassword }) {
-    if (typeof currentPassword !== 'string' || typeof newPassword !== 'string' || newPassword.length < 8 || newPassword.length > 128) {
-      const error = new Error('Provide your current password and a new password of 8 to 128 characters');
+    if (typeof currentPassword !== 'string' || typeof newPassword !== 'string' || newPassword.length < 8 || newPassword.length > 128 || Buffer.byteLength(newPassword, 'utf8') > 72) {
+      const error = new Error('Provide your current password and a new password of at least 8 characters and at most 72 UTF-8 bytes');
       error.statusCode = 400;
       throw error;
     }
     const user = await User.findById(userId).select('+password');
     if (!user || user.authProvider !== 'local' || !await user.comparePassword(currentPassword)) {
       const error = new Error('Current password is incorrect');
-      error.statusCode = 401;
+      error.statusCode = 401; error.code = 'REAUTH_REQUIRED';
       throw error;
     }
     user.password = newPassword;
+    user.passwordChangedAt = new Date();
+    user.authVersion = (user.authVersion || 0) + 1;
+    user.resetHash = undefined; user.resetExpiresAt = undefined; user.resetVersion = undefined;
     await user.save();
+    await require('../models/AuthSession').deleteMany({ owner: userId });
+    require('../config/socket').disconnectUserSockets(userId);
     return { success: true };
+  }
+
+  async verifyEmail(token) {
+    if (typeof token !== 'string' || !/^[a-f0-9]{64}$/.test(token)) throw Object.assign(new Error('This verification link is invalid or expired'), { statusCode: 400 });
+    const user = await User.findOneAndUpdate({ verificationHash: require('./privatePayload').digest(token), verificationExpiresAt: { $gt: new Date() }, deleting: { $ne: true } },
+      { $set: { emailVerifiedAt: new Date() }, $unset: { verificationHash: 1, verificationExpiresAt: 1 } });
+    if (!user) throw Object.assign(new Error('This verification link is invalid or expired'), { statusCode: 400 });
+    return { verified: true };
+  }
+
+  async resetPassword(token, password) {
+    if (typeof token !== 'string' || !/^[a-f0-9]{64}$/.test(token) || typeof password !== 'string' || password.length < 8 || password.length > 128 || Buffer.byteLength(password, 'utf8') > 72) throw Object.assign(new Error('Provide a valid reset link and a password of 8–72 UTF-8 bytes'), { statusCode: 400 });
+    const hash = require('./privatePayload').digest(token), encoded = await require('bcryptjs').hash(password, 12);
+    const user = await User.findOneAndUpdate({ resetHash: hash, resetExpiresAt: { $gt: new Date() }, deleting: { $ne: true }, $expr: { $eq: [{ $ifNull: ['$authVersion', 0] }, '$resetVersion'] } },
+      { $set: { password: encoded, passwordChangedAt: new Date() }, $inc: { authVersion: 1 }, $unset: { resetHash: 1, resetExpiresAt: 1, resetVersion: 1 } });
+    if (!user) throw Object.assign(new Error('This reset link is invalid or expired'), { statusCode: 400 });
+    await require('../models/AuthSession').deleteMany({ owner: user._id });
+    require('../config/socket').disconnectUserSockets(user._id);
+    return { reset: true };
   }
 }
 

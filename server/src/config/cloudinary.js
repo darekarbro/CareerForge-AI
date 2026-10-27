@@ -79,4 +79,10 @@ async function deleteFile(resume) {
       type: storage.deliveryType || 'authenticated', invalidate: true });
   }
 }
-module.exports = { cloudinary, isConfigured, uploadFile, getOriginalDownload, deleteFile, uploadsDir };
+async function readOriginal(resume) {
+  const download = getOriginalDownload(resume);
+  if (download.path) return fs.readFile(download.path);
+  const response = await require('axios').get(download.url, { responseType: 'arraybuffer', timeout: 15000, maxRedirects: 0, maxContentLength: 10 * 1024 * 1024 });
+  return Buffer.from(response.data);
+}
+module.exports = { cloudinary, isConfigured, uploadFile, getOriginalDownload, deleteFile, readOriginal, uploadsDir };

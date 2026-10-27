@@ -1,6 +1,9 @@
 const ProcessingJob = require('../models/ProcessingJob');
 const { enqueueJob } = require('../queues/processingQueue');
 async function createJob({ userId, jobType, inputRef }) {
+  const user = await require('../models/User').findOne({ _id: userId, deleting: { $ne: true } });
+  if (!user) throw Object.assign(new Error('Account unavailable'), { statusCode: 401 });
+  if (!user.emailVerifiedAt) throw Object.assign(new Error('Verify your email before starting AI processing. Open Account settings to resend the link.'), { statusCode: 403, code: 'EMAIL_UNVERIFIED' });
   const { rawInput, ...references } = inputRef;
   const job = await ProcessingJob.create({ owner: userId, jobType, inputRef: references, status: 'PENDING' });
   try { await require('./jobPayloads').save(job, rawInput || {}); }

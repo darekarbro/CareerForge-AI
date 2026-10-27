@@ -7,7 +7,8 @@ async function save(job, value) {
   const iv = crypto.randomBytes(12), cipher = crypto.createCipheriv('aes-256-gcm', key(), iv);
   cipher.setAAD(aad(job));
   const ciphertext = Buffer.concat([cipher.update(JSON.stringify(value || {}), 'utf8'), cipher.final()]);
-  await Payload.create({ jobId: job._id, owner: job.owner, ciphertext, iv, tag: cipher.getAuthTag(), expiresAt: new Date(Date.now() + 86400000) });
+  const user = await require('../models/User').findById(job.owner).select('privacy.retryInputHours');
+  await Payload.create({ jobId: job._id, owner: job.owner, ciphertext, iv, tag: cipher.getAuthTag(), expiresAt: new Date(Date.now() + (user?.privacy?.retryInputHours || 24) * 3600000) });
 }
 async function read(job) {
   if (job.inputRef.rawInput !== undefined) return job.inputRef.rawInput;

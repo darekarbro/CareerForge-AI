@@ -3,7 +3,7 @@ const authService = require('../services/authService');
 const register = async (req, res, next) => {
   try {
     const { name, email, password, targetRolePreference } = req.body;
-    const result = await authService.register({ name, email, password, targetRolePreference });
+    const result = await authService.register({ name, email, password, targetRolePreference, userAgent: req.get('user-agent') });
     res.status(201).json({
       success: true,
       message: 'Account registered successfully',
@@ -17,7 +17,7 @@ const register = async (req, res, next) => {
 const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
-    const result = await authService.login({ email, password });
+    const result = await authService.login({ email, password, userAgent: req.get('user-agent') });
     res.status(200).json({
       success: true,
       message: 'Login successful',
@@ -31,7 +31,7 @@ const login = async (req, res, next) => {
 const firebaseLogin = async (req, res, next) => {
   try {
     const { idToken } = req.body;
-    const result = await authService.firebaseLogin({ idToken });
+    const result = await authService.firebaseLogin({ idToken, userAgent: req.get('user-agent') });
     res.status(200).json({
       success: true,
       message: 'Google sign-in successful',

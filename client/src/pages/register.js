@@ -187,7 +187,8 @@ export default function RegisterPage() {
                   required
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  placeholder="Minimum 6 characters"
+                  placeholder="Minimum 8 characters"
+                  minLength={8} maxLength={72} autoComplete="new-password"
                   className="brutal-input w-full pl-9 text-xs"
                 />
                 <Lock className="w-4 h-4 text-gray-500 absolute left-3 top-3" />

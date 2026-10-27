@@ -46,10 +46,11 @@ function initQueue() {
     producer.on('ready', () => { available = true; });
     producer.on('error', () => { available = false; });
     producer.on('close', () => { available = false; });
-    workerConnection = new Redis(env.REDIS_URL, { maxRetriesPerRequest: null, connectTimeout: 2000 });
-    workerConnection.on('error', () => {});
     queue = new Queue('careerforge_jobs', { connection: producer });
     queue.on('error', () => { available = false; });
+    if (env.QUEUE_MODE === 'producer') return;
+    workerConnection = new Redis(env.REDIS_URL, { maxRetriesPerRequest: null, connectTimeout: 2000 });
+    workerConnection.on('error', () => {});
     worker = new Worker('careerforge_jobs', (job) => require('../agents/orchestrator').runJob(job.data.jobId), {
       connection: workerConnection, concurrency: 5, lockDuration: 180000, lockRenewTime: 60000,
     });
@@ -71,6 +72,7 @@ async function enqueueJob(jobType, data) {
     finally { clearTimeout(timer); }
   }
   // Worker claims the MongoDB job atomically, preventing double execution after an ambiguous Redis failure.
+  if (env.QUEUE_MODE === 'producer') return { id: String(data.jobId), persisted: true };
   return inMemoryQueue.add(jobType, data);
 }
 async function closeQueue() {
@@ -81,4 +83,4 @@ async function closeQueue() {
   producer?.disconnect(); workerConnection?.disconnect();
   available = false;
 }
-module.exports = { enqueueJob, enqueueRecovery: (type, data) => inMemoryQueue.add(type, data), initQueue, closeQueue, InMemoryQueue, isRedisAvailable: () => available };
+module.exports = { enqueueJob, enqueueRecovery: (type, data) => env.QUEUE_MODE === 'producer' ? enqueueJob(type, data) : inMemoryQueue.add(type, data), initQueue, closeQueue, InMemoryQueue, isRedisAvailable: () => available };
