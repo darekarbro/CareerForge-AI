@@ -18,7 +18,7 @@ Validated on 27 October 2026 with Node 24:
 
 | Check | Result |
 | --- | --- |
-| Backend | 69 tests passed, including OpenAPI validation and complete route coverage; account recovery, ownership, sessions, privacy, deletion, retention and existing AI/domain regressions. |
+| Backend | 70 tests passed, including OpenAPI validation and complete route coverage; account recovery, ownership, sessions, privacy, deletion, retention, Google reauthentication and existing AI/domain regressions. |
 | Frontend | 19 component/state tests passed; ESLint passed with zero warnings. |
 | Production build | All 27 pages built successfully, including recovery, verification and account/privacy pages. |
 | Browser acceptance | 12 groups passed against a production build using real Chrome, isolated MongoDB and fictional accounts; desktop/mobile editing, jobs, exports, interviews, recovery, privacy and deletion. Mobile account screenshot inspected. Screenshots, trace and report are generated under ignored .test-tmp. |

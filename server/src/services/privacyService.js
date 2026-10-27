@@ -32,8 +32,10 @@ async function reauthenticate(user, input) {
     const account = await User.findOne({ _id: user._id, deleting: { $ne: true } }).select('+password');
     if (!account || typeof input.password !== 'string' || !await account.comparePassword(input.password)) throw Object.assign(fail('Current password is incorrect', 401), { code: 'REAUTH_REQUIRED' });
   } else {
-    const decoded = await require('./authService').verifyFirebaseToken(input.idToken);
-    if (decoded.uid !== user.firebaseUid || decoded.email_verified !== true || decoded.firebase?.sign_in_provider !== 'google.com' || !decoded.auth_time || Date.now() / 1000 - decoded.auth_time > 300) throw fail('Sign in with Google again to confirm this action', 401);
+    let decoded;
+    try { decoded = await require('./authService').verifyFirebaseToken(input.idToken); }
+    catch (error) { if (error.statusCode === 401) error.code = 'REAUTH_REQUIRED'; throw error; }
+    if (decoded.uid !== user.firebaseUid || decoded.email_verified !== true || decoded.firebase?.sign_in_provider !== 'google.com' || !decoded.auth_time || Date.now() / 1000 - decoded.auth_time > 300) throw Object.assign(fail('Sign in with Google again to confirm this action', 401), { code: 'REAUTH_REQUIRED' });
   }
 }
 async function exportData(user, input) {

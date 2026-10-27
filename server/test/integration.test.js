@@ -588,6 +588,24 @@ test('Phase 1: export contains only owned data, includes originals and excludes 
   const manifest = JSON.parse(await zip.file('manifest.json').async('string')); assert.equal(manifest.files.length, 1); assert.equal(await zip.file(manifest.files[0].filename).async('string'), original);
   await require('../src/services/resumeService').deleteResume(data.records.Resume[0]._id, a.id);
 });
+test('Phase 1: Google export requires fresh matching proof and rejected reauthentication preserves the app session', async () => {
+  const a = await user(), verify = auth.verifyFirebaseToken;
+  await User.updateOne({ _id: a.id }, { $set: { authProvider: 'firebase', firebaseUid: 'fixture-google-uid' } });
+  const decoded = { uid: 'fixture-google-uid', email_verified: true, firebase: { sign_in_provider: 'google.com' }, auth_time: Math.floor(Date.now() / 1000) };
+  try {
+    for (const proof of [{ ...decoded, uid: 'different-user' }, { ...decoded, auth_time: decoded.auth_time - 301 }]) {
+      auth.verifyFirebaseToken = async () => proof;
+      const rejected = await request('POST', '/api/privacy/export', { token: a.token, body: { idToken: 'fictional-google-token' } });
+      assert.equal(rejected.status, 401); assert.equal(rejected.data.code, 'REAUTH_REQUIRED');
+    }
+    auth.verifyFirebaseToken = async () => { throw Object.assign(new Error('Invalid identity token'), { statusCode: 401 }); };
+    assert.equal((await request('POST', '/api/privacy/export', { token: a.token, body: { idToken: 'expired-fixture' } })).data.code, 'REAUTH_REQUIRED');
+    assert.equal((await request('GET', '/api/auth/me', { token: a.token })).status, 200);
+    auth.verifyFirebaseToken = async () => decoded;
+    const exported = await request('POST', '/api/privacy/export', { token: a.token, body: { idToken: 'fictional-google-token' } });
+    assert.equal(exported.status, 200); assert.equal(exported.data.subarray(0, 2).toString(), 'PK');
+  } finally { auth.verifyFirebaseToken = verify; }
+});
 test('Phase 1: external providers require per-account consent and revocation changes assessment cache', async () => {
   const a = await user(), factory = require('../src/providers/providerFactory'), context = require('../src/services/jobContext').context;
   const available = factory.groq.isAvailable, calculate = factory.groq.scoreATS; let calls = 0;
