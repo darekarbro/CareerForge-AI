@@ -59,6 +59,14 @@ async function finished(id) {
     assert.equal((await request('GET', '/resumes/' + uploaded.resume._id)).data.originalFileName, 'container-resume.txt');
     const original = await request('GET', '/resumes/' + uploaded.resume._id + '/original'); assert(original.includes(Buffer.from('Container Candidate')));
     console.log('PASS API queues without executing while worker is stopped; database, sessions and originals survive restart');
+    compose('stop', 'redis');
+    try {
+      await pause(1000);
+      const recovered = (await request('POST', '/resumes/' + uploaded.resume._id + '/assess', {}, 202)).data;
+      await finished(recovered.jobId);
+      console.log('PASS Redis outage preserves API availability and MongoDB worker recovery');
+    } finally { compose('start', 'redis'); }
+    await until(async () => (await (await fetch(api + '/health')).json()).queue.mode === 'BullMQ (Redis)');
     await request('POST', '/auth/forgot-password', { email });
     await request('POST', '/auth/reset-password', { token: await messageToken('Reset'), password: 'replacement-compose-password' });
     await request('GET', '/auth/me', undefined, 401);
