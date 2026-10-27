@@ -38,8 +38,11 @@ jobs:
         working-directory: client
       - run: npm run build
         working-directory: client
-      - run: npx playwright install --with-deps chromium
-        working-directory: client
+      - name: Use the runner's installed Chrome
+        run: |
+          browser_path="$(command -v google-chrome)"
+          "$browser_path" --version
+          echo "BROWSER_PATH=$browser_path" >> "$GITHUB_ENV"
       - id: browser
         run: npm run test:browser
         working-directory: client
