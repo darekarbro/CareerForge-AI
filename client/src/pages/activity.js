@@ -7,8 +7,9 @@ import useOwnedResource from '../hooks/useOwnedResource';
 import ProcessingTimeline from '../components/ProcessingTimeline/ProcessingTimeline';
 import api from '../services/api';
 import { watchProcessingJob } from '../services/processing';
-const names = { resume_parse: 'Read resume', resume_tailor: 'Tailor resume', section_rewrite: 'Rewrite section', gap_analysis: 'Check job match', ats_score: 'Assess resume quality', question_generation: 'Prepare interview', answer_evaluation: 'Review answer' };
+const names = { resume_copilot: 'Evidence-backed copilot', resume_parse: 'Read resume', resume_tailor: 'Tailor resume', section_rewrite: 'Rewrite section', gap_analysis: 'Check job match', ats_score: 'Assess resume quality', question_generation: 'Prepare interview', answer_evaluation: 'Review answer' };
 export function resultLink(job) {
+  if (job.jobType === 'resume_copilot') return '/copilot?run=' + job.inputRef.copilotId;
   if (job.output?.tailoredResume) return '/resume/' + job.inputRef.resumeId + '/tailor?version=' + job.output.tailoredResume._id;
   if (job.jobType === 'section_rewrite') return '/resume/' + job.inputRef.resumeId + '/tailor?version=' + job.inputRef.versionId + '&suggestion=' + job._id;
   if (job.output?.session?._id || job.inputRef.sessionId) return '/interview/session/' + (job.output?.session?._id || job.inputRef.sessionId);

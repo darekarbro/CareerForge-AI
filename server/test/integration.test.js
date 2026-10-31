@@ -658,6 +658,7 @@ test('Phase 1: deletion waits for active requests, retries failed file cleanup a
   const completed = await Deletion.findOne({ receiptHash: require('../src/services/privatePayload').digest(receipt) }).lean(); assert.equal(completed.owner, undefined); assert.equal(completed.emailHash, undefined); assert.equal(completed.files?.length || 0, 0);
 });
 require('./phase2Cases.cjs')({ test, assert, request, user, ready, facts, successfulJob, Resume, Tailored });
+require('./phase3Cases.cjs')({ test, assert, request, user, ready, facts, successfulJob, Resume, Tailored });
 
 test('43: an unavailable configured database falls back in development and fails closed in production', async () => {
   const env = require('../src/config/env');

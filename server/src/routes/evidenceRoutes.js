@@ -1,0 +1,30 @@
+const router = require('express').Router();
+const { protect } = require('../middlewares/auth');
+const { aiLimiter } = require('../middlewares/rateLimits');
+const library = require('../services/evidenceService');
+const imports = require('../services/evidenceImportService');
+const copilot = require('../services/copilotService');
+const wrap = (action, status = 200) => async (req, res, next) => { try { res.setHeader('Cache-Control', 'private, no-store'); res.status(status).json({ success: true, data: await action(req) }); } catch (error) { next(error); } };
+router.use(protect);
+router.get('/', wrap((req) => library.list(req.user._id, req.query)));
+router.post('/', wrap((req) => library.save(req.user._id, req.body), 201));
+router.post('/retrieve', wrap((req) => library.retrieve(req.user._id, req.body.query || '', { limit: 24 })));
+router.post('/sync', wrap(async (req) => {
+  if (Object.keys(req.body).some((key) => !['resumeId', 'profile'].includes(key)) || (req.body.profile !== undefined && req.body.profile !== true) || Boolean(req.body.resumeId) === Boolean(req.body.profile)) throw require('../services/resumeContent').fail('Choose a resume or the saved profile');
+  if (req.body.profile === true) { const profile = await require('../models/CareerProfile').findOne({ owner: req.user._id }); if (!profile) throw require('../services/resumeContent').fail('Save your career profile first'); return library.syncResume(req.user._id, { _id: profile._id, title: 'Career profile', parsedData: profile.content }, require('../services/resumeStructure').withEntryIds(profile.content), profile.revision, 'profile'); }
+  const resume = await require('../services/resumeService').getReadyResume(req.body.resumeId, req.user._id); return library.syncResume(req.user._id, resume);
+}));
+router.post('/imports/github', aiLimiter, wrap((req) => imports.github(req.user._id, req.body), 201));
+router.post('/imports/document', aiLimiter, require('../middlewares/upload').single('file'), wrap((req) => imports.document(req.user._id, req.file), 201));
+router.get('/imports/:id', wrap((req) => imports.get(req.params.id, req.user._id)));
+router.post('/imports/:id/confirm', wrap((req) => imports.confirm(req.params.id, req.user._id, req.body)));
+router.delete('/imports/:id', wrap((req) => imports.discard(req.params.id, req.user._id)));
+router.get('/copilot', wrap((req) => require('../models/CopilotRun').find({ owner: req.user._id }).sort({ createdAt: -1 }).limit(50)));
+router.post('/copilot', aiLimiter, wrap((req) => copilot.start(req.user._id, req.body), 202));
+router.get('/copilot/:id', wrap(async (req) => { const run = await copilot.get(req.params.id, req.user._id); const job = run.jobId ? await require('../models/ProcessingJob').findOne({ _id: run.jobId, owner: req.user._id }).select('status error.message') : null; return { ...run.toObject(), jobStatus: job?.status, jobError: job?.error?.message }; }));
+router.post('/copilot/:id/answers', aiLimiter, wrap((req) => copilot.answer(req.params.id, req.user._id, req.body), 202));
+router.get('/:id', wrap((req) => library.get(req.params.id, req.user._id)));
+router.put('/:id', wrap((req) => library.save(req.user._id, req.body, req.params.id)));
+router.post('/:id/verification', wrap((req) => library.verify(req.params.id, req.user._id, req.body)));
+router.post('/:id/archive', wrap((req) => library.archive(req.params.id, req.user._id, req.body)));
+module.exports = router;

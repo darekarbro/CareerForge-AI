@@ -43,6 +43,23 @@ router.get('/:id/versions/:versionId', async (req, res, next) => { try {
   res.json({ success: true, data: version });
 } catch (error) { next(error); } });
 router.put('/:id/versions/:versionId', async (req, res, next) => { try { res.json({ success: true, data: await editing.saveVersion(req.params.id, req.params.versionId, req.user._id, req.body) }); } catch (error) { next(error); } });
+router.get('/:id/versions/:versionId/evidence', async (req, res, next) => { try {
+  const version = await require('../services/tailoringService').getTailoredVersion(req.params.versionId, req.user._id);
+  if (String(version.resumeId) !== req.params.id) return res.status(404).json({ success: false, message: 'Version not found' });
+  res.setHeader('Cache-Control', 'private, no-store'); res.json({ success: true, data: await require('../services/claimEvidenceService').version(req.user._id, version) });
+} catch (error) { next(error); } });
+router.post('/:id/versions/:versionId/evidence', async (req, res, next) => { try {
+  const version = await require('../services/tailoringService').getTailoredVersion(req.params.versionId, req.user._id);
+  if (String(version.resumeId) !== req.params.id) return res.status(404).json({ success: false, message: 'Version not found' });
+  const resume = await require('../services/resumeService').getReadyResume(req.params.id, req.user._id);
+  const original = version.sourceContent || resume.parsedData, data = resume.toObject(); if (version.sourceRevision !== (resume.contentRevision || 1)) data.verifiedAt = null;
+  const snapshots = (await require('../services/evidenceService').syncResume(req.user._id, data, require('../services/resumeStructure').withEntryIds(original), version.sourceRevision)).map(require('../services/evidenceService').snapshot);
+  const entryIds = ['workExperience', 'projects'].flatMap((section) => require('../services/resumeStructure').withEntryIds(original)[section].map((entry) => entry.entryId));
+  const extra = await require('../models/CareerEvidence').find({ owner: req.user._id, archivedAt: null, verification: 'confirmed', 'context.entryId': { $in: entryIds }, 'context.recordId': String(data._id) }).limit(4000);
+  const collected = [...new Map([...snapshots, ...extra.map(require('../services/evidenceService').snapshot)].map((item) => [item.id, item])).values()];
+  await version.updateOne({ $set: { evidenceSnapshot: collected } }); version.evidenceSnapshot = collected;
+  res.json({ success: true, data: await require('../services/claimEvidenceService').version(req.user._id, version) });
+} catch (error) { next(error); } });
 router.get('/:id/versions/:versionId/history', async (req, res, next) => { try { res.json({ success: true, data: await editing.versionHistory(req.params.id, req.params.versionId, req.user._id) }); } catch (error) { next(error); } });
 router.put('/:id/versions/:versionId/layout', async (req, res, next) => { try { res.json({ success: true, data: await editing.saveLayout(req.params.id, req.params.versionId, req.user._id, req.body) }); } catch (error) { next(error); } });
 router.post('/:id/versions/:versionId/regenerate', aiLimiter, async (req, res, next) => { try { res.status(202).json({ success: true, data: await require('../services/sectionService').request(req.params.id, req.params.versionId, req.user._id, req.body) }); } catch (error) { next(error); } });

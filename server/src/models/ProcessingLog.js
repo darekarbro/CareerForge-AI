@@ -15,7 +15,7 @@ const processingLogSchema = new mongoose.Schema(
     },
     agent: {
       type: String,
-      enum: ['parser', 'analyzer', 'generator', 'evaluator', 'recovery', 'monitoring', 'orchestrator'],
+      enum: ['parser', 'analyzer', 'generator', 'evaluator', 'recovery', 'monitoring', 'orchestrator', 'copilot'],
       required: true,
     },
     level: {

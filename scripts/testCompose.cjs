@@ -51,14 +51,18 @@ async function finished(id) {
     const uploaded = (await request('POST', '/resumes/upload', form, 202)).data;
     await finished(uploaded.jobId); assert(events > 0, 'Separate worker must publish socket events through Redis');
     console.log('PASS Separate worker, SMTP verification, private upload and Redis socket events');
-    await require('./testComposePhase2.cjs')({ request, finished, resumeId: uploaded.resume._id });
+    const phase2 = await require('./testComposePhase2.cjs')({ request, finished, resumeId: uploaded.resume._id });
+    const phase3 = await require('./testComposePhase3.cjs')({ request, finished, ...phase2 });
     compose('stop', 'worker');
     const pending = (await request('POST', '/resumes/' + uploaded.resume._id + '/assess', {}, 202)).data;
     await pause(400); assert.equal((await request('GET', '/processing-jobs/' + pending.jobId)).data.status, 'PENDING');
-    compose('start', 'worker'); await finished(pending.jobId);
+    const copilotPending = (await request('POST', '/evidence/copilot', { resumeId: phase3.resumeId, targetRole: 'Engineer', scope: 'summary' }, 202)).data;
+    assert.equal((await request('GET', '/processing-jobs/' + copilotPending.jobId)).data.status, 'PENDING');
+    compose('start', 'worker'); await finished(pending.jobId); await finished(copilotPending.jobId);
     compose('restart', 'api'); await until(async () => { try { return (await fetch(api + '/health')).ok; } catch { return false; } });
     assert.equal((await request('GET', '/resumes/' + uploaded.resume._id)).data.originalFileName, 'container-resume.txt');
     const original = await request('GET', '/resumes/' + uploaded.resume._id + '/original'); assert(original.includes(Buffer.from('Container Candidate')));
+    assert.equal((await request('GET', '/evidence/copilot/' + phase3.runId)).data.status, 'draft_ready');
     console.log('PASS API queues without executing while worker is stopped; database, sessions and originals survive restart');
     compose('stop', 'redis');
     try {

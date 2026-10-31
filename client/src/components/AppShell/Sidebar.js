@@ -17,6 +17,8 @@ const navItems = [
   { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { label: 'My profile', href: '/profile', icon: FileUp },
   { label: 'My resumes', href: '/resumes', icon: FileUp },
+  { label: 'Evidence library', href: '/evidence', icon: FileUp },
+  { label: 'Resume copilot', href: '/copilot', icon: Sparkles },
   { label: 'Job workspaces', href: '/workspaces', icon: Compass },
   { label: 'Interview practice', href: '/interview/setup', icon: Mic },
   { label: 'Practice history', href: '/interview/history', icon: History },
@@ -56,7 +58,7 @@ export default function Sidebar({ isOpen, onClose }) {
 
       <aside
         ref={panel} id="main-navigation" aria-label="Main navigation"
-        className={`fixed lg:sticky top-0 left-0 z-40 w-64 flex-shrink-0 flex flex-col justify-between border-r-3 border-[#1a1a1a] bg-[var(--panel-bg)] text-[var(--text-main)] transition-transform duration-200 ease-in-out lg:top-[72px] lg:h-[calc(100vh-72px)] lg:overflow-y-auto ${
+        className={`fixed lg:sticky top-0 left-0 z-40 w-64 h-dvh overflow-y-auto flex-shrink-0 flex flex-col justify-between border-r-3 border-[#1a1a1a] bg-[var(--panel-bg)] text-[var(--text-main)] transition-transform duration-200 ease-in-out lg:top-[72px] lg:h-[calc(100vh-72px)] lg:overflow-y-auto ${
           isOpen ? 'translate-x-0' : 'hidden lg:flex lg:translate-x-0'
         }`}
       >

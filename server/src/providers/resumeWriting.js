@@ -39,12 +39,13 @@ function preservesResumeDetail(result, original = {}) {
       const index = remaining.findIndex((candidate) => identity.every((key) => same(candidate[key], entry[key])));
       if (index < 0) return false;
       const candidate = remaining.splice(index, 1)[0];
-      if (!supportedMethods(candidate, original)) return false;
+      if (!supportedMethods(candidate, entry)) return false;
       if (!Array.isArray(candidate.highlights) || candidate.highlights.some((line) => typeof line !== 'string' || !line.trim()) ||
         candidate.highlights.length < (entry.highlights || []).length) return false;
       if (section === 'workExperience' && Boolean(candidate.current) !== Boolean(entry.current)) return false;
       const originalNumbers = numbers(resumeText({ highlights: entry.highlights, description: entry.description }));
       const retainedNumbers = numbers(resumeText({ highlights: candidate.highlights, description: candidate.description }));
+      if ([...retainedNumbers].some((value) => !originalNumbers.has(value))) return false;
       if ([...originalNumbers].some((value) => !retainedNumbers.has(value))) return false;
       if (section === 'projects') {
         if (entry.description?.trim() && (typeof candidate.description !== 'string' || !candidate.description.trim())) return false;
