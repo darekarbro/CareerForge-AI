@@ -1,233 +1,54 @@
-import React, { useState, useEffect } from 'react';
-import { X, Save, Trash2 } from 'lucide-react';
-
-export default function ApplicationModal({
-  isOpen,
-  onClose,
-  onSave,
-  onDelete,
-  initialData,
-  isSaving = false,
-  error = '',
-}) {
-  const [formData, setFormData] = useState({
-    company: '',
-    roleTitle: '',
-    sourcePlatform: 'LinkedIn',
-    jobLink: '',
-    status: 'saved',
-    salaryRange: '',
-    location: '',
-    notes: '',
-    appliedDate: '',
-  });
-
-  useEffect(() => {
-    if (initialData) {
-      setFormData({
-        company: initialData.company || '',
-        roleTitle: initialData.roleTitle || '',
-        sourcePlatform: initialData.sourcePlatform || 'LinkedIn',
-        jobLink: initialData.jobLink || '',
-        status: initialData.status || 'saved',
-        salaryRange: initialData.salaryRange || '',
-        location: initialData.location || '',
-        notes: initialData.notes || '',
-        appliedDate: initialData.appliedDate ? new Date(initialData.appliedDate).toISOString().slice(0, 10) : '',
-      });
-    } else {
-      setFormData({
-        company: '',
-        roleTitle: '',
-        sourcePlatform: 'LinkedIn',
-        jobLink: '',
-        status: 'saved',
-        salaryRange: '',
-        location: '',
-        notes: '',
-        appliedDate: '',
-      });
-    }
-  }, [initialData, isOpen]);
-
-  if (!isOpen) return null;
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (isSaving || !formData.company.trim() || !formData.roleTitle.trim()) return;
-    onSave(formData);
+import React, { useEffect, useRef, useState } from 'react';
+import api from '../../services/api';
+import usePersistentDraft from '../../hooks/usePersistentDraft';
+import useOwnedResource from '../../hooks/useOwnedResource';
+import { useAuthStore } from '../../store/authStore';
+const empty = { company: '', roleTitle: '', sourcePlatform: 'LinkedIn', jobLink: '', status: 'saved', salaryRange: '', location: '', notes: '', appliedDate: '', deadline: '', followUpAt: '', workspaceId: '', resumeVersionId: '' };
+const dateFields = ['appliedDate', 'deadline', 'followUpAt'];
+const valueFor = (record) => Object.fromEntries(Object.entries(empty).map(([key, value]) => [key, dateFields.includes(key) ? record?.[key]?.slice(0, 10) || '' : record?.[key] || value]));
+function Editor({ onClose, onSave, onDelete, initialData, isSaving, error, workspaces, versions }) {
+  const userId = useAuthStore((state) => state.user?.id || state.user?._id), closeRef = useRef();
+  const [downloadError, setDownloadError] = useState('');
+  const draft = usePersistentDraft('application:' + (initialData?._id || 'new'), { userId, revision: initialData?.revision || 0, value: valueFor(initialData) });
+  useEffect(() => { const previous = document.activeElement; closeRef.current?.focus(); return () => previous?.focus?.(); }, []);
+  if (!draft.ready) return null;
+  const field = (key, value) => draft.change({ ...draft.value, [key]: value });
+  const workspaceChanged = (id) => {
+    const item = workspaces.find((entry) => entry._id === id);
+    draft.change({ ...draft.value, workspaceId: id, ...(item ? { company: item.company, roleTitle: item.title, jobLink: item.jobUrl || '', resumeVersionId: item.latestVersionId || '' } : {}) });
   };
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-      <div className="w-full max-w-lg bg-[#f5f0e8] border-4 border-[#1a1a1a] shadow-brutal-xl animate-in zoom-in-95">
-        {/* Header */}
-        <div className="p-4 border-b-3 border-[#1a1a1a] bg-[#ffcc00] flex items-center justify-between">
-          <h3 className="font-headline font-black text-lg text-[#1a1a1a] uppercase">
-            {initialData ? 'Update Tracked Application' : 'Add New Application'}
-          </h3>
-          <button
-            onClick={onClose}
-            className="p-1 border-2 border-[#1a1a1a] bg-white hover:bg-[#e63b2e] hover:text-white transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
-          {error && <p role="alert" className="p-3 bg-red-100 border-2 border-red-800 text-red-900 text-xs">{error}</p>}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block font-headline font-bold text-xs uppercase text-[#1a1a1a] mb-1">
-                Company Name *
-              </label>
-              <input
-                type="text"
-                required
-                value={formData.company}
-                onChange={(e) => setFormData({ ...formData, company: e.target.value })}
-                placeholder="e.g. Google, Stripe"
-                className="brutal-input w-full text-xs"
-              />
-            </div>
-
-            <div>
-              <label className="block font-headline font-bold text-xs uppercase text-[#1a1a1a] mb-1">
-                Role Title *
-              </label>
-              <input
-                type="text"
-                required
-                value={formData.roleTitle}
-                onChange={(e) => setFormData({ ...formData, roleTitle: e.target.value })}
-                placeholder="e.g. Senior Backend Engineer"
-                className="brutal-input w-full text-xs"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block font-headline font-bold text-xs uppercase text-[#1a1a1a] mb-1">
-                Source Platform
-              </label>
-              <select
-                value={formData.sourcePlatform}
-                onChange={(e) => setFormData({ ...formData, sourcePlatform: e.target.value })}
-                className="brutal-input w-full text-xs font-bold"
-              >
-                <option value="LinkedIn">LinkedIn</option>
-                <option value="Internshala">Internshala</option>
-                <option value="Naukri">Naukri</option>
-                <option value="Indeed">Indeed</option>
-                <option value="Company Portal">Company Portal</option>
-                <option value="Referral">Referral</option>
-                <option value="Other">Other</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block font-headline font-bold text-xs uppercase text-[#1a1a1a] mb-1">
-                Pipeline Stage
-              </label>
-              <select
-                value={formData.status}
-                onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                className="brutal-input w-full text-xs font-bold"
-              >
-                <option value="saved">Saved / Bookmarked</option>
-                <option value="applied">Applied</option>
-                <option value="oa">Online Assessment (OA)</option>
-                <option value="interview">Interview In-Progress</option>
-                <option value="offer">Offer Received 🎉</option>
-                <option value="rejected">Rejected</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block font-headline font-bold text-xs uppercase text-[#1a1a1a] mb-1">
-                Job Posting Link
-              </label>
-              <input
-                type="url"
-                value={formData.jobLink}
-                onChange={(e) => setFormData({ ...formData, jobLink: e.target.value })}
-                placeholder="https://..."
-                className="brutal-input w-full text-xs"
-              />
-            </div>
-
-            <div>
-              <label className="block font-headline font-bold text-xs uppercase text-[#1a1a1a] mb-1">
-                Location / Comp
-              </label>
-              <input
-                type="text"
-                value={formData.location}
-                onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                placeholder="e.g. Remote / $140k"
-                className="brutal-input w-full text-xs"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label htmlFor="applied-date" className="block font-headline font-bold text-xs uppercase mb-1">Applied date</label>
-            <input id="applied-date" type="date" className="brutal-input w-full text-xs" value={formData.appliedDate}
-              onChange={(e) => setFormData({ ...formData, appliedDate: e.target.value })} />
-          </div>
-          <div>
-            <label className="block font-headline font-bold text-xs uppercase text-[#1a1a1a] mb-1">
-              Personal Notes / Interview Timeline
-            </label>
-            <textarea
-              rows={3}
-              value={formData.notes}
-              onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-              placeholder="Referral contact, recruiter notes, interview dates..."
-              className="brutal-input w-full text-xs"
-            />
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex items-center justify-between pt-4 border-t-2 border-[#1a1a1a]">
-            {initialData && onDelete ? (
-              <button
-                type="button"
-                onClick={() => onDelete(initialData._id)}
-                  disabled={isSaving}
-                className="brutal-btn-red px-3 py-2 text-xs flex items-center gap-1.5"
-              >
-                <Trash2 className="w-3.5 h-3.5" />
-                <span>Delete</span>
-              </button>
-            ) : (
-              <div />
-            )}
-
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={onClose}
-                className="px-4 py-2 border-2 border-[#1a1a1a] bg-white font-headline font-bold text-xs uppercase hover:bg-gray-100"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={isSaving}
-                className="brutal-btn-primary px-5 py-2 text-xs flex items-center gap-1.5"
-              >
-                <Save className="w-3.5 h-3.5" />
-                <span>{isSaving ? 'Saving...' : 'Save Application'}</span>
-              </button>
-            </div>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
+  const save = async (event) => {
+    event.preventDefault(); if (isSaving) return;
+    try { await onSave({ ...draft.value, ...(initialData?._id ? { revision: draft.baseRevision } : {}) }); draft.discard(); } catch { /* The board keeps the error and draft visible. */ }
+  };
+  const trapFocus = (event) => {
+    if (event.key === 'Escape' && !isSaving) onClose();
+    if (event.key !== 'Tab') return;
+    const focusable = [...event.currentTarget.querySelectorAll('button:not(:disabled),input,select,textarea,a[href]')];
+    const first = focusable[0], last = focusable.at(-1);
+    if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
+    else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
+  };
+  return <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50" onKeyDown={trapFocus}><div role="dialog" aria-modal="true" aria-labelledby="application-title" className="w-full max-w-2xl bg-[#f5f0e8] border-4 shadow-brutal-xl">
+    <header className="p-4 bg-[#ffcc00] border-b-2 flex justify-between items-center"><h2 id="application-title" className="font-bold text-xl">{initialData?._id ? 'Update Tracked Application' : 'Add New Application'}</h2><button ref={closeRef} type="button" aria-label="Close application editor" disabled={isSaving} onClick={onClose} className="border-2 px-3 py-1">×</button></header>
+    <form onSubmit={save} className="p-5 grid sm:grid-cols-2 gap-4 max-h-[75vh] overflow-y-auto">
+      {error && <p role="alert" className="sm:col-span-2 p-3 bg-red-50 text-sm">{error}</p>}
+      {draft.conflict && <p role="alert" className="sm:col-span-2 text-sm">Your saved application changed since this draft. Close, refresh and reload the application before saving.</p>}
+      {!!workspaces.length && <label className="text-sm font-semibold sm:col-span-2">Saved job workspace<select className="brutal-input block w-full mt-1" value={draft.value.workspaceId} onChange={(event) => workspaceChanged(event.target.value)}><option value="">No linked workspace</option>{workspaces.map((item) => <option key={item._id} value={item._id}>{item.title} at {item.company}</option>)}</select></label>}
+      {[['company', 'Company Name *', 'e.g. Google, Stripe'], ['roleTitle', 'Role Title *', 'e.g. Senior Backend Engineer'], ['jobLink', 'Job Posting Link', 'https://...'], ['location', 'Location', 'e.g. Remote'], ['salaryRange', 'Salary range', 'e.g. ₹8–12 LPA']].map(([key, label, placeholder]) => <label key={key} className="font-semibold text-sm">{label}<input type={key === 'jobLink' ? 'url' : 'text'} required={['company', 'roleTitle'].includes(key)} maxLength={key === 'jobLink' ? 2048 : 300} value={draft.value[key]} onChange={(event) => field(key, event.target.value)} placeholder={placeholder} className="brutal-input block w-full mt-1" /></label>)}
+      <label className="text-sm font-semibold">Source Platform<select value={draft.value.sourcePlatform} onChange={(event) => field('sourcePlatform', event.target.value)} className="brutal-input block w-full mt-1">{['LinkedIn', 'Internshala', 'Naukri', 'Indeed', 'Company Portal', 'Referral', 'Other'].map((name) => <option key={name}>{name}</option>)}</select></label>
+      <label className="text-sm font-semibold">Application stage<select value={draft.value.status} onChange={(event) => field('status', event.target.value)} className="brutal-input block w-full mt-1">{[['saved', 'Saved'], ['applied', 'Applied'], ['oa', 'Online assessment'], ['interview', 'Interview'], ['offer', 'Offer'], ['rejected', 'Rejected']].map(([value, name]) => <option key={value} value={value}>{name}</option>)}</select></label>
+      {dateFields.map((key) => <label key={key} className="text-sm font-semibold">{key === 'appliedDate' ? 'Applied date' : key === 'deadline' ? 'Application deadline' : 'Follow-up date'}<input type="date" value={draft.value[key]} onChange={(event) => field(key, event.target.value)} className="brutal-input block w-full mt-1" /></label>)}
+      <label className="text-sm font-semibold sm:col-span-2">Resume version used<select value={draft.value.resumeVersionId} onChange={(event) => field('resumeVersionId', event.target.value)} className="brutal-input block w-full mt-1"><option value="">No version selected</option>{versions.map((item) => <option key={item._id} value={item._id}>{item.targetRole} · Version {item.version} · {new Date(item.createdAt).toLocaleDateString()}</option>)}</select></label>
+      {initialData?.resumeSnapshot && <p className="text-sm sm:col-span-2">Saved resume: version {initialData.resumeSnapshot.version}, edit revision {initialData.resumeSnapshot.contentRevision}. <button type="button" className="underline" onClick={() => api.download('/applications/' + initialData._id + '/resume', 'application_resume.pdf').catch(() => setDownloadError('Unable to download the saved resume copy. Please retry.'))}>Download the saved copy</button></p>}
+      {downloadError && <p role="alert" className="text-sm sm:col-span-2">{downloadError}</p>}
+      <label className="text-sm font-semibold sm:col-span-2">Personal Notes / Interview Timeline<textarea rows={3} maxLength={10000} value={draft.value.notes} onChange={(event) => field('notes', event.target.value)} placeholder="Referral contact, recruiter notes, interview dates..." className="brutal-input block w-full mt-1" /></label>
+      {initialData?.timeline?.length > 0 && <details className="sm:col-span-2 text-sm"><summary>Application history</summary><ul className="space-y-2 mt-2">{initialData.timeline.map((item, index) => <li key={index}>{new Date(item.updatedAt).toLocaleString()} · {item.status} · {item.note}</li>)}</ul></details>}
+      <div className="sm:col-span-2 flex flex-wrap justify-between gap-3"><div>{initialData?._id && onDelete && <button type="button" disabled={isSaving} onClick={() => onDelete(initialData._id)} className="brutal-btn-red px-4 py-2 text-sm">Delete</button>}</div><div className="flex gap-3"><button type="button" onClick={onClose} disabled={isSaving} className="border-2 px-4 py-2 text-sm">Cancel</button><button disabled={isSaving || draft.conflict} className="brutal-btn-primary px-4 py-2 text-sm">{isSaving ? 'Saving...' : 'Save Application'}</button></div></div>
+    </form>
+  </div></div>;
+}
+export default function ApplicationModal(props) {
+  const workspaces = useOwnedResource(props.isOpen ? '/workspaces' : null), versions = useOwnedResource(props.isOpen ? '/applications/resume-versions' : null);
+  return props.isOpen ? <Editor {...props} workspaces={workspaces.data || []} versions={versions.data || []} /> : null;
 }

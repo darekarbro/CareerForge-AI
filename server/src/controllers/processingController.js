@@ -7,7 +7,7 @@ const InterviewQuestion = require('../models/InterviewQuestion');
 
 const getJobStatus = async (req, res, next) => {
   try {
-    const job = await ProcessingJob.findOne({ _id: req.params.id, owner: req.user._id });
+    const job = await ProcessingJob.findOne({ _id: req.params.id, owner: req.user._id }).select('-inputRef.rawInput -leaseOwner');
     if (!job) {
       return res.status(404).json({
         success: false,
@@ -54,6 +54,7 @@ const cancelJob = async (req, res, next) => {
     }
 
     abortJob(job._id);
+    await require('../services/jobPayloads').remove(job);
     if (job.jobType === 'resume_parse') await Resume.updateOne({ _id: job.inputRef.resumeId, owner: req.user._id },
       { $set: { processingStatus: 'CANCELLED' } });
     if (job.inputRef.questionId) await InterviewQuestion.updateOne({ _id: job.inputRef.questionId, evaluationJobId: job._id },

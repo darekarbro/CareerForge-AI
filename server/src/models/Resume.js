@@ -27,6 +27,12 @@ const resumeSchema = new mongoose.Schema(
     processingJobId: { type: mongoose.Schema.Types.ObjectId, ref: 'ProcessingJob' },
     parsingWarnings: [String],
     parsingInputLength: Number,
+    contentRevision: { type: Number, default: 1 },
+    verifiedAt: Date,
+    sourceType: { type: String, enum: ['upload', 'profile', 'edited'], default: 'upload' },
+    atsScoreStale: { type: Boolean, default: false },
+    assessmentMeta: mongoose.Schema.Types.Mixed,
+    revisionHistory: [{ revision: Number, content: mongoose.Schema.Types.Mixed, title: String, savedAt: Date }],
     aiProvider: String,
     deleting: { type: Boolean, default: false },
     fileType: {

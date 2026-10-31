@@ -12,9 +12,9 @@ export default function MetricGrid({ metrics }) {
       icon: FileText,
     },
     {
-      title: 'Avg ATS Compatibility',
-      value: `${metrics?.avgAtsScore ?? 0}%`,
-      label: (metrics?.avgAtsScore || 0) >= 80 ? 'ATS Optimized' : 'Needs Optimization',
+      title: 'Average resume quality',
+      value: metrics?.avgAtsScore ? `${metrics.avgAtsScore}%` : '—',
+      label: 'Estimated from current assessments',
       accent: 'border-l-8 border-l-[#0055ff]',
       bgAccent: 'bg-[#0055ff]/20',
       icon: Award,

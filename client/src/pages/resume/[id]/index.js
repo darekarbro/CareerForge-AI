@@ -4,6 +4,7 @@ import Link from 'next/link';
 import ProtectedRoute from '../../../components/ProtectedRoute/ProtectedRoute';
 import AppShell from '../../../components/AppShell/AppShell';
 import api from '../../../services/api';
+import AssessmentPanel from '../../../components/ResumeEditor/AssessmentPanel';
 import { submitProcessingRequest, watchProcessingJob } from '../../../services/processing';
 import {
   FileText,
@@ -162,6 +163,7 @@ export default function ResumeDetailPage() {
             </div>
 
             <div className="flex flex-wrap items-center gap-2">
+              {resume.processingStatus === 'COMPLETED' && <Link href={`/resume/${resume._id}/edit`} className="brutal-btn-yellow px-4 py-2.5 text-sm">Edit and verify</Link>}
               <Link
                 href={`/resume/${resume._id}/tailor`}
                 aria-disabled={resume.processingStatus !== 'COMPLETED'}
@@ -178,11 +180,11 @@ export default function ResumeDetailPage() {
                 <Layers className="w-4 h-4" />
                   <span>Run JD Gap Analysis</span>
               </button>
-              <button type="button" className="brutal-btn-yellow px-4 py-2 text-xs"
+              {(resume.originalFileStorage?.provider || resume.originalFileName) && <button type="button" className="brutal-btn-yellow px-4 py-2 text-xs"
                 onClick={async () => {
                   try { await api.download(`/resumes/${resume._id}/original`, resume.originalFileName); }
                   catch (failure) { setError(failure.response?.data?.message || 'Unable to download the original resume'); }
-                }}>Download original</button>
+                }}>Download original</button>}
               <button
                 onClick={handleDeleteResume}
                 className="p-2.5 border-2 border-[#1a1a1a] bg-white hover:bg-[#e63b2e] hover:text-white shadow-brutal transition-all"
@@ -193,84 +195,7 @@ export default function ResumeDetailPage() {
             </div>
           </div>
 
-          {/* ATS Scorecard Banner */}
-          <div className="brutal-card p-6 border-3 border-[#1a1a1a]">
-            <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b-2 border-[#1a1a1a]">
-              <div className="flex items-center gap-3">
-                <div className="p-3 border-2 border-[#1a1a1a] bg-[#0055ff] text-white shadow-brutal">
-                  <Award className="w-6 h-6" />
-                </div>
-                <div>
-                  <h3 className="font-headline font-black text-lg uppercase text-[#1a1a1a]">
-                    ATS Compatibility Breakdown
-                  </h3>
-                  <p className="text-xs text-gray-600 font-medium">
-                    Evaluated against section hierarchy, keyword density, and formatting rules.
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <span className="font-headline font-black text-4xl text-[#1a1a1a]">
-                  {atsScore?.score || 0}%
-                </span>
-              </div>
-            </div>
-
-            {/* Score Metrics Sub-Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 py-4">
-              <div className="p-3 border-2 border-[#1a1a1a] bg-[#f5f0e8] text-center">
-                <span className="text-[10px] font-black uppercase text-gray-600 block">Structure</span>
-                <span className="font-headline font-black text-xl text-[#1a1a1a]">
-                  {atsScore?.structureScore || 0}%
-                </span>
-              </div>
-              <div className="p-3 border-2 border-[#1a1a1a] bg-[#f5f0e8] text-center">
-                <span className="text-[10px] font-black uppercase text-gray-600 block">Keywords</span>
-                <span className="font-headline font-black text-xl text-[#1a1a1a]">
-                  {atsScore?.keywordScore || 0}%
-                </span>
-              </div>
-              <div className="p-3 border-2 border-[#1a1a1a] bg-[#f5f0e8] text-center">
-                <span className="text-[10px] font-black uppercase text-gray-600 block">Formatting</span>
-                <span className="font-headline font-black text-xl text-[#1a1a1a]">
-                  {atsScore?.formattingScore || 0}%
-                </span>
-              </div>
-              <div className="p-3 border-2 border-[#1a1a1a] bg-[#f5f0e8] text-center">
-                <span className="text-[10px] font-black uppercase text-gray-600 block">Length</span>
-                <span className="font-headline font-black text-xl text-[#1a1a1a]">
-                  {atsScore?.lengthScore || 0}%
-                </span>
-              </div>
-            </div>
-
-            {/* Strengths & Improvements */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2 text-xs">
-              <div className="p-3 border-2 border-[#1a1a1a] bg-green-50">
-                <span className="font-headline font-black uppercase text-green-900 flex items-center gap-1.5 mb-1.5">
-                  <CheckCircle2 className="w-4 h-4 text-green-700" />
-                  ATS Strengths
-                </span>
-                <ul className="space-y-1">
-                  {(atsScore?.strengths || ['Clean section headings']).map((s, idx) => (
-                    <li key={idx} className="text-green-950 font-medium leading-tight">• {s}</li>
-                  ))}
-                </ul>
-              </div>
-              <div className="p-3 border-2 border-[#1a1a1a] bg-amber-50">
-                <span className="font-headline font-black uppercase text-amber-900 flex items-center gap-1.5 mb-1.5">
-                  <AlertTriangle className="w-4 h-4 text-amber-700" />
-                  Recommended Optimizations
-                </span>
-                <ul className="space-y-1">
-                  {(atsScore?.improvements || ['Expand on quantifiable impact bullets']).map((imp, idx) => (
-                    <li key={idx} className="text-amber-950 font-medium leading-tight">• {imp}</li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          </div>
+          <AssessmentPanel resumeId={id} record={resume} disabled={resume.processingStatus !== 'COMPLETED'} onAssessed={(assessment) => { setAtsScore(assessment); setResume((previous) => ({ ...previous, atsScore: assessment, assessmentMeta: assessment.assessmentMeta, atsScoreStale: false })); }} />
 
           {/* Tailored Versions History */}
           {versions.length > 0 && (
@@ -308,6 +233,7 @@ export default function ResumeDetailPage() {
                     </div>
 
                     <div className="flex items-center gap-2">
+                      <Link href={`/resume/${resume._id}/tailor?version=${ver._id}`} className="underline text-sm text-blue-700">Review and edit</Link>
                       <button
                         type="button"
                         onClick={async () => {

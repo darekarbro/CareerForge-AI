@@ -22,6 +22,8 @@ html {
 }
 
 body {
+  font-size: 16px;
+  line-height: 1.6;
   background-color: var(--bg-main);
   color: var(--text-main);
   font-family: 'Inter', sans-serif;
@@ -45,7 +47,21 @@ h1, h2, h3, h4, h5, h6, .font-headline {
 
 .brutal-card:hover {
   box-shadow: 7px 7px 0px #1a1a1a;
-  transform: translate(-2px, -2px);
+}
+
+:focus-visible { outline: 3px solid #0055ff; outline-offset: 3px; }
+button, a, input, select, textarea { touch-action: manipulation; }
+button:not(:disabled), summary { cursor: pointer; }
+button:disabled { cursor: not-allowed; }
+input, select, textarea { max-width: 100%; }
+.skip-link { position: fixed; top: -100px; left: 16px; z-index: 100; padding: 12px 20px; color: white; background: #1a1a1a; }
+.skip-link:focus { top: 8px; }
+@media (max-width: 640px) {
+  button, summary, nav a { min-height: 44px; }
+  input, select, textarea { font-size: 16px !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; animation-duration: .01ms !important; }
 }
 
 .brutal-btn-primary {
@@ -118,6 +134,8 @@ h1, h2, h3, h4, h5, h6, .font-headline {
 }
 
 .brutal-input {
+  font-size: .875rem;
+  line-height: 1.5;
   border: 3px solid #1a1a1a;
   background-color: var(--surface-elevated);
   color: var(--text-main);
@@ -130,6 +148,7 @@ h1, h2, h3, h4, h5, h6, .font-headline {
 .brutal-input::placeholder {
   color: #6b7280;
 }
+.brutal-input.pl-9 { padding-left: 2.25rem; }
 
 .brutal-input:focus {
   background-color: var(--surface-strong);

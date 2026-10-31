@@ -6,6 +6,7 @@ class AnalyzerAgent {
    * Run ATS compatibility scoring
    */
   async scoreATS({ resumeData, rawText, jobId, userId }) {
+    rawText = require('../providers/resumeFacts').resumeText(resumeData);
     const startTime = Date.now();
 
     await monitoringAgent.logEvent({
@@ -17,7 +18,7 @@ class AnalyzerAgent {
       step: 'ats_evaluation_start',
     });
 
-    const atsResult = await providerFactory.execute(
+    const atsResult = await require('../services/assessmentService').cached({ owner: userId, action: 'scoreATS', params: { resumeData, rawText } }, () => providerFactory.execute(
       'scoreATS',
       { resumeData, rawText },
       (providerName) => {
@@ -30,7 +31,7 @@ class AnalyzerAgent {
           step: 'ai_scoring',
         });
       }
-    );
+    ));
 
     await monitoringAgent.logEvent({
       jobId,
@@ -61,7 +62,7 @@ class AnalyzerAgent {
       step: 'gap_analysis_start',
     });
 
-    const gapResult = await providerFactory.execute(
+    const gapResult = await require('../services/assessmentService').cached({ owner: userId, action: 'analyzeGap', params: { resumeData, jobDescriptionText, targetRole } }, () => providerFactory.execute(
       'analyzeGap',
       { resumeData, jobDescriptionText, targetRole },
       (providerName) => {
@@ -74,7 +75,7 @@ class AnalyzerAgent {
           step: 'ai_gap_analysis',
         });
       }
-    );
+    ));
 
     await monitoringAgent.logEvent({
       jobId,

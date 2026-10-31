@@ -32,7 +32,7 @@ export default function RegisterPage() {
     setLoading(false);
 
     if (res.success) {
-      router.push('/dashboard');
+      router.push('/onboarding');
     } else {
       setErrorMessage(res.message || 'Registration failed');
     }
@@ -69,7 +69,7 @@ export default function RegisterPage() {
       const res = await firebaseLogin(idToken);
 
       if (res.success) {
-        router.push('/dashboard');
+        router.push('/onboarding');
       } else {
         setErrorMessage(res.message || 'Google sign-in failed');
       }
@@ -141,12 +141,13 @@ export default function RegisterPage() {
 
           <form onSubmit={handleRegister} className="space-y-4">
             <div>
-              <label className="block font-headline font-bold text-xs uppercase text-[#1a1a1a] mb-1">
+              <label htmlFor="register-name" className="block font-headline font-bold text-xs uppercase text-[#1a1a1a] mb-1">
                 Full Name
               </label>
               <div className="relative">
                 <input
                   type="text"
+                  id="register-name" autoComplete="name"
                   required
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -158,12 +159,13 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <label className="block font-headline font-bold text-xs uppercase text-[#1a1a1a] mb-1">
+              <label htmlFor="register-email" className="block font-headline font-bold text-xs uppercase text-[#1a1a1a] mb-1">
                 Email Address
               </label>
               <div className="relative">
                 <input
                   type="email"
+                  id="register-email" autoComplete="email"
                   required
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
@@ -175,12 +177,13 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <label className="block font-headline font-bold text-xs uppercase text-[#1a1a1a] mb-1">
+              <label htmlFor="register-password" className="block font-headline font-bold text-xs uppercase text-[#1a1a1a] mb-1">
                 Password
               </label>
               <div className="relative">
                 <input
                   type="password"
+                  id="register-password" autoComplete="new-password"
                   required
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
@@ -192,11 +195,12 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <label className="block font-headline font-bold text-xs uppercase text-[#1a1a1a] mb-1">
+              <label htmlFor="register-role" className="block font-headline font-bold text-xs uppercase text-[#1a1a1a] mb-1">
                 Primary Target Role
               </label>
               <div className="relative">
                 <select
+                  id="register-role"
                   value={formData.targetRolePreference}
                   onChange={(e) => setFormData({ ...formData, targetRolePreference: e.target.value })}
                   className="brutal-input w-full pl-9 text-xs font-bold"
@@ -243,7 +247,7 @@ export default function RegisterPage() {
 
       {/* Footer */}
       <div className="p-4 border-t-2 border-[#1a1a1a] bg-[#f5f0e8] text-center text-xs text-gray-500 font-bold uppercase">
-        Form Follows Function • Neo-Brutalist Architecture
+        Your experience. Your next opportunity.
       </div>
     </div>
   );

@@ -33,19 +33,28 @@ class ProviderFactory {
     throwIfCancelled();
     for (const provider of [this.groq, this.openRouter, this.gemini, this.deterministic]) {
       if (!provider.isAvailable()) continue;
+      const start = Date.now(), scope = require('../services/jobContext').context.getStore();
+      if (scope) scope.providerUsage = null;
       try {
         if (onProviderAttempt) await onProviderAttempt(provider.name);
         const result = await provider[actionName](params);
         throwIfCancelled();
         validateResult(actionName, result, params);
+        await this.recordUsage(scope, { action: actionName, provider: provider.name, model: provider.model || 'offline-rules-v1', durationMs: Date.now() - start, status: 'success', ...scope?.providerUsage });
         return this.withProvider(result, provider.name);
       } catch (error) {
+        await this.recordUsage(scope, { action: actionName, provider: provider.name, model: provider.model || 'offline-rules-v1', durationMs: Date.now() - start, status: 'failed' });
         throwIfCancelled();
         if (provider === this.deterministic) throw error;
         console.warn('[ProviderFactory] ' + provider.name + ' failed for ' + actionName + ': ' + error.message + '. Falling back...');
       }
     }
     throw new Error('No AI provider available');
+  }
+  async recordUsage(scope, record) {
+    if (!scope?.jobId) return;
+    try { await require('../models/ProcessingJob').updateOne({ _id: scope.jobId, owner: scope.owner }, { $push: { usage: { $each: [record], $slice: -30 } } }); }
+    catch { /* Usage accounting must not discard a completed AI response. */ }
   }
 }
 module.exports = new ProviderFactory();

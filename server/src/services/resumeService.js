@@ -64,10 +64,16 @@ class ResumeService {
       await ProcessingLog.deleteMany({ jobId: { $in: jobIds }, owner: userId });
       await Notification.deleteMany({ jobId: { $in: jobIds }, owner: userId });
       await ProcessingJob.deleteMany({ _id: { $in: jobIds }, owner: userId });
+      await require('../models/JobPayload').deleteMany({ jobId: { $in: jobIds }, owner: userId });
+      await require('../models/AssessmentCache').deleteMany({ owner: userId });
+      await require('../models/ProductEvent').deleteMany({ resumeId, owner: userId });
+      await Application.updateMany({ owner: userId, 'resumeSnapshot.resumeId': resumeId }, { $unset: { resumeVersionId: 1, resumeSnapshot: 1 } });
+      await require('../models/JobWorkspace').updateMany({ owner: userId, resumeId }, { $unset: { resumeId: 1, latestVersionId: 1, latestGapId: 1 }, $pull: { interviewIds: { $in: sessionIds } }, $inc: { revision: 1 } });
       for (const id of new Set(descriptions.map(String))) {
         const shared = await GapAnalysis.exists({ jobDescriptionId: id }) ||
           await TailoredResume.exists({ jobDescriptionId: id }) || await InterviewSession.exists({ jobDescriptionId: id }) ||
-          await ProcessingJob.exists({ 'inputRef.jobDescriptionId': id, status: { $in: ['PENDING', 'RUNNING', 'COMMITTING'] } });
+          await ProcessingJob.exists({ 'inputRef.jobDescriptionId': id, status: { $in: ['PENDING', 'RUNNING', 'COMMITTING'] } }) ||
+          await require('../models/JobWorkspace').exists({ owner: userId, jobDescriptionId: id });
         if (!shared) await JobDescription.deleteOne({ _id: id, owner: userId });
       }
       await Resume.deleteOne({ _id: resumeId, owner: userId });
@@ -98,6 +104,8 @@ class ResumeService {
     return { resume, jobId: job._id };
   }
   async processUpload({ job, checkpoint, commit }) {
+    const existing = await Resume.findOne({ _id: job.inputRef.resumeId, owner: job.owner, processingJobId: job._id, processingStatus: 'COMPLETED', deleting: { $ne: true } });
+    if (existing) return commit(async () => ({ resume: existing, aiProvider: existing.aiProvider }));
     const { fileBuffer, fileType } = job.inputRef.rawInput || {};
     const parsed = await parserAgent.parse({ fileBuffer: Buffer.from(fileBuffer, 'base64'), fileType,
       jobId: job._id, userId: job.owner });
@@ -106,7 +114,7 @@ class ResumeService {
       jobId: job._id, userId: job.owner });
     return commit(async () => {
       const resume = await Resume.findOneAndUpdate({ _id: job.inputRef.resumeId, owner: job.owner, deleting: { $ne: true } }, {
-        $set: { rawText: parsed.rawText, parsedData: parsed.parsedData, atsScore, processingStatus: 'COMPLETED',
+        $set: { rawText: parsed.rawText, parsedData: parsed.parsedData, atsScore, assessmentMeta: atsScore.assessmentMeta, processingStatus: 'COMPLETED',
           aiProvider: parsed.aiProvider, parsingWarnings: parsed.parsedData.warnings || [], parsingInputLength: parsed.inputCharacters },
       }, { new: true, runValidators: true });
       if (!resume) throw cancellationError();
@@ -114,11 +122,16 @@ class ResumeService {
     });
   }
   async getDashboardMetrics(userId) {
-    const [resumes, tailoredCount, sessions, applications] = await Promise.all([
+    const [resumes, tailoredCount, sessions, applications, workspaces, profile, exports, firstExport, account] = await Promise.all([
       Resume.find({ owner: userId, deleting: { $ne: true } }).sort({ createdAt: -1 }),
       TailoredResume.countDocuments({ owner: userId }),
       InterviewSession.find({ owner: userId, status: 'completed' }).sort({ completedAt: -1 }),
       Application.find({ owner: userId }).sort({ createdAt: -1 }),
+      require('../models/JobWorkspace').find({ owner: userId }).sort({ updatedAt: -1 }),
+      require('../models/CareerProfile').findOne({ owner: userId }),
+      require('../models/ProductEvent').countDocuments({ owner: userId }),
+      require('../models/ProductEvent').findOne({ owner: userId }).sort({ createdAt: 1 }),
+      require('../models/User').findById(userId).select('createdAt'),
     ]);
     const ready = resumes.filter((resume) => resume.processingStatus === 'COMPLETED');
     const average = (list, value) => list.length ? Math.round(list.reduce((sum, item) => sum + value(item), 0) / list.length) : 0;
@@ -126,8 +139,15 @@ class ResumeService {
       .map((status) => [status, applications.filter((app) => app.status === status).length]));
     applicationFunnel.total = applications.length;
     return {
+      totalWorkspaces: workspaces.length, totalExports: exports,
+      firstExportMinutes: firstExport && account ? Math.max(0, Math.round((firstExport.createdAt - account.createdAt) / 60000)) : null,
+      verifiedResumeCount: ready.filter((item) => item.verifiedAt).length,
+      profileCompleted: Boolean(profile?.onboardingCompleted),
+      nextResume: ready.find((item) => !item.verifiedAt)?._id || ready[0]?._id,
+      nextWorkspace: workspaces[0]?._id,
+      dueApplications: applications.filter((item) => !['offer', 'rejected'].includes(item.status) && [item.deadline, item.followUpAt].some((date) => date && new Date(date) <= new Date(Date.now() + 3 * 86400000))).slice(0, 5),
       totalResumes: resumes.length, totalTailored: tailoredCount,
-      avgAtsScore: average(ready, (resume) => resume.atsScore?.score || 0),
+      avgAtsScore: average(ready.filter((item) => !item.atsScoreStale && item.assessmentMeta), (resume) => resume.atsScore?.score || 0),
       avgInterviewScore: average(sessions, (session) => session.overallScore || 0),
       completedInterviewCount: sessions.length,
       interviewTrends: sessions.slice(0, 10).reverse().map((session, index) => ({

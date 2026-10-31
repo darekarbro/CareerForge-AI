@@ -44,6 +44,7 @@ app.use(
       }
     },
     credentials: true,
+    exposedHeaders: ['X-Page-Count', 'X-Content-Revision', 'Content-Disposition'],
   })
 );
 
@@ -58,13 +59,16 @@ app.use('/api/auth/firebase', authLimiter);
 app.use('/api/auth/password', authLimiter);
 app.use((req, res, next) => {
   const costly = /^\/api\/resumes\/(upload|[^/]+\/(tailor|gap-analysis))\/?$/.test(req.path) ||
-    /^\/api\/interview\/sessions(?:\/[^/]+\/questions\/[^/]+\/answer)?\/?$/.test(req.path);
+    /^\/api\/interview\/sessions(?:\/[^/]+\/questions\/[^/]+\/answer)?\/?$/.test(req.path) ||
+    /^\/api\/(?:workspaces\/[^/]+\/(?:tailor|analyze|interview)|resumes\/[^/]+\/assess|resumes\/[^/]+\/versions\/[^/]+\/regenerate|interview\/sessions\/[^/]+\/follow-up|processing-jobs\/[^/]+\/retry)\/?$/.test(req.path);
   return req.method === 'POST' && costly ? aiIpLimiter(req, res, next) : next();
 });
 
 // Mount API Routes
 app.use('/api/health', healthRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/profile', require('./routes/profileRoutes'));
+app.use('/api/workspaces', require('./routes/workspaceRoutes'));
 app.use('/api/resumes', resumeRoutes);
 app.use('/api/interview', interviewRoutes);
 app.use('/api/jobs', jobRoutes);

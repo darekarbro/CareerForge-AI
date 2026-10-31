@@ -2,6 +2,9 @@ const mongoose = require('mongoose');
 
 const tailoredResumeSchema = new mongoose.Schema(
   {
+    processingJobId: { type: mongoose.Schema.Types.ObjectId, unique: true, sparse: true },
+    workspaceId: { type: mongoose.Schema.Types.ObjectId, ref: 'JobWorkspace', index: true },
+    assessmentMeta: mongoose.Schema.Types.Mixed,
     resumeId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Resume',
@@ -99,6 +102,14 @@ const tailoredResumeSchema = new mongoose.Schema(
       type: String,
     },
     improvementSuggestions: [String],
+    sourceContent: mongoose.Schema.Types.Mixed,
+    sourceRevision: { type: Number, default: 1 },
+    contentRevision: { type: Number, default: 1 },
+    reviewedContent: mongoose.Schema.Types.Mixed,
+    reviewDecisions: { type: mongoose.Schema.Types.Mixed, default: {} },
+    reviewedAt: Date,
+    atsScoreStale: { type: Boolean, default: false },
+    editHistory: [{ revision: Number, content: mongoose.Schema.Types.Mixed, decisions: mongoose.Schema.Types.Mixed, savedAt: Date }],
     aiProvider: {
       type: String,
       enum: ['groq', 'openrouter', 'gemini', 'deterministic-fallback'],

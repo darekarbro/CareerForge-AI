@@ -46,6 +46,8 @@ class ChatCompletionProvider extends BaseProvider {
       }
     }, this.timeoutMs, this.name);
     const content = response.data?.choices?.[0]?.message?.content;
+    const scope = require('../services/jobContext').context.getStore();
+    if (scope && response.data?.usage) scope.providerUsage = { inputTokens: response.data.usage.prompt_tokens, outputTokens: response.data.usage.completion_tokens };
     if (typeof content !== 'string' || !content.trim()) throw new Error('Empty response received from ' + this.name);
     try { return JSON.parse(content.replace(/^```json\s*/i, '').replace(/\s*```$/i, '').trim()); }
     catch { throw new Error('Invalid JSON received from ' + this.name); }
@@ -111,8 +113,8 @@ class ChatCompletionProvider extends BaseProvider {
     return this._callChatCompletion(systemPrompt, `Job Description:\n${jobDescriptionText.slice(0, 4000)}\n\nResume Data:\n${JSON.stringify(resumeData).slice(0, 4000)}`, "analyzeGap");
   }
 
-  async generateQuestions({ resumeData, targetRole, jobDescriptionText, count = 5 }) {
-    const systemPrompt = `You are a Principal Hiring Manager. Generate ${count} interview questions for "${targetRole}". Return JSON:
+  async generateQuestions({ resumeData, targetRole, jobDescriptionText, count = 5, difficulty = 'Medium', topicFocus = '' }) {
+    const systemPrompt = `You are a Principal Hiring Manager. Generate ${count} ${difficulty} difficulty interview questions for "${targetRole}". Set every difficulty to ${difficulty}. ${topicFocus ? 'Focus on this practice topic: ' + topicFocus + '. Ask probing follow-ups that test reasoning, examples and failure cases.' : ''} Return JSON:
 {
   "questions": [
     {

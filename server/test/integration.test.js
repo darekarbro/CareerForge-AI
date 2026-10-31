@@ -207,7 +207,7 @@ test('13,20,27: an eight-question JD-aware interview completes after all eight a
   await Promise.all(responses.map(successfulJob));
   const session = await Session.findById(generated.session._id);
   assert.equal(session.answeredCount, 8); assert.equal(session.totalQuestions, 8); assert.equal(session.status, 'completed');
-  assert(session.overallScore > 0);
+  assert(session.overallScore > 0, JSON.stringify(session.toObject()));
   const analytics = await require('../src/services/interviewService').getAnalytics(account.id);
   assert.equal(analytics.completedSessions, 1); assert.equal(analytics.scoreTrends.length, 1);
 });
@@ -352,6 +352,171 @@ test('44: readiness becomes unavailable when MongoDB disconnects', async () => {
   const response = await request('GET', '/api/health');
   assert.equal(response.status, 503); assert.equal(response.data.status, 'not_ready');
   await connectDB({ uri: db.getUri() });
+});
+
+test('Career profiles and editable resumes validate fields, protect ownership and preserve revision history', async () => {
+  const a = await user(), b = await user();
+  const initial = (await request('GET', '/api/profile', { token: a.token })).data.data;
+  assert.equal(initial.revision, 0); assert.equal(initial.content.contactInfo.email, a.user.email);
+  const payload = { revision: 0, content: facts, targetRole: 'Backend Engineer', experienceLevel: 'early', onboardingCompleted: true };
+  assert.equal((await request('PUT', '/api/profile', { token: a.token, body: { ...payload, role: 'admin' } })).status, 400);
+  assert.equal((await request('PUT', '/api/profile', { token: a.token, body: payload })).data.data.revision, 1);
+  assert.equal((await request('PUT', '/api/profile', { token: a.token, body: payload })).status, 409);
+  assert.equal((await request('GET', '/api/profile', { token: b.token })).data.data.content.workExperience.length, 0);
+  const created = await request('POST', '/api/profile/resumes', { token: a.token, body: { title: 'Verified facts' } });
+  assert.equal(created.status, 201, JSON.stringify(created.data));
+  const id = created.data.data._id;
+  const edited = structuredClone(facts); edited.projects[0].description = 'Verified user contribution to Python validation.';
+  const body = { revision: 1, title: 'Edited facts', content: edited };
+  assert.equal((await request('PUT', '/api/resumes/' + id + '/content', { token: b.token, body })).status, 404);
+  const saved = await request('PUT', '/api/resumes/' + id + '/content', { token: a.token, body });
+  assert.equal(saved.data.data.contentRevision, 2); assert.equal(saved.data.data.atsScoreStale, true);
+  assert.equal((await request('PUT', '/api/resumes/' + id + '/content', { token: a.token, body })).status, 409);
+  const restored = await request('POST', '/api/resumes/' + id + '/restore', { token: a.token, body: { revision: 2, restoreRevision: 1 } });
+  assert.equal(restored.data.data.contentRevision, 3); assert.equal(restored.data.data.parsedData.projects[0].description, facts.projects[0].description);
+  const history = await request('GET', '/api/resumes/' + id + '/history', { token: a.token });
+  assert.equal(history.data.data.length, 3);
+});
+
+test('Job workspaces reuse descriptions, isolate accounts and freeze the resume submitted with an application', async () => {
+  const a = await user(), b = await user(), resume = await ready(a.id);
+  const body = { company: 'Target Co', title: 'Backend Engineer', description: 'Docker and Python required', resumeId: String(resume._id), jobUrl: 'https://example.test/job' };
+  const saved = await request('POST', '/api/workspaces', { token: a.token, body });
+  assert.equal(saved.status, 201, JSON.stringify(saved.data)); const id = saved.data.data._id;
+  assert.equal((await request('GET', '/api/workspaces/' + id, { token: b.token })).status, 404);
+  assert.equal((await request('POST', '/api/workspaces/' + id + '/tailor', { token: b.token, body: {} })).status, 404);
+  const output = await successfulJob(await request('POST', '/api/workspaces/' + id + '/tailor', { token: a.token, body: {} }));
+  await successfulJob(await request('POST', '/api/workspaces/' + id + '/analyze', { token: a.token, body: {} }));
+  const interview = await successfulJob(await request('POST', '/api/workspaces/' + id + '/interview', { token: a.token, body: { difficulty: 'Hard', count: 3 } }));
+  assert.equal(interview.questions.length, 3); assert(interview.questions.every((item) => item.difficulty === 'Hard'));
+  assert.equal(await Description.countDocuments(), 1);
+  const details = (await request('GET', '/api/workspaces/' + id, { token: a.token })).data.data;
+  assert.equal(details.versions.length, 1); assert.equal(details.interviews.length, 1); assert(details.gap);
+  const version = output.tailoredResume, application = await request('POST', '/api/applications', { token: a.token, body: {
+    company: 'Target Co', roleTitle: 'Backend Engineer', workspaceId: id, resumeVersionId: version._id,
+    deadline: '2026-01-02', followUpAt: '2026-01-05', notes: 'Follow up with the recruiter',
+  } });
+  assert.equal(application.status, 201, JSON.stringify(application.data));
+  const snapshot = application.data.data.resumeSnapshot;
+  await request('PUT', '/api/resumes/' + resume._id + '/versions/' + version._id, { token: a.token, body: { revision: 1, content: { ...version.tailoredContent, summary: 'Changed after application was saved' } } });
+  assert.equal((await Application.findById(application.data.data._id)).resumeSnapshot.content.summary, snapshot.content.summary);
+  assert.equal((await request('GET', '/api/applications?search=Target&due=1', { token: a.token })).data.data.length, 1);
+  assert.equal((await request('POST', '/api/applications', { token: b.token, body: { company: 'Other', roleTitle: 'Other', resumeVersionId: version._id } })).status, 404);
+  assert.equal((await request('PUT', '/api/workspaces/' + id, { token: a.token, body: { ...body, revision: 0 } })).status, 409);
+});
+test('Repeated assessments reuse a stable input snapshot and detect edits', async () => {
+  const a = await user(), resume = await ready(a.id), factory = require('../src/providers/providerFactory'), original = factory.deterministic.scoreATS;
+  let calls = 0; factory.deterministic.scoreATS = async (params) => { calls++; return original.call(factory.deterministic, params); };
+  try {
+    const url = '/api/resumes/' + resume._id + '/assess';
+    const first = await successfulJob(await request('POST', url, { token: a.token, body: {} }));
+    const second = await successfulJob(await request('POST', url, { token: a.token, body: {} }));
+    assert.equal(first.assessment.score, second.assessment.score); assert.equal(calls, 1); assert.equal(second.assessment.assessmentMeta.cached, true);
+    await request('PUT', '/api/resumes/' + resume._id + '/content', { token: a.token, body: { revision: 1, content: { ...facts, summary: facts.summary + ' Additional verified detail.' } } });
+    assert.equal((await Resume.findById(resume._id)).atsScoreStale, true);
+    const third = await successfulJob(await request('POST', url, { token: a.token, body: {} }));
+    assert.notEqual(first.assessment.assessmentMeta.fingerprint, third.assessment.assessmentMeta.fingerprint); assert.equal(calls, 2);
+    await require('../src/models/AssessmentCache').updateOne({ owner: a.id, fingerprint: third.assessment.assessmentMeta.fingerprint }, { $set: { expiresAt: new Date(Date.now() - 1000) } });
+    await successfulJob(await request('POST', url, { token: a.token, body: {} }));
+    assert.equal(calls, 3);
+  } finally { factory.deterministic.scoreATS = original; }
+});
+
+test('Failed jobs retain encrypted retry inputs and owned retries complete without duplicate artifacts', async () => {
+  const a = await user(), b = await user(), resume = await ready(a.id), original = generator.tailorResume;
+  const secret = 'PRIVATE_SYNTHETIC_JOB_INPUT';
+  let response;
+  generator.tailorResume = async () => { throw new Error('Controlled transient provider failure'); };
+  try {
+    response = await request('POST', '/api/resumes/' + resume._id + '/tailor', { token: a.token, body: { targetRole: 'Backend Engineer', jobDescriptionText: secret } });
+    const failed = await finished(response.data.data.jobId);
+    assert.equal(failed.status, 'FAILED'); assert.equal(failed.inputRef.rawInput, undefined);
+    const payload = await require('../src/models/JobPayload').findOne({ jobId: failed._id });
+    assert(payload); assert(!payload.ciphertext.includes(Buffer.from(secret)));
+    assert.equal((await request('GET', '/api/processing-jobs/' + failed._id, { token: a.token })).data.data.inputRef.rawInput, undefined);
+    assert.equal((await request('POST', '/api/processing-jobs/' + failed._id + '/retry', { token: b.token, body: {} })).status, 409);
+  } finally { generator.tailorResume = original; }
+  const retried = await successfulJob(await request('POST', '/api/processing-jobs/' + response.data.data.jobId + '/retry', { token: a.token, body: {} }));
+  assert.equal(await Tailored.countDocuments(), 1); assert.equal(retried.tailoredResume.jobDescriptionText, secret);
+  assert.equal(await require('../src/models/JobPayload').countDocuments(), 0);
+  const usage = (await request('GET', '/api/processing-jobs/usage', { token: a.token })).data.data;
+  assert(usage.providerAttempts > 0); assert.equal(usage.completed, 1);
+});
+test('Expired worker leases recover a committed resume version and a partially inserted question set exactly once', async () => {
+  const a = await user(), resume = await ready(a.id), create = require('../src/services/jobService').createJob;
+  const tailorJob = await create({ userId: a.id, jobType: 'resume_tailor', inputRef: { resumeId: resume._id, targetRole: 'Engineer', rawInput: { targetRole: 'Engineer' } } });
+  const version = await Tailored.create({ owner: a.id, resumeId: resume._id, processingJobId: tailorJob._id, targetRole: 'Engineer', version: 1, tailoredContent: facts });
+  const questionJob = await create({ userId: a.id, jobType: 'question_generation', inputRef: { resumeId: resume._id, targetRole: 'Engineer', rawInput: { count: 2 } } });
+  const pending = [1, 2].map((order) => ({ _id: new mongoose.Types.ObjectId(), questionText: 'Question ' + order, suggestedAnswer: 'Answer', topic: 'Testing', order }));
+  const session = await Session.create({ owner: a.id, resumeId: resume._id, targetRole: 'Engineer', totalQuestions: 2, processingJobId: questionJob._id, pendingQuestions: pending });
+  await Question.create({ ...pending[0], sessionId: session._id });
+  for (const job of [tailorJob, questionJob]) await Job.collection.updateOne({ _id: job._id }, { $set: { status: 'COMMITTING', leaseOwner: 'stopped-worker', leaseExpiresAt: new Date(Date.now() - 1000), createdAt: new Date(Date.now() - 60000) } });
+  const queued = [];
+  await require('../src/services/jobRecovery').recoverStalled({ enqueueJob: async (job) => queued.push(job._id) });
+  assert.equal(queued.length, 2);
+  for (const id of queued) await require('../src/agents/orchestrator').runJob(id);
+  assert.equal(await Tailored.countDocuments(), 1); assert.equal(await Session.countDocuments(), 1); assert.equal(await Question.countDocuments(), 2);
+  assert.equal(String((await Job.findById(tailorJob._id)).output.tailoredResume._id), String(version._id));
+  assert.equal((await Job.findById(questionJob._id)).status, 'COMPLETED');
+  assert.equal((await Session.findById(session._id).select('+pendingQuestions')).pendingQuestions, undefined);
+});
+test('Resume exports preserve full long-form content across three layouts and editable DOCX', async () => {
+  const a = await user(), resume = await ready(a.id), fixture = require('./fixtures/resumes').experienced;
+  const version = await Tailored.create({ owner: a.id, resumeId: resume._id, targetRole: 'Engineer', version: 1, tailoredContent: fixture });
+  const url = '/api/resumes/' + resume._id + '/download/' + version._id;
+  for (const template of ['classic', 'modern', 'compact']) {
+    const response = await request('GET', url + '?template=' + template + '&preview=1', { token: a.token });
+    assert.equal(response.status, 200); assert(Number(response.headers.get('x-page-count')) >= 2);
+    const text = await require('../src/agents/parserAgent').extractTextFromBuffer(response.data, 'pdf');
+    for (const fact of ['Example Company 6', 'Validation Project 4', 'Example Python Course', 'Example University']) assert(text.includes(fact), template + ': ' + fact);
+    await fs.writeFile(path.join(testRoot, 'export-' + template + '.pdf'), response.data);
+  }
+  assert.equal(await require('../src/models/ProductEvent').countDocuments(), 0);
+  const docx = await request('GET', url + '?format=docx', { token: a.token });
+  assert.equal(docx.status, 200); assert.equal(docx.data.subarray(0, 2).toString(), 'PK');
+  const text = (await require('mammoth').extractRawText({ buffer: docx.data })).value;
+  assert(text.includes('Example Company 6')); assert(text.includes('Validation Project 4')); assert(text.includes('Example Python Course'));
+  await fs.writeFile(path.join(testRoot, 'export-editable.docx'), docx.data);
+  assert.equal(await require('../src/models/ProductEvent').countDocuments({ type: 'docx_export' }), 1);
+  assert.equal((await request('GET', url + '?fontSize=6', { token: a.token })).status, 400);
+});
+test('Interview modes hide feedback until completion and retries replace scores without inflating counts', async () => {
+  const a = await user(), resume = await ready(a.id);
+  const output = await successfulJob(await request('POST', '/api/interview/sessions', { token: a.token, body: {
+    resumeId: String(resume._id), targetRole: 'Backend Engineer', count: 3, difficulty: 'Easy', timeLimitSeconds: 120, feedbackMode: 'end', topicFocus: 'API design',
+  } }));
+  const session = output.session, questions = output.questions;
+  assert(questions.every((item) => !item.suggestedAnswer && item.difficulty === 'Easy' && item.topic === 'API design'));
+  const url = '/api/interview/sessions/' + session._id;
+  const answer = async (question, retry, text = 'Basic answer') => successfulJob(await request('POST', url + '/questions/' + question._id + '/answer', { token: a.token, body: { userAnswer: text, retry } }));
+  assert.equal((await answer(questions[0], false)).question.feedback, undefined);
+  assert.equal((await request('GET', url + '/questions/' + questions[0]._id + '/suggested-answer', { token: a.token })).status, 409);
+  await Promise.all(questions.slice(1).map((item) => answer(item, false)));
+  const completed = (await request('GET', url, { token: a.token })).data.data;
+  assert.equal(completed.session.answeredCount, 3); assert(completed.questions.every((item) => item.feedback && item.suggestedAnswer));
+  const retried = await answer(questions[0], true, 'I define requirements and constraints, compare alternatives and trade-offs, then validate using tests and plan failure recovery.');
+  assert.equal(retried.session.answeredCount, 3); assert.equal(retried.question.attempts.length, 1); assert.equal(retried.session.status, 'completed');
+  const stored = await Question.find({ sessionId: session._id });
+  assert.equal(retried.session.overallScore, Math.round(stored.reduce((sum, item) => sum + item.feedback.overallScore, 0) / 3));
+  const follow = await successfulJob(await request('POST', url + '/follow-up', { token: a.token, body: { topic: 'API design' } }));
+  assert.equal(follow.session.topicFocus, 'API design'); assert.equal(follow.session.resumeId.toString(), resume._id.toString());
+});
+test('Reviewed versions export saved choices; scoped rewrites and review revisions remain owned', async () => {
+  const a = await user(), b = await user(), resume = await ready(a.id);
+  const { tailoredResume: version } = await successfulJob(await request('POST', '/api/resumes/' + resume._id + '/tailor', { token: a.token, body: { targetRole: 'Backend Engineer' } }));
+  const url = '/api/resumes/' + resume._id + '/versions/' + version._id;
+  const content = structuredClone(version.tailoredContent); content.summary = 'Verified edited summary for Python engineering.';
+  const body = { revision: 1, content, decisions: { summary: 'edited', 0: 'rejected' } };
+  assert.equal((await request('PUT', url, { token: b.token, body })).status, 404);
+  assert.equal((await request('PUT', url, { token: a.token, body })).data.data.contentRevision, 2);
+  assert.equal((await request('PUT', url, { token: a.token, body })).status, 409);
+  const pdf = await request('GET', '/api/resumes/' + resume._id + '/download/' + version._id, { token: a.token });
+  assert((await require('../src/agents/parserAgent').extractTextFromBuffer(pdf.data, 'pdf')).includes(content.summary));
+  const rewrite = await successfulJob(await request('POST', url + '/regenerate', { token: a.token, body: { section: 'projects', index: 0 } }));
+  assert.equal(rewrite.section, 'projects'); assert.equal(rewrite.value.title, facts.projects[0].title);
+  assert.equal((await Tailored.findById(version._id)).reviewedContent.summary, content.summary);
+  assert.equal((await request('POST', url + '/regenerate', { token: a.token, body: { section: 'projects', index: -1 } })).status, 400);
+  assert.equal((await request('POST', url + '/restore', { token: a.token, body: { revision: 2, restoreRevision: 1 } })).data.data.contentRevision, 3);
 });
 
 test('43: an unavailable configured database falls back in development and fails closed in production', async () => {

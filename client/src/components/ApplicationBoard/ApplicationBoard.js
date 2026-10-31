@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Plus, Building, ExternalLink, Edit3, ArrowRight } from 'lucide-react';
 import ApplicationModal from './ApplicationModal';
 
@@ -16,11 +16,14 @@ export default function ApplicationBoard({
   onAddApplication,
   onUpdateApplication,
   onDeleteApplication,
+  initialDraft,
+  onInitialDraftHandled,
 }) {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedApp, setSelectedApp] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState('');
+  useEffect(() => { if (initialDraft) { setSelectedApp(initialDraft); setModalOpen(true); onInitialDraftHandled?.(); } }, [initialDraft, onInitialDraftHandled]);
 
   const handleOpenAdd = () => {
     setSaveError('');
@@ -39,11 +42,12 @@ export default function ApplicationBoard({
     setIsSaving(true);
     setSaveError('');
     try {
-      if (selectedApp) await onUpdateApplication(selectedApp._id, formData);
+      if (selectedApp?._id) await onUpdateApplication(selectedApp._id, formData);
       else await onAddApplication(formData);
       setModalOpen(false);
     } catch (error) {
       setSaveError(error.response?.data?.message || 'Unable to save. Your edits have been kept; please retry.');
+      throw error;
     } finally { setIsSaving(false); }
   };
 
@@ -107,6 +111,8 @@ export default function ApplicationBoard({
                     <div
                       key={app._id}
                       onClick={() => handleOpenEdit(app)}
+                      role="button" tabIndex={0} aria-label={`Edit ${app.roleTitle} at ${app.company}`}
+                      onKeyDown={(event) => { if (['Enter', ' '].includes(event.key)) { event.preventDefault(); handleOpenEdit(app); } }}
                       className="p-3 border-2 border-[#1a1a1a] bg-white shadow-brutal hover:shadow-brutal-lg cursor-pointer transition-all group"
                     >
                       <div className="flex items-start justify-between gap-1 mb-1">
@@ -119,6 +125,9 @@ export default function ApplicationBoard({
                       <p className="text-[11px] font-bold text-gray-700 leading-tight mb-2">
                         {app.roleTitle}
                       </p>
+                      {app.deadline && <p className="text-sm">Deadline {new Date(app.deadline).toLocaleDateString()}</p>}
+                      {app.followUpAt && <p className="text-sm">Follow up {new Date(app.followUpAt).toLocaleDateString()}</p>}
+                      {app.resumeSnapshot && <p className="text-sm">Resume v{app.resumeSnapshot.version} · revision {app.resumeSnapshot.contentRevision}</p>}
 
                       <div className="flex flex-wrap items-center justify-between gap-1 pt-2 border-t border-gray-100 text-[10px] text-gray-500 font-medium">
                         <span className="px-1.5 py-0.5 bg-[#f5f0e8] border border-[#1a1a1a] font-bold">

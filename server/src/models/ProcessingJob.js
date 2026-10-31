@@ -13,6 +13,7 @@ const processingJobSchema = new mongoose.Schema(
       enum: [
         'resume_parse',
         'resume_tailor',
+        'section_rewrite',
         'gap_analysis',
         'ats_score',
         'question_generation',
@@ -29,9 +30,12 @@ const processingJobSchema = new mongoose.Schema(
     },
     inputRef: {
       resumeId: mongoose.Schema.Types.ObjectId,
+      versionId: mongoose.Schema.Types.ObjectId,
+      workspaceId: mongoose.Schema.Types.ObjectId,
       jobDescriptionId: mongoose.Schema.Types.ObjectId,
       sessionId: mongoose.Schema.Types.ObjectId,
       questionId: mongoose.Schema.Types.ObjectId,
+      answerBaseJobId: mongoose.Schema.Types.ObjectId,
       targetRole: String,
       rawInput: mongoose.Schema.Types.Mixed,
     },
@@ -46,6 +50,10 @@ const processingJobSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    leaseOwner: String,
+    leaseExpiresAt: Date,
+    recoveredAt: Date,
+    usage: [{ action: String, provider: String, model: String, durationMs: Number, status: String, inputTokens: Number, outputTokens: Number }],
     retryCount: {
       type: Number,
       default: 0,

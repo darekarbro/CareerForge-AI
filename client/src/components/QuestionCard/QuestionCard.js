@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Eye, EyeOff, Send, CheckCircle, HelpCircle, Loader2, Sparkles } from 'lucide-react';
 import FeedbackPanel from '../FeedbackPanel/FeedbackPanel';
 
@@ -10,11 +10,18 @@ export default function QuestionCard({
   isSubmitting,
   draft,
   onDraftChange,
+  timeLimitSeconds = 0,
+  timerStartedAt,
+  onTimerStart,
 }) {
   const userAnswer = draft ?? question.userAnswer ?? '';
   const [showSuggested, setShowSuggested] = useState(false);
+  const [retrying, setRetrying] = useState(false), [now, setNow] = useState(Date.now());
+  useEffect(() => { if (timeLimitSeconds && !timerStartedAt) onTimerStart?.(Date.now()); }, [timeLimitSeconds, timerStartedAt, onTimerStart]);
+  useEffect(() => { if (!timeLimitSeconds) return; const timer = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(timer); }, [timeLimitSeconds]);
 
-  const isEvaluated = Boolean(question.feedback?.overallScore !== undefined);
+  const isEvaluated = Boolean(question.answeredAt || question.feedback?.overallScore !== undefined);
+  const remaining = Math.max(0, timeLimitSeconds - Math.floor((now - (timerStartedAt || now)) / 1000));
 
   const difficultyColors = {
     Easy: 'bg-green-100 text-green-800 border-green-800',
@@ -22,10 +29,10 @@ export default function QuestionCard({
     Hard: 'bg-red-100 text-red-800 border-red-800',
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!userAnswer.trim() || isSubmitting) return;
-    onSubmitAnswer(question._id, userAnswer);
+    if (await onSubmitAnswer(question._id, userAnswer, retrying)) setRetrying(false);
   };
 
   return (
@@ -57,9 +64,10 @@ export default function QuestionCard({
       <h3 className="font-headline font-black text-lg sm:text-xl text-[#1a1a1a] leading-snug">
         {question.questionText}
       </h3>
+      {!!timeLimitSeconds && (!isEvaluated || retrying) && <p role="timer" aria-label="Practice time remaining" className="text-sm font-semibold">{remaining ? Math.floor(remaining / 60) + ':' + String(remaining % 60).padStart(2, '0') + ' remaining' : 'Time is up. Finish your answer and submit when ready.'}</p>}
 
       {/* Suggested Model Answer Toggle Accordion */}
-      <div className="border-2 border-[#1a1a1a] bg-[#f5f0e8] overflow-hidden">
+      {question.suggestedAnswer && <div className="border-2 border-[#1a1a1a] bg-[#f5f0e8] overflow-hidden">
         <button
           type="button"
           onClick={() => setShowSuggested(!showSuggested)}
@@ -94,10 +102,10 @@ export default function QuestionCard({
             )}
           </div>
         )}
-      </div>
+      </div>}
 
       {/* Candidate Answer Box */}
-      {!isEvaluated ? (
+      {!isEvaluated || retrying ? (
         <form onSubmit={handleSubmit} className="space-y-3">
           <label htmlFor={'answer-' + question._id} className="block font-headline font-bold text-xs uppercase text-[#1a1a1a]">
             Your Response (Technical explanation or STAR breakdown)
@@ -105,6 +113,7 @@ export default function QuestionCard({
           <textarea
             id={'answer-' + question._id}
             rows={5}
+            maxLength={12000}
             value={userAnswer}
             onChange={(e) => onDraftChange?.(e.target.value)}
             placeholder="Structure your answer clearly. For behavioral questions, highlight Situation, Task, Action, and measurable Results..."
@@ -120,12 +129,12 @@ export default function QuestionCard({
               {isSubmitting ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin text-[#ffcc00]" />
-                  <span>Scoring via Evaluator Agent...</span>
+                  <span>Reviewing your answer…</span>
                 </>
               ) : (
                 <>
                   <Send className="w-4 h-4" />
-                  <span>Submit for Dimension Evaluation</span>
+                  <span>{retrying ? 'Submit improved answer' : 'Submit answer'}</span>
                 </>
               )}
             </button>
@@ -143,7 +152,9 @@ export default function QuestionCard({
           </div>
 
           {/* 4-Dimension Scorecard */}
-          <FeedbackPanel feedback={question.feedback} />
+          {question.feedback?.overallScore !== undefined ? <FeedbackPanel feedback={question.feedback} /> : <p className="text-sm">Your answer is saved. Feedback unlocks when the session is complete.</p>}
+          <button type="button" disabled={isSubmitting || (question.attempts?.length || 0) >= 10} onClick={() => { onDraftChange?.(''); setRetrying(true); onTimerStart?.(Date.now()); }} className="brutal-btn-yellow px-4 py-2 text-sm">Try this answer again</button>
+          {!!question.attempts?.length && <details className="text-sm"><summary>Previous attempts ({question.attempts.length})</summary><ol className="space-y-3 mt-3">{question.attempts.map((item, index) => <li key={index}><p>{item.userAnswer}</p><strong>{item.feedback?.overallScore}%</strong></li>)}</ol></details>}
         </div>
       )}
     </div>
