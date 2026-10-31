@@ -23,6 +23,12 @@ flowchart LR
 
 The API authenticates every protected request against both its signed JWT and an `AuthSession`. A JWT contains account ID, session ID and account authVersion, plus issuer/audience/expiry. Password reset, password change and sign-out-all increment authVersion, remove sessions and disconnect account sockets. Current-device logout removes just that session. Old unbound JWTs require a new sign-in after upgrading.
 
+When a verified Google identity claims an unverified local registration with the same email, the API atomically replaces the unverified password, links the Google identity and increments authVersion before issuing the new session. Previous sessions and reset/verification tokens are revoked. Already verified local accounts keep their password when linking Google. Password changes compare both the stored password hash and authVersion at write time, so an in-flight request cannot overwrite newer credential state. API responses use `Cache-Control: private, no-store`.
+
+Privacy exports recheck authVersion after credential verification and archive preparation. New deletion requests persist the authorization version; both the API and deletion worker atomically check it before disabling account access. Requests superseded by a credential change are removed without deleting the account. Once deletion is authorized and the account is disabled, recovery can finish it after a process restart. Legacy pending deletion records remain recoverable.
+
+For end-of-session interview feedback, session aggregates, answers, processing outputs, activity messages and workspace summaries hide scores and suggested answers until the session completes. Analytics exclude those incomplete evaluations. Serialization also handles legacy stored processing outputs; full account archives remain complete exports of the account owner's data.
+
 Local registrations queue email verification. Only hashes of 32-byte random verification/reset tokens are stored on User; the outbox temporarily encrypts the delivery payload. Links use the configured APP_URL and a URL fragment, so tokens do not appear in HTTP request paths. Verification expires in 24 hours; reset in 30 minutes. Atomic consumption prevents two successful uses. Reset also checks the authVersion present when the token was created. Recovery and resend responses are generic, with a database-backed one-minute address/kind cooldown and IP limits. SMTP failures retry up to five times; outbox payloads expire after one hour and are removed after successful delivery.
 
 ## Collections

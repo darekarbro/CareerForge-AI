@@ -6,7 +6,7 @@ class EvaluatorAgent {
    * Evaluate user's submitted mock-interview answer across 4 dimensions:
    * 1. Clarity, 2. Relevance, 3. Structure / STAR, 4. Technical correctness
    */
-  async evaluateAnswer({ question, userAnswer, suggestedAnswer, targetRole, jobId, userId }) {
+  async evaluateAnswer({ question, userAnswer, suggestedAnswer, targetRole, jobId, userId, deferFeedback = false }) {
     const startTime = Date.now();
 
     await monitoringAgent.logEvent({
@@ -38,11 +38,11 @@ class EvaluatorAgent {
       userId,
       agent: 'evaluator',
       level: 'success',
-      message: `Evaluation completed! Overall Score: ${feedback.overallScore}/100 (Clarity: ${feedback.clarityScore}, Relevance: ${feedback.relevanceScore}, Structure: ${feedback.structureScore}, Tech: ${feedback.technicalScore}). Served by [${feedback.aiProvider}]`,
+      message: deferFeedback ? 'Evaluation completed. Feedback unlocks after completing the session.' : `Evaluation completed! Overall Score: ${feedback.overallScore}/100 (Clarity: ${feedback.clarityScore}, Relevance: ${feedback.relevanceScore}, Structure: ${feedback.structureScore}, Tech: ${feedback.technicalScore}). Served by [${feedback.aiProvider}]`,
       step: 'evaluation_completed',
       durationMs: Date.now() - startTime,
       metadata: {
-        overallScore: feedback.overallScore,
+        ...(!deferFeedback ? { overallScore: feedback.overallScore } : {}),
         aiProvider: feedback.aiProvider,
       },
     });

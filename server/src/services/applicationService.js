@@ -3,6 +3,9 @@ const fail = (message, statusCode = 400) => Object.assign(new Error(message), { 
 const stagesList = ['saved', 'applied', 'oa', 'interview', 'offer', 'rejected'];
 function parseDate(value) {
   if (value === null || value === '') return null;
+  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}(?:T\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?(?:Z|[+-]\d{2}:\d{2}))?$/.test(value)) throw fail('Provide an ISO date or date-time');
+  const [year, month, day] = value.slice(0, 10).split('-').map(Number), calendar = new Date(Date.UTC(year, month - 1, day));
+  if (calendar.getUTCFullYear() !== year || calendar.getUTCMonth() !== month - 1 || calendar.getUTCDate() !== day) throw fail('Provide a valid calendar date');
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) throw fail('Provide a valid date');
   return date;
@@ -14,6 +17,11 @@ function weekStart(date) {
   return start.toISOString().slice(0, 10);
 }
 class ApplicationService {
+  async syncWorkspace(application, owner) {
+    const Workspace = require('../models/JobWorkspace');
+    await Workspace.updateMany({ owner, applicationId: application._id, ...(application.workspaceId ? { _id: { $ne: application.workspaceId } } : {}) }, { $unset: { applicationId: 1 } });
+    if (application.workspaceId) await Workspace.updateOne({ _id: application.workspaceId, owner }, { $set: { applicationId: application._id } });
+  }
   async validateLinks(userId, data, before) {
     const extra = {};
     if (data.workspaceId) { await require('./workspaceService').get(data.workspaceId, userId); extra.workspaceId = data.workspaceId; }
@@ -29,7 +37,7 @@ class ApplicationService {
     const allowed = ['company', 'roleTitle', 'sourcePlatform', 'jobLink', 'status', 'salaryRange', 'location', 'notes', 'appliedDate', 'deadline', 'followUpAt', 'workspaceId', 'resumeVersionId', 'revision', 'statusNote'];
     if (Object.keys(data).some((key) => !allowed.includes(key))) throw fail('Unsupported application field');
     for (const field of ['company', 'roleTitle', 'salaryRange', 'location', 'notes', 'statusNote']) if (data[field] !== undefined) require('./resumeContent').text(data[field], field, field === 'notes' ? 10000 : 300);
-    if (data.jobLink) require('./resumeContent').url(data.jobLink, 'Job link');
+    if (data.jobLink !== undefined) extra.jobLink = require('./resumeContent').url(data.jobLink, 'Job link');
     return extra;
   }
   async listApplications(userId, { status, search, sort = '-lastUpdated', due } = {}) {
@@ -50,10 +58,10 @@ class ApplicationService {
     const appliedDate = data.appliedDate !== undefined && data.appliedDate !== ''
       ? parseDate(data.appliedDate) : status === 'saved' ? null : new Date();
     const created = await Application.create({ owner: userId, ...extra, company: data.company, roleTitle: data.roleTitle,
-      sourcePlatform: data.sourcePlatform || 'LinkedIn', jobLink: data.jobLink, status, appliedDate,
+      sourcePlatform: data.sourcePlatform || 'LinkedIn', jobLink: extra.jobLink, status, appliedDate,
       salaryRange: data.salaryRange || '', location: data.location || '', notes: data.notes || '',
       timeline: [{ status, updatedAt: new Date(), note: 'Application added to pipeline' }] });
-    if (extra.workspaceId) await require('../models/JobWorkspace').updateOne({ _id: extra.workspaceId, owner: userId }, { $set: { applicationId: created._id } });
+    await this.syncWorkspace(created, userId);
     return created;
   }
   async updateApplication(appId, userId, data) {
@@ -66,7 +74,7 @@ class ApplicationService {
       app.timeline.push({ status: data.status, updatedAt: new Date(), note: data.statusNote || 'Status updated to ' + data.status });
       app.status = data.status;
     }
-    for (const key of ['company', 'roleTitle', 'sourcePlatform', 'jobLink', 'salaryRange', 'location', 'notes']) {
+    for (const key of ['company', 'roleTitle', 'sourcePlatform', 'salaryRange', 'location', 'notes']) {
       if (data[key] !== undefined) app[key] = data[key];
     }
     if (data.appliedDate !== undefined) app.appliedDate = parseDate(data.appliedDate);
@@ -74,11 +82,12 @@ class ApplicationService {
     app.lastUpdated = new Date();
     app.revision = (app.revision || 1) + 1;
     try { await app.save(); } catch (error) { if (error.name === 'VersionError') throw fail('This application changed elsewhere. Reload before saving.', 409); throw error; }
-    if (extra.workspaceId) await require('../models/JobWorkspace').updateOne({ _id: extra.workspaceId, owner: userId }, { $set: { applicationId: app._id } });
+    await this.syncWorkspace(app, userId);
     return app;
   }
   async deleteApplication(appId, userId) {
     if (!await Application.findOneAndDelete({ _id: appId, owner: userId })) throw fail('Application not found', 404);
+    await require('../models/JobWorkspace').updateMany({ owner: userId, applicationId: appId }, { $unset: { applicationId: 1 } });
     return { success: true, message: 'Application removed' };
   }
   async getAnalytics(userId) {

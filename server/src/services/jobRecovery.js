@@ -31,8 +31,13 @@ async function retry(id, owner) {
   return { jobId: reset._id, status: 'PENDING' };
 }
 async function failRecovery(job, error) {
-  await Job.updateOne({ _id: job._id, status: { $in: ['PENDING', 'RETRYING'] } }, { $set: { status: 'FAILED', completedAt: new Date(), error: { code: error.code || 'RECOVERY_FAILURE', message: error.message } } });
+  const result = await Job.updateOne({ _id: job._id, status: { $in: ['PENDING', 'RETRYING'] } }, { $set: { status: 'FAILED', completedAt: new Date(), error: { code: error.code || 'RECOVERY_FAILURE', message: error.message } } });
+  if (!result.matchedCount) return;
+  await releaseFailedWork(job);
+}
+async function releaseFailedWork(job) {
   if (job.inputRef.questionId) await Question.updateOne({ _id: job.inputRef.questionId, evaluationJobId: job._id }, { $unset: { evaluationJobId: 1 } });
+  if (job.jobType === 'resume_parse') await require('../models/Resume').updateOne({ _id: job.inputRef.resumeId, owner: job.owner, processingJobId: job._id, processingStatus: { $ne: 'COMPLETED' } }, { $set: { processingStatus: 'FAILED' } });
 }
 async function recoverStalled({ now = new Date(), enqueueJob = enqueue } = {}) {
   const expired = await Job.find({ status: { $in: ['RUNNING', 'COMMITTING'] }, $or: [
@@ -41,7 +46,8 @@ async function recoverStalled({ now = new Date(), enqueueJob = enqueue } = {}) {
   for (const job of expired) {
     const filter = { _id: job._id, status: job.status, ...(job.leaseOwner ? { leaseOwner: job.leaseOwner, leaseExpiresAt: job.leaseExpiresAt } : { leaseOwner: { $exists: false } }) };
     if (job.retryCount >= 2) {
-      await Job.updateOne(filter, { $set: { status: 'FAILED', error: { code: 'RECOVERY_LIMIT', message: 'This request stopped repeatedly. Retry it from Activity or start the action again.' }, completedAt: now }, $unset: { leaseOwner: 1, leaseExpiresAt: 1 } });
+      const result = await Job.updateOne(filter, { $set: { status: 'FAILED', error: { code: 'RECOVERY_LIMIT', message: 'This request stopped repeatedly. Retry it from Activity or start the action again.' }, completedAt: now }, $unset: { leaseOwner: 1, leaseExpiresAt: 1 } });
+      if (result.matchedCount) await releaseFailedWork(job);
       continue;
     }
     await Job.updateOne(filter, { $set: { status: 'RETRYING', recoveredAt: now }, $inc: { retryCount: 1 }, $unset: { leaseOwner: 1, leaseExpiresAt: 1 } });

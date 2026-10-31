@@ -34,6 +34,11 @@ class TailoringService {
     const tailoredData = await generatorAgent.tailorResume({ resumeData: scoped, targetRole, jobDescriptionText,
       jobId: job._id, userId: job.owner });
     await checkpoint();
+    if (scope !== 'all' && job.inputRef.rawInput.baseSourceSnapshot) {
+      const baseline = require('./resumeStructure').withEntryIds(job.inputRef.rawInput.baseSourceSnapshot);
+      if (scope !== 'summary') { const [section, id] = scope.split(':'); baseline[section] = baseline[section].map((entry) => entry.entryId === id ? original[section].find((item) => item.entryId === id) || entry : entry); }
+      original = baseline;
+    }
     let complete = { ...original, summary: tailoredData.summary, skills: tailoredData.skills,
       workExperience: tailoredData.workExperience, projects: tailoredData.projects };
     if (scope !== 'all') {

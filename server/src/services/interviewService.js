@@ -5,15 +5,8 @@ const generatorAgent = require('../agents/generatorAgent');
 const evaluatorAgent = require('../agents/evaluatorAgent');
 const { createJob, dispatchJob } = require('./jobService');
 const { plain } = require('../providers/resumeFacts');
+const { publicSession, publicQuestion: visibleQuestion } = require('./interviewVisibility');
 const fail = (message, statusCode) => Object.assign(new Error(message), { statusCode });
-function visibleQuestion(question, session) {
-  const result = plain(question);
-  if (session.feedbackMode === 'end' && session.status !== 'completed') {
-    delete result.feedback; delete result.suggestedAnswer; delete result.keyPoints; delete result.attempts;
-  }
-  return result;
-}
-
 class InterviewService {
   async startSession({ userId, targetRole, resumeId, jobDescriptionId, count = 5, workspaceId, workspaceRevision, resumeSelection, difficulty = 'Medium', timeLimitSeconds = 0, topicFocus = '', feedbackMode = 'instant' }) {
     if (!Number.isInteger(count) || count < 1 || count > 10) throw fail('Choose 1 to 10 interview questions', 400);
@@ -74,20 +67,19 @@ class InterviewService {
         await InterviewSession.updateOne({ _id: session._id }, { $unset: { pendingQuestions: 1 } });
         await require('../models/ProcessingJob').updateOne({ _id: job._id }, { $set: { 'inputRef.sessionId': session._id } });
         await require('./workspaceService').link(job, { $addToSet: { interviewIds: session._id } });
-        const publicSession = plain(session); delete publicSession.pendingQuestions;
-        return { session: publicSession, questions: questions.map((item) => visibleQuestion(item, session)), aiProvider: session.aiProvider };
+        return { session: publicSession(session), questions: questions.map((item) => visibleQuestion(item, session)), aiProvider: session.aiProvider };
       } catch (error) {
         throw error;
       }
   }
   async listSessions(userId) {
-    return InterviewSession.find({ owner: userId }).populate('resumeId', 'title originalFileName').sort({ createdAt: -1 });
+    return (await InterviewSession.find({ owner: userId }).populate('resumeId', 'title originalFileName').sort({ createdAt: -1 })).map((session) => publicSession(session));
   }
   async getSessionById(sessionId, userId) {
     const session = await InterviewSession.findOne({ _id: sessionId, owner: userId }).populate('resumeId');
     if (!session) throw fail('Interview session not found', 404);
     const questions = await InterviewQuestion.find({ sessionId: session._id }).sort({ order: 1 });
-    return { session, questions: questions.map((item) => visibleQuestion(item, session)) };
+    return { session: publicSession(session), questions: questions.map((item) => visibleQuestion(item, session)) };
   }
   async getSuggestedAnswer(sessionId, questionId, userId) {
     const { session, questions } = await this.getSessionById(sessionId, userId);
@@ -134,11 +126,11 @@ class InterviewService {
     if (!session || !question) throw fail('Interview question is no longer available', 409);
     if (String(question.evaluatedByJobId) === String(job._id)) return commit(async () => {
       const updated = await this.updateScores(session, question, job.owner);
-      return { question: visibleQuestion(question, updated), session: updated, aiProvider: question.feedback.aiProvider };
+      return { question: visibleQuestion(question, updated), session: publicSession(updated), aiProvider: question.feedback.aiProvider };
     });
     const { userAnswer } = job.inputRef.rawInput;
     const feedback = await evaluatorAgent.evaluateAnswer({ question: plain(question), userAnswer,
-      suggestedAnswer: question.suggestedAnswer, targetRole: session.targetRole, jobId: job._id, userId: job.owner });
+      suggestedAnswer: question.suggestedAnswer, targetRole: session.targetRole, deferFeedback: session.feedbackMode === 'end' && session.status !== 'completed', jobId: job._id, userId: job.owner });
     await checkpoint();
     return commit(async () => {
       const updatedQuestion = await InterviewQuestion.findOneAndUpdate({ _id: question._id, evaluationJobId: job._id }, {
@@ -148,7 +140,7 @@ class InterviewService {
       }, { new: true, runValidators: true });
       if (!updatedQuestion) throw fail('Answer was already evaluated', 409);
       const updatedSession = await this.updateScores(session, updatedQuestion, job.owner);
-      return { question: visibleQuestion(updatedQuestion, updatedSession), session: updatedSession, aiProvider: feedback.aiProvider };
+      return { question: visibleQuestion(updatedQuestion, updatedSession), session: publicSession(updatedSession), aiProvider: feedback.aiProvider };
     });
   }
   async updateScores(session, question, owner) {
@@ -174,7 +166,7 @@ class InterviewService {
   async getAnalytics(userId) {
     const allSessions = await InterviewSession.find({ owner: userId }).sort({ createdAt: 1 });
     const sessions = allSessions.filter((session) => session.status === 'completed');
-    const questions = await InterviewQuestion.find({ sessionId: { $in: allSessions.map((session) => session._id) },
+    const questions = await InterviewQuestion.find({ sessionId: { $in: allSessions.filter((session) => session.feedbackMode !== 'end' || session.status === 'completed').map((session) => session._id) },
       answeredAt: { $exists: true }, 'feedback.overallScore': { $exists: true } });
     const topics = new Map();
     questions.forEach((question) => {
