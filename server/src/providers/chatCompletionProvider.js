@@ -3,7 +3,7 @@ const BaseProvider = require('./baseProvider');
 const env = require('../config/env');
 const schemas = require('./responseSchemas');
 const { requestWithTimeout } = require('./requestWithTimeout');
-const { parsingInstructions, tailoringInstructions, groqResumeInput } = require('./resumeWriting');
+const { parsingInstructions, tailoringInstructions, groqResumeInput, preservesResumeDetail } = require('./resumeWriting');
 
 class ChatCompletionProvider extends BaseProvider {
   constructor({ name, apiKey, model, baseUrl, strictSchema = false, timeoutMs = env.AI_PROVIDER_TIMEOUT_MS, headers = {} }) {
@@ -47,7 +47,7 @@ class ChatCompletionProvider extends BaseProvider {
     }, this.timeoutMs, this.name);
     const content = response.data?.choices?.[0]?.message?.content;
     const scope = require('../services/jobContext').context.getStore();
-    if (scope && response.data?.usage) scope.providerUsage = { inputTokens: response.data.usage.prompt_tokens, outputTokens: response.data.usage.completion_tokens };
+    if (scope && response.data?.usage) scope.providerUsage = { inputTokens: (scope.providerUsage?.inputTokens || 0) + (response.data.usage.prompt_tokens || 0), outputTokens: (scope.providerUsage?.outputTokens || 0) + (response.data.usage.completion_tokens || 0) };
     if (typeof content !== 'string' || !content.trim()) throw new Error('Empty response received from ' + this.name);
     try { return JSON.parse(content.replace(/^```json\s*/i, '').replace(/\s*```$/i, '').trim()); }
     catch { throw new Error('Invalid JSON received from ' + this.name); }
@@ -98,7 +98,17 @@ class ChatCompletionProvider extends BaseProvider {
   }
 }`;
     const source = this.name === 'groq' ? groqResumeInput(resumeData) : JSON.stringify(resumeData).slice(0, 6000);
-    return this._callChatCompletion(systemPrompt, `Target Role: ${targetRole}\nJD (Optional): ${jobDescriptionText || 'Standard industry requirements'}\nResume:\n${source}`, "tailorResume");
+    const prompt = `Target Role: ${targetRole}\nJD (Optional): ${jobDescriptionText || 'Standard industry requirements'}\nResume:\n${source}`;
+    const result = await this._callChatCompletion(systemPrompt, prompt, 'tailorResume');
+    if (this.name !== 'groq' || preservesResumeDetail(result, resumeData)) return result;
+    const checks = require('../services/claimValidation'), violations = [];
+    for (const section of ['workExperience', 'projects']) for (const [index, entry] of (result[section] || []).entries()) {
+      const original = (resumeData[section] || [])[index];
+      if (original) for (const issue of checks.issues(checks.entryText(entry), checks.entryText(original))) violations.push(section + '[' + index + ']: ' + issue);
+    }
+    // One correction attempt; the factory still validates the complete replacement.
+    // Never accept an unsupported claim just because a provider returned valid JSON.
+    return this._callChatCompletion(systemPrompt + '\nFactual correction: the previous response failed detail preservation. ' + violations.slice(0, 12).join(' ') + '\nReturn a complete replacement using the original input. Copy original wording where a rewrite would introduce a technology, number or responsibility. Preserve every entry, skill, bullet and identity field exactly in scope.', prompt, 'tailorResume');
   }
 
   async analyzeGap({ resumeData, jobDescriptionText, targetRole }) {

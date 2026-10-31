@@ -21,6 +21,10 @@ async function processSection({ job, checkpoint, commit }) {
   const result = await require('../agents/generatorAgent').tailorResume({ resumeData: scoped, targetRole: version.targetRole,
     jobDescriptionText: version.jobDescriptionText, jobId: job._id, userId: job.owner });
   await checkpoint();
-  return commit(async () => ({ section, index, value: section === 'summary' ? result.summary : result[section][0], aiProvider: result.aiProvider }));
+  const candidate = { ...scoped, summary: result.summary, workExperience: result.workExperience, projects: result.projects };
+  for (const key of ['workExperience', 'projects']) candidate[key] = (candidate[key] || []).map((entry, number) => ({ ...entry, entryId: require('./resumeStructure').withEntryIds(scoped)[key][number]?.entryId }));
+  const report = await require('./claimEvidenceService').prepare(job.owner, resume, scoped, candidate, version.evidenceSnapshot?.length ? version.evidenceSnapshot : undefined, version.sourceRevision);
+  await checkpoint();
+  return commit(async () => ({ section, index, value: section === 'summary' ? report.content.summary : report.content[section][0], claimEvidence: report.claims.filter((claim) => claim.path[0] === section), aiProvider: result.aiProvider }));
 }
 module.exports = { request, processSection };

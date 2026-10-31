@@ -113,6 +113,7 @@ async function run() {
   const downloaded = page.waitForEvent('download'); await page.getByRole('button', { name: 'Download DOCX', exact: true }).click();
   const download = await downloaded; assert((await fs.stat(await download.path())).size > 1000);
   await screenshot('review'); pass('Saved job match, per-change review, manual edits, actual PDF preview and DOCX download');
+  await require('./phase3Browser.cjs')({ page, saved, screenshot, pass, audit, resumeId });
   await page.goto(workspaceUrl); await page.getByRole('link', { name: 'Track application', exact: true }).click();
   const dialog = page.getByRole('dialog'); await dialog.waitFor(); await audit('application-editor');
   await dialog.getByLabel('Application deadline', { exact: true }).fill('2026-12-01');
@@ -143,7 +144,7 @@ async function run() {
   await page.goto('http://localhost:3030/activity'); await page.getByRole('heading', { name: 'Usage in the last 24 hours', exact: true }).waitFor();
   await page.getByRole('link', { name: 'View progress', exact: true }).first().click(); await page.getByRole('link', { name: 'Open result', exact: true }).waitFor();
   pass('Activity, usage and reopening persisted results'); await audit('processing-details');
-  for (const route of ['/dashboard', '/resumes', '/resume/upload', '/resume/' + resumeId, '/interview/setup', '/interview/history', '/jobs', '/settings', '/account', '/applications', '/activity', '/workspaces']) { await page.goto('http://localhost:3030' + route); await page.locator('main').waitFor(); await audit(route); }
+  for (const route of ['/dashboard', '/resumes', '/resume/upload', '/resume/' + resumeId, '/interview/setup', '/interview/history', '/jobs', '/settings', '/evidence', '/copilot', '/account', '/applications', '/activity', '/workspaces']) { await page.goto('http://localhost:3030' + route); await page.locator('main').waitFor(); await audit(route); }
   await page.setViewportSize({ width: 390, height: 844 }); await page.goto('http://localhost:3030/profile'); await page.getByRole('heading', { name: 'My career profile', exact: true }).waitFor();
   assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1));
   await page.getByRole('button', { name: 'Toggle navigation', exact: true }).click(); await page.getByRole('button', { name: 'Close navigation', exact: true }).waitFor();

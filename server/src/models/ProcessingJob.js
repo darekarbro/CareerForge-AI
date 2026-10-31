@@ -13,6 +13,7 @@ const processingJobSchema = new mongoose.Schema(
       enum: [
         'resume_parse',
         'resume_tailor',
+        'resume_copilot',
         'section_rewrite',
         'gap_analysis',
         'ats_score',
@@ -31,6 +32,7 @@ const processingJobSchema = new mongoose.Schema(
     inputRef: {
       resumeId: mongoose.Schema.Types.ObjectId,
       versionId: mongoose.Schema.Types.ObjectId,
+      copilotId: mongoose.Schema.Types.ObjectId,
       workspaceId: mongoose.Schema.Types.ObjectId,
       workspaceRevision: Number,
       jobDescriptionId: mongoose.Schema.Types.ObjectId,

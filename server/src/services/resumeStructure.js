@@ -31,4 +31,15 @@ function selectedContent(resume, choice) {
   for (const key of ['workExperience', 'projects']) if (selected?.[key]) content[key] = content[key].filter((entry) => selected[key].includes(entry.entryId));
   return content;
 }
-module.exports = { sectionKeys, entrySections, withEntryIds, presentation, selection, selectedContent };
+function rewriteScope(value = 'all', content) {
+  if (typeof value !== 'string' || value.length > 140) throw fail('Choose a supported rewrite scope');
+  if (['all', 'summary'].includes(value)) return value;
+  const [section, id, extra] = value.split(':');
+  if (extra || !['workExperience', 'projects'].includes(section) || !(content[section] || []).some((entry) => entry.entryId === id)) throw fail('Choose an included experience or project for this rewrite');
+  return section + ':' + id;
+}
+function scopedContent(content, scope = 'all') {
+  const source = withEntryIds(content); if (['all', 'summary'].includes(scope)) return source;
+  const [section, id] = scope.split(':'); return { ...source, summary: '', workExperience: [], projects: [], [section]: source[section].filter((entry) => entry.entryId === id) };
+}
+module.exports = { sectionKeys, entrySections, withEntryIds, presentation, selection, selectedContent, rewriteScope, scopedContent };

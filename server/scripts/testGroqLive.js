@@ -1,4 +1,4 @@
-// Opt-in live acceptance test. Uses only fictional data and its own temporary database.
+// Opt-in live acceptance test. Career data is fictional, with an optional public repository preview.
 // Run from the repository root: node server/scripts/testGroqLive.js --live
 if (!process.argv.includes('--live')) {
   console.error('Add --live to authorize real Groq API calls using server/.env.');
@@ -14,6 +14,9 @@ const settings = require('dotenv').parse(fs.readFileSync(path.join(root, 'server
 for (const key of ['GROQ_API_KEY', 'GROQ_MODEL', 'GROQ_TIMEOUT_MS']) {
   if (settings[key]) process.env[key] = settings[key];
 }
+// Acceptance-only quota pacing can wait inside a correction request. Give that
+// artificial wait room without changing the application's configured deadline.
+process.env.GROQ_TIMEOUT_MS = '120000';
 for (const key of ['MONGODB_URI', 'REDIS_URL', 'OPENROUTER_API_KEY', 'GEMINI_API_KEY',
   'FIREBASE_PROJECT_ID', 'FIREBASE_CLIENT_EMAIL', 'FIREBASE_PRIVATE_KEY',
   'CLOUDINARY_CLOUD_NAME', 'CLOUDINARY_API_KEY', 'CLOUDINARY_API_SECRET', 'SMTP_HOST', 'SMTP_USER', 'SMTP_PASSWORD', 'APP_URL']) process.env[key] = '';
@@ -35,13 +38,15 @@ const { initSocket, closeSocket } = require('../src/config/socket');
 const { closeQueue } = require('../src/queues/processingQueue');
 const { waitForJobs } = require('../src/services/jobContext');
 const app = require('../src/app');
+const evidenceMode = process.argv.includes('--evidence');
+const publicRepo = process.argv.find((arg) => arg.startsWith('--public-repo='))?.slice('--public-repo='.length);
 const pdfOnly = process.argv.includes('--pdf-roundtrip');
 const resumeOnly = process.argv.includes('--resume-only');
 const reuseSource = resumeOnly && process.argv.includes('--reuse-source');
-const reportPath = path.join(root, pdfOnly ? '.test-tmp/groq-live-pdf-results.json' : resumeOnly ? '.test-tmp/groq-resume-quality-results.json' : '.test-tmp/groq-live-results.json');
+const reportPath = path.join(root, evidenceMode ? '.test-tmp/groq-evidence-results.json' : pdfOnly ? '.test-tmp/groq-live-pdf-results.json' : resumeOnly ? '.test-tmp/groq-resume-quality-results.json' : '.test-tmp/groq-live-results.json');
 if (fs.existsSync(reportPath)) fs.copyFileSync(reportPath, path.join(root, '.test-tmp/groq-live-previous-results.json'));
-const report = { startedAt: new Date().toISOString(), model: factory.groq.model, data: 'fictional only',
-  mode: pdfOnly ? 'pdf-roundtrip' : resumeOnly ? 'resume-quality' : 'all-features',
+const report = { startedAt: new Date().toISOString(), model: factory.groq.model, data: publicRepo ? 'fictional career data; public repository preview only (not sent to AI)' : 'fictional only',
+  mode: evidenceMode ? 'all-features-and-evidence' : pdfOnly ? 'pdf-roundtrip' : resumeOnly ? 'resume-quality' : 'all-features',
   database: 'isolated temporary MongoDB', fallbackAllowed: false, calls: [], actions: [], checks: [], failures: [] };
 const output = (value) => console.log(JSON.stringify(value));
 const save = () => { fs.mkdirSync(path.dirname(reportPath), { recursive: true }); fs.writeFileSync(reportPath, JSON.stringify(report, null, 2)); };
@@ -59,11 +64,16 @@ const resetMilliseconds = (value) => {
 };
 axios.post = async (url, body, options) => {
   if (url !== 'https://api.groq.com/openai/v1/chat/completions') throw new Error('Unexpected external destination');
+  // Pace physical requests too: a bounded schema/factual correction shares this quota.
+  if (Number.isFinite(quota?.remaining) && quota.remaining < 7000 && quota.resetAt > Date.now()) {
+    const pause = Math.min(60000, quota.resetAt - Date.now() + 1000);
+    output({ quotaPauseSeconds: Math.ceil(pause / 1000), nextAction: 'provider-correction' }); await sleep(pause);
+  }
   const started = Date.now();
   const call = { action: body.response_format?.json_schema?.name || 'json-action', model: body.model };
   try {
     const response = await originalPost(url, body, options);
-    if (resumeOnly && call.action === 'tailorResume') {
+    if (call.action === 'tailorResume') {
       await fsp.writeFile(path.join(root, '.test-tmp/groq-resume-provider-output.json'), response.data.choices[0].message.content);
     }
     Object.assign(call, { status: response.status, durationMs: Date.now() - started,
@@ -81,6 +91,7 @@ axios.post = async (url, body, options) => {
 for (const provider of [factory.openRouter, factory.gemini, factory.deterministic]) provider.isAvailable = () => false;
 const execute = factory.execute.bind(factory);
 factory.execute = async (action, params, onAttempt) => {
+  if (action === 'tailorResume') await fsp.writeFile(path.join(root, '.test-tmp/groq-resume-provider-input.json'), JSON.stringify(params.resumeData, null, 2));
   // Reserve room for the input, generated answer and provider-side TPM estimates.
   if (Number.isFinite(quota?.remaining) && quota.remaining < 7000 && quota.resetAt > Date.now()) {
     const pause = Math.min(60000, quota.resetAt - Date.now() + 1000);
@@ -145,7 +156,7 @@ async function successfulJob(response) {
   assert.equal(response.status, 202, clean(response.data?.message || 'Expected queued response'));
   const id = response.data.data.jobId;
   jobIds.push(id);
-  const deadline = Date.now() + 180000;
+  const deadline = Date.now() + 300000;
   while (Date.now() < deadline) {
     const status = await request('GET', '/api/processing-jobs/' + id);
     assert.equal(status.status, 200);
@@ -324,6 +335,7 @@ async function main() {
   const notifications = await request('GET', '/api/notifications');
   assert(notifications.data.data.length >= jobIds.length);
   check('Saved processing timelines and completion notifications', { jobs: jobIds.length });
+  if (evidenceMode) await require('./testGroqEvidence.cjs')({ request, successfulJob, check, resumeId, report, publicRepo });
   const expected = ['parseResume', 'scoreATS', 'tailorResume', 'analyzeGap', 'generateQuestions', 'evaluateAnswer'];
   assert(expected.every((action) => report.actions.some((result) => result.action === action && result.passed)));
   verifyCalls();

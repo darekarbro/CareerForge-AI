@@ -6,6 +6,7 @@ import DraftToolbar from '../DraftToolbar/DraftToolbar';
 import AssessmentPanel from './AssessmentPanel';
 import ExportPanel from './ExportPanel';
 import RevisionHistory from './RevisionHistory';
+import ClaimEvidencePanel from '../Evidence/ClaimEvidencePanel';
 import usePersistentDraft from '../../hooks/usePersistentDraft';
 import useDraftSync from '../../hooks/useDraftSync';
 import { useAuthStore } from '../../store/authStore';
@@ -101,6 +102,7 @@ export default function ReviewEditor({ version, onSaved }) {
     </details>
     <div className="brutal-card p-4 flex flex-wrap gap-3 items-end"><label className="text-sm font-semibold">Rewrite one section<select id={'rewrite-' + version._id} className="brutal-input block mt-1"><option value="summary">Summary</option>{['workExperience', 'projects'].flatMap((section) => normalizeContent(version.tailoredContent)[section].map((item, index) => <option key={section + item.entryId} value={section + ':' + index}>{section === 'projects' ? 'Project' : 'Experience'}: {item.title || item.role || index + 1}</option>))}</select></label><button type="button" disabled={Boolean(working) || draft.conflict} onClick={() => regenerate(document.getElementById('rewrite-' + version._id).value)} className="brutal-btn-primary px-4 py-2 text-sm disabled:opacity-40">{working ? 'Rewriting selected section…' : 'Rewrite selected section'}</button><p className="text-sm text-gray-600">Only the selected section is replaced. Undo remains available.</p></div>
     <ResumeEditor content={draft.value.content} disabled={draft.conflict} presentation={draft.value.presentation} onPresentationChange={(presentation) => sync.change({ ...draft.value, presentation })} onChange={editContent} />
+    <ClaimEvidencePanel version={version} />
     <RevisionHistory url={url + '/history'} restoreUrl={url + '/restore'} revision={draft.baseRevision} disabled={draft.dirty || sync.saving || draft.conflict} onRestored={(record) => { const saved = { ...decode(record), userId }; draft.markSaved(saved, draft.value); setServer(saved); onSaved?.(record); }} />
     <AssessmentPanel resumeId={version.resumeId} versionId={version._id} record={version} disabled={draft.dirty || sync.saving} onAssessed={(assessment) => onSaved?.({ ...version, atsScore: assessment, assessmentMeta: assessment.assessmentMeta, atsScoreStale: false })} />
     <ExportPanel key={version._id} version={version} disabled={draft.dirty || sync.saving || draft.conflict} />

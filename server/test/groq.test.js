@@ -104,6 +104,22 @@ test('Groq malformed schemas and API failures continue to the next validated pro
   }
 });
 
+test('Groq corrects entry-specific factual drift once and never accepts a second unsupported response', async () => {
+  const post = axios.post, key = factory.groq.apiKey, available = factory.openRouter.isAvailable;
+  factory.groq.apiKey = 'synthetic-test-key'; factory.openRouter.isAvailable = () => false;
+  const source = { ...facts, skills: { all: ['Python', 'Kubernetes'] }, projects: [{ title: 'Importer', description: 'Built Python validation.', technologies: ['Python'], link: '', highlights: [] }] };
+  const input = { resumeData: source, targetRole: 'Engineer' }, good = await factory.deterministic.tailorResume(input), bad = structuredClone(good);
+  bad.projects[0].description = 'Built Python and Kubernetes validation for 12 users.';
+  try {
+    let calls = 0;
+    axios.post = async (_url, body) => { calls++; if (calls === 2) { assert.match(body.messages[0].content, /Factual correction/); assert.match(body.messages[0].content, /Kubernetes/); } return { data: { choices: [{ message: { content: JSON.stringify(calls === 1 ? bad : good) } }], usage: { prompt_tokens: 100, completion_tokens: 20 } } }; };
+    const usage = {};
+    assert.equal((await context.run(usage, () => factory.execute('tailorResume', input))).aiProvider, 'groq'); assert.equal(calls, 2); assert.deepEqual(usage.providerUsage, { inputTokens: 200, outputTokens: 40 });
+    calls = 0; axios.post = async () => { calls++; return { data: { choices: [{ message: { content: JSON.stringify(bad) } }] } }; };
+    const result = await factory.execute('tailorResume', input); assert.equal(result.aiProvider, 'deterministic-fallback'); assert.equal(calls, 2); assert(!result.projects[0].description.includes('Kubernetes'));
+  } finally { axios.post = post; factory.groq.apiKey = key; factory.openRouter.isAvailable = available; }
+});
+
 test('Groq placeholder keys stay disabled and the lower latency model accepts strict schemas', () => {
   const provider = new GroqProvider();
   for (const key of ['', 'your_groq_api_key_here', 'replace_me', 'placeholder']) {

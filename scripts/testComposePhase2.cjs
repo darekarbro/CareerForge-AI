@@ -23,4 +23,5 @@ module.exports = async ({ request, finished, resumeId }) => {
   await request('POST', '/workspaces/' + workspace._id + '/restore', { revision: 3 });
   assert.equal((await request('GET', '/workspaces/' + workspace._id)).data.preparation.find((step) => step.key === 'researchedCompany').done, true);
   console.log('PASS Phase 2 profile history, selection, duplicate jobs, checklist, archive/restore and embedded Unicode PDF in separate containers');
+  return { resumeId: created._id, workspaceId: workspace._id };
 };

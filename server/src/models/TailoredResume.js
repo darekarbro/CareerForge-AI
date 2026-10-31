@@ -106,6 +106,8 @@ const tailoredResumeSchema = new mongoose.Schema(
     },
     improvementSuggestions: [String],
     sourceContent: mongoose.Schema.Types.Mixed,
+    evidenceSnapshot: [mongoose.Schema.Types.Mixed],
+    claimEvidence: [mongoose.Schema.Types.Mixed],
     sourceRevision: { type: Number, default: 1 },
     contentRevision: { type: Number, default: 1 },
     revisionName: { type: String, default: 'Generated draft' },

@@ -6,7 +6,7 @@ import { useAuthStore } from '../store/authStore';
 
 export default function MyApp({ Component, pageProps }) {
   const { pathname } = useRouter();
-  const titles = { '/': 'Build your career', '/profile': 'Career profile', '/dashboard': 'Dashboard', '/workspaces': 'Job workspaces', '/workspaces/[id]': 'Job preparation', '/resume/[id]/edit': 'Verify resume facts', '/resume/[id]/tailor': 'Review tailored resume', '/account': 'Account and privacy', '/activity': 'Processing activity', '/applications': 'Applications', '/interview/setup': 'Set up interview practice', '/interview/session/[id]': 'Interview practice' };
+  const titles = { '/': 'Build your career', '/evidence': 'Career evidence library', '/copilot': 'Evidence-backed copilot', '/profile': 'Career profile', '/dashboard': 'Dashboard', '/workspaces': 'Job workspaces', '/workspaces/[id]': 'Job preparation', '/resume/[id]/edit': 'Verify resume facts', '/resume/[id]/tailor': 'Review tailored resume', '/account': 'Account and privacy', '/activity': 'Processing activity', '/applications': 'Applications', '/interview/setup': 'Set up interview practice', '/interview/session/[id]': 'Interview practice' };
   const title = titles[pathname] || pathname.split('/').filter(Boolean).map((part) => part.replace(/-/g, ' ')).filter((part) => !part.startsWith('[')).join(' · ') || 'Career workspace';
   const initialize = useAuthStore((state) => state.initialize);
 

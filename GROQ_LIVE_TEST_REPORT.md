@@ -1,5 +1,15 @@
 # Groq live acceptance results
 
+## Phase 3 revalidation - 31 October 2026
+
+The full live acceptance run passed with `openai/gpt-oss-120b`: all six distinct actions and the new evidence-backed copilot, **13 successful logical actions, 14 real HTTP requests and 16 checks**, with fallback disabled. Thirteen requests returned HTTP 200; one question-generation JSON-format HTTP 400 was repaired by the existing single bounded retry. Every final action passed validation.
+
+The copilot first requested personal-contribution clarification without calling AI. After explicitly confirming the fictional source facts and known contribution, it produced a single-entry draft with an eight-step trace, inspectable citations, skipped unknown outcomes and an unchanged source resume. Its PDF retained the new project and the remaining qualifications. A separate live preview fetched this public GitHub repository's metadata, README and languages, then discarded the preview without AI sharing.
+
+Diagnostic runs showed Groq moving a globally listed technology into an unsupported experience entry. The provider now gets one bounded factual correction; a second unsupported result still fails validation and falls back only to an allowed provider. Correction usage is accumulated when token counts are supplied. Account consent and existing provider input limits remain in force.
+
+Quota pacing applies to physical correction requests as well as actions. The acceptance runner uses a 120-second provider deadline and a five-minute job wait to accommodate its artificial quota pauses; application configuration is unchanged. Live success demonstrates these workflows within the configured provider quota, not unrestricted concurrency. See [Phase 3 validation](PHASE3.md) for complete project results and [the workflow guide](docs/PHASE3_WORKFLOWS.md) for reproduction.
+
 ## Phase 2 revalidation — 31 October 2026
 
 The complete acceptance run passed again with `openai/gpt-oss-120b`: all six AI actions, **11 real HTTP 200 requests and 12 checks**, with other providers and offline fallback disabled. It also checked scoped project rewriting, improved-answer retry, token usage, saved timelines and notifications. Inputs were fictional and used an isolated database.
