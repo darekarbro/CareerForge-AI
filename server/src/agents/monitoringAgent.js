@@ -1,39 +1,16 @@
 const ProcessingLog = require('../models/ProcessingLog');
 const { emitAgentEvent } = require('../config/socket');
-
 class MonitoringAgent {
-  /**
-   * Log and broadcast an agent timeline event
-   */
   async logEvent({ jobId, userId, agent, level = 'info', message, step, durationMs = 0, metadata = {} }) {
+    const event = { agent, level, message, step, durationMs, metadata, timestamp: new Date() };
     try {
-      // Broadcast via WebSocket immediately
-      emitAgentEvent(jobId, userId, {
-        agent,
-        level,
-        message,
-        step,
-        durationMs,
-        metadata,
-      });
-
-      // Persist log entry in database if jobId exists
       if (jobId) {
-        await ProcessingLog.create({
-          jobId,
-          owner: userId,
-          agent,
-          level,
-          message,
-          step,
-          durationMs,
-          metadata,
-        });
+        const log = await ProcessingLog.create({ jobId, owner: userId, ...event });
+        event._id = String(log._id);
+        event.timestamp = log.createdAt;
       }
-    } catch (err) {
-      console.error('[MonitoringAgent] Error logging event:', err.message);
-    }
+      emitAgentEvent(jobId, userId, event);
+    } catch (error) { console.error('Unable to persist processing event:', error.message); }
   }
 }
-
 module.exports = new MonitoringAgent();

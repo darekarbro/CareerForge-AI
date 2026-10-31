@@ -188,7 +188,7 @@ export default function InterviewHistoryPage() {
           {/* Past Sessions List */}
           <div className="brutal-card p-6">
             <h3 className="font-headline font-black text-base uppercase text-[#1a1a1a] pb-3 border-b-2 border-[#1a1a1a] mb-4">
-              All Completed Mock Sessions ({sessions.length})
+              Interview Sessions ({sessions.length})
             </h3>
 
             {sessions.length === 0 ? (
@@ -212,7 +212,7 @@ export default function InterviewHistoryPage() {
                         </h4>
                       </div>
                       <p className="text-[11px] text-gray-500 font-medium mt-1">
-                        Completed {new Date(sess.createdAt).toLocaleDateString()} • {sess.answeredCount}/{sess.totalQuestions} Questions Evaluated
+                        {sess.status === 'completed' ? 'Completed' : 'Started'} {new Date(sess.completedAt || sess.createdAt).toLocaleDateString()} • {sess.answeredCount}/{sess.totalQuestions} Questions Evaluated
                       </p>
                     </div>
 

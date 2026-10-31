@@ -2,9 +2,8 @@ import React, { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { UploadCloud, FileText, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 import api from '../../services/api';
-import { subscribeToJob } from '../../services/socket';
 
-export default function ResumeUploadDropzone({ onUploadSuccess, onTimelineEvent }) {
+export default function ResumeUploadDropzone({ onUploadSuccess, onUploadStart, onUploadError, disabled = false }) {
   const [file, setFile] = useState(null);
   const [title, setTitle] = useState('');
   const [isUploading, setIsUploading] = useState(false);
@@ -24,6 +23,8 @@ export default function ResumeUploadDropzone({ onUploadSuccess, onTimelineEvent 
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
+    disabled: disabled || isUploading,
+    onDropRejected: (rejections) => setError(rejections[0]?.errors?.[0]?.message || 'Choose one PDF, DOCX or TXT file up to 10MB'),
     accept: {
       'application/pdf': ['.pdf'],
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'],
@@ -35,6 +36,7 @@ export default function ResumeUploadDropzone({ onUploadSuccess, onTimelineEvent 
 
   const handleUpload = async (e) => {
     e.preventDefault();
+    if (disabled || isUploading) return;
     if (!file) {
       setError('Please select a resume file first');
       return;
@@ -42,6 +44,7 @@ export default function ResumeUploadDropzone({ onUploadSuccess, onTimelineEvent 
 
     setIsUploading(true);
     setError(null);
+    onUploadStart?.();
 
     const formData = new FormData();
     formData.append('file', file);
@@ -51,28 +54,20 @@ export default function ResumeUploadDropzone({ onUploadSuccess, onTimelineEvent 
       const res = await api.post('/resumes/upload', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
         onUploadProgress: (progressEvent) => {
-          const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          const percent = progressEvent.total ? Math.round((progressEvent.loaded * 100) / progressEvent.total) : 0;
           setUploadProgress(percent);
         },
       });
 
       const { resume, jobId } = res.data.data;
 
-      // Subscribe to real-time agent updates for this job
-      if (jobId && onTimelineEvent) {
-        const unsubscribe = subscribeToJob(jobId, (event) => {
-          onTimelineEvent(event);
-        });
-
-        // Auto clean subscription after 30s
-        setTimeout(() => unsubscribe(), 30000);
-      }
-
       if (onUploadSuccess) {
         onUploadSuccess(resume, jobId);
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Upload failed. Please try again.');
+      const message = err.response?.data?.message || 'Upload failed. Please try again.';
+      setError(message);
+      onUploadError?.(message);
     } finally {
       setIsUploading(false);
     }
@@ -144,7 +139,7 @@ export default function ResumeUploadDropzone({ onUploadSuccess, onTimelineEvent 
 
         <button
           type="submit"
-          disabled={!file || isUploading}
+          disabled={!file || isUploading || disabled}
           className="brutal-btn-primary w-full py-3 text-sm flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isUploading ? (

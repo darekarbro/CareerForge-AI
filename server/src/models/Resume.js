@@ -19,6 +19,16 @@ const resumeSchema = new mongoose.Schema(
     originalFileUrl: {
       type: String,
     },
+    originalFileStorage: {
+      provider: { type: String, enum: ['local', 'cloudinary'] },
+      filename: String, publicId: String, resourceType: String, deliveryType: String, format: String,
+    },
+    processingStatus: { type: String, enum: ['PENDING', 'RUNNING', 'COMPLETED', 'FAILED', 'CANCELLED'], default: 'PENDING' },
+    processingJobId: { type: mongoose.Schema.Types.ObjectId, ref: 'ProcessingJob' },
+    parsingWarnings: [String],
+    parsingInputLength: Number,
+    aiProvider: String,
+    deleting: { type: Boolean, default: false },
     fileType: {
       type: String,
       enum: ['pdf', 'docx', 'txt'],

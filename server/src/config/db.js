@@ -1,48 +1,30 @@
 const mongoose = require('mongoose');
 const env = require('./env');
-
 let mongoServer = null;
 
-const connectDB = async () => {
-  try {
-    let uri = env.MONGODB_URI;
-
-    if (!uri) {
-      console.log('⚡ No MONGODB_URI provided. Starting in-memory MongoDB server...');
-      try {
-        const { MongoMemoryServer } = require('mongodb-memory-server');
-        mongoServer = await MongoMemoryServer.create();
-        uri = mongoServer.getUri();
-        console.log(`📦 In-memory MongoDB running at: ${uri}`);
-      } catch (memErr) {
-        console.warn('⚠️ Could not start mongodb-memory-server:', memErr.message);
-        console.log('🔄 Attempting fallback connection to mongodb://localhost:27017/careerforge');
-        uri = 'mongodb://127.0.0.1:27017/careerforge';
-      }
+const connectDB = async ({ uri = env.MONGODB_URI, memoryOptions = {} } = {}) => {
+  mongoose.set('bufferCommands', false);
+  let connection;
+  if (uri) {
+    try { connection = await mongoose.connect(uri, { serverSelectionTimeoutMS: 5000, autoIndex: false }); }
+    catch (error) {
+      if (env.NODE_ENV === 'production') throw error;
+      await mongoose.disconnect();
+      console.warn('Configured MongoDB is unavailable; using a temporary development database.');
     }
-
-    const conn = await mongoose.connect(uri, {
-      serverSelectionTimeoutMS: 5000,
-    });
-
-    console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
-    return conn;
-  } catch (error) {
-    console.error(`❌ MongoDB connection error: ${error.message}`);
-    // Instead of exiting process, keep server alive with limited mock fallback or warn
-    console.warn('⚠️ Server running with degraded database state. Please configure MONGODB_URI or start local Mongo.');
   }
+  if (!connection) {
+    if (env.NODE_ENV === 'production') throw new Error('Production requires an available MONGODB_URI');
+    const { MongoMemoryServer } = require('mongodb-memory-server');
+    mongoServer = await MongoMemoryServer.create(memoryOptions);
+    connection = await mongoose.connect(mongoServer.getUri(), { serverSelectionTimeoutMS: 5000, autoIndex: false });
+  }
+  // Remove the legacy empty UID without changing real Firebase identities.
+  await require('./migrateData').migrateData();
+  return connection;
 };
-
 const disconnectDB = async () => {
-  try {
-    await mongoose.disconnect();
-    if (mongoServer) {
-      await mongoServer.stop();
-    }
-  } catch (err) {
-    console.error('Error disconnecting DB:', err.message);
-  }
+  await mongoose.disconnect();
+  if (mongoServer) { await mongoServer.stop(); mongoServer = null; }
 };
-
 module.exports = { connectDB, disconnectDB };

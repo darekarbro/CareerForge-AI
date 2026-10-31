@@ -38,5 +38,15 @@ router.post(
 
 router.get('/me', protect, authController.getMe);
 router.put('/me', protect, authController.updateProfile);
+router.put('/password', protect, [
+  body('currentPassword').isString().notEmpty(),
+  body('newPassword').isString().isLength({ min: 8, max: 128 }),
+  validate,
+], async (req, res, next) => {
+  try {
+    const result = await require('../services/authService').changePassword(req.user._id, req.body);
+    res.json({ success: true, data: result });
+  } catch (error) { next(error); }
+});
 
 module.exports = router;

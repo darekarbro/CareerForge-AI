@@ -3,9 +3,11 @@ const notificationService = require('../services/notificationService');
 const listNotifications = async (req, res, next) => {
   try {
     const notifications = await notificationService.listUserNotifications(req.user._id);
+    const unreadCount = await notificationService.unreadCount(req.user._id);
     res.status(200).json({
       success: true,
       data: notifications,
+      unreadCount,
     });
   } catch (err) {
     next(err);

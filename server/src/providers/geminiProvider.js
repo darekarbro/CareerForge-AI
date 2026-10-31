@@ -2,12 +2,14 @@ const axios = require('axios');
 const BaseProvider = require('./baseProvider');
 const env = require('../config/env');
 const { requestWithTimeout } = require('./requestWithTimeout');
+const { resumeText } = require('./resumeFacts');
+const { parsingInstructions, tailoringInstructions } = require('./resumeWriting');
 
 class GeminiProvider extends BaseProvider {
   constructor() {
     super('gemini');
     this.apiKey = env.GEMINI_API_KEY;
-    this.model = env.GEMINI_MODEL || 'gemini-2.0-flash';
+    this.model = env.GEMINI_MODEL;
   }
 
   isAvailable() {
@@ -23,7 +25,7 @@ class GeminiProvider extends BaseProvider {
         {
           contents: [
             {
-              parts: [{ text: `${prompt}\n\nStrict requirement: Output valid raw JSON only without markdown code blocks or explanations.` }],
+              parts: [{ text: `${prompt}\n\nPreserve candidate facts. Never invent employers, dates, qualifications, metrics, or skills. Leave unknown fields empty. Tailoring may only rewrite or prioritize supported evidence; addedSkills must be empty.\nStrict requirement: Output valid raw JSON only without markdown code blocks or explanations.` }],
             },
           ],
           generationConfig: {
@@ -55,7 +57,7 @@ class GeminiProvider extends BaseProvider {
   }
 
   async parseResume(rawText) {
-    const prompt = `Parse the following resume text into structured JSON:
+    const prompt = `${parsingInstructions}\nParse the following resume text into structured JSON:
 {
   "contactInfo": { "name": "", "email": "", "phone": "", "location": "", "linkedin": "", "github": "", "portfolio": "" },
   "summary": "",
@@ -71,8 +73,11 @@ ${rawText.slice(0, 8000)}`;
   }
 
   async scoreATS({ resumeData, rawText }) {
+    // Pass a derived count, keeping the existing capped structured-data payload.
+    const wordCount = (rawText || resumeText(resumeData)).trim().split(/\s+/).filter(Boolean).length;
     const prompt = `Perform comprehensive ATS scoring on this resume data:
 ${JSON.stringify(resumeData).slice(0, 6000)}
+Actual resume word count: ${wordCount}. Use this count for the length score.
 
 Return JSON:
 {
@@ -89,14 +94,14 @@ Return JSON:
   }
 
   async tailorResume({ resumeData, targetRole, jobDescriptionText }) {
-    const prompt = `Tailor this resume for the role "${targetRole}".
+    const prompt = `${tailoringInstructions}\nTailor this resume for the role "${targetRole}".
 JD (if provided): ${jobDescriptionText || 'Standard industry expectations'}
 Resume: ${JSON.stringify(resumeData).slice(0, 6000)}
 
 Return JSON:
 {
   "summary": "tailored summary",
-  "skills": { "technical": [], "tools": [], "frameworks": [], "all": [] },
+  "skills": { "technical": [], "soft": [], "tools": [], "frameworks": [], "all": [] },
   "workExperience": [ { "role": "", "company": "", "location": "", "startDate": "", "endDate": "", "current": false, "highlights": [] } ],
   "projects": [ { "title": "", "description": "", "technologies": [], "link": "", "highlights": [] } ],
   "diffFromOriginal": {
@@ -128,6 +133,7 @@ Return JSON:
   async generateQuestions({ resumeData, targetRole, jobDescriptionText, count = 5 }) {
     const prompt = `Generate ${count} interview questions for role "${targetRole}".
 Candidate Skills: ${(resumeData?.skills?.all || []).join(', ')}
+Job Description: ${jobDescriptionText || 'No job description provided'}
 
 Return JSON:
 {

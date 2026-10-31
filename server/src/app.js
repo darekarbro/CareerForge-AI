@@ -3,8 +3,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const compression = require('compression');
-const rateLimit = require('express-rate-limit');
-const path = require('path');
+const { authLimiter, aiIpLimiter } = require('./middlewares/rateLimits');
 
 const env = require('./config/env');
 const { errorHandler } = require('./middlewares/errorHandler');
@@ -20,6 +19,9 @@ const processingRoutes = require('./routes/processingRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
 
 const app = express();
+if (env.TRUST_PROXY) {
+  app.set('trust proxy', /^\d+$/.test(env.TRUST_PROXY) ? Number(env.TRUST_PROXY) : env.TRUST_PROXY);
+}
 
 // Security Middlewares
 app.use(
@@ -32,11 +34,13 @@ app.use(
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow local development and configured CLIENT_URL
-      if (!origin || origin.includes('localhost') || origin.includes('127.0.0.1') || origin === env.CLIENT_URL) {
+      const allowed = env.CLIENT_URL.split(',').map((value) => value.trim());
+      if (!origin || allowed.includes(origin)) {
         callback(null, true);
       } else {
-        callback(null, true); // Permissive for local demos
+        const error = new Error('Origin is not allowed');
+        error.statusCode = 403;
+        callback(error);
       }
     },
     credentials: true,
@@ -44,23 +48,19 @@ app.use(
 );
 
 app.use(compression());
-app.use(morgan(env.NODE_ENV === 'development' ? 'dev' : 'combined'));
+if (env.NODE_ENV !== 'test') app.use(morgan(env.NODE_ENV === 'development' ? 'dev' : 'combined'));
 app.use(express.json({ limit: '20mb' }));
 app.use(express.urlencoded({ extended: true, limit: '20mb' }));
 
-// Static directory for uploaded files fallback
-const uploadsDir = path.resolve(__dirname, '../uploads');
-app.use('/uploads', express.static(uploadsDir));
-
-// Rate limiting for auth and generation endpoints
-const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
-  message: { success: false, message: 'Too many requests from this IP, please try again after 15 minutes.' },
-});
-
 app.use('/api/auth/login', authLimiter);
 app.use('/api/auth/register', authLimiter);
+app.use('/api/auth/firebase', authLimiter);
+app.use('/api/auth/password', authLimiter);
+app.use((req, res, next) => {
+  const costly = /^\/api\/resumes\/(upload|[^/]+\/(tailor|gap-analysis))\/?$/.test(req.path) ||
+    /^\/api\/interview\/sessions(?:\/[^/]+\/questions\/[^/]+\/answer)?\/?$/.test(req.path);
+  return req.method === 'POST' && costly ? aiIpLimiter(req, res, next) : next();
+});
 
 // Mount API Routes
 app.use('/api/health', healthRoutes);

@@ -4,11 +4,13 @@ import { useRouter } from 'next/router';
 import { Bell, User, LogOut, Menu } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import NotificationsDrawer from './NotificationsDrawer';
+import { useNotifications } from '../../hooks/useNotifications';
 
 export default function Navbar({ onToggleSidebar }) {
   const router = useRouter();
   const { user, logout, isAuthenticated } = useAuthStore();
   const [showNotifications, setShowNotifications] = useState(false);
+  const activity = useNotifications();
 
   return (
     <>
@@ -40,12 +42,12 @@ export default function Navbar({ onToggleSidebar }) {
           {isAuthenticated ? (
             <>
               <button
-                onClick={() => setShowNotifications(true)}
+                onClick={() => { setShowNotifications(true); activity.refresh(); }}
                 className="p-2 border-2 border-[#1a1a1a] bg-[var(--surface-elevated)] hover:bg-[#ffcc00] shadow-brutal transition-all relative"
                 title="Notifications"
               >
                 <Bell className="w-5 h-5 text-[var(--text-main)]" />
-                <span className="absolute -top-1 -right-1 w-3 h-3 bg-[#e63b2e] border-2 border-[#1a1a1a] rounded-full"></span>
+                {activity.unreadCount > 0 && <span aria-label={`${activity.unreadCount} unread notifications`} className="absolute -top-1 -right-1 min-w-3 h-3 bg-[#e63b2e] border-2 border-[#1a1a1a] rounded-full" />}
               </button>
 
               <div className="hidden md:flex items-center gap-2 px-3 py-1.5 border-2 border-[#1a1a1a] bg-[var(--surface-elevated)] shadow-brutal">
@@ -86,6 +88,11 @@ export default function Navbar({ onToggleSidebar }) {
       <NotificationsDrawer
         isOpen={showNotifications}
         onClose={() => setShowNotifications(false)}
+        notifications={activity.notifications}
+        loading={activity.loading}
+        error={activity.error}
+        onMarkAllRead={activity.markAllRead}
+        onClearAll={activity.clearAll}
       />
     </>
   );

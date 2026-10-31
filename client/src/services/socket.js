@@ -1,63 +1,57 @@
 import { io } from 'socket.io-client';
 
 const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:5000';
-
-let socket = null;
-
+let socket = null, socketToken = null;
+const jobs = new Map(), users = new Map();
+const storedToken = () => {
+  try { return JSON.parse(localStorage.getItem('careerforge_auth') || '{}').token || null; }
+  catch { return null; }
+};
+export const disconnectSocket = () => {
+  socket?.removeAllListeners();
+  socket?.disconnect();
+  socket = null; socketToken = null;
+  jobs.clear(); users.clear();
+};
 export const getSocket = () => {
   if (typeof window === 'undefined') return null;
-
+  const token = storedToken();
+  if (!token) { disconnectSocket(); return null; }
+  if (socket && socketToken !== token) disconnectSocket();
   if (!socket) {
-    socket = io(SOCKET_URL, {
-      autoConnect: true,
-      transports: ['websocket', 'polling'],
-      reconnectionAttempts: 10,
-      reconnectionDelay: 1000,
-    });
-
+    socketToken = token;
+    socket = io(SOCKET_URL, { auth: { token }, transports: ['websocket', 'polling'],
+      reconnectionAttempts: Infinity, reconnectionDelay: 1000 });
+    const current = socket;
     socket.on('connect', () => {
-      console.log('⚡ Connected to CareerForge Socket.IO server:', socket.id);
-    });
-
-    socket.on('disconnect', (reason) => {
-      console.log('🔌 Socket disconnected:', reason);
+      for (const id of jobs.keys()) current.emit('join_job', id);
+      for (const id of users.keys()) current.emit('join_user', id);
     });
   }
-
   return socket;
 };
-
-export const subscribeToJob = (jobId, onEvent) => {
-  const s = getSocket();
-  if (!s || !jobId) return () => {};
-
-  s.emit('join_job', jobId);
-
-  const handler = (data) => {
-    if (data.jobId === jobId) {
-      onEvent(data);
-    }
+function subscribe(room, id, eventName, callback) {
+  const current = getSocket();
+  if (!current || !id) return () => {};
+  id = String(id);
+  const registry = room === 'job' ? jobs : users;
+  registry.set(id, (registry.get(id) || 0) + 1);
+  current.emit('join_' + room, id);
+  const handler = (event) => {
+    if (room !== 'job' || String(event.jobId) === id) callback(event);
   };
-
-  s.on('agent_event', handler);
-
+  current.on(eventName, handler);
+  let stopped = false;
   return () => {
-    s.emit('leave_job', jobId);
-    s.off('agent_event', handler);
+    if (stopped) return;
+    stopped = true;
+    current.off(eventName, handler);
+    if (socket !== current) return;
+    const count = (registry.get(id) || 1) - 1;
+    if (count > 0) registry.set(id, count);
+    else { registry.delete(id); current.emit('leave_' + room, id); }
   };
-};
-
-export const subscribeToUserEvents = (userId, onEvent) => {
-  const s = getSocket();
-  if (!s || !userId) return () => {};
-
-  s.emit('join_user', userId);
-
-  s.on('agent_event', onEvent);
-  s.on('notification', onEvent);
-
-  return () => {
-    s.off('agent_event', onEvent);
-    s.off('notification', onEvent);
-  };
-};
+}
+export const subscribeToJob = (jobId, callback) => subscribe('job', jobId, 'agent_event', callback);
+export const subscribeToUserEvents = (userId, callback) => subscribe('user', userId, 'agent_event', callback);
+export const subscribeToNotifications = (userId, callback) => subscribe('user', userId, 'notification', callback);

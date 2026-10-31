@@ -2,7 +2,9 @@ const errorHandler = (err, req, res, next) => {
   let error = { ...err };
   error.message = err.message;
 
-  console.error('[Error Middleware]', err);
+  if ((err.statusCode || err.status || 500) >= 500 && process.env.NODE_ENV !== 'test') {
+    console.error('API failure', { name: err.name, code: err.code });
+  }
 
   // Mongoose bad ObjectId
   if (err.name === 'CastError') {
@@ -30,7 +32,7 @@ const errorHandler = (err, req, res, next) => {
     });
   }
 
-  res.status(error.statusCode || 500).json({
+  res.status(error.statusCode || error.status || 500).json({
     success: false,
     message: error.message || 'Internal Server Error',
     ...(error.details ? { details: error.details } : {}),

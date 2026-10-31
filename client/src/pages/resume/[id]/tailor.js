@@ -5,6 +5,7 @@ import ProtectedRoute from '../../../components/ProtectedRoute/ProtectedRoute';
 import AppShell from '../../../components/AppShell/AppShell';
 import ResumeDiffView from '../../../components/ResumeDiffView/ResumeDiffView';
 import api from '../../../services/api';
+import { submitProcessingRequest } from '../../../services/processing';
 import { Sparkles, Download, ArrowLeft, Loader2, CheckCircle2, FileText } from 'lucide-react';
 
 const supportedRoles = [
@@ -29,6 +30,7 @@ export default function ResumeTailorPage() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [tailoredResult, setTailoredResult] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     if (!id) return;
@@ -46,14 +48,15 @@ export default function ResumeTailorPage() {
     if (!finalRole.trim()) return;
 
     setIsGenerating(true);
+    setError('');
     try {
-      const res = await api.post(`/resumes/${id}/tailor`, {
+      const res = await submitProcessingRequest(`/resumes/${id}/tailor`, {
         targetRole: finalRole,
         jobDescriptionText: jdText,
       });
       setTailoredResult(res.data.data.tailoredResume);
     } catch (err) {
-      console.error('Tailoring error:', err);
+      setError(err.response?.data?.message || err.message || 'Unable to tailor this resume');
     } finally {
       setIsGenerating(false);
     }
@@ -77,6 +80,8 @@ export default function ResumeTailorPage() {
     <ProtectedRoute>
       <AppShell>
         <div className="space-y-8 max-w-5xl mx-auto">
+          {error && <p role="alert" className="p-3 border-2 border-red-800 bg-red-50 text-red-900 text-sm">{error}</p>}
+          {resume?.processingStatus !== 'COMPLETED' && <p role="status" className="brutal-card p-4 text-sm">Wait for parsing to complete in the resume details page before tailoring.</p>}
           {/* Top Bar Navigation */}
           <div className="pb-4 border-b-3 border-[#1a1a1a] flex flex-wrap items-center justify-between gap-4">
             <div>
@@ -90,7 +95,7 @@ export default function ResumeTailorPage() {
                 Role-Aware Resume Tailor
               </h1>
               <p className="text-xs text-gray-600 font-medium">
-                Re-engineer action verbs, inject ATS keywords, and compute side-by-side diff.
+                Build a detailed resume with clear achievements, project contributions and relevant skills from your experience.
               </p>
             </div>
 
@@ -101,7 +106,7 @@ export default function ResumeTailorPage() {
                  try {
                    await api.download(`/resumes/${id}/download/${tailoredResult._id}`, `tailored_resume_${tailoredResult._id}.pdf`);
                  } catch (err) {
-                   console.error('Resume PDF download failed:', err);
+                   setError(err.response?.data?.message || 'Unable to download this resume');
                  }
                }}
                className="brutal-btn-yellow px-4 py-2 text-xs flex items-center gap-2"
@@ -169,13 +174,13 @@ export default function ResumeTailorPage() {
 
                 <button
                   type="submit"
-                  disabled={isGenerating}
+                  disabled={isGenerating || resume?.processingStatus !== 'COMPLETED'}
                   className="brutal-btn-primary w-full py-3.5 text-xs sm:text-sm flex items-center justify-center gap-2 disabled:opacity-50"
                 >
                   {isGenerating ? (
                     <>
                       <Loader2 className="w-4 h-4 animate-spin text-[#ffcc00]" />
-                      <span>Generator Agent Rewriting Highlights & Ingesting Keywords...</span>
+                      <span>Writing your detailed, role-specific resume...</span>
                     </>
                   ) : (
                     <>
@@ -206,6 +211,7 @@ export default function ResumeTailorPage() {
                 originalResume={resume}
                 tailoredContent={tailoredResult.tailoredContent}
                 targetRole={tailoredResult.targetRole}
+                improvementSuggestions={tailoredResult.improvementSuggestions}
               />
             </div>
           )}

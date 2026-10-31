@@ -19,30 +19,40 @@ export default function ApplicationBoard({
 }) {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedApp, setSelectedApp] = useState(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState('');
 
   const handleOpenAdd = () => {
+    setSaveError('');
     setSelectedApp(null);
     setModalOpen(true);
   };
 
   const handleOpenEdit = (app) => {
+    setSaveError('');
     setSelectedApp(app);
     setModalOpen(true);
   };
 
-  const handleSaveModal = (formData) => {
-    if (selectedApp) {
-      onUpdateApplication(selectedApp._id, formData);
-    } else {
-      onAddApplication(formData);
-    }
-    setModalOpen(false);
+  const handleSaveModal = async (formData) => {
+    if (isSaving) return;
+    setIsSaving(true);
+    setSaveError('');
+    try {
+      if (selectedApp) await onUpdateApplication(selectedApp._id, formData);
+      else await onAddApplication(formData);
+      setModalOpen(false);
+    } catch (error) {
+      setSaveError(error.response?.data?.message || 'Unable to save. Your edits have been kept; please retry.');
+    } finally { setIsSaving(false); }
   };
 
-  const handleDeleteModal = (appId) => {
+  const handleDeleteModal = async (appId) => {
     if (confirm('Are you sure you want to remove this application?')) {
-      onDeleteApplication(appId);
-      setModalOpen(false);
+      setIsSaving(true);
+      try { await onDeleteApplication(appId); setModalOpen(false); }
+      catch (error) { setSaveError(error.response?.data?.message || 'Unable to delete. Please retry.'); }
+      finally { setIsSaving(false); }
     }
   };
 
@@ -114,7 +124,7 @@ export default function ApplicationBoard({
                         <span className="px-1.5 py-0.5 bg-[#f5f0e8] border border-[#1a1a1a] font-bold">
                           {app.sourcePlatform}
                         </span>
-                        <span>{new Date(app.appliedDate).toLocaleDateString()}</span>
+                        <span>{new Date(app.appliedDate || app.createdAt).toLocaleDateString()}</span>
                       </div>
                     </div>
                   ))
@@ -127,10 +137,12 @@ export default function ApplicationBoard({
 
       <ApplicationModal
         isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
+        onClose={() => { if (!isSaving) setModalOpen(false); }}
         onSave={handleSaveModal}
         onDelete={handleDeleteModal}
         initialData={selectedApp}
+        isSaving={isSaving}
+        error={saveError}
       />
     </div>
   );

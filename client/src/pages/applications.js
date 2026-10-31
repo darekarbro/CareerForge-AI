@@ -45,6 +45,7 @@ export default function ApplicationsPage() {
       fetchApplicationsData();
     } catch (err) {
       console.error(err);
+      throw err;
     }
   };
 
@@ -57,6 +58,7 @@ export default function ApplicationsPage() {
       fetchApplicationsData();
     } catch (err) {
       console.error(err);
+      throw err;
     }
   };
 
@@ -67,6 +69,7 @@ export default function ApplicationsPage() {
       fetchApplicationsData();
     } catch (err) {
       console.error(err);
+      throw err;
     }
   };
 

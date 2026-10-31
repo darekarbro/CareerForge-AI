@@ -76,6 +76,15 @@ const deleteResume = async (req, res, next) => {
   }
 };
 
+const downloadOriginal = async (req, res, next) => {
+  try {
+    const { resume, download } = await resumeService.getOriginal(req.params.id, req.user._id);
+    res.setHeader('Cache-Control', 'private, no-store');
+    if (download.url) return res.redirect(download.url);
+    return res.download(download.path, resume.originalFileName || 'resume.' + resume.fileType);
+  } catch (error) { next(error); }
+};
+
 const tailorResume = async (req, res, next) => {
   try {
     const { targetRole, jobDescriptionText } = req.body;
@@ -86,9 +95,9 @@ const tailorResume = async (req, res, next) => {
       jobDescriptionText,
     });
 
-    res.status(200).json({
+    res.status(202).json({
       success: true,
-      message: 'Resume tailored successfully',
+      message: 'Resume tailoring queued',
       data: result,
     });
   } catch (err) {
@@ -138,9 +147,9 @@ const runGapAnalysis = async (req, res, next) => {
       company,
     });
 
-    res.status(200).json({
+    res.status(202).json({
       success: true,
-      message: 'Gap analysis completed',
+      message: 'Gap analysis queued',
       data: result,
     });
   } catch (err) {
@@ -173,4 +182,5 @@ module.exports = {
   getAtsScore,
   runGapAnalysis,
   downloadTailoredPdf,
+  downloadOriginal,
 };

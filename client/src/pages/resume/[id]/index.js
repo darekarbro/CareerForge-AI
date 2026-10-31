@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import ProtectedRoute from '../../../components/ProtectedRoute/ProtectedRoute';
 import AppShell from '../../../components/AppShell/AppShell';
 import api from '../../../services/api';
+import { submitProcessingRequest, watchProcessingJob } from '../../../services/processing';
 import {
   FileText,
   Sparkles,
@@ -33,41 +34,62 @@ export default function ResumeDetailPage() {
   const [targetRole, setTargetRole] = useState('Fullstack Developer');
   const [gapResult, setGapResult] = useState(null);
   const [gapLoading, setGapLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const fetchResumeData = async () => {
+  const fetchResumeData = useCallback(async (signal) => {
     if (!id) return;
     setLoading(true);
     try {
-      const res = await api.get(`/resumes/${id}`);
+      const res = await api.get(`/resumes/${id}`, { signal });
       setResume(res.data.data);
       setAtsScore(res.data.data.atsScore);
 
-      const verRes = await api.get(`/resumes/${id}/versions`);
+      const verRes = await api.get(`/resumes/${id}/versions`, { signal });
       setVersions(verRes.data.data || []);
     } catch (err) {
-      console.error('Error fetching resume:', err);
+      if (!signal?.aborted) setError(err.response?.data?.message || 'Unable to load resume');
     } finally {
-      setLoading(false);
+      if (!signal?.aborted) setLoading(false);
     }
-  };
+  }, [id]);
 
   useEffect(() => {
-    fetchResumeData();
-  }, [id]);
+    const controller = new AbortController();
+    fetchResumeData(controller.signal);
+    return () => controller.abort();
+  }, [fetchResumeData]);
+
+  const activeJobId = resume?.processingJobId && !['COMPLETED', 'FAILED', 'CANCELLED'].includes(resume.processingStatus)
+    ? resume.processingJobId : null;
+  useEffect(() => {
+    if (!activeJobId) return;
+    return watchProcessingJob(activeJobId, {
+      onStatus: (job) => {
+        if (job.status === 'COMPLETED' && job.output?.resume) {
+          setResume(job.output.resume); setAtsScore(job.output.resume.atsScore); setError('');
+        } else {
+          setResume((previous) => previous && { ...previous, processingStatus: job.status });
+          if (['FAILED', 'CANCELLED'].includes(job.status)) setError(job.error?.message || 'Resume processing did not finish. Upload another file.');
+        }
+      },
+      onError: () => setError('Connection interrupted. Reconnecting to resume processing...'),
+    });
+  }, [activeJobId]);
 
   const handleRunGapAnalysis = async (e) => {
     e.preventDefault();
     if (!jdText.trim()) return;
 
     setGapLoading(true);
+    setError('');
     try {
-      const res = await api.post(`/resumes/${id}/gap-analysis`, {
+      const res = await submitProcessingRequest(`/resumes/${id}/gap-analysis`, {
         jobDescriptionText: jdText,
         targetRole,
       });
       setGapResult(res.data.data.gapAnalysis);
     } catch (err) {
-      console.error('Gap analysis error:', err);
+      setError(err.response?.data?.message || err.message || 'Gap analysis failed');
     } finally {
       setGapLoading(false);
     }
@@ -79,7 +101,7 @@ export default function ResumeDetailPage() {
         await api.delete(`/resumes/${id}`);
         router.push('/dashboard');
       } catch (err) {
-        console.error(err);
+        setError(err.response?.data?.message || 'Unable to delete this resume');
       }
     }
   };
@@ -102,6 +124,7 @@ export default function ResumeDetailPage() {
       <ProtectedRoute>
         <AppShell>
           <div className="py-20 text-center space-y-4">
+            {error && <p role="alert">{error}</p>}
             <h2 className="font-headline font-black text-2xl uppercase">Resume Not Found</h2>
             <Link href="/dashboard" className="brutal-btn-primary px-4 py-2 text-xs">
               Back to Dashboard
@@ -119,6 +142,11 @@ export default function ResumeDetailPage() {
     <ProtectedRoute>
       <AppShell>
         <div className="space-y-8 max-w-6xl mx-auto">
+          {error && <p role="alert" className="p-3 border-2 border-red-800 bg-red-50 text-red-900 text-sm">{error}</p>}
+          {resume.processingStatus !== 'COMPLETED' && <p role="status" className="brutal-card p-4 text-sm">
+            Resume status: {(resume.processingStatus || 'pending').toLowerCase()}. Tailoring and interviews are available after successful parsing.
+          </p>}
+          {(resume.parsingWarnings || []).map((warning, index) => <p key={index} className="brutal-card p-3 bg-amber-50 text-xs">{warning}</p>)}
           {/* Header Banner */}
           <div className="p-6 border-3 border-[#1a1a1a] bg-[#ffcc00] shadow-brutal flex flex-wrap items-center justify-between gap-4">
             <div>
@@ -136,18 +164,25 @@ export default function ResumeDetailPage() {
             <div className="flex flex-wrap items-center gap-2">
               <Link
                 href={`/resume/${resume._id}/tailor`}
-                className="brutal-btn-primary px-4 py-2.5 text-xs flex items-center gap-1.5"
+                aria-disabled={resume.processingStatus !== 'COMPLETED'}
+                className={`brutal-btn-primary px-4 py-2.5 text-xs flex items-center gap-1.5 ${resume.processingStatus !== 'COMPLETED' ? 'pointer-events-none opacity-50' : ''}`}
               >
                 <Sparkles className="w-4 h-4" />
                 <span>Tailor For Role</span>
               </Link>
               <button
                 onClick={() => setJdModalOpen(true)}
+                disabled={resume.processingStatus !== 'COMPLETED'}
                 className="brutal-btn-blue px-4 py-2.5 text-xs flex items-center gap-1.5"
               >
                 <Layers className="w-4 h-4" />
-                <span>Run JD Gap Analysis</span>
+                  <span>Run JD Gap Analysis</span>
               </button>
+              <button type="button" className="brutal-btn-yellow px-4 py-2 text-xs"
+                onClick={async () => {
+                  try { await api.download(`/resumes/${resume._id}/original`, resume.originalFileName); }
+                  catch (failure) { setError(failure.response?.data?.message || 'Unable to download the original resume'); }
+                }}>Download original</button>
               <button
                 onClick={handleDeleteResume}
                 className="p-2.5 border-2 border-[#1a1a1a] bg-white hover:bg-[#e63b2e] hover:text-white shadow-brutal transition-all"

@@ -46,6 +46,11 @@ const interviewSessionSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    scoreTotals: {
+      overall: { type: Number, default: 0 }, clarity: { type: Number, default: 0 },
+      relevance: { type: Number, default: 0 }, structure: { type: Number, default: 0 },
+      technical: { type: Number, default: 0 },
+    },
     startedAt: {
       type: Date,
       default: Date.now,

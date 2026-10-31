@@ -15,12 +15,12 @@ const startSession = async (req, res, next) => {
       targetRole: targetRole || 'Fullstack Developer',
       resumeId,
       jobDescriptionId,
-      count: count || 5,
+      count: count ?? 5,
     });
 
-    res.status(201).json({
+    res.status(202).json({
       success: true,
-      message: 'Interview session initialized and questions generated',
+      message: 'Interview question generation queued',
       data: result,
     });
   } catch (err) {
@@ -71,9 +71,9 @@ const submitAnswer = async (req, res, next) => {
       userAnswer,
     });
 
-    res.status(200).json({
+    res.status(202).json({
       success: true,
-      message: 'Answer submitted and evaluated',
+      message: 'Answer queued for evaluation',
       data: result,
     });
   } catch (err) {
