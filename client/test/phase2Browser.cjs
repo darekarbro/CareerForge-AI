@@ -1,4 +1,5 @@
 const assert = require('node:assert/strict');
+const assertContrast = require('./conflictContrast.cjs');
 module.exports = ({ page, saved, screenshot, pass, audit }) => ({
   async profile() {
     await page.getByText('Build stronger experience with guided questions', { exact: true }).click();
@@ -31,8 +32,15 @@ module.exports = ({ page, saved, screenshot, pass, audit }) => ({
     await page.getByLabel('Professional summary', { exact: true }).fill('My resolved summary retains my verified contribution.');
     await page.getByRole('button', { name: 'Save now', exact: true }).click();
     await page.getByRole('button', { name: 'Resolve changes without losing my draft', exact: true }).click();
-    await page.getByRole('radio', { name: /Keep my change/ }).check(); await audit('field-conflicts');
-    await page.getByRole('button', { name: 'Use resolved draft', exact: true }).click(); await saved();
+    const apply = page.getByRole('button', { name: 'Use resolved draft', exact: true });
+    assert(await apply.isDisabled()); await apply.hover(); await assertContrast(apply, 'disabled hover'); await audit('field-conflicts-disabled');
+    await page.getByRole('radio', { name: /Keep my change/ }).check(); assert(await apply.isEnabled());
+    await apply.focus(); await assertContrast(apply, 'enabled focus'); await audit('field-conflicts');
+    await apply.hover(); await assertContrast(apply, 'enabled hover'); await audit('field-conflicts-hover');
+    await page.getByRole('radio', { name: /Keep my change/ }).hover(); await assertContrast(apply, 'enabled hover exit');
+    await screenshot('phase2-field-conflicts');
+    pass('Conflict action maintains readable contrast through disabled, enabled, focus and hover states');
+    await apply.click(); await saved();
     await page.getByRole('button', { name: 'Contact', exact: true }).click(); assert.equal(await page.getByLabel('Phone', { exact: true }).inputValue(), '+1 555 010 2222');
     await screenshot('phase2-conflict-resolved'); pass('Source comparison, selective import and field-level conflict resolution preserve independent remote changes');
   },
