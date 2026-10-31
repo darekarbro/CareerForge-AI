@@ -83,7 +83,7 @@ export default function ApplicationBoard({
       </div>
 
       {/* Kanban Board Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 overflow-x-auto pb-4">
+      <div role="region" aria-label="Application stages" tabIndex={0} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 overflow-x-auto pb-4">
         {columns.map((col) => {
           const colApps = applications.filter((a) => a.status === col.id);
 
@@ -103,7 +103,7 @@ export default function ApplicationBoard({
               {/* Card List */}
               <div className="p-2 space-y-3 flex-1 min-h-[300px]">
                 {colApps.length === 0 ? (
-                  <div className="h-24 border-2 border-dashed border-gray-300 flex items-center justify-center text-[11px] text-gray-400 font-bold uppercase">
+                  <div className="h-24 border-2 border-dashed border-gray-300 flex items-center justify-center text-[11px] text-gray-600 font-bold uppercase">
                     Empty
                   </div>
                 ) : (
@@ -111,15 +111,13 @@ export default function ApplicationBoard({
                     <div
                       key={app._id}
                       onClick={() => handleOpenEdit(app)}
-                      role="button" tabIndex={0} aria-label={`Edit ${app.roleTitle} at ${app.company}`}
-                      onKeyDown={(event) => { if (['Enter', ' '].includes(event.key)) { event.preventDefault(); handleOpenEdit(app); } }}
                       className="p-3 border-2 border-[#1a1a1a] bg-white shadow-brutal hover:shadow-brutal-lg cursor-pointer transition-all group"
                     >
                       <div className="flex items-start justify-between gap-1 mb-1">
                         <span className="font-headline font-black text-xs text-[#1a1a1a] truncate">
                           {app.company}
                         </span>
-                        <Edit3 className="w-3.5 h-3.5 text-gray-400 group-hover:text-[#0055ff]" />
+                        <button type="button" aria-label={`Edit ${app.roleTitle} at ${app.company}`} onClick={(event) => { event.stopPropagation(); handleOpenEdit(app); }} className="p-2 text-gray-700 hover:text-[#0055ff]"><Edit3 aria-hidden="true" className="w-4 h-4" /></button>
                       </div>
 
                       <p className="text-[11px] font-bold text-gray-700 leading-tight mb-2">

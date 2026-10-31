@@ -42,9 +42,9 @@ function cleanResumeContent(value) {
     if (!Array.isArray(entries) || entries.length > 40) throw fail(key + ' may contain at most 40 records');
     return entries.map((item, index) => {
       const entry = object(item, key + ' ' + (index + 1));
-      const keys = new Set([...fields, '_id']);
+      const keys = new Set([...fields, '_id', 'entryId']);
       if (Object.keys(entry).some((field) => !keys.has(field))) throw fail('Unsupported ' + key + ' field');
-      return Object.fromEntries(fields.map((field) => {
+      const record = Object.fromEntries(fields.map((field) => {
         if (field === 'highlights') return [field, list(entry[field], key + ' bullets', 50)];
         if (field === 'technologies') return [field, list(entry[field], 'Technologies', 100, 120)];
         if (field === 'current') {
@@ -53,6 +53,9 @@ function cleanResumeContent(value) {
         }
         return [field, field === 'link' ? url(entry[field], 'Project link') : text(entry[field], field, field === 'description' ? 4000 : 300)];
       }));
+      record.entryId = entry.entryId || String(entry._id || 'legacy-' + key + '-' + index);
+      if (!/^[a-zA-Z0-9_-]{1,100}$/.test(record.entryId) || ['__proto__', 'constructor', 'prototype'].includes(record.entryId)) throw fail('Invalid entry identity');
+      return record;
     });
   };
   const content = { contactInfo, summary: text(input.summary, 'Summary', 6000), skills,
@@ -60,11 +63,29 @@ function cleanResumeContent(value) {
     projects: records('projects', ['title', 'description', 'technologies', 'link', 'highlights']),
     education: records('education', ['degree', 'institution', 'fieldOfStudy', 'graduationYear', 'score']),
     certifications: records('certifications', ['name', 'issuer', 'year']) };
+  for (const key of ['workExperience', 'projects', 'education', 'certifications']) if (new Set(content[key].map((entry) => entry.entryId)).size !== content[key].length) throw fail('Each entry needs a unique identity');
+  for (const entry of content.workExperience) {
+    const start = datePoint(entry.startDate), end = entry.current ? null : datePoint(entry.endDate, true);
+    if (entry.current && entry.endDate && !/^(present|current|now)$/i.test(entry.endDate)) throw fail('Clear the end date for a current role');
+    if (start && end && start > end) throw fail('Experience start date must be before its end date');
+  }
+  for (const entry of [...content.education.map((item) => ({ value: item.graduationYear, label: 'Graduation year' })), ...content.certifications.map((item) => ({ value: item.year, label: 'Certificate year' }))]) {
+    if (entry.value && (!/^\d{4}$/.test(entry.value) || Number(entry.value) < 1900 || Number(entry.value) > new Date().getUTCFullYear() + 15)) throw fail(entry.label + ' must be a valid four-digit year');
+  }
   if (JSON.stringify(content).length > 48000) throw fail('Resume content must fit within 48,000 characters');
   return content;
+}
+function datePoint(value, end = false) {
+  if (!value || /^(present|current|now)$/i.test(value)) return null;
+  const months = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
+  let year, month;
+  if (/^\d{4}(?:-\d{2})?$/.test(value)) { const parts = value.split('-'); year = Number(parts[0]); month = parts[1] ? Number(parts[1]) : end ? 12 : 1; }
+  else { const match = value.match(/^([a-z]+)\s+(\d{4})$/i); if (match) { year = Number(match[2]); month = months.indexOf(match[1].slice(0, 3).toLowerCase()) + 1; } }
+  if (!year || year < 1900 || year > new Date().getUTCFullYear() + 15 || !month || month > 12) throw fail('Use YYYY, YYYY-MM or Month YYYY for experience dates');
+  return year * 12 + month;
 }
 function revision(value) {
   if (!Number.isInteger(value) || value < 0) throw fail('A valid revision number is required');
   return value;
 }
-module.exports = { cleanResumeContent, revision, text, url, fail };
+module.exports = { cleanResumeContent, revision, text, url, fail, datePoint };

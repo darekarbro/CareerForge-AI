@@ -38,10 +38,10 @@ class ChatCompletionProvider extends BaseProvider {
         } catch (error) {
           const apiError = error.response?.data?.error;
           const schemaFailure = error.response?.status === 400 &&
-            (apiError?.code === 'json_validate_failed' || /generated json.*schema|failed to generate json/i.test(apiError?.message || ''));
+            (['json_validate_failed', 'json_parse_failed'].includes(apiError?.code) || /generated json.*schema|failed to generate json|parsing failed.*model generated output|output that could not be parsed/i.test(apiError?.message || ''));
           if (this.name !== 'groq' || attempt || !schemaFailure || signal.aborted) throw error;
           // A single format correction shares the original deadline and cancellation signal.
-          body.messages[0].content += '\nSchema repair: include EVERY required property, even empty arrays and strings, exactly as specified. Do not omit removedSkills or any other required field. Return only the complete JSON object.';
+          body.messages[0].content += '\nSchema repair: include EVERY required property, even empty arrays and strings, exactly as specified. Return only the complete JSON object matching this schema: ' + JSON.stringify(schemas[action]);
         }
       }
     }, this.timeoutMs, this.name);

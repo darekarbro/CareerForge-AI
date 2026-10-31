@@ -5,10 +5,10 @@ const { createJob, dispatchJob } = require('./jobService');
 const { plain } = require('../providers/resumeFacts');
 
 class GapAnalysisService {
-  async runGapAnalysis({ resumeId, userId, jobDescriptionText, targetRole = 'Software Engineer', company = '', workspaceId, jobDescriptionId }) {
+  async runGapAnalysis({ resumeId, userId, jobDescriptionText, targetRole = 'Software Engineer', company = '', workspaceId, jobDescriptionId, workspaceRevision, resumeSelection }) {
     const resume = await require('./resumeService').getReadyResume(resumeId, userId);
     const job = await createJob({ userId, jobType: 'gap_analysis', inputRef: {
-      resumeId: resume._id, workspaceId, jobDescriptionId, targetRole, rawInput: { jobDescriptionText, targetRole, company },
+      resumeId: resume._id, workspaceId, workspaceRevision, jobDescriptionId, targetRole, rawInput: { jobDescriptionText, targetRole, company, ...(workspaceId || resumeSelection ? { sourceSnapshot: require('./resumeStructure').selectedContent(resume, resumeSelection) } : {}) },
     } });
     return dispatchJob(job);
   }
@@ -17,7 +17,7 @@ class GapAnalysisService {
     if (existing) return commit(async () => { await require('./workspaceService').link(job, { $set: { latestGapId: existing._id } }); return { gapAnalysis: existing, aiProvider: existing.aiProvider }; });
     const resume = await require('./resumeService').getReadyResume(job.inputRef.resumeId, job.owner);
     const { jobDescriptionText, targetRole, company } = job.inputRef.rawInput;
-    const analysis = await analyzerAgent.analyzeGap({ resumeData: plain(resume.parsedData), jobDescriptionText, targetRole,
+    const analysis = await analyzerAgent.analyzeGap({ resumeData: job.inputRef.rawInput.sourceSnapshot || plain(resume.parsedData), jobDescriptionText, targetRole,
       jobId: job._id, userId: job.owner });
     await checkpoint();
     return commit(async () => {

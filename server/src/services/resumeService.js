@@ -119,7 +119,7 @@ class ResumeService {
       jobId: job._id, userId: job.owner });
     return commit(async () => {
       const resume = await Resume.findOneAndUpdate({ _id: job.inputRef.resumeId, owner: job.owner, deleting: { $ne: true } }, {
-        $set: { rawText: parsed.rawText, parsedData: parsed.parsedData, atsScore, assessmentMeta: atsScore.assessmentMeta, processingStatus: 'COMPLETED',
+        $set: { rawText: parsed.rawText, sourceText: parsed.rawText.length <= 48000 ? parsed.rawText : '', parsedData: require('./resumeStructure').withEntryIds(parsed.parsedData), atsScore, assessmentMeta: atsScore.assessmentMeta, processingStatus: 'COMPLETED',
           aiProvider: parsed.aiProvider, parsingWarnings: parsed.parsedData.warnings || [], parsingInputLength: parsed.inputCharacters },
       }, { new: true, runValidators: true });
       if (!resume) throw cancellationError();

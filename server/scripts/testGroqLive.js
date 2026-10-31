@@ -81,7 +81,8 @@ axios.post = async (url, body, options) => {
 for (const provider of [factory.openRouter, factory.gemini, factory.deterministic]) provider.isAvailable = () => false;
 const execute = factory.execute.bind(factory);
 factory.execute = async (action, params, onAttempt) => {
-  if (Number.isFinite(quota?.remaining) && quota.remaining < (action === 'tailorResume' ? 6000 : 3000) && quota.resetAt > Date.now()) {
+  // Reserve room for the input, generated answer and provider-side TPM estimates.
+  if (Number.isFinite(quota?.remaining) && quota.remaining < 7000 && quota.resetAt > Date.now()) {
     const pause = Math.min(60000, quota.resetAt - Date.now() + 1000);
     output({ quotaPauseSeconds: Math.ceil(pause / 1000), nextAction: action });
     await sleep(pause);
@@ -162,7 +163,7 @@ function check(name, details) { report.checks.push({ name, passed: true, ...deta
 function verifyCalls() {
   assert(report.actions.every((action) => action.passed));
   assert(report.calls.filter((call) => call.status !== 200).every((call) => call.status === 400 &&
-    /json.*schema|failed to generate json/i.test(call.error || '') &&
+    /json.*schema|failed to generate json|parsing failed.*model generated output|output that could not be parsed/i.test(call.error || '') &&
     report.actions.some((action) => action.action === call.action && action.passed)));
 }
 async function main() {

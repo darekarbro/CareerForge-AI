@@ -1,5 +1,13 @@
 # Groq live acceptance results
 
+## Phase 2 revalidation — 31 October 2026
+
+The complete acceptance run passed again with `openai/gpt-oss-120b`: all six AI actions, **11 real HTTP 200 requests and 12 checks**, with other providers and offline fallback disabled. It also checked scoped project rewriting, improved-answer retry, token usage, saved timelines and notifications. Inputs were fictional and used an isolated database.
+
+Earlier diagnostic runs exposed a malformed model response and the account's token-per-minute limit. The provider now makes one bounded repair attempt for Groq JSON parsing/validation errors under its original deadline and cancellation signal. The acceptance runner reserves more quota between actions; it does not count a fallback result as success. The final complete run required no failed requests. See [Phase 2 validation](PHASE2.md) for project-wide results.
+
+## Earlier acceptance run
+
 Completed 26 October 2026 using the key configured in server/.env and **openai/gpt-oss-120b**.
 
 **All six AI actions passed against the real Groq API.** Other providers and the offline engine were disabled in the acceptance runner, so no fallback result could count as a pass.

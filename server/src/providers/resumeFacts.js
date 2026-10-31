@@ -30,7 +30,7 @@ const resumeLines = (data = {}) => {
     if (typeof value === 'string' && value.trim()) lines.push(...value.split(/\r?\n/).filter(Boolean));
     else if (Array.isArray(value)) value.forEach(visit);
     else if (value && typeof value === 'object') {
-      Object.entries(value).filter(([key]) => !['_id', 'aiProvider', 'warnings'].includes(key)).forEach(([, item]) => visit(item));
+      Object.entries(value).filter(([key]) => !['_id', 'entryId', 'aiProvider', 'warnings'].includes(key)).forEach(([, item]) => visit(item));
     }
   };
   visit(plain(data));

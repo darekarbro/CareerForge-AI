@@ -28,11 +28,14 @@ const resumeSchema = new mongoose.Schema(
     parsingWarnings: [String],
     parsingInputLength: Number,
     contentRevision: { type: Number, default: 1 },
+    revisionName: { type: String, default: 'Imported resume' },
+    presentation: mongoose.Schema.Types.Mixed,
+    sourceText: String,
     verifiedAt: Date,
     sourceType: { type: String, enum: ['upload', 'profile', 'edited'], default: 'upload' },
     atsScoreStale: { type: Boolean, default: false },
     assessmentMeta: mongoose.Schema.Types.Mixed,
-    revisionHistory: [{ revision: Number, content: mongoose.Schema.Types.Mixed, title: String, savedAt: Date }],
+    revisionHistory: [{ revision: Number, content: mongoose.Schema.Types.Mixed, title: String, name: String, presentation: mongoose.Schema.Types.Mixed, savedAt: Date }],
     aiProvider: String,
     deleting: { type: Boolean, default: false },
     fileType: {
@@ -63,6 +66,7 @@ const resumeSchema = new mongoose.Schema(
       },
       workExperience: [
         {
+          entryId: String,
           role: String,
           company: String,
           location: String,
@@ -74,6 +78,7 @@ const resumeSchema = new mongoose.Schema(
       ],
       education: [
         {
+          entryId: String,
           degree: String,
           institution: String,
           fieldOfStudy: String,
@@ -83,6 +88,7 @@ const resumeSchema = new mongoose.Schema(
       ],
       projects: [
         {
+          entryId: String,
           title: String,
           description: String,
           technologies: [String],
@@ -92,6 +98,7 @@ const resumeSchema = new mongoose.Schema(
       ],
       certifications: [
         {
+          entryId: String,
           name: String,
           issuer: String,
           year: String,

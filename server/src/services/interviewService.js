@@ -15,19 +15,24 @@ function visibleQuestion(question, session) {
 }
 
 class InterviewService {
-  async startSession({ userId, targetRole, resumeId, jobDescriptionId, count = 5, workspaceId, difficulty = 'Medium', timeLimitSeconds = 0, topicFocus = '', feedbackMode = 'instant' }) {
+  async startSession({ userId, targetRole, resumeId, jobDescriptionId, count = 5, workspaceId, workspaceRevision, resumeSelection, difficulty = 'Medium', timeLimitSeconds = 0, topicFocus = '', feedbackMode = 'instant' }) {
     if (!Number.isInteger(count) || count < 1 || count > 10) throw fail('Choose 1 to 10 interview questions', 400);
     if (!['Easy', 'Medium', 'Hard'].includes(difficulty)) throw fail('Choose a valid interview difficulty', 400);
     if (![0, 60, 120, 180, 300].includes(timeLimitSeconds)) throw fail('Choose a supported practice timer', 400);
     if (!['instant', 'end'].includes(feedbackMode)) throw fail('Choose a supported feedback mode', 400);
     topicFocus = require('./resumeContent').text(topicFocus, 'Focus topic', 150);
     const resume = await require('./resumeService').getReadyResume(resumeId, userId);
+    if (workspaceId) {
+      const workspace = await require('./workspaceService').get(workspaceId, userId);
+      if (workspace.archivedAt || String(workspace.resumeId) !== String(resumeId)) throw fail('Restore the workspace and use its selected resume before practicing.', 409);
+      resumeSelection = workspace.resumeSelection; workspaceRevision = workspace.preparationRevision || 1; targetRole = workspace.title; jobDescriptionId = workspace.jobDescriptionId;
+    }
     if (jobDescriptionId && !await JobDescription.exists({ _id: jobDescriptionId, owner: userId })) {
       throw fail('Job description not found', 404);
     }
     const job = await createJob({ userId, jobType: 'question_generation', inputRef: {
-      resumeId: resume._id, workspaceId, jobDescriptionId: jobDescriptionId || undefined,
-      targetRole, rawInput: { count, difficulty, timeLimitSeconds, topicFocus, feedbackMode },
+      resumeId: resume._id, workspaceId, workspaceRevision, jobDescriptionId: jobDescriptionId || undefined,
+      targetRole, rawInput: { count, difficulty, timeLimitSeconds, topicFocus, feedbackMode, sourceRevision: resume.contentRevision || 1, ...(workspaceId || resumeSelection ? { sourceSnapshot: require('./resumeStructure').selectedContent(resume, resumeSelection) } : {}) },
     } });
     return dispatchJob(job);
   }
@@ -39,7 +44,7 @@ class InterviewService {
       await JobDescription.findOne({ _id: job.inputRef.jobDescriptionId, owner: job.owner }) : null;
     if (job.inputRef.jobDescriptionId && !jd) throw fail('Job description not found', 404);
     const generated = await generatorAgent.generateQuestions({
-      resumeData: plain(resume.parsedData), targetRole: job.inputRef.targetRole,
+      resumeData: job.inputRef.rawInput.sourceSnapshot || plain(resume.parsedData), targetRole: job.inputRef.targetRole,
       jobDescriptionText: jd?.rawText || '', count: job.inputRef.rawInput.count, difficulty: job.inputRef.rawInput.difficulty,
       topicFocus: job.inputRef.rawInput.topicFocus, jobId: job._id, userId: job.owner,
     });
@@ -49,7 +54,7 @@ class InterviewService {
       const session = await InterviewSession.create({
         processingJobId: job._id,
         pendingQuestions: generated.questions.map((question, index) => ({ ...question, _id: new (require('mongoose').Types.ObjectId)(), order: index + 1 })),
-        workspaceId: job.inputRef.workspaceId,
+        workspaceId: job.inputRef.workspaceId, workspaceRevision: job.inputRef.workspaceRevision || 1, sourceRevision: job.inputRef.rawInput.sourceRevision || resume.contentRevision || 1,
         difficulty: job.inputRef.rawInput.difficulty, timeLimitSeconds: job.inputRef.rawInput.timeLimitSeconds,
         topicFocus: job.inputRef.rawInput.topicFocus, feedbackMode: job.inputRef.rawInput.feedbackMode,
         owner: job.owner, resumeId: resume._id, targetRole: job.inputRef.targetRole,

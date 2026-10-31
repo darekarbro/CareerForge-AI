@@ -9,10 +9,10 @@ export function readDraft(userId, resource) {
   } catch { /* A corrupt or inaccessible browser cache must not block editing. */ }
   return null;
 }
-export function writeDraft(userId, resource, value, baseRevision) {
+export function writeDraft(userId, resource, value, baseRevision, baseValue) {
   if (!userId || typeof window === 'undefined') return false;
   try {
-    localStorage.setItem(keyFor(userId, resource), JSON.stringify({ value, baseRevision, updatedAt: Date.now(), expiresAt: Date.now() + 86400000 }));
+    localStorage.setItem(keyFor(userId, resource), JSON.stringify({ value, baseRevision, baseValue, updatedAt: Date.now(), expiresAt: Date.now() + 86400000 }));
     return true;
   } catch { return false; }
 }

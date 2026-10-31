@@ -50,6 +50,7 @@ h1, h2, h3, h4, h5, h6, .font-headline {
 }
 
 :focus-visible { outline: 3px solid #0055ff; outline-offset: 3px; }
+.text-gray-500 { color: #59616e; }
 button, a, input, select, textarea { touch-action: manipulation; }
 button:not(:disabled), summary { cursor: pointer; }
 button:disabled { cursor: not-allowed; }
