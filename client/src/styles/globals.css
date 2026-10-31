@@ -83,6 +83,19 @@ input, select, textarea { max-width: 100%; }
   transform: translate(-2px, -2px);
 }
 
+/* Keep text and background contrast stable while conflict choices enable the action. */
+.conflict-apply-button {
+  transition: box-shadow 0.15s ease-in-out, transform 0.15s ease-in-out;
+}
+
+.conflict-apply-button:disabled {
+  opacity: 1;
+  color: #374151;
+  background-color: #e5e7eb;
+  box-shadow: none;
+  transform: none;
+}
+
 .brutal-btn-yellow {
   border: 3px solid #1a1a1a;
   background-color: #ffcc00;
