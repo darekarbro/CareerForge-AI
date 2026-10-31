@@ -52,6 +52,8 @@ const processingJobSchema = new mongoose.Schema(
     },
     leaseOwner: String,
     leaseExpiresAt: Date,
+    executionOwner: String,
+    executionExpiresAt: Date,
     recoveredAt: Date,
     usage: [{ action: String, provider: String, model: String, durationMs: Number, status: String, inputTokens: Number, outputTokens: Number }],
     retryCount: {

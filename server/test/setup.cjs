@@ -2,7 +2,8 @@
 require('dotenv').config = () => ({ parsed: {} });
 for (const key of ['MONGODB_URI', 'REDIS_URL', 'GROQ_API_KEY', 'OPENROUTER_API_KEY', 'GEMINI_API_KEY',
   'FIREBASE_PROJECT_ID', 'FIREBASE_CLIENT_EMAIL', 'FIREBASE_PRIVATE_KEY',
-  'CLOUDINARY_CLOUD_NAME', 'CLOUDINARY_API_KEY', 'CLOUDINARY_API_SECRET']) process.env[key] = '';
+  'CLOUDINARY_CLOUD_NAME', 'CLOUDINARY_API_KEY', 'CLOUDINARY_API_SECRET', 'SMTP_HOST', 'SMTP_USER', 'SMTP_PASSWORD', 'APP_URL']) process.env[key] = '';
+process.env.QUEUE_MODE = 'combined';
 process.env.NODE_ENV = 'test';
 process.env.JWT_SECRET = 'careerforge-test-only-private-secret-123456789';
 process.env.CLIENT_URL = 'http://localhost:3000';

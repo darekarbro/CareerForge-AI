@@ -16,7 +16,8 @@ for (const key of ['GROQ_API_KEY', 'GROQ_MODEL', 'GROQ_TIMEOUT_MS']) {
 }
 for (const key of ['MONGODB_URI', 'REDIS_URL', 'OPENROUTER_API_KEY', 'GEMINI_API_KEY',
   'FIREBASE_PROJECT_ID', 'FIREBASE_CLIENT_EMAIL', 'FIREBASE_PRIVATE_KEY',
-  'CLOUDINARY_CLOUD_NAME', 'CLOUDINARY_API_KEY', 'CLOUDINARY_API_SECRET']) process.env[key] = '';
+  'CLOUDINARY_CLOUD_NAME', 'CLOUDINARY_API_KEY', 'CLOUDINARY_API_SECRET', 'SMTP_HOST', 'SMTP_USER', 'SMTP_PASSWORD', 'APP_URL']) process.env[key] = '';
+process.env.QUEUE_MODE = 'combined';
 process.env.NODE_ENV = 'test';
 process.env.JWT_SECRET = 'groq-live-synthetic-test-only-secret-123456789';
 process.env.CLIENT_URL = 'http://localhost:3000';
@@ -183,6 +184,8 @@ async function main() {
     name: 'Groq Synthetic Test', email: 'groq-live@example.test', password: 'synthetic-test-password',
   });
   assert.equal(account.status, 201); token = account.data.data.token;
+  // This isolated fictional fixture explicitly enables the provider under test.
+  await require('../src/models/User').updateOne({ _id: account.data.data.user.id }, { $set: { emailVerifiedAt: new Date(), 'privacy.providers': { groq: true, openrouter: false, gemini: false } } });
   assert(token, 'Registration must return a token');
   const providers = await request('GET', '/api/processing-jobs/health/providers');
   assert.equal(providers.data.data.activeProvider, 'groq');

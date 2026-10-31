@@ -11,13 +11,13 @@ async function startServer() {
   const server = http.createServer(app);
   initSocket(server, env.CLIENT_URL);
   initQueue();
-  require('./services/jobRecovery').start();
+  if (env.QUEUE_MODE !== 'producer') await require('./services/backgroundServices').start();
   await new Promise((resolve, reject) => {
     server.once('error', reject);
     server.listen(env.PORT, () => { server.off('error', reject); resolve(); });
   });
   console.log('CareerForge API listening on port ' + server.address().port);
-  const shutdown = createShutdown({ server, closeSockets: closeSocket, closeWorkers: async () => { require('./services/jobRecovery').stop(); await closeQueue(); }, disconnectDatabase: disconnectDB });
+  const shutdown = createShutdown({ server, closeSockets: closeSocket, closeWorkers: async () => { if (env.QUEUE_MODE !== 'producer') await require('./services/backgroundServices').stop(); await closeQueue(); }, disconnectDatabase: disconnectDB });
   const onSignal = () => shutdown().then(() => process.exit(0)).catch((error) => {
     console.error(error.message); process.exit(1);
   });

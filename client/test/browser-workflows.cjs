@@ -25,7 +25,8 @@ async function screenshot(name) { const filename = 'browser-' + name + '.png'; a
 async function start() {
   await fs.mkdir(testRoot, { recursive: true }); directory = await fs.mkdtemp(path.join(testRoot, 'browser-mongo-'));
   const binary = process.env.MONGOMS_SYSTEM_BINARY || path.join(root, 'server/node_modules/.cache/mongodb-memory-server/mongod-x64-win32-7.0.24.exe');
-  db = await MongoMemoryServer.create({ binary: { systemBinary: binary }, instance: { dbPath: directory, ip: '127.0.0.1', args: ['--wiredTigerCacheSizeGB', '0.25'] } });
+  db = new MongoMemoryServer({ binary: await fs.stat(binary).then(() => ({ systemBinary: binary }), () => ({})), instance: { dbPath: directory, ip: '127.0.0.1', launchTimeout: 60000, args: ['--wiredTigerCacheSizeGB', '0.25'] } });
+  await db.start();
   await connectDB({ uri: db.getUri() });
   apiServer = http.createServer(app); initSocket(apiServer, process.env.CLIENT_URL);
   await new Promise((resolve, reject) => { apiServer.once('error', reject); apiServer.listen(5000, resolve); });
@@ -43,13 +44,14 @@ async function start() {
   const executablePath = process.env.BROWSER_PATH || (await fs.stat('C:/Program Files/Google/Chrome/Application/chrome.exe').then(() => 'C:/Program Files/Google/Chrome/Application/chrome.exe', () => undefined));
   browser = await chromium.launch({ headless: true, ...(executablePath ? { executablePath } : {}) });
   page = await browser.newPage({ viewport: { width: 1440, height: 1000 }, acceptDownloads: true });
+  await page.context().tracing.start({ screenshots: true, snapshots: true });
   page.setDefaultTimeout(20000); page.on('pageerror', (error) => errors.push(error.message));
 }
 async function run() {
   await page.goto('http://localhost:3030/register');
   await page.getByPlaceholder('e.g. Alex Morgan').fill('Browser Candidate');
   await page.getByPlaceholder('alex@example.com').fill('browser-candidate@example.test');
-  await page.getByPlaceholder('Minimum 6 characters').fill('fictional-browser-password');
+  await page.getByPlaceholder('Minimum 8 characters').fill('fictional-browser-password');
   await page.getByRole('button', { name: 'Create Free Account', exact: true }).click();
   await page.waitForURL('**/onboarding'); await page.getByLabel('Target role', { exact: true }).fill('Backend Engineer');
   await page.getByRole('combobox', { name: /^Experience level/ }).selectOption('student');
@@ -76,6 +78,15 @@ async function run() {
   await page.reload(); await page.getByLabel('Resume name', { exact: true }).waitFor();
   assert.equal(await page.getByLabel('Resume name', { exact: true }).inputValue(), 'Browser verified resume');
   pass('Resume editing persists after a full page reload');
+  await page.goto('http://localhost:3030/account');
+  await page.getByRole('button', { name: 'Resend verification email' }).waitFor();
+  assert.equal(await page.getByRole('checkbox', { name: 'Groq', exact: true }).isChecked(), false);
+  const verification = require('../../server/src/services/accountMailService').testMessages.findLast((item) => item.to === 'browser-candidate@example.test' && item.subject.startsWith('Verify')).text.match(/#token=([a-f0-9]{64})/)[1];
+  await page.goto('http://localhost:3030/verify-email#token=' + verification);
+  await page.getByRole('button', { name: 'Verify email', exact: true }).click(); await page.getByText('Email verified. You can now use AI features.', { exact: true }).waitFor();
+  await page.goto('http://localhost:3030/account'); await page.getByRole('checkbox', { name: 'Groq', exact: true }).check();
+  await page.getByRole('button', { name: 'Save privacy preferences' }).click(); await page.getByText('Privacy preferences saved.', { exact: true }).waitFor();
+  pass('Email verification and explicit AI provider sharing controls');
   await page.goto('http://localhost:3030/workspaces');
   await page.getByLabel('Company', { exact: true }).fill('Browser Target Co');
   await page.getByLabel('Role title', { exact: true }).fill('Backend Engineer');
@@ -134,15 +145,35 @@ async function run() {
   await page.getByTitle('Logout', { exact: true }).click(); await page.waitForURL('**/login'); await page.goto('http://localhost:3030/profile'); await page.waitForURL('**/login');
   assert.equal(await page.evaluate(() => Object.keys(localStorage).filter((key) => key.startsWith('careerforge:draft:')).length), 0);
   assert.deepEqual(errors, []); pass('Logout clears private drafts and protected routes redirect');
+  await page.getByRole('link', { name: 'Forgot password?' }).click(); await page.getByLabel('Email address', { exact: true }).fill('browser-candidate@example.test');
+  await page.getByRole('button', { name: 'Send recovery link' }).click(); await page.getByRole('status').waitFor();
+  const reset = require('../../server/src/services/accountMailService').testMessages.findLast((item) => item.to === 'browser-candidate@example.test' && item.subject.startsWith('Reset')).text.match(/#token=([a-f0-9]{64})/)[1];
+  await page.goto('http://localhost:3030/reset-password#token=' + reset);
+  await page.getByLabel('New password', { exact: true }).fill('replacement-browser-password'); await page.getByLabel('Confirm new password', { exact: true }).fill('replacement-browser-password');
+  await page.getByRole('button', { name: 'Reset password', exact: true }).click(); await page.getByText('Password updated. All devices have been signed out.', { exact: true }).waitFor();
+  await page.getByRole('link', { name: 'Sign in', exact: true }).click();
+  await page.getByLabel('Email Address', { exact: true }).fill('browser-candidate@example.test'); await page.getByLabel('Password', { exact: true }).fill('replacement-browser-password');
+  await page.getByRole('button', { name: 'Sign In To Platform', exact: true }).click(); await page.waitForURL('**/dashboard');
+  pass('Forgot password, single-use recovery link and sign-in with replacement password');
+  await page.goto('http://localhost:3030/account'); await page.getByLabel('Current password', { exact: true }).fill('replacement-browser-password');
+  const archiveDownload = page.waitForEvent('download'); await page.getByRole('button', { name: 'Download account archive' }).click();
+  const archive = await archiveDownload; assert((await fs.stat(await archive.path())).size > 1000);
+  await screenshot('account-mobile'); pass('Private account ZIP export and mobile account controls');
+  await page.getByLabel('Current password', { exact: true }).fill('replacement-browser-password'); await page.getByLabel('Type DELETE to confirm', { exact: true }).fill('DELETE');
+  await page.getByRole('button', { name: 'Delete my account', exact: true }).click(); await page.waitForURL('**/account-deletion#receipt=*');
+  await pause(100); await require('../../server/src/services/privacyService').sweepDeletions();
+  await page.getByRole('button', { name: 'Check deletion status' }).click(); await page.getByText(/Status: completed/).waitFor();
+  assert.deepEqual(errors, []); pass('Permanent account deletion and private completion receipt');
 }
 (async () => {
   try { await start(); await run(); }
   catch (error) { failed = true; report.error = error.message; console.error(error.stack); if (page) { await screenshot('failure').catch(() => {}); } }
   finally {
+    if (page) await page.context().tracing.stop({ path: path.join(testRoot, 'browser-trace.zip') }).catch(() => {});
     await browser?.close(); frontend?.kill(); await closeSocket();
     if (apiServer?.listening) await new Promise((resolve) => apiServer.close(resolve));
     await closeQueue(); await disconnectDB(); await db?.stop();
-    if (directory && path.resolve(directory).startsWith(testRoot + path.sep)) await fs.rm(directory, { recursive: true, force: true });
+    if (directory && path.resolve(directory).startsWith(testRoot + path.sep)) await fs.rm(directory, { recursive: true, force: true, maxRetries: 10, retryDelay: 250 }).catch((error) => { report.cleanupError = error.code; failed = true; });
     report.passed = !failed; await fs.writeFile(path.join(testRoot, 'browser-results.json'), JSON.stringify(report, null, 2));
     process.exitCode = failed ? 1 : 0;
   }

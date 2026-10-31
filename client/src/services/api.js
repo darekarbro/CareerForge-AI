@@ -40,7 +40,7 @@ api.interceptors.request.use(
         try {
           const parsed = JSON.parse(stored);
           const token = parsed?.token || parsed?.state?.token;
-          if (token) {
+          if (token && !config.headers.Authorization) {
             config.headers.Authorization = `Bearer ${token}`;
           }
         } catch (e) {
@@ -57,18 +57,18 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401 && typeof window !== 'undefined') {
+    if (error.response?.status === 401 && (!error.response.data?.code || error.response.data.code.startsWith('SESSION_')) && typeof window !== 'undefined') {
       const isAuthPage =
         window.location.pathname.includes('/login') ||
         window.location.pathname.includes('/register') ||
         window.location.pathname === '/';
 
       if (!isAuthPage) {
-        const current = JSON.parse(localStorage.getItem('careerforge_auth') || '{}');
+        let current = {}; try { current = JSON.parse(localStorage.getItem('careerforge_auth') || '{}'); } catch { /* Invalid storage is cleared at initialization. */ }
         if (error.config?.headers?.Authorization === `Bearer ${current.token}`) {
           window.dispatchEvent(new Event('careerforge:unauthorized'));
           localStorage.removeItem('careerforge_auth');
-          window.location.href = '/login';
+          window.location.href = '/login?expired=1';
         }
       }
     }

@@ -55,6 +55,8 @@ This fragmentation makes the process slow, inconsistent, and difficult to optimi
 - Guided onboarding, a next-action dashboard and an activity centre for background requests
 - Real-time processing events using Socket.IO
 - Email/password authentication with JWT, plus Firebase Google Sign-In for social login
+- Email verification, password recovery, expiring revocable sessions and sign-out across devices
+- Private account export/deletion, supporting-data retention and explicit AI-provider sharing controls
 - Firebase-backed Google auth flow: frontend verifies the Google popup, backend validates the ID token via firebase-admin, then issues the app JWT session
 - Deterministic fallback engine when AI providers are unavailable
 
@@ -154,6 +156,21 @@ API health check:
 https://careerforge-backend-mg0r.onrender.com/api/health
 
 ## 8. Setup Instructions
+
+### Reproducible local setup
+
+Install Docker Desktop (Linux containers), then run from the repository root:
+
+```bash
+node scripts/setupLocal.cjs
+docker compose --env-file .env.compose up --build -d --wait
+```
+
+Open the app at http://localhost:3000 and the local email inbox at http://localhost:8025. Register, open the verification email and confirm your address. Choose allowed AI providers under **Account & privacy** before sending data externally. To use Groq in Docker, add your key to the generated, ignored `.env.compose`; the existing native `server/.env` is not copied into images. Offline processing works without AI keys.
+
+The stack includes a separate API and worker, MongoDB, Redis, Mailpit and the production frontend. Database, queue, originals and local mail use persistent volumes. `docker compose --env-file .env.compose down` stops it without deleting data. See [setup and deployment](docs/DEPLOYMENT.md), [architecture and relationships](docs/ARCHITECTURE.md), [operations runbook](docs/RUNBOOK.md) and [Phase 1 validation](PHASE1.md).
+
+Interactive API documentation is at http://localhost:5000/api/docs and the OpenAPI document at http://localhost:5000/api/openapi.json. CI checks every pull request and retains browser failure screenshots and traces for seven days.
 
 ### Prerequisites
 
@@ -280,7 +297,7 @@ Production requires an available `MONGODB_URI` and a private random `JWT_SECRET`
 
 New uploads are private, and original downloads require ownership. Without Cloudinary, use persistent storage for `server/uploads`. Jobs use Redis when available and otherwise run in a bounded local queue. A MongoDB-backed recovery sweep requeues pending work and expired worker leases after a restart; durable recovery requires a persistent MongoDB database. The temporary development database is discarded when stopped.
 
-Retry inputs are encrypted and expire after 24 hours. They are removed on success or cancellation. Set a stable private `JOB_PAYLOAD_SECRET`, or use the private `JWT_SECRET` fallback; changing the encryption key makes existing retry inputs unreadable. Commits use job identities to recover existing resume versions, match reports, questions and answer scores without duplicating them. Startup also repairs legacy data inconsistencies; back up a persistent database before deploying.
+Retry inputs are encrypted and expire after the user's selected 1/6/24-hour period. They are removed on success or cancellation. Set a stable private `JOB_PAYLOAD_SECRET`, or use the private `JWT_SECRET` fallback; changing the encryption key makes existing retry inputs unreadable. Commits use job identities to recover existing resume versions, match reports, questions and answer scores without duplicating them. Startup also repairs legacy data inconsistencies; back up a persistent database before deploying. Separate API/worker deployment, SMTP and upgrade instructions are in [the deployment guide](docs/DEPLOYMENT.md).
 
 ## Validation
 

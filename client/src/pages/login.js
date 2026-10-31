@@ -130,6 +130,7 @@ export default function LoginPage() {
           </div>
 
           <form onSubmit={handleLogin} className="space-y-4">
+            {router.query.expired && <p role="status" className="text-sm">Your session has ended. Sign in to continue.</p>}
             <div>
               <label htmlFor="login-email" className="block font-headline font-bold text-xs uppercase text-[#1a1a1a] mb-1">
                 Email Address
@@ -184,6 +185,7 @@ export default function LoginPage() {
               )}
             </button>
           </form>
+          <Link href="/forgot-password" className="block text-sm font-bold underline">Forgot password?</Link>
 
           <div className="pt-2 text-center text-xs font-medium text-gray-600 border-t-2 border-[#1a1a1a]">
             New to CareerForge?{' '}

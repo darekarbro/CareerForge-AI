@@ -24,6 +24,7 @@ const navItems = [
   { label: 'Applications', href: '/applications', icon: KanbanSquare },
   { label: 'Activity', href: '/activity', icon: History },
   { label: 'Settings', href: '/settings', icon: Settings },
+  { label: 'Account & privacy', href: '/account', icon: Settings },
 ];
 
 export default function Sidebar({ isOpen, onClose }) {

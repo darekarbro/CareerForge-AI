@@ -31,9 +31,13 @@ class ProviderFactory {
 
   async execute(actionName, params = {}, onProviderAttempt = null) {
     throwIfCancelled();
+    const scope = require('../services/jobContext').context.getStore();
     for (const provider of [this.groq, this.openRouter, this.gemini, this.deterministic]) {
+      const account = scope?.owner ? await require('../models/User').findOne({ _id: scope.owner, deleting: { $ne: true } }).select('privacy emailVerifiedAt') : null;
+      if (scope?.owner && !account) throw Object.assign(new Error('Account unavailable'), { code: 'JOB_CANCELLED', statusCode: 409 });
+      if (scope?.owner && provider !== this.deterministic && (!account.emailVerifiedAt || account.privacy?.providers?.[provider.name] !== true)) continue;
       if (!provider.isAvailable()) continue;
-      const start = Date.now(), scope = require('../services/jobContext').context.getStore();
+      const start = Date.now();
       if (scope) scope.providerUsage = null;
       try {
         if (onProviderAttempt) await onProviderAttempt(provider.name);
