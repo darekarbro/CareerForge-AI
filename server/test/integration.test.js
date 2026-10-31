@@ -659,6 +659,7 @@ test('Phase 1: deletion waits for active requests, retries failed file cleanup a
 });
 require('./phase2Cases.cjs')({ test, assert, request, user, ready, facts, successfulJob, Resume, Tailored });
 require('./phase3Cases.cjs')({ test, assert, request, user, ready, facts, successfulJob, Resume, Tailored });
+require('./mainAuditCases.cjs')({ test, assert, request, user, ready, facts, successfulJob, Resume });
 
 test('43: an unavailable configured database falls back in development and fails closed in production', async () => {
   const env = require('../src/config/env');
