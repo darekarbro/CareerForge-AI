@@ -14,12 +14,12 @@ export default function JobRoleCard({ role, generatedLinks, keywords, onGenerate
     {
       name: 'Internshala',
       url: generatedLinks?.internshala || `https://internshala.com/jobs/keywords-${encodeURIComponent(role.id)}/`,
-      btnClass: 'bg-[#12957f] text-white hover:bg-[#0d6e5d]',
+      btnClass: 'bg-[#0d6e5d] text-white hover:bg-[#0d6e5d]',
     },
     {
       name: 'Naukri',
       url: generatedLinks?.naukri || `https://www.naukri.com/${encodeURIComponent(role.id)}-jobs`,
-      btnClass: 'bg-[#ff7555] text-white hover:bg-[#e05636]',
+      btnClass: 'bg-[#b83e25] text-white hover:bg-[#94301c]',
     },
     {
       name: 'Indeed',

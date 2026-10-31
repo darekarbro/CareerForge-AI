@@ -9,11 +9,12 @@ const api = axios.create({
   },
 });
 
-api.download = async (url, filename) => {
+api.download = async (url, filename, { expectedRevision } = {}) => {
   const accountToken = () => { try { return JSON.parse(localStorage.getItem('careerforge_auth') || '{}').token; } catch { return undefined; } };
   const initialToken = accountToken();
   const response = await api.get(url, { responseType: 'blob' });
   if (initialToken !== accountToken()) throw Object.assign(new Error('Download stopped because your account changed'), { name: 'AbortError' });
+  if (expectedRevision !== undefined && Number(response.headers['x-content-revision']) !== expectedRevision) throw new Error('This version changed elsewhere. Reload its saved content before downloading.');
 
   const blob = new Blob([response.data], {
     type: response.headers['content-type'] || 'application/pdf',

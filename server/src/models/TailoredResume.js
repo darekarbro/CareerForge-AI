@@ -4,6 +4,7 @@ const tailoredResumeSchema = new mongoose.Schema(
   {
     processingJobId: { type: mongoose.Schema.Types.ObjectId, unique: true, sparse: true },
     workspaceId: { type: mongoose.Schema.Types.ObjectId, ref: 'JobWorkspace', index: true },
+    workspaceRevision: Number,
     assessmentMeta: mongoose.Schema.Types.Mixed,
     resumeId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -43,6 +44,7 @@ const tailoredResumeSchema = new mongoose.Schema(
       },
       workExperience: [
         {
+          entryId: String,
           role: String,
           company: String,
           location: String,
@@ -54,6 +56,7 @@ const tailoredResumeSchema = new mongoose.Schema(
       ],
       projects: [
         {
+          entryId: String,
           title: String,
           description: String,
           technologies: [String],
@@ -105,11 +108,15 @@ const tailoredResumeSchema = new mongoose.Schema(
     sourceContent: mongoose.Schema.Types.Mixed,
     sourceRevision: { type: Number, default: 1 },
     contentRevision: { type: Number, default: 1 },
+    revisionName: { type: String, default: 'Generated draft' },
+    presentation: mongoose.Schema.Types.Mixed,
+    exportSettings: mongoose.Schema.Types.Mixed,
+    layoutRevision: { type: Number, default: 1 },
     reviewedContent: mongoose.Schema.Types.Mixed,
     reviewDecisions: { type: mongoose.Schema.Types.Mixed, default: {} },
     reviewedAt: Date,
     atsScoreStale: { type: Boolean, default: false },
-    editHistory: [{ revision: Number, content: mongoose.Schema.Types.Mixed, decisions: mongoose.Schema.Types.Mixed, savedAt: Date }],
+    editHistory: [{ revision: Number, name: String, content: mongoose.Schema.Types.Mixed, decisions: mongoose.Schema.Types.Mixed, presentation: mongoose.Schema.Types.Mixed, savedAt: Date }],
     aiProvider: {
       type: String,
       enum: ['groq', 'openrouter', 'gemini', 'deterministic-fallback'],
@@ -122,4 +129,11 @@ const tailoredResumeSchema = new mongoose.Schema(
 );
 
 tailoredResumeSchema.index({ resumeId: 1, version: 1 }, { unique: true });
+tailoredResumeSchema.virtual('reviewChanges').get(function () { return require('../services/resumeReview').changes(this); });
+tailoredResumeSchema.virtual('reviewProgress').get(function () { return require('../services/resumeReview').progress(this); });
+tailoredResumeSchema.set('toJSON', { transform(doc, result) {
+  result.reviewChanges = require('../services/resumeReview').changes(doc);
+  result.reviewProgress = require('../services/resumeReview').progress(doc);
+  return result;
+} });
 module.exports = mongoose.model('TailoredResume', tailoredResumeSchema);

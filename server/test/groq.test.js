@@ -36,6 +36,23 @@ test('Groq retries a format-validation error once and does not retry authenticat
   } finally { axios.post = post; }
 });
 
+test('Groq repairs provider JSON parsing failures once while ordinary bad requests fail immediately', async () => {
+  const original = axios.post, provider = new GroqProvider(); provider.apiKey = 'synthetic-test-key';
+  try {
+    for (const apiError of [{ code: 'json_parse_failed' }, { message: 'Parsing failed. The model generated output that could not be parsed.' }]) {
+      let calls = 0;
+      axios.post = async (_url, body) => { calls++; if (calls === 1) throw Object.assign(new Error('Malformed model output'), { response: { status: 400, data: { error: apiError } } }); assert(body.messages[0].content.includes(JSON.stringify(schemas.parseResume))); return { data: { choices: [{ message: { content: JSON.stringify(facts) } }] } }; };
+      assert.equal((await provider.parseResume('Fictional facts')).contactInfo.name, facts.contactInfo.name); assert.equal(calls, 2);
+    }
+    let calls = 0;
+    axios.post = async () => { calls++; throw Object.assign(new Error('Invalid model configuration'), { response: { status: 400, data: { error: { code: 'invalid_request_error', message: 'Unknown model' } } } }); };
+    await assert.rejects(provider.parseResume('Fictional facts')); assert.equal(calls, 1);
+    calls = 0;
+    axios.post = async () => { calls++; throw Object.assign(new Error('Parsing failed'), { response: { status: 400, data: { error: { code: 'json_parse_failed' } } } }); };
+    await assert.rejects(provider.parseResume('Fictional facts')); assert.equal(calls, 2);
+  } finally { axios.post = original; }
+});
+
 test('Groq uses strict structured outputs and valid responses for all six AI actions', async () => {
   const originalPost = axios.post, originalKey = factory.groq.apiKey;
   const seen = [];

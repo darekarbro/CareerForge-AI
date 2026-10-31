@@ -167,7 +167,8 @@ const downloadTailoredPdf = async (req, res, next) => {
     res.setHeader('Content-Type', format === 'pdf' ? 'application/pdf' : 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
     res.setHeader('Content-Disposition', `${req.query.preview === '1' ? 'inline' : 'attachment'}; filename=tailored_resume_${versionId}.${format}`);
     if (result.pages) res.setHeader('X-Page-Count', result.pages);
-    res.setHeader('X-Content-Revision', version.contentRevision || 1);
+    res.setHeader('X-Content-Revision', result.version.contentRevision || 1);
+    res.setHeader('X-Layout-Revision', result.version.layoutRevision || 1);
     if (req.query.preview !== '1') await require('../models/ProductEvent').create({ owner: req.user._id, type: format + '_export', resumeId: version.resumeId, versionId });
     res.send(result.buffer);
   } catch (err) {

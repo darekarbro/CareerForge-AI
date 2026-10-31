@@ -44,7 +44,7 @@ app.use(
       }
     },
     credentials: true,
-    exposedHeaders: ['X-Page-Count', 'X-Content-Revision', 'Content-Disposition'],
+    exposedHeaders: ['X-Page-Count', 'X-Content-Revision', 'X-Layout-Revision', 'Content-Disposition'],
   })
 );
 

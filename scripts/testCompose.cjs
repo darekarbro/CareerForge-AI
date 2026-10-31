@@ -51,6 +51,7 @@ async function finished(id) {
     const uploaded = (await request('POST', '/resumes/upload', form, 202)).data;
     await finished(uploaded.jobId); assert(events > 0, 'Separate worker must publish socket events through Redis');
     console.log('PASS Separate worker, SMTP verification, private upload and Redis socket events');
+    await require('./testComposePhase2.cjs')({ request, finished, resumeId: uploaded.resume._id });
     compose('stop', 'worker');
     const pending = (await request('POST', '/resumes/' + uploaded.resume._id + '/assess', {}, 202)).data;
     await pause(400); assert.equal((await request('GET', '/processing-jobs/' + pending.jobId)).data.status, 'PENDING');

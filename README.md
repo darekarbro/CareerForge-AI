@@ -307,6 +307,8 @@ For browser acceptance tests, build the frontend with `NEXT_PUBLIC_API_URL=http:
 
 See [product improvements and verification](IMPROVEMENTS.md) for the editing, workspace, interview, application, export and recovery workflows.
 
+Phase 2 adds guided career evidence, selective source imports, section ordering, named revision comparisons, field-level conflict resolution, explained AI review, saved Unicode export layouts, and archived job workspaces with preparation checklists. Follow the [Phase 2 workflow guide](docs/PHASE2_WORKFLOWS.md) for the complete first-resume journey and [Phase 2 validation report](PHASE2.md) for test results. Current dependency audit limitations are documented [separately](docs/DEPENDENCY_AUDIT.md).
+
 Resume parsing, tailoring, gap analysis and interview generation/evaluation return HTTP 202 with a processing job ID. The client reconciles live events with persisted job status until a terminal state.
 
 See [the original audit](PROJECT_BUG_AUDIT.md) and [the fixes and verification report](BUG_FIX_REPORT.md) for all 52 resolutions.

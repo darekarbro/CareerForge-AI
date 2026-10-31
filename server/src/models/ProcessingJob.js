@@ -32,6 +32,7 @@ const processingJobSchema = new mongoose.Schema(
       resumeId: mongoose.Schema.Types.ObjectId,
       versionId: mongoose.Schema.Types.ObjectId,
       workspaceId: mongoose.Schema.Types.ObjectId,
+      workspaceRevision: Number,
       jobDescriptionId: mongoose.Schema.Types.ObjectId,
       sessionId: mongoose.Schema.Types.ObjectId,
       questionId: mongoose.Schema.Types.ObjectId,

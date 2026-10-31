@@ -5,6 +5,8 @@ const interviewSessionSchema = new mongoose.Schema(
     processingJobId: { type: mongoose.Schema.Types.ObjectId, unique: true, sparse: true },
     pendingQuestions: { type: [mongoose.Schema.Types.Mixed], select: false, default: undefined },
     workspaceId: { type: mongoose.Schema.Types.ObjectId, ref: 'JobWorkspace', index: true },
+    workspaceRevision: Number,
+    sourceRevision: Number,
     difficulty: { type: String, enum: ['Easy', 'Medium', 'Hard'], default: 'Medium' },
     timeLimitSeconds: { type: Number, default: 0 },
     topicFocus: { type: String, default: '' },

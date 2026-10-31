@@ -11,17 +11,19 @@ const { initSocket, closeSocket } = require('../../server/src/config/socket');
 const { closeQueue } = require('../../server/src/queues/processingQueue');
 const app = require('../../server/src/app');
 const { chromium } = require('playwright');
+const AxeBuilder = require('@axe-core/playwright').default;
 const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 let db, apiServer, frontend, browser, page, directory, log = '', failed = false;
 const errors = [];
-const report = { data: 'fictional only', checks: [], screenshots: [] };
+const report = { data: 'fictional only', checks: [], screenshots: [], accessibility: [] };
+async function audit(name) { const result = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze(); const violations = result.violations.map((item) => ({ id: item.id, impact: item.impact, description: item.description, nodes: item.nodes.map((node) => ({ html: node.html, target: node.target, failureSummary: node.failureSummary })) })); report.accessibility.push({ name, violations }); if (violations.length) console.log('ACCESSIBILITY ' + name + ': ' + violations.map((item) => item.id).join(', ')); }
 const pass = (name) => { report.checks.push(name); console.log('PASS ' + name); };
 async function saved() {
   const button = page.getByRole('button', { name: 'Save now', exact: true });
   if (await button.isEnabled()) await button.click();
   await page.getByText('All changes saved', { exact: true }).waitFor();
 }
-async function screenshot(name) { const filename = 'browser-' + name + '.png'; await page.screenshot({ path: path.join(testRoot, filename), fullPage: true }); report.screenshots.push(filename); }
+async function screenshot(name) { const filename = 'browser-' + name + '.png'; await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' })); await page.screenshot({ path: path.join(testRoot, filename), fullPage: true }); report.screenshots.push(filename); }
 async function start() {
   await fs.mkdir(testRoot, { recursive: true }); directory = await fs.mkdtemp(path.join(testRoot, 'browser-mongo-'));
   const binary = process.env.MONGOMS_SYSTEM_BINARY || path.join(root, 'server/node_modules/.cache/mongodb-memory-server/mongod-x64-win32-7.0.24.exe');
@@ -43,17 +45,19 @@ async function start() {
   }
   const executablePath = process.env.BROWSER_PATH || (await fs.stat('C:/Program Files/Google/Chrome/Application/chrome.exe').then(() => 'C:/Program Files/Google/Chrome/Application/chrome.exe', () => undefined));
   browser = await chromium.launch({ headless: true, ...(executablePath ? { executablePath } : {}) });
-  page = await browser.newPage({ viewport: { width: 1440, height: 1000 }, acceptDownloads: true });
+  const context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, acceptDownloads: true });
+  page = await context.newPage();
   await page.context().tracing.start({ screenshots: true, snapshots: true });
   page.setDefaultTimeout(20000); page.on('pageerror', (error) => errors.push(error.message));
 }
 async function run() {
-  await page.goto('http://localhost:3030/register');
+  const phase2 = require('./phase2Browser.cjs')({ page, saved, screenshot, pass, audit });
+  await page.goto('http://localhost:3030/register'); await audit('registration');
   await page.getByPlaceholder('e.g. Alex Morgan').fill('Browser Candidate');
   await page.getByPlaceholder('alex@example.com').fill('browser-candidate@example.test');
   await page.getByPlaceholder('Minimum 8 characters').fill('fictional-browser-password');
   await page.getByRole('button', { name: 'Create Free Account', exact: true }).click();
-  await page.waitForURL('**/onboarding'); await page.getByLabel('Target role', { exact: true }).fill('Backend Engineer');
+  await page.waitForURL('**/onboarding'); await audit('onboarding'); await page.getByLabel('Target role', { exact: true }).fill('Backend Engineer');
   await page.getByRole('combobox', { name: /^Experience level/ }).selectOption('student');
   await page.getByRole('button', { name: 'Save goal and build my profile' }).click();
   await page.waitForURL('**/profile'); await page.getByLabel('Full name', { exact: true }).waitFor();
@@ -71,13 +75,14 @@ async function run() {
   await page.getByLabel('Project technologies 1', { exact: true }).fill('Python, React');
   await page.getByLabel('Achievements 1', { exact: true }).fill('Wrote Python validation rules for malformed input.\nBuilt a React form for displaying input errors.');
   await saved(); await screenshot('profile'); pass('Registration, onboarding and editable profile autosave');
+  await phase2.profile();
   await page.getByRole('button', { name: 'Create resume from saved profile', exact: true }).click();
   await page.waitForURL(/\/resume\/[^/]+\/edit$/);
   const resumeId = page.url().match(/\/resume\/([^/]+)/)[1];
   await page.getByLabel('Resume name', { exact: true }).fill('Browser verified resume'); await saved();
   await page.reload(); await page.getByLabel('Resume name', { exact: true }).waitFor();
   assert.equal(await page.getByLabel('Resume name', { exact: true }).inputValue(), 'Browser verified resume');
-  pass('Resume editing persists after a full page reload');
+  pass('Resume editing persists after a full page reload'); await phase2.importsAndConflicts(resumeId);
   await page.goto('http://localhost:3030/account');
   await page.getByRole('button', { name: 'Resend verification email' }).waitFor();
   assert.equal(await page.getByRole('checkbox', { name: 'Groq', exact: true }).isChecked(), false);
@@ -93,7 +98,7 @@ async function run() {
   await page.getByLabel('Job description', { exact: true }).fill('Python required. React and Git preferred. Docker required.');
   await page.getByRole('combobox', { name: /^Resume/ }).selectOption(resumeId);
   await page.getByRole('button', { name: 'Create job workspace' }).click(); await page.waitForURL(/\/workspaces\/[^/]+$/);
-  const workspaceUrl = page.url();
+  const workspaceUrl = page.url(); await phase2.workspace();
   await page.getByRole('button', { name: 'Check job match', exact: true }).click();
   await page.getByRole('heading', { name: /^Job match:/ }).waitFor(); await screenshot('workspace');
   await page.getByRole('button', { name: 'Tailor resume', exact: true }).click();
@@ -102,13 +107,14 @@ async function run() {
   if (await keep.count()) { await keep.first().click(); await saved(); }
   await page.getByRole('button', { name: 'Summary', exact: true }).click();
   await page.getByLabel('Professional summary', { exact: true }).fill('Verified browser review: JavaScript interfaces and Python data validation projects.'); await saved();
+  await phase2.layout();
   await page.getByRole('button', { name: 'Preview PDF and page count', exact: true }).click();
   await page.getByText(/pages? · Saved edit revision/).waitFor(); assert(await page.getByTitle('Actual resume PDF preview').isVisible());
   const downloaded = page.waitForEvent('download'); await page.getByRole('button', { name: 'Download DOCX', exact: true }).click();
   const download = await downloaded; assert((await fs.stat(await download.path())).size > 1000);
   await screenshot('review'); pass('Saved job match, per-change review, manual edits, actual PDF preview and DOCX download');
   await page.goto(workspaceUrl); await page.getByRole('link', { name: 'Track application', exact: true }).click();
-  const dialog = page.getByRole('dialog'); await dialog.waitFor();
+  const dialog = page.getByRole('dialog'); await dialog.waitFor(); await audit('application-editor');
   await dialog.getByLabel('Application deadline', { exact: true }).fill('2026-12-01');
   await dialog.getByLabel('Follow-up date', { exact: true }).fill('2026-11-01');
   await dialog.getByLabel('Personal Notes / Interview Timeline', { exact: true }).fill('Fictional follow-up note for browser testing.');
@@ -122,7 +128,7 @@ async function run() {
   await page.getByRole('combobox', { name: /^Practice timer per question/ }).selectOption('60');
   await page.getByRole('combobox', { name: /^Feedback/ }).selectOption('end');
   await page.getByRole('button', { name: 'Start practice', exact: true }).click(); await page.waitForURL(/\/interview\/session\/[^/]+$/);
-  await page.getByRole('timer').waitFor(); await screenshot('interview');
+  await page.getByRole('timer').waitFor(); await audit('interview-session'); await screenshot('interview');
   for (let index = 1; index <= 3; index++) {
     await page.getByRole('button', { name: new RegExp('^Q' + index + '(?: |$)') }).click();
     await page.getByRole('textbox').fill('I define requirements and constraints, compare alternatives and trade-offs, implement validation, and use tests to verify failure recovery. My course project used Python and React to show input errors before data import.');
@@ -136,20 +142,21 @@ async function run() {
   pass('Job-specific difficulty, persistent timer, delayed feedback and answer retry');
   await page.goto('http://localhost:3030/activity'); await page.getByRole('heading', { name: 'Usage in the last 24 hours', exact: true }).waitFor();
   await page.getByRole('link', { name: 'View progress', exact: true }).first().click(); await page.getByRole('link', { name: 'Open result', exact: true }).waitFor();
-  pass('Activity, usage and reopening persisted results');
+  pass('Activity, usage and reopening persisted results'); await audit('processing-details');
+  for (const route of ['/dashboard', '/resumes', '/resume/upload', '/resume/' + resumeId, '/interview/setup', '/interview/history', '/jobs', '/settings', '/account', '/applications', '/activity', '/workspaces']) { await page.goto('http://localhost:3030' + route); await page.locator('main').waitFor(); await audit(route); }
   await page.setViewportSize({ width: 390, height: 844 }); await page.goto('http://localhost:3030/profile'); await page.getByRole('heading', { name: 'My career profile', exact: true }).waitFor();
   assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1));
   await page.getByRole('button', { name: 'Toggle navigation', exact: true }).click(); await page.getByRole('button', { name: 'Close navigation', exact: true }).waitFor();
   await page.keyboard.press('Escape'); assert.equal(await page.getByRole('button', { name: 'Toggle navigation', exact: true }).getAttribute('aria-expanded'), 'false');
-  await screenshot('mobile'); pass('Mobile layout and keyboard navigation');
+  await audit('mobile-profile'); await screenshot('mobile'); pass('Mobile layout and keyboard navigation');
   await page.getByTitle('Logout', { exact: true }).click(); await page.waitForURL('**/login'); await page.goto('http://localhost:3030/profile'); await page.waitForURL('**/login');
   assert.equal(await page.evaluate(() => Object.keys(localStorage).filter((key) => key.startsWith('careerforge:draft:')).length), 0);
   assert.deepEqual(errors, []); pass('Logout clears private drafts and protected routes redirect');
-  await page.getByRole('link', { name: 'Forgot password?' }).click(); await page.getByLabel('Email address', { exact: true }).fill('browser-candidate@example.test');
+  await audit('login'); await page.getByRole('link', { name: 'Forgot password?' }).click(); await audit('forgot-password'); await page.getByLabel('Email address', { exact: true }).fill('browser-candidate@example.test');
   await page.getByRole('button', { name: 'Send recovery link' }).click(); await page.getByRole('status').waitFor();
   const reset = require('../../server/src/services/accountMailService').testMessages.findLast((item) => item.to === 'browser-candidate@example.test' && item.subject.startsWith('Reset')).text.match(/#token=([a-f0-9]{64})/)[1];
   await page.goto('http://localhost:3030/reset-password#token=' + reset);
-  await page.getByLabel('New password', { exact: true }).fill('replacement-browser-password'); await page.getByLabel('Confirm new password', { exact: true }).fill('replacement-browser-password');
+  await audit('reset-password'); await page.getByLabel('New password', { exact: true }).fill('replacement-browser-password'); await page.getByLabel('Confirm new password', { exact: true }).fill('replacement-browser-password');
   await page.getByRole('button', { name: 'Reset password', exact: true }).click(); await page.getByText('Password updated. All devices have been signed out.', { exact: true }).waitFor();
   await page.getByRole('link', { name: 'Sign in', exact: true }).click();
   await page.getByLabel('Email Address', { exact: true }).fill('browser-candidate@example.test'); await page.getByLabel('Password', { exact: true }).fill('replacement-browser-password');
@@ -158,12 +165,13 @@ async function run() {
   await page.goto('http://localhost:3030/account'); await page.getByLabel('Current password', { exact: true }).fill('replacement-browser-password');
   const archiveDownload = page.waitForEvent('download'); await page.getByRole('button', { name: 'Download account archive' }).click();
   const archive = await archiveDownload; assert((await fs.stat(await archive.path())).size > 1000);
-  await screenshot('account-mobile'); pass('Private account ZIP export and mobile account controls');
+  await audit('mobile-account'); await screenshot('account-mobile'); pass('Private account ZIP export and mobile account controls');
   await page.getByLabel('Current password', { exact: true }).fill('replacement-browser-password'); await page.getByLabel('Type DELETE to confirm', { exact: true }).fill('DELETE');
   await page.getByRole('button', { name: 'Delete my account', exact: true }).click(); await page.waitForURL('**/account-deletion#receipt=*');
   await pause(100); await require('../../server/src/services/privacyService').sweepDeletions();
   await page.getByRole('button', { name: 'Check deletion status' }).click(); await page.getByText(/Status: completed/).waitFor();
-  assert.deepEqual(errors, []); pass('Permanent account deletion and private completion receipt');
+  await audit('deletion-receipt'); assert.deepEqual(errors, []); pass('Permanent account deletion and private completion receipt');
+  assert.deepEqual(report.accessibility.filter((item) => item.violations.length), [], 'WCAG accessibility violations; see browser-results.json'); pass('Automated WCAG 2.0/2.1 A and AA audits across all main routes and new workflows');
 }
 (async () => {
   try { await start(); await run(); }

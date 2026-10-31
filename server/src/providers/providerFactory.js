@@ -31,6 +31,8 @@ class ProviderFactory {
 
   async execute(actionName, params = {}, onProviderAttempt = null) {
     throwIfCancelled();
+    // UI record identities are not career facts and must not be sent to providers.
+    if (params && typeof params === 'object') params = JSON.parse(JSON.stringify(params, (key, value) => ['entryId', '_id', '__v'].includes(key) ? undefined : value));
     const scope = require('../services/jobContext').context.getStore();
     for (const provider of [this.groq, this.openRouter, this.gemini, this.deterministic]) {
       const account = scope?.owner ? await require('../models/User').findOne({ _id: scope.owner, deleting: { $ne: true } }).select('privacy emailVerifiedAt') : null;
