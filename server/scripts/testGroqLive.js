@@ -16,7 +16,8 @@ for (const key of ['GROQ_API_KEY', 'GROQ_MODEL', 'GROQ_TIMEOUT_MS']) {
 }
 for (const key of ['MONGODB_URI', 'REDIS_URL', 'OPENROUTER_API_KEY', 'GEMINI_API_KEY',
   'FIREBASE_PROJECT_ID', 'FIREBASE_CLIENT_EMAIL', 'FIREBASE_PRIVATE_KEY',
-  'CLOUDINARY_CLOUD_NAME', 'CLOUDINARY_API_KEY', 'CLOUDINARY_API_SECRET']) process.env[key] = '';
+  'CLOUDINARY_CLOUD_NAME', 'CLOUDINARY_API_KEY', 'CLOUDINARY_API_SECRET', 'SMTP_HOST', 'SMTP_USER', 'SMTP_PASSWORD', 'APP_URL']) process.env[key] = '';
+process.env.QUEUE_MODE = 'combined';
 process.env.NODE_ENV = 'test';
 process.env.JWT_SECRET = 'groq-live-synthetic-test-only-secret-123456789';
 process.env.CLIENT_URL = 'http://localhost:3000';
@@ -80,8 +81,9 @@ axios.post = async (url, body, options) => {
 for (const provider of [factory.openRouter, factory.gemini, factory.deterministic]) provider.isAvailable = () => false;
 const execute = factory.execute.bind(factory);
 factory.execute = async (action, params, onAttempt) => {
-  if (Number.isFinite(quota?.remaining) && quota.remaining < (action === 'tailorResume' ? 6000 : 3000) && quota.resetAt > Date.now()) {
-    const pause = Math.min(65000, quota.resetAt - Date.now() + 1000);
+  // Reserve room for the input, generated answer and provider-side TPM estimates.
+  if (Number.isFinite(quota?.remaining) && quota.remaining < 7000 && quota.resetAt > Date.now()) {
+    const pause = Math.min(60000, quota.resetAt - Date.now() + 1000);
     output({ quotaPauseSeconds: Math.ceil(pause / 1000), nextAction: action });
     await sleep(pause);
   }
@@ -161,7 +163,7 @@ function check(name, details) { report.checks.push({ name, passed: true, ...deta
 function verifyCalls() {
   assert(report.actions.every((action) => action.passed));
   assert(report.calls.filter((call) => call.status !== 200).every((call) => call.status === 400 &&
-    /json.*schema|failed to generate json/i.test(call.error || '') &&
+    /json.*schema|failed to generate json|parsing failed.*model generated output|output that could not be parsed/i.test(call.error || '') &&
     report.actions.some((action) => action.action === call.action && action.passed)));
 }
 async function main() {
@@ -183,6 +185,8 @@ async function main() {
     name: 'Groq Synthetic Test', email: 'groq-live@example.test', password: 'synthetic-test-password',
   });
   assert.equal(account.status, 201); token = account.data.data.token;
+  // This isolated fictional fixture explicitly enables the provider under test.
+  await require('../src/models/User').updateOne({ _id: account.data.data.user.id }, { $set: { emailVerifiedAt: new Date(), 'privacy.providers': { groq: true, openrouter: false, gemini: false } } });
   assert(token, 'Registration must return a token');
   const providers = await request('GET', '/api/processing-jobs/health/providers');
   assert.equal(providers.data.data.activeProvider, 'groq');
@@ -279,12 +283,18 @@ async function main() {
   assert(Number.isFinite(gap.gapAnalysis.matchScore));
   assert([...gap.gapAnalysis.mustHaveMissing, ...gap.gapAnalysis.niceToHaveMissing].some((item) => /Docker|Kubernetes/i.test(item.skill)));
   check('Groq JD gap analysis and saved report', { matchScore: gap.gapAnalysis.matchScore });
+  const rewritten = await successfulJob(await request('POST', '/api/resumes/' + resumeId + '/versions/' + version._id + '/regenerate', { section: 'projects', index: 0 }));
+  assert.equal(rewritten.aiProvider, 'groq'); assert.equal(rewritten.section, 'projects');
+  assert.equal(rewritten.value.title, version.sourceContent.projects[0].title);
+  check('Groq scoped project rewrite retains the original project identity');
 
   const generated = await successfulJob(await request('POST', '/api/interview/sessions', {
     resumeId, targetRole: 'Backend Engineer', jobDescriptionId: gap.gapAnalysis.jobDescriptionId, count: 3,
+    difficulty: 'Hard', topicFocus: 'API design', timeLimitSeconds: 120,
   }));
   assert.equal(generated.aiProvider, 'groq'); assert.equal(generated.session.aiProvider, 'groq');
   assert.equal(generated.questions.length, 3);
+  assert(generated.questions.every((question) => question.difficulty === 'Hard'));
   assert.equal(new Set(generated.questions.map((question) => question.questionText)).size, 3);
   check('Groq interview questions and suggested answers', { questions: generated.questions.length });
   for (const question of generated.questions) {
@@ -298,6 +308,14 @@ async function main() {
   assert.equal(session.data.data.session.status, 'completed');
   assert.equal(session.data.data.session.answeredCount, 3);
   check('Groq answer evaluation, feedback persistence and session completion', { answers: 3, overallScore: session.data.data.session.overallScore });
+  const improved = await successfulJob(await request('POST', '/api/interview/sessions/' + generated.session._id + '/questions/' + generated.questions[0]._id + '/answer', {
+    retry: true, userAnswer: 'I first define the API requirements, schema and error contract. I compare alternatives and failure cases, implement authenticated routes with validation, then write contract tests, measure latency and error rates, and plan rollback and recovery before release.',
+  }));
+  assert.equal(improved.aiProvider, 'groq'); assert.equal(improved.session.answeredCount, 3); assert.equal(improved.question.attempts.length, 1);
+  check('Groq improved-answer retry preserves the session question count');
+  const usage = await request('GET', '/api/processing-jobs/usage');
+  assert(usage.data.data.providerTokenReports > 0); assert(usage.data.data.inputTokens > 0);
+  check('Groq token usage is visible without storing request text in metrics');
   for (const id of jobIds) {
     const timeline = await request('GET', '/api/processing-jobs/' + id + '/timeline');
     assert(timeline.data.data.some((event) => event.step === 'job_completed'));

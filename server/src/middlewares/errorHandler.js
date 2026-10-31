@@ -25,6 +25,7 @@ const errorHandler = (err, req, res, next) => {
   }
 
   // Multer file upload errors
+  if (err.name === 'MulterError' && err.code !== 'LIMIT_FILE_SIZE') return res.status(400).json({ success: false, message: err.message, code: err.code });
   if (err.code === 'LIMIT_FILE_SIZE') {
     return res.status(400).json({
       success: false,
@@ -35,6 +36,7 @@ const errorHandler = (err, req, res, next) => {
   res.status(error.statusCode || error.status || 500).json({
     success: false,
     message: error.message || 'Internal Server Error',
+    ...(typeof error.code === 'string' ? { code: error.code } : {}),
     ...(error.details ? { details: error.details } : {}),
     ...(process.env.NODE_ENV === 'development' && { stack: err.stack }),
   });

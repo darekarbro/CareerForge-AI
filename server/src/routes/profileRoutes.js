@@ -1,0 +1,10 @@
+const router = require('express').Router();
+const { protect } = require('../middlewares/auth');
+const service = require('../services/profileService');
+router.use(protect);
+router.get('/', async (req, res, next) => { try { res.json({ success: true, data: await service.getProfile(req.user._id) }); } catch (error) { next(error); } });
+router.get('/history', async (req, res, next) => { try { res.json({ success: true, data: await service.history(req.user._id) }); } catch (error) { next(error); } });
+router.post('/restore', async (req, res, next) => { try { res.json({ success: true, data: await service.restore(req.user._id, req.body) }); } catch (error) { next(error); } });
+router.put('/', async (req, res, next) => { try { res.json({ success: true, data: await service.saveProfile(req.user._id, req.body) }); } catch (error) { next(error); } });
+router.post('/resumes', async (req, res, next) => { try { res.status(201).json({ success: true, data: await service.createResume(req.user._id, req.body) }); } catch (error) { next(error); } });
+module.exports = router;

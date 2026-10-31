@@ -31,21 +31,36 @@ class ProviderFactory {
 
   async execute(actionName, params = {}, onProviderAttempt = null) {
     throwIfCancelled();
+    // UI record identities are not career facts and must not be sent to providers.
+    if (params && typeof params === 'object') params = JSON.parse(JSON.stringify(params, (key, value) => ['entryId', '_id', '__v'].includes(key) ? undefined : value));
+    const scope = require('../services/jobContext').context.getStore();
     for (const provider of [this.groq, this.openRouter, this.gemini, this.deterministic]) {
+      const account = scope?.owner ? await require('../models/User').findOne({ _id: scope.owner, deleting: { $ne: true } }).select('privacy emailVerifiedAt') : null;
+      if (scope?.owner && !account) throw Object.assign(new Error('Account unavailable'), { code: 'JOB_CANCELLED', statusCode: 409 });
+      if (scope?.owner && provider !== this.deterministic && (!account.emailVerifiedAt || account.privacy?.providers?.[provider.name] !== true)) continue;
       if (!provider.isAvailable()) continue;
+      const start = Date.now();
+      if (scope) scope.providerUsage = null;
       try {
         if (onProviderAttempt) await onProviderAttempt(provider.name);
         const result = await provider[actionName](params);
         throwIfCancelled();
         validateResult(actionName, result, params);
+        await this.recordUsage(scope, { action: actionName, provider: provider.name, model: provider.model || 'offline-rules-v1', durationMs: Date.now() - start, status: 'success', ...scope?.providerUsage });
         return this.withProvider(result, provider.name);
       } catch (error) {
+        await this.recordUsage(scope, { action: actionName, provider: provider.name, model: provider.model || 'offline-rules-v1', durationMs: Date.now() - start, status: 'failed' });
         throwIfCancelled();
         if (provider === this.deterministic) throw error;
         console.warn('[ProviderFactory] ' + provider.name + ' failed for ' + actionName + ': ' + error.message + '. Falling back...');
       }
     }
     throw new Error('No AI provider available');
+  }
+  async recordUsage(scope, record) {
+    if (!scope?.jobId) return;
+    try { await require('../models/ProcessingJob').updateOne({ _id: scope.jobId, owner: scope.owner }, { $push: { usage: { $each: [record], $slice: -30 } } }); }
+    catch { /* Usage accounting must not discard a completed AI response. */ }
   }
 }
 module.exports = new ProviderFactory();

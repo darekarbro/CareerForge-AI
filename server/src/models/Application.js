@@ -2,6 +2,12 @@ const mongoose = require('mongoose');
 
 const applicationSchema = new mongoose.Schema(
   {
+    deadline: Date,
+    followUpAt: Date,
+    workspaceId: { type: mongoose.Schema.Types.ObjectId, ref: 'JobWorkspace' },
+    resumeVersionId: { type: mongoose.Schema.Types.ObjectId, ref: 'TailoredResume' },
+    resumeSnapshot: mongoose.Schema.Types.Mixed,
+    revision: { type: Number, default: 1 },
     owner: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
@@ -63,6 +69,7 @@ const applicationSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
+    optimisticConcurrency: true,
   }
 );
 

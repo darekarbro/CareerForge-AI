@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import api from '../services/api';
 import { useResumeStore } from './resumeStore';
 import { disconnectSocket } from '../services/socket';
+import { clearUserDrafts } from '../services/draftStorage';
 
 let revision = 0;
 const persist = (token, user) => {
@@ -13,7 +14,7 @@ export const useAuthStore = create((set, get) => ({
   user: null, token: null, isAuthenticated: false, isLoading: true, error: null,
   setSession: (token, user) => {
     revision++;
-    if (get().token !== token) resetPrivateState();
+    if (get().token !== token) { clearUserDrafts(get().user?.id || get().user?._id); resetPrivateState(); }
     persist(token, user);
     set({ token, user, isAuthenticated: true, isLoading: false, error: null });
   },
@@ -75,8 +76,11 @@ export const useAuthStore = create((set, get) => ({
       set({ error: message }); return { success: false, message };
     }
   },
-  logout: () => {
+  logout: (revoke = true) => {
+    const token = get().token;
+    if (revoke && token) api.post('/auth/logout', {}, { headers: { Authorization: `Bearer ${token}` } }).catch(() => {});
     revision++;
+    clearUserDrafts(get().user?.id || get().user?._id);
     if (typeof window !== 'undefined') localStorage.removeItem('careerforge_auth');
     resetPrivateState();
     set({ user: null, token: null, isAuthenticated: false, isLoading: false, error: null });

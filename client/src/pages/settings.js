@@ -137,10 +137,11 @@ export default function SettingsPage() {
 
             <form onSubmit={handleUpdateProfile} className="space-y-4">
               <div>
-                <label className="block font-headline font-bold text-xs uppercase text-[#1a1a1a] mb-1">
+                <label htmlFor="settings-name" className="block font-headline font-bold text-xs uppercase text-[#1a1a1a] mb-1">
                   Full Name
                 </label>
                 <input
+                  id="settings-name"
                   type="text"
                   required
                   value={profileData.name}
@@ -150,10 +151,11 @@ export default function SettingsPage() {
               </div>
 
               <div>
-                <label className="block font-headline font-bold text-xs uppercase text-[#1a1a1a] mb-1">
+                <label htmlFor="settings-email" className="block font-headline font-bold text-xs uppercase text-[#1a1a1a] mb-1">
                   Email (Read-only)
                 </label>
                 <input
+                  id="settings-email"
                   type="email"
                   disabled
                   value={user?.email || ''}
@@ -162,10 +164,11 @@ export default function SettingsPage() {
               </div>
 
               <div>
-                <label className="block font-headline font-bold text-xs uppercase text-[#1a1a1a] mb-1">
+                <label htmlFor="settings-role" className="block font-headline font-bold text-xs uppercase text-[#1a1a1a] mb-1">
                   Default Target Role
                 </label>
                 <select
+                  id="settings-role"
                   value={profileData.targetRolePreference}
                   onChange={(e) => setProfileData({ ...profileData, targetRolePreference: e.target.value })}
                   className="brutal-input w-full text-xs font-bold"

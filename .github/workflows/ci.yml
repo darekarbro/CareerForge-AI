@@ -1,0 +1,79 @@
+name: Project checks
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+concurrency:
+  group: checks-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  application:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      NEXT_TELEMETRY_DISABLED: 1
+      NEXT_BUILD_WORKERS: 1
+      NEXT_PUBLIC_API_URL: http://localhost:5000/api
+      NEXT_PUBLIC_SOCKET_URL: http://localhost:5000
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: |
+            server/package-lock.json
+            client/package-lock.json
+      - run: npm ci
+        working-directory: server
+      - run: npm ci
+        working-directory: client
+      - run: npm test
+        working-directory: server
+      - run: npm test
+        working-directory: client
+      - run: npm run lint
+        working-directory: client
+      - run: npm run build
+        working-directory: client
+      - name: Use the runner's installed Chrome
+        run: |
+          browser_path="$(command -v google-chrome)"
+          "$browser_path" --version
+          echo "BROWSER_PATH=$browser_path" >> "$GITHUB_ENV"
+      - id: browser
+        run: npm run test:browser
+        working-directory: client
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        if: always()
+        with:
+          name: browser-evidence
+          path: .test-tmp/browser-*
+          include-hidden-files: true
+          if-no-files-found: ${{ steps.browser.outcome == 'skipped' && 'ignore' || 'error' }}
+          retention-days: 7
+  containers:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version-file: .nvmrc
+      - run: node scripts/setupLocal.cjs
+      - run: docker compose --env-file .env.compose config --quiet
+      - run: docker compose --env-file .env.compose up --build -d --wait --wait-timeout 180
+      - run: node scripts/testCompose.cjs
+      - name: Collect container diagnostics
+        if: failure()
+        run: docker compose --env-file .env.compose logs --no-color --tail 150 > compose-failure.log
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        if: failure()
+        with:
+          name: container-diagnostics
+          path: compose-failure.log
+          retention-days: 7
+      - run: docker compose --env-file .env.compose down
+        if: always()

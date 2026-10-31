@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  output: 'standalone',
   // Optional cap for CI or machines with little available build memory.
   ...(process.env.NEXT_BUILD_WORKERS ? {
     experimental: { cpus: Math.max(1, Math.min(4, parseInt(process.env.NEXT_BUILD_WORKERS, 10) || 1)) },

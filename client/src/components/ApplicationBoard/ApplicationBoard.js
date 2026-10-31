@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Plus, Building, ExternalLink, Edit3, ArrowRight } from 'lucide-react';
 import ApplicationModal from './ApplicationModal';
 
@@ -16,11 +16,14 @@ export default function ApplicationBoard({
   onAddApplication,
   onUpdateApplication,
   onDeleteApplication,
+  initialDraft,
+  onInitialDraftHandled,
 }) {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedApp, setSelectedApp] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState('');
+  useEffect(() => { if (initialDraft) { setSelectedApp(initialDraft); setModalOpen(true); onInitialDraftHandled?.(); } }, [initialDraft, onInitialDraftHandled]);
 
   const handleOpenAdd = () => {
     setSaveError('');
@@ -39,11 +42,12 @@ export default function ApplicationBoard({
     setIsSaving(true);
     setSaveError('');
     try {
-      if (selectedApp) await onUpdateApplication(selectedApp._id, formData);
+      if (selectedApp?._id) await onUpdateApplication(selectedApp._id, formData);
       else await onAddApplication(formData);
       setModalOpen(false);
     } catch (error) {
       setSaveError(error.response?.data?.message || 'Unable to save. Your edits have been kept; please retry.');
+      throw error;
     } finally { setIsSaving(false); }
   };
 
@@ -79,7 +83,7 @@ export default function ApplicationBoard({
       </div>
 
       {/* Kanban Board Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 overflow-x-auto pb-4">
+      <div role="region" aria-label="Application stages" tabIndex={0} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 overflow-x-auto pb-4">
         {columns.map((col) => {
           const colApps = applications.filter((a) => a.status === col.id);
 
@@ -99,7 +103,7 @@ export default function ApplicationBoard({
               {/* Card List */}
               <div className="p-2 space-y-3 flex-1 min-h-[300px]">
                 {colApps.length === 0 ? (
-                  <div className="h-24 border-2 border-dashed border-gray-300 flex items-center justify-center text-[11px] text-gray-400 font-bold uppercase">
+                  <div className="h-24 border-2 border-dashed border-gray-300 flex items-center justify-center text-[11px] text-gray-600 font-bold uppercase">
                     Empty
                   </div>
                 ) : (
@@ -113,12 +117,15 @@ export default function ApplicationBoard({
                         <span className="font-headline font-black text-xs text-[#1a1a1a] truncate">
                           {app.company}
                         </span>
-                        <Edit3 className="w-3.5 h-3.5 text-gray-400 group-hover:text-[#0055ff]" />
+                        <button type="button" aria-label={`Edit ${app.roleTitle} at ${app.company}`} onClick={(event) => { event.stopPropagation(); handleOpenEdit(app); }} className="p-2 text-gray-700 hover:text-[#0055ff]"><Edit3 aria-hidden="true" className="w-4 h-4" /></button>
                       </div>
 
                       <p className="text-[11px] font-bold text-gray-700 leading-tight mb-2">
                         {app.roleTitle}
                       </p>
+                      {app.deadline && <p className="text-sm">Deadline {new Date(app.deadline).toLocaleDateString()}</p>}
+                      {app.followUpAt && <p className="text-sm">Follow up {new Date(app.followUpAt).toLocaleDateString()}</p>}
+                      {app.resumeSnapshot && <p className="text-sm">Resume v{app.resumeSnapshot.version} · revision {app.resumeSnapshot.contentRevision}</p>}
 
                       <div className="flex flex-wrap items-center justify-between gap-1 pt-2 border-t border-gray-100 text-[10px] text-gray-500 font-medium">
                         <span className="px-1.5 py-0.5 bg-[#f5f0e8] border border-[#1a1a1a] font-bold">

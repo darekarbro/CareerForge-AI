@@ -16,6 +16,7 @@ const startSession = async (req, res, next) => {
       resumeId,
       jobDescriptionId,
       count: count ?? 5,
+      difficulty: req.body.difficulty, timeLimitSeconds: req.body.timeLimitSeconds, topicFocus: req.body.topicFocus, feedbackMode: req.body.feedbackMode,
     });
 
     res.status(202).json({
@@ -69,6 +70,7 @@ const submitAnswer = async (req, res, next) => {
       questionId: qid,
       userId: req.user._id,
       userAnswer,
+      retry: req.body.retry,
     });
 
     res.status(202).json({

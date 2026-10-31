@@ -160,12 +160,17 @@ const runGapAnalysis = async (req, res, next) => {
 const downloadTailoredPdf = async (req, res, next) => {
   try {
     const { versionId } = req.params;
-    const docStream = await tailoringService.generatePdf(versionId, req.user._id);
-
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `attachment; filename=tailored_resume_${versionId}.pdf`);
-
-    docStream.pipe(res);
+    const version = await tailoringService.getTailoredVersion(versionId, req.user._id);
+    if (String(version.resumeId) !== req.params.id) return res.status(404).json({ success: false, message: 'Version not found' });
+    const format = req.query.format || 'pdf', result = await tailoringService.exportVersion(versionId, req.user._id, format, req.query);
+    res.setHeader('Cache-Control', 'private, no-store');
+    res.setHeader('Content-Type', format === 'pdf' ? 'application/pdf' : 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+    res.setHeader('Content-Disposition', `${req.query.preview === '1' ? 'inline' : 'attachment'}; filename=tailored_resume_${versionId}.${format}`);
+    if (result.pages) res.setHeader('X-Page-Count', result.pages);
+    res.setHeader('X-Content-Revision', result.version.contentRevision || 1);
+    res.setHeader('X-Layout-Revision', result.version.layoutRevision || 1);
+    if (req.query.preview !== '1') await require('../models/ProductEvent').create({ owner: req.user._id, type: format + '_export', resumeId: version.resumeId, versionId });
+    res.send(result.buffer);
   } catch (err) {
     next(err);
   }

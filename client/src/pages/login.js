@@ -96,7 +96,7 @@ export default function LoginPage() {
         <div className="w-full max-w-md bg-white border-4 border-[#1a1a1a] shadow-brutal-xl p-8 space-y-6">
           <div className="space-y-1">
             <span className="px-2 py-0.5 bg-[#ffcc00] border border-[#1a1a1a] font-headline font-black text-[10px] uppercase text-[#1a1a1a]">
-              Auth Gateway
+              Welcome back
             </span>
             <h2 className="font-headline font-black text-3xl uppercase tracking-tight text-[#1a1a1a]">
               Sign In
@@ -130,13 +130,15 @@ export default function LoginPage() {
           </div>
 
           <form onSubmit={handleLogin} className="space-y-4">
+            {router.query.expired && <p role="status" className="text-sm">Your session has ended. Sign in to continue.</p>}
             <div>
-              <label className="block font-headline font-bold text-xs uppercase text-[#1a1a1a] mb-1">
+              <label htmlFor="login-email" className="block font-headline font-bold text-xs uppercase text-[#1a1a1a] mb-1">
                 Email Address
               </label>
               <div className="relative">
                 <input
                   type="email"
+                  id="login-email" autoComplete="email"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -148,12 +150,13 @@ export default function LoginPage() {
             </div>
 
             <div>
-              <label className="block font-headline font-bold text-xs uppercase text-[#1a1a1a] mb-1">
+              <label htmlFor="login-password" className="block font-headline font-bold text-xs uppercase text-[#1a1a1a] mb-1">
                 Password
               </label>
               <div className="relative">
                 <input
                   type="password"
+                  id="login-password" autoComplete="current-password"
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -182,6 +185,7 @@ export default function LoginPage() {
               )}
             </button>
           </form>
+          <Link href="/forgot-password" className="block text-sm font-bold underline">Forgot password?</Link>
 
           <div className="pt-2 text-center text-xs font-medium text-gray-600 border-t-2 border-[#1a1a1a]">
             New to CareerForge?{' '}
@@ -194,7 +198,7 @@ export default function LoginPage() {
 
       {/* Footer */}
       <div className="p-4 border-t-2 border-[#1a1a1a] bg-[#f5f0e8] text-center text-xs text-gray-500 font-bold uppercase">
-        Form Follows Function • Neo-Brutalist Architecture
+        Your experience. Your next opportunity.
       </div>
     </div>
   );

@@ -1,0 +1,115 @@
+name: careerforge
+x-backend: &backend
+  image: careerforge-api:local
+  build:
+    context: .
+    dockerfile: server/Dockerfile
+  environment: &backend-env
+    NODE_ENV: production
+    MONGODB_URI: mongodb://mongo:27017/careerforge
+    REDIS_URL: redis://redis:6379/0
+    JWT_SECRET: ${JWT_SECRET:?Run node scripts/setupLocal.cjs first}
+    JOB_PAYLOAD_SECRET: ${JOB_PAYLOAD_SECRET:?Run node scripts/setupLocal.cjs first}
+    JWT_EXPIRES_IN: 7d
+    APP_URL: ${APP_URL:-http://localhost:3000}
+    CLIENT_URL: ${APP_URL:-http://localhost:3000}
+    SMTP_HOST: mailpit
+    SMTP_PORT: 1025
+    SMTP_REQUIRE_TLS: "false"
+    MAIL_FROM: CareerForge <no-reply@careerforge.local>
+    GROQ_API_KEY: ${GROQ_API_KEY:-}
+    GROQ_MODEL: ${GROQ_MODEL:-openai/gpt-oss-120b}
+    OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
+    GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+    FIREBASE_PROJECT_ID: ${FIREBASE_PROJECT_ID:-}
+    FIREBASE_CLIENT_EMAIL: ${FIREBASE_CLIENT_EMAIL:-}
+    FIREBASE_PRIVATE_KEY: ${FIREBASE_PRIVATE_KEY:-}
+  volumes:
+    - uploads:/app/uploads
+  depends_on:
+    mongo: {condition: service_healthy}
+    redis: {condition: service_healthy}
+    mailpit: {condition: service_healthy}
+  init: true
+  restart: unless-stopped
+services:
+  mongo:
+    image: mongo:7
+    volumes: [mongo-data:/data/db]
+    healthcheck:
+      test: [CMD, mongosh, --quiet, --eval, "db.adminCommand('ping').ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+  redis:
+    image: redis:7-alpine
+    command: [redis-server, --appendonly, "yes"]
+    volumes: [redis-data:/data]
+    healthcheck:
+      test: [CMD, redis-cli, ping]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+  mailpit:
+    image: axllent/mailpit:v1.27
+    environment:
+      MP_DATABASE: /data/mailpit.db
+      MP_MAX_MESSAGES: 1000
+    volumes: [mail-data:/data]
+    ports: [127.0.0.1:8025:8025]
+    healthcheck:
+      test: [CMD, /mailpit, readyz]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+  worker:
+    <<: *backend
+    command: [node, src/worker.js]
+    environment:
+      <<: *backend-env
+      QUEUE_MODE: worker
+    healthcheck:
+      test: [CMD, node, scripts/workerHealth.js]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+  api:
+    <<: *backend
+    environment:
+      <<: *backend-env
+      QUEUE_MODE: producer
+    ports: [127.0.0.1:5000:5000]
+    healthcheck:
+      test: [CMD, node, -e, "fetch('http://127.0.0.1:5000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+  frontend:
+    build:
+      context: .
+      dockerfile: client/Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:5000/api}
+        NEXT_PUBLIC_SOCKET_URL: ${NEXT_PUBLIC_SOCKET_URL:-http://localhost:5000}
+        NEXT_PUBLIC_FIREBASE_API_KEY: ${NEXT_PUBLIC_FIREBASE_API_KEY:-}
+        NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: ${NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN:-}
+        NEXT_PUBLIC_FIREBASE_PROJECT_ID: ${NEXT_PUBLIC_FIREBASE_PROJECT_ID:-}
+    ports: [127.0.0.1:3000:3000]
+    depends_on:
+      api: {condition: service_healthy}
+    healthcheck:
+      test: [CMD, node, -e, "fetch('http://127.0.0.1:3000/login').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    init: true
+    restart: unless-stopped
+volumes:
+  mongo-data:
+  redis-data:
+  uploads:
+  mail-data:

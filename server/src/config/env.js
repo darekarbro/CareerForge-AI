@@ -14,6 +14,16 @@ const env = {
   MONGODB_URI: trimEnv(process.env.MONGODB_URI) || '',
   JWT_SECRET: trimEnv(process.env.JWT_SECRET) || 'careerforge-default-dev-secret-key-change-in-prod',
   JWT_EXPIRES_IN: trimEnv(process.env.JWT_EXPIRES_IN) || '7d',
+  JOB_PAYLOAD_SECRET: trimEnv(process.env.JOB_PAYLOAD_SECRET) || '',
+  APP_URL: trimEnv(process.env.APP_URL) || (trimEnv(process.env.CLIENT_URL) || 'http://localhost:3000').split(',')[0].trim(),
+  QUEUE_MODE: trimEnv(process.env.QUEUE_MODE) || 'combined',
+  SMTP_HOST: trimEnv(process.env.SMTP_HOST) || '',
+  SMTP_PORT: Number(process.env.SMTP_PORT || 1025),
+  SMTP_SECURE: process.env.SMTP_SECURE === 'true',
+  SMTP_REQUIRE_TLS: process.env.SMTP_REQUIRE_TLS !== 'false',
+  SMTP_USER: trimEnv(process.env.SMTP_USER) || '',
+  SMTP_PASSWORD: trimEnv(process.env.SMTP_PASSWORD) || '',
+  MAIL_FROM: trimEnv(process.env.MAIL_FROM) || 'CareerForge <no-reply@careerforge.local>',
 
   // Firebase Admin
   FIREBASE_PROJECT_ID: trimEnv(process.env.FIREBASE_PROJECT_ID) || '',
@@ -41,6 +51,12 @@ const env = {
   AI_RATE_LIMIT_MAX: parseInt(process.env.AI_RATE_LIMIT_MAX || '30', 10),
   TRUST_PROXY: trimEnv(process.env.TRUST_PROXY) || '',
 };
+
+if (!['combined', 'producer', 'worker'].includes(env.QUEUE_MODE)) throw new Error('QUEUE_MODE must be combined, producer or worker');
+if (env.QUEUE_MODE !== 'combined' && !env.REDIS_URL) throw new Error('Separate API/worker processes require REDIS_URL');
+const appUrl = new URL(env.APP_URL);
+if (!['http:', 'https:'].includes(appUrl.protocol) || appUrl.username || appUrl.password || appUrl.search || appUrl.hash || appUrl.pathname !== '/') throw new Error('APP_URL must be a trusted application origin');
+if (env.NODE_ENV === 'production' && appUrl.protocol !== 'https:' && !['localhost', '127.0.0.1'].includes(appUrl.hostname)) throw new Error('Production APP_URL must use HTTPS');
 
 if (env.NODE_ENV === 'production' && (
   ['careerforge-default-dev-secret-key-change-in-prod', 'careerforge-super-secret-jwt-key-2026'].includes(env.JWT_SECRET) ||

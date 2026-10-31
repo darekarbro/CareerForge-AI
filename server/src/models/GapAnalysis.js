@@ -2,6 +2,8 @@ const mongoose = require('mongoose');
 
 const gapAnalysisSchema = new mongoose.Schema(
   {
+    processingJobId: { type: mongoose.Schema.Types.ObjectId, unique: true, sparse: true },
+    assessmentMeta: mongoose.Schema.Types.Mixed,
     resumeId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Resume',

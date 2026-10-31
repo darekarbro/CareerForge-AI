@@ -2,8 +2,8 @@ const applicationService = require('../services/applicationService');
 
 const listApplications = async (req, res, next) => {
   try {
-    const { status, search, sort } = req.query;
-    const apps = await applicationService.listApplications(req.user._id, { status, search, sort });
+    const { status, search, sort, due } = req.query;
+    const apps = await applicationService.listApplications(req.user._id, { status, search, sort, due });
     res.status(200).json({
       success: true,
       data: apps,

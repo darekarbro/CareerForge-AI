@@ -109,7 +109,7 @@ export default function ResumeUploadDropzone({ onUploadSuccess, onUploadStart, o
             isDragActive ? 'bg-[#ffcc00]/20 border-solid' : 'bg-white hover:bg-[#faf7f2]'
           }`}
         >
-          <input {...getInputProps()} />
+          <input {...getInputProps({ 'aria-label': 'Resume files' })} />
           <div className="flex flex-col items-center justify-center gap-3">
             <div className="w-12 h-12 bg-[#1a1a1a] text-[#ffcc00] border-2 border-[#1a1a1a] flex items-center justify-center shadow-brutal">
               <UploadCloud className="w-6 h-6" />

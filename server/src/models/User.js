@@ -3,6 +3,22 @@ const bcrypt = require('bcryptjs');
 
 const userSchema = new mongoose.Schema(
   {
+    authVersion: { type: Number, default: 0 },
+    emailVerifiedAt: Date,
+    deleting: { type: Boolean, default: false },
+    verificationHash: { type: String, select: false },
+    verificationExpiresAt: { type: Date, select: false },
+    resetHash: { type: String, select: false },
+    resetExpiresAt: { type: Date, select: false },
+    resetVersion: { type: Number, select: false },
+    passwordChangedAt: { type: Date, select: false },
+    privacy: {
+      providers: { groq: { type: Boolean, default: false }, openrouter: { type: Boolean, default: false }, gemini: { type: Boolean, default: false } },
+      activityDays: { type: Number, enum: [30, 90, 365], default: 90 },
+      cacheDays: { type: Number, enum: [1, 7, 30], default: 7 },
+      retryInputHours: { type: Number, enum: [1, 6, 24], default: 24 },
+      updatedAt: Date,
+    },
     firebaseUid: {
       type: String,
       default: undefined,

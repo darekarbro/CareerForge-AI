@@ -103,7 +103,7 @@ test('14,47: question drafts remain separate and the correct draft is submitted 
   fireEvent.change(screen.getByRole('textbox'), { target: { value: 'Draft for question two' } });
   fireEvent.click(screen.getByRole('button', { name: /^Q1/ }));
   assert.equal(screen.getByRole('textbox').value, 'Draft for question one');
-  fireEvent.click(screen.getByRole('button', { name: /Submit for Dimension Evaluation/ }));
+  fireEvent.click(screen.getByRole('button', { name: /^Submit answer$/ }));
   await screen.findByText('Your Submitted Answer:');
   assert.equal(submitted.url, '/interview/sessions/session1/questions/q1/answer');
   assert.equal(submitted.body.userAnswer, 'Draft for question one');
@@ -111,6 +111,7 @@ test('14,47: question drafts remain separate and the correct draft is submitted 
   assert.equal(screen.getByRole('textbox').value, 'Draft for question two');
 });
 test('34: failed application saves retain the modal, entered values and an error message', async () => {
+  session('A');
   const Board = load('components/ApplicationBoard/ApplicationBoard.js').default;
   let rejectSave, calls = 0;
   render(element(Board, { applications: [], onAddApplication: () => { calls++; return new Promise((_resolve, reject) => { rejectSave = reject; }); } }));

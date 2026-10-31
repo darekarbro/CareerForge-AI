@@ -11,7 +11,7 @@ router.post(
   [
     body('name').trim().notEmpty().withMessage('Name is required'),
     body('email').isEmail().withMessage('Please provide a valid email'),
-    body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters long'),
+    body('password').isString().isLength({ min: 8, max: 128 }).custom((value) => Buffer.byteLength(value, 'utf8') <= 72).withMessage('Password must contain 8–72 UTF-8 bytes'),
     validate,
   ],
   authController.register
@@ -37,10 +37,18 @@ router.post(
 );
 
 router.get('/me', protect, authController.getMe);
+const handle = (work) => async (req, res, next) => { try { res.json({ success: true, data: await work(req) }); } catch (error) { next(error); } };
+router.post('/forgot-password', [body('email').trim().isEmail(), validate], handle((req) => require('../services/accountMailService').request(req.body.email, 'reset')));
+router.post('/reset-password', handle((req) => require('../services/authService').resetPassword(req.body.token, req.body.password)));
+router.post('/verify-email', handle((req) => require('../services/authService').verifyEmail(req.body.token)));
+router.post('/resend-verification', protect, handle((req) => require('../services/accountMailService').request(req.user.email, 'verify')));
+router.post('/logout', protect, handle(async (req) => { await require('../services/sessionService').revokeCurrent(req.user._id, req.auth.sessionId); return { loggedOut: true }; }));
+router.post('/logout-all', protect, handle(async (req) => { await require('../services/sessionService').revokeAll(req.user._id); return { loggedOut: true }; }));
+router.get('/sessions', protect, handle(async (req) => (await require('../models/AuthSession').find({ owner: req.user._id, authVersion: req.user.authVersion || 0, expiresAt: { $gt: new Date() } }).sort({ createdAt: -1 })).map((item) => ({ id: item._id, device: item.device, createdAt: item.createdAt, expiresAt: item.expiresAt, current: String(item._id) === String(req.auth.sessionId) }))));
 router.put('/me', protect, authController.updateProfile);
 router.put('/password', protect, [
   body('currentPassword').isString().notEmpty(),
-  body('newPassword').isString().isLength({ min: 8, max: 128 }),
+  body('newPassword').isString().isLength({ min: 8, max: 128 }).custom((value) => Buffer.byteLength(value, 'utf8') <= 72),
   validate,
 ], async (req, res, next) => {
   try {

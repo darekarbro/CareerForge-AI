@@ -40,6 +40,8 @@ const interviewQuestionSchema = new mongoose.Schema(
       default: '',
     },
     evaluationJobId: { type: mongoose.Schema.Types.ObjectId, ref: 'ProcessingJob' },
+    evaluatedByJobId: mongoose.Schema.Types.ObjectId,
+    attempts: [{ userAnswer: String, feedback: mongoose.Schema.Types.Mixed, answeredAt: Date }],
     feedback: {
       clarityScore: { type: Number, min: 0, max: 100 },
       relevanceScore: { type: Number, min: 0, max: 100 },

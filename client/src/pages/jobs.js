@@ -95,6 +95,7 @@ export default function JobsPage() {
                   Inject Skills From Resume:
                 </span>
                 <select
+                  aria-label="Resume for job search skills"
                   value={selectedResumeId}
                   onChange={(e) => setSelectedResumeId(e.target.value)}
                   className="brutal-input py-1 text-xs font-bold"

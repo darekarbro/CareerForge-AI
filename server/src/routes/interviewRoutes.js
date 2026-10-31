@@ -11,6 +11,7 @@ router.use(protect);
 
 router.get('/analytics', interviewController.getAnalytics);
 router.get('/sessions', interviewController.listSessions);
+router.get('/descriptions', async (req, res, next) => { try { res.json({ success: true, data: await require('../models/JobDescription').find({ owner: req.user._id }).sort({ createdAt: -1 }).select('title targetRole company') }); } catch (error) { next(error); } });
 
 router.post(
   '/sessions',
@@ -26,6 +27,7 @@ router.post(
 );
 
 router.get('/sessions/:id', interviewController.getSession);
+router.post('/sessions/:id/follow-up', aiLimiter, async (req, res, next) => { try { res.status(202).json({ success: true, data: await require('../services/interviewFollowUp').followUp(req.params.id, req.user._id, req.body) }); } catch (error) { next(error); } });
 
 router.post(
   '/sessions/:id/questions/:qid/answer',
