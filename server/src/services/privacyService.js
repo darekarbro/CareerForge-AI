@@ -3,7 +3,7 @@ const User = require('../models/User');
 const Deletion = require('../models/AccountDeletion');
 const { digest, emailHash } = require('./privatePayload');
 const { fail } = require('./resumeContent');
-const ownedCollections = ['CareerProfile', 'Resume', 'TailoredResume', 'JobWorkspace', 'JobDescription', 'GapAnalysis', 'InterviewSession',
+const ownedCollections = ['CareerProfile', 'CareerEvidence', 'EvidenceSource', 'CopilotRun', 'Resume', 'TailoredResume', 'JobWorkspace', 'JobDescription', 'GapAnalysis', 'InterviewSession',
   'Application', 'JobSearchQuery', 'ProcessingJob', 'ProcessingLog', 'Notification', 'AssessmentCache', 'ProductEvent', 'JobPayload', 'AuthSession'];
 const model = (name) => require('../models/' + name);
 function preferences(user) {

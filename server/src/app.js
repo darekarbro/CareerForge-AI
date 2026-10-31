@@ -62,7 +62,7 @@ app.use((req, res, next) => {
   const costly = /^\/api\/resumes\/(upload|[^/]+\/(tailor|gap-analysis))\/?$/.test(req.path) ||
     /^\/api\/interview\/sessions(?:\/[^/]+\/questions\/[^/]+\/answer)?\/?$/.test(req.path) ||
     /^\/api\/(?:workspaces\/[^/]+\/(?:tailor|analyze|interview)|resumes\/[^/]+\/assess|resumes\/[^/]+\/versions\/[^/]+\/regenerate|interview\/sessions\/[^/]+\/follow-up|processing-jobs\/[^/]+\/retry)\/?$/.test(req.path);
-  return req.method === 'POST' && costly ? aiIpLimiter(req, res, next) : next();
+  return req.method === 'POST' && (costly || /^\/api\/evidence\/(?:copilot(?:\/[^/]+\/answers)?|imports\/(?:github|document))\/?$/.test(req.path)) ? aiIpLimiter(req, res, next) : next();
 });
 
 // Mount API Routes
@@ -74,6 +74,7 @@ app.use('/api/profile', require('./routes/profileRoutes'));
 app.use('/api/privacy', require('./routes/privacyRoutes'));
 app.use('/api/workspaces', require('./routes/workspaceRoutes'));
 app.use('/api/resumes', resumeRoutes);
+app.use('/api/evidence', require('./routes/evidenceRoutes'));
 app.use('/api/interview', interviewRoutes);
 app.use('/api/jobs', jobRoutes);
 app.use('/api/applications', applicationRoutes);

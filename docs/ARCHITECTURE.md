@@ -31,6 +31,11 @@ Local registrations queue email verification. Only hashes of 32-byte random veri
 erDiagram
   User ||--o{ AuthSession : has
   User ||--o| CareerProfile : edits
+  User ||--o{ CareerEvidence : confirms
+  User ||--o{ EvidenceSource : imports
+  User ||--o{ CopilotRun : plans
+  CopilotRun }o--|| Resume : reads
+  CopilotRun }o--o| TailoredResume : proposes
   User ||--o{ Resume : owns
   Resume ||--o{ TailoredResume : versions
   Resume ||--o| ResumeVersionCounter : allocates
@@ -55,6 +60,10 @@ erDiagram
 ```
 
 Most domain records carry `owner` and all reads/mutations filter by it. InterviewQuestion ownership comes through its session. ResumeVersionCounter is keyed by resume ID. AccountMail uses a keyed email hash so unknown-address recovery requests receive the same treatment without storing plain recipient addresses. WorkerHeartbeat contains a random worker ID and timestamps, without candidate content.
+
+CareerEvidence stores stable fact identities, revisions, source quotes, verification and measurement states. Entry context includes both source record ID and stable entry ID, so legacy IDs repeated across resumes cannot share project evidence. EvidenceSource holds locally extracted document text or bounded public GitHub metadata/README previews. Selection and personal-contribution confirmation precede library insertion; unconfirmed previews expire after 24 hours. CopilotRun stores bounded conditional planning, questions, confirmed/skipped answers, retrieved fact snapshots and review outcomes. It uses the existing `resume_copilot` job lifecycle; recovered commits reuse the saved version.
+
+TailoredResume carries evidence snapshots and per-claim results. Generated claims are checked against the specific source entry and confirmed, scoped additions before persistence. Unsupported known claims are withheld from output; rechecking citations consults current verification without silently rewriting saved manual edits. Structured term ranking replaces the need for embeddings at the bounded library size. These checks and citations aid review; they do not establish semantic truth or external authorship. See the [workflow and limits](PHASE3_WORKFLOWS.md).
 
 Resume source revisions and reviewed version revisions use optimistic concurrency: stale clients receive HTTP 409. Profile facts and explicit resume edits are authoritative. Tailoring proposes changes without inventing employers, metrics, qualifications or technologies. Application resume snapshots preserve the exact reviewed content submitted, even if the source version changes later. These manual facts are kept until explicitly deleted; supporting activity has separate retention limits.
 

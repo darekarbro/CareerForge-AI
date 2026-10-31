@@ -60,6 +60,8 @@ class ResumeService {
       await InterviewQuestion.deleteMany({ sessionId: { $in: sessionIds } });
       await InterviewSession.deleteMany({ _id: { $in: sessionIds }, owner: userId });
       await TailoredResume.deleteMany({ resumeId, owner: userId });
+      await require('../models/CareerEvidence').deleteMany({ owner: userId, 'source.resumeId': resumeId });
+      await require('../models/CopilotRun').deleteMany({ resumeId, owner: userId });
       await GapAnalysis.deleteMany({ resumeId, owner: userId });
       await ProcessingLog.deleteMany({ jobId: { $in: jobIds }, owner: userId });
       await Notification.deleteMany({ jobId: { $in: jobIds }, owner: userId });

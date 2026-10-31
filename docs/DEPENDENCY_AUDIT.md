@@ -1,6 +1,6 @@
 # Dependency audit — 31 October 2026
 
-The Phase 2 dependency audit is separate from functional test results. No high or critical advisories were reported in either package tree at the time of this check.
+The audit was rerun for Phase 3 with unchanged dependencies. It is separate from functional test results. The counts below remain unchanged; no high or critical advisories were reported in either package tree at the time of this check.
 
 | Scope | npm audit result |
 | --- | --- |

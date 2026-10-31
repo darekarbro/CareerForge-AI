@@ -30,11 +30,16 @@ class TailoringService {
       if (recovered.aiProvider === 'groq') original = require('./resumeStructure').withEntryIds(recovered.parsedData);
       await checkpoint();
     }
-    const tailoredData = await generatorAgent.tailorResume({ resumeData: original, targetRole, jobDescriptionText,
+    const scope = job.inputRef.rawInput.rewriteScope || 'all', scoped = require('./resumeStructure').scopedContent(original, scope);
+    const tailoredData = await generatorAgent.tailorResume({ resumeData: scoped, targetRole, jobDescriptionText,
       jobId: job._id, userId: job.owner });
     await checkpoint();
-    const complete = { ...original, summary: tailoredData.summary, skills: tailoredData.skills,
+    let complete = { ...original, summary: tailoredData.summary, skills: tailoredData.skills,
       workExperience: tailoredData.workExperience, projects: tailoredData.projects };
+    if (scope !== 'all') {
+      complete = { ...original, ...(scope === 'summary' ? { summary: tailoredData.summary } : {}) };
+      if (scope !== 'summary') { const [section, id] = scope.split(':'); complete[section] = original[section].map((entry) => entry.entryId === id ? { ...tailoredData[section][0], entryId: id } : entry); }
+    }
     for (const section of ['workExperience', 'projects']) {
       const remaining = [...(original[section] || [])], fields = section === 'projects' ? ['title', 'link'] : ['role', 'company', 'startDate', 'endDate', 'location'];
       complete[section] = (complete[section] || []).map((entry, index) => {
@@ -43,6 +48,9 @@ class TailoringService {
         return { ...entry, entryId: source?.entryId || 'legacy-' + section + '-' + index };
       });
     }
+    const provenance = await require('./claimEvidenceService').prepare(job.owner, resume, original, complete, job.inputRef.rawInput.evidenceSnapshot, job.inputRef.rawInput.sourceRevision || resume.contentRevision || 1);
+    complete = provenance.content;
+    await checkpoint();
     const atsScore = await analyzerAgent.scoreATS({ resumeData: complete, rawText: resumeText(complete),
       jobId: job._id, userId: job.owner });
     return commit(async () => {
@@ -57,6 +65,7 @@ class TailoringService {
         workspaceId: job.inputRef.workspaceId, workspaceRevision: job.inputRef.workspaceRevision || 1,
         resumeId: resume._id, owner: job.owner, targetRole, jobDescriptionText, version: counter.sequence,
         tailoredContent: complete, atsScore, assessmentMeta: atsScore.assessmentMeta, diffFromOriginal: tailoredData.diffFromOriginal, aiProvider: tailoredData.aiProvider,
+        evidenceSnapshot: provenance.evidenceSnapshot, claimEvidence: provenance.claims,
         improvementSuggestions: improvementSuggestions(original),
         sourceContent: original, sourceRevision: job.inputRef.rawInput.sourceRevision || resume.contentRevision || 1, presentation: job.inputRef.rawInput.presentation || require('./resumeStructure').presentation(resume.presentation),
       });

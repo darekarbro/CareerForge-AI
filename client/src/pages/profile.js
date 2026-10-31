@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
+import Link from 'next/link';
 import ProtectedRoute from '../components/ProtectedRoute/ProtectedRoute';
 import AppShell from '../components/AppShell/AppShell';
 import ResumeEditor, { normalizeContent } from '../components/ResumeEditor/ResumeEditor';
@@ -42,6 +43,7 @@ export default function ProfilePage() {
   };
   return <ProtectedRoute><AppShell><div className="max-w-5xl mx-auto space-y-6">
     <header className="space-y-2"><h1 className="text-3xl font-bold">My career profile</h1><p className="text-sm text-gray-600">Keep your verified experience here. Use it to create resumes for different jobs. Changes save automatically.</p></header>
+    <Link href="/evidence" className="underline text-blue-800 text-sm">Build and verify your career evidence library</Link>
     {draft.ready ? <>
       <DraftToolbar draft={draft} saving={sync.saving} error={sync.error} onSave={sync.save} onReload={sync.reload} onResolve={sync.prepareResolution} resolution={sync.resolution} onResolved={sync.resolve} />
       <div className="brutal-card p-5 grid md:grid-cols-2 gap-4">

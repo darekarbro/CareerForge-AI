@@ -44,6 +44,10 @@ This fragmentation makes the process slow, inconsistent, and difficult to optimi
 - Editable career profiles and resumes with autosave, revision history and conflict protection
 - Repeatable resume quality estimates, separate from job-description match reports
 - Per-change tailoring review, manual edits, undo/redo and selected-section rewrites
+- Career evidence library with stable facts, verification states and source-specific context
+- Previewed, selectively confirmed imports from public GitHub projects or personal project documents
+- Bounded resume copilot with targeted clarification, structured retrieval and inspectable action history
+- Entry-specific factual checks and claim citations, with unsupported generated wording withheld for review
 - Classic, modern and compact resume layouts with actual PDF previews and editable DOCX export
 - Saved job workspaces connecting descriptions, resumes, interviews and applications
 - Gap analysis against job descriptions to highlight missing skills and recommendations
@@ -61,6 +65,8 @@ This fragmentation makes the process slow, inconsistent, and difficult to optimi
 - Deterministic fallback engine when AI providers are unavailable
 
 ### Bonus Features
+
+The [Phase 3 workflow guide](docs/PHASE3_WORKFLOWS.md) explains evidence collection, controlled imports, copilot review and factual-check limitations. See [Phase 3 validation](PHASE3.md) for test results.
 
 - Live agent timeline for processing pipeline visibility
 - Resume version history and export management
