@@ -30,6 +30,10 @@ jobs:
         working-directory: server
       - run: npm ci
         working-directory: client
+      - run: npm audit --audit-level=moderate
+        working-directory: server
+      - run: npm audit --audit-level=moderate
+        working-directory: client
       - run: npm test
         working-directory: server
       - run: npm test

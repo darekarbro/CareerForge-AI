@@ -26,7 +26,7 @@ The review covered authentication, sessions and sockets, ownership checks, async
 
 Regression coverage is in `server/test/mainAudit.test.js`, `server/test/mainAuditCases.cjs` and the existing browser journey. The browser runner now identifies each accessibility scan and fails a scan after 45 seconds instead of hanging indefinitely. Container readiness and inbox fetches also have explicit network deadlines.
 
-## Validation
+## Validation of the initial main-audit commit
 
 - Backend: 108 tests passed, including 15 new audit regressions; no skipped tests.
 - Frontend: 34 tests passed.
@@ -39,10 +39,12 @@ All six container acceptance groups passed: separate worker/SMTP/private upload/
 
 Live Groq (`openai/gpt-oss-120b`): all 15 acceptance checks passed using 15 real requests across parsing, ATS scoring, tailoring, gap analysis, question generation and answer evaluation. This also exercised scoped copilot clarification, evidence citations, source preservation and PDF export with fallback disabled. Test accounts, documents and career data are fictional. External providers are disabled in deterministic suites.
 
-## Remaining dependency findings
+## Dependency remediation follow-up — 1 November 2026
 
-Fresh npm audits report zero client production advisories, six moderate client development findings, six moderate server production findings and seven moderate server findings including development tools. These are affected dependency paths for the minimatch/glob advisories, not that many independent underlying vulnerabilities. No high or critical advisories were reported.
+The initial audit recorded six moderate client development findings, six moderate server production findings and seven moderate server findings including development tools. The PR #9 follow-up upgrades glob/minimatch, migrates the client lint tooling and adds compatibility regressions. Full and production-only audits now report zero vulnerabilities in both package trees.
 
-A non-forced server fix dry run changed no packages. npm's proposed incompatible downgrades and unverified major-version overrides were not applied. See [the dependency audit](docs/DEPENDENCY_AUDIT.md) for affected paths, primary advisory links and follow-up requirements. Those upstream compatibility findings remain open.
+See [the dependency audit](docs/DEPENDENCY_AUDIT.md) for exact versions, primary advisory links, compatibility coverage and the new CI audit gate. No incompatible automatic downgrades or advisory suppressions were applied. The follow-up adds four backend and two frontend compatibility tests: all 112 backend and 36 frontend tests passed, with no skips. Lint, production build, all 23 browser workflows and 41 accessibility audits also passed. Live Groq passed all 15 checks using 14 requests with fallback disabled.
+
+Rebuilt API, worker and frontend containers passed all six acceptance groups, including worker isolation, Redis recovery, restart persistence, SMTP, export and deletion. Test data remained fictional and persistent volumes were preserved.
 
 Hosted Render logs and live production configuration were not changed by this audit. Local and CI deployment checks validate the repository configuration; they do not prove the hosted backend is running this revision.
