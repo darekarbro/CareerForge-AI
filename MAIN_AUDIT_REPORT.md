@@ -41,7 +41,7 @@ Live Groq (`openai/gpt-oss-120b`): all 15 acceptance checks passed using 15 real
 
 ## Dependency remediation follow-up — 1 November 2026
 
-The initial audit recorded six moderate client development findings, six moderate server production findings and seven moderate server findings including development tools. The PR #9 follow-up upgrades glob/minimatch, migrates the client lint tooling and adds compatibility regressions. Full and production-only audits now report zero vulnerabilities in both package trees.
+The initial audit recorded six moderate client development findings, six moderate server production findings and seven moderate server findings including development tools. [PR #10](https://github.com/darekarbro/CareerForge-AI/pull/10) follows the already merged PR #9: it upgrades glob/minimatch, migrates the client lint tooling and adds compatibility regressions. Full and production-only audits now report zero vulnerabilities in both package trees.
 
 See [the dependency audit](docs/DEPENDENCY_AUDIT.md) for exact versions, primary advisory links, compatibility coverage and the new CI audit gate. No incompatible automatic downgrades or advisory suppressions were applied. The follow-up adds four backend and two frontend compatibility tests: all 112 backend and 36 frontend tests passed, with no skips. Lint, production build, all 23 browser workflows and 41 accessibility audits also passed. Live Groq passed all 15 checks using 14 requests with fallback disabled.
 

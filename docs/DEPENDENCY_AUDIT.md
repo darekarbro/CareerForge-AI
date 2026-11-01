@@ -1,6 +1,6 @@
 # Dependency audit — 1 November 2026
 
-PR #9 removes the moderate dependency findings recorded at `101f5be`. Full audits include development dependencies; production audits are checked separately. No advisory exceptions, reduced audit scope or forced downgrades are used.
+[PR #10](https://github.com/darekarbro/CareerForge-AI/pull/10) removes the moderate dependency findings recorded at `101f5be`. It follows PR #9, which was already merged before this dependency update. Full audits include development dependencies; production audits are checked separately. No advisory exceptions, reduced audit scope or forced downgrades are used.
 
 | Scope | Before | After remediation |
 | --- | --- | --- |
