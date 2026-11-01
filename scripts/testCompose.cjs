@@ -13,10 +13,10 @@ async function request(method, route, body, expected = 200) {
 async function until(work, timeout = 90000) { const end = Date.now() + timeout; while (Date.now() < end) { const value = await work(); if (value) return value; await pause(500); } throw new Error('Timed out waiting for container workflow'); }
 async function messageToken(subject) {
   return until(async () => {
-    const listing = await (await fetch(inbox + '/api/v1/messages')).json();
+    const listing = await (await fetch(inbox + '/api/v1/messages', { signal: AbortSignal.timeout(5000) })).json();
     const message = listing.messages?.find((item) => item.Subject.startsWith(subject) && item.To?.some((to) => to.Address === email));
     if (!message) return null;
-    const detail = await (await fetch(inbox + '/api/v1/message/' + message.ID)).json();
+    const detail = await (await fetch(inbox + '/api/v1/message/' + message.ID, { signal: AbortSignal.timeout(5000) })).json();
     return detail.Text?.match(/#token=([a-f0-9]{64})/)?.[1];
   });
 }
@@ -30,8 +30,8 @@ async function finished(id) {
 }
 (async () => {
   try {
-    await until(async () => { try { return (await fetch(api + '/health')).ok; } catch { return false; } });
-    assert((await fetch('http://localhost:3000/login')).ok);
+    await until(async () => { try { return (await fetch(api + '/health', { signal: AbortSignal.timeout(5000) })).ok; } catch { return false; } });
+    assert((await fetch('http://localhost:3000/login', { signal: AbortSignal.timeout(5000) })).ok);
     const account = (await request('POST', '/auth/register', { name: 'Container Candidate', email, password }, 201)).data; token = account.token;
     await request('POST', '/auth/verify-email', { token: await messageToken('Verify') });
     let events = 0;
@@ -59,7 +59,7 @@ async function finished(id) {
     const copilotPending = (await request('POST', '/evidence/copilot', { resumeId: phase3.resumeId, targetRole: 'Engineer', scope: 'summary' }, 202)).data;
     assert.equal((await request('GET', '/processing-jobs/' + copilotPending.jobId)).data.status, 'PENDING');
     compose('start', 'worker'); await finished(pending.jobId); await finished(copilotPending.jobId);
-    compose('restart', 'api'); await until(async () => { try { return (await fetch(api + '/health')).ok; } catch { return false; } });
+    compose('restart', 'api'); await until(async () => { try { return (await fetch(api + '/health', { signal: AbortSignal.timeout(5000) })).ok; } catch { return false; } });
     assert.equal((await request('GET', '/resumes/' + uploaded.resume._id)).data.originalFileName, 'container-resume.txt');
     const original = await request('GET', '/resumes/' + uploaded.resume._id + '/original'); assert(original.includes(Buffer.from('Container Candidate')));
     assert.equal((await request('GET', '/evidence/copilot/' + phase3.runId)).data.status, 'draft_ready');
@@ -71,7 +71,7 @@ async function finished(id) {
       await finished(recovered.jobId);
       console.log('PASS Redis outage preserves API availability and MongoDB worker recovery');
     } finally { compose('start', 'redis'); }
-    await until(async () => (await (await fetch(api + '/health')).json()).queue.mode === 'BullMQ (Redis)');
+    await until(async () => (await (await fetch(api + '/health', { signal: AbortSignal.timeout(5000) })).json()).queue.mode === 'BullMQ (Redis)');
     await request('POST', '/auth/forgot-password', { email });
     await request('POST', '/auth/reset-password', { token: await messageToken('Reset'), password: 'replacement-compose-password' });
     await request('GET', '/auth/me', undefined, 401);

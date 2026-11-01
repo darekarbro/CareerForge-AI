@@ -4,6 +4,10 @@ const providerFactory = require('../providers/providerFactory');
 const { abortJob } = require('../services/jobContext');
 const Resume = require('../models/Resume');
 const InterviewQuestion = require('../models/InterviewQuestion');
+async function interviewVisibility(job) {
+  if (!['question_generation', 'answer_evaluation'].includes(job.jobType)) return null;
+  return await require('../models/InterviewSession').findOne({ _id: job.inputRef.sessionId || job.output?.session?._id, owner: job.owner }).select('feedbackMode status') || { feedbackMode: 'end', status: 'in_progress' };
+}
 
 const getJobStatus = async (req, res, next) => {
   try {
@@ -17,7 +21,7 @@ const getJobStatus = async (req, res, next) => {
 
     res.status(200).json({
       success: true,
-      data: job,
+      data: { ...job.toObject(), output: require('../services/interviewVisibility').publicOutput(job.output, await interviewVisibility(job)) },
     });
   } catch (err) {
     next(err);
@@ -26,12 +30,13 @@ const getJobStatus = async (req, res, next) => {
 
 const getJobTimeline = async (req, res, next) => {
   try {
-    const ownedJob = await ProcessingJob.exists({ _id: req.params.id, owner: req.user._id });
+    const ownedJob = await ProcessingJob.findOne({ _id: req.params.id, owner: req.user._id });
     if (!ownedJob) return res.status(404).json({ success: false, message: 'Processing job not found' });
     const logs = await ProcessingLog.find({ jobId: req.params.id, owner: req.user._id }).sort({ createdAt: 1 });
+    const visibility = await interviewVisibility(ownedJob);
     res.status(200).json({
       success: true,
-      data: logs,
+      data: logs.map((log) => require('../services/interviewVisibility').publicEvent(log, visibility)),
     });
   } catch (err) {
     next(err);

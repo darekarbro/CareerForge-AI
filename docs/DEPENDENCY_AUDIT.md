@@ -1,6 +1,6 @@
 # Dependency audit — 31 October 2026
 
-The audit was rerun for Phase 3 with unchanged dependencies. It is separate from functional test results. The counts below remain unchanged; no high or critical advisories were reported in either package tree at the time of this check.
+The audit was rerun against main (`703feed`) and the main-audit fixes on 31 October 2026 with unchanged dependencies. It is separate from functional test results. The counts below remain unchanged; no high or critical advisories were reported in either package tree at the time of this check.
 
 | Scope | npm audit result |
 | --- | --- |
@@ -13,4 +13,4 @@ The underlying advisories are [minimatch pattern amplification](https://github.c
 
 The project does not expose a public endpoint accepting glob patterns. The affected server dependency path includes the Firebase package's Google Firestore dependencies; the application currently uses Firebase authentication. This reduces the apparent exposure in current flows, but is not proof of non-exploitability.
 
-The audit's suggested automatic fixes include incompatible major downgrades for ESLint/nodemon. A non-forced server fix dry run made no changes. Those changes and broad major-version overrides were not applied as part of the UX phase. The remaining moderate findings need an upstream-compatible dependency upgrade and dedicated compatibility checks. Re-run `npm audit` and `npm audit --omit=dev` in both directories before production deployment, because advisories change over time.
+The audit's suggested automatic fixes include incompatible major downgrades for ESLint/nodemon. A fresh `npm audit fix --dry-run --ignore-scripts --json` in the server reported zero added, changed or removed packages and left seven moderate findings. Incompatible downgrades and broad major-version overrides were not applied. The remaining moderate findings need an upstream-compatible dependency upgrade and dedicated compatibility checks. Re-run `npm audit` and `npm audit --omit=dev` in both directories before production deployment, because advisories change over time.

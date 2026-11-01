@@ -3,6 +3,7 @@ const schema = new mongoose.Schema({
   owner: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   receiptHash: { type: String, required: true, unique: true },
   emailHash: String,
+  authVersion: Number,
   status: { type: String, enum: ['pending', 'running', 'retrying', 'completed'], default: 'pending' },
   files: [mongoose.Schema.Types.Mixed], attempts: { type: Number, default: 0 },
   leaseOwner: String, leaseExpiresAt: Date, nextAttemptAt: { type: Date, default: Date.now },

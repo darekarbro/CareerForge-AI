@@ -26,7 +26,10 @@ async function uploadFile(fileSource, options = {}) {
       });
       return { ...result, storage: { provider: 'cloudinary', publicId: result.public_id,
         resourceType: result.resource_type || 'raw', deliveryType: 'authenticated', format: result.format || '' } };
-    } catch (_error) { console.warn('Cloud storage upload failed; using protected local storage.'); }
+    } catch (_error) {
+      if (env.NODE_ENV === 'production') throw Object.assign(new Error('File storage is temporarily unavailable. Please retry the upload.'), { statusCode: 503 });
+      console.warn('Cloud storage upload failed; using protected local storage.');
+    }
   }
   await fs.mkdir(uploadsDir, { recursive: true });
   const extension = path.extname(options.filename || 'document.pdf').toLowerCase();

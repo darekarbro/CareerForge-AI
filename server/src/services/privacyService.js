@@ -27,9 +27,15 @@ async function save(owner, input) {
   await applyRetention(user);
   return preferences(user);
 }
+const credentialFilter = (user) => ({ _id: user._id, deleting: { $ne: true }, $expr: { $eq: [{ $ifNull: ['$authVersion', 0] }, user.authVersion || 0] } });
+const changedCredentials = () => Object.assign(fail('The account changed while confirming this action. Sign in again.', 401), { code: 'SESSION_CHANGED' });
+async function confirmCredentials(user) {
+  if (!await User.exists(credentialFilter(user))) throw changedCredentials();
+}
 async function reauthenticate(user, input) {
+  await confirmCredentials(user);
   if (user.authProvider === 'local') {
-    const account = await User.findOne({ _id: user._id, deleting: { $ne: true } }).select('+password');
+    const account = await User.findOne(credentialFilter(user)).select('+password');
     if (!account || typeof input.password !== 'string' || !await account.comparePassword(input.password)) throw Object.assign(fail('Current password is incorrect', 401), { code: 'REAUTH_REQUIRED' });
   } else {
     let decoded;
@@ -37,6 +43,7 @@ async function reauthenticate(user, input) {
     catch (error) { if (error.statusCode === 401) error.code = 'REAUTH_REQUIRED'; throw error; }
     if (decoded.uid !== user.firebaseUid || decoded.email_verified !== true || decoded.firebase?.sign_in_provider !== 'google.com' || !decoded.auth_time || Date.now() / 1000 - decoded.auth_time > 300) throw Object.assign(fail('Sign in with Google again to confirm this action', 401), { code: 'REAUTH_REQUIRED' });
   }
+  await confirmCredentials(user);
 }
 async function exportData(user, input) {
   await reauthenticate(user, input);
@@ -62,16 +69,28 @@ async function exportData(user, input) {
   const json = JSON.stringify(data, null, 2);
   if (Buffer.byteLength(json) + bytes > 70 * 1024 * 1024) throw fail('This account export is too large for one download. Export records in smaller groups through the individual resume pages.', 413);
   zip.file('account-data.json', json); zip.file('manifest.json', JSON.stringify(manifest, null, 2));
-  return zip.generateAsync({ type: 'nodebuffer', compression: 'DEFLATE' });
+  const buffer = await zip.generateAsync({ type: 'nodebuffer', compression: 'DEFLATE' });
+  await confirmCredentials(user);
+  return buffer;
+}
+async function authorizeDeletion(record) {
+  // Legacy requests were authorized before credential versions were recorded.
+  if (record.authVersion === undefined) { await User.updateOne({ _id: record.owner }, { $set: { deleting: true } }); return true; }
+  const result = await User.updateOne(credentialFilter({ _id: record.owner, authVersion: record.authVersion }), { $set: { deleting: true }, $inc: { authVersion: 1 } });
+  if (result.matchedCount || await User.exists({ _id: record.owner, deleting: true }) || !await User.exists({ _id: record.owner })) return true;
+  // A reset or identity claim won the race. Do not leave a deletion the worker can execute later.
+  await Deletion.deleteOne({ _id: record._id });
+  return false;
 }
 async function requestDeletion(user, input) {
   if (input.confirmation !== 'DELETE') throw fail('Type DELETE to confirm account deletion');
   await reauthenticate(user, input);
   const receipt = crypto.randomBytes(32).toString('hex');
   const resumes = await model('Resume').find({ owner: user._id }).select('originalFileStorage originalFileUrl originalFileName fileType');
-  try { await Deletion.create({ owner: user._id, emailHash: emailHash(user.email), receiptHash: digest(receipt), files: resumes.map((item) => ({ originalFileStorage: item.originalFileStorage?.toObject?.() || item.originalFileStorage, originalFileUrl: item.originalFileUrl })) }); }
+  let record;
+  try { record = await Deletion.create({ owner: user._id, authVersion: user.authVersion || 0, emailHash: emailHash(user.email), receiptHash: digest(receipt), files: resumes.map((item) => ({ originalFileStorage: item.originalFileStorage?.toObject?.() || item.originalFileStorage, originalFileUrl: item.originalFileUrl })) }); }
   catch (error) { if (error.code === 11000) throw fail('Account deletion has already been requested', 409); throw error; }
-  await User.updateOne({ _id: user._id }, { $set: { deleting: true }, $inc: { authVersion: 1 } });
+  if (!await authorizeDeletion(record)) throw changedCredentials();
   await model('AuthSession').deleteMany({ owner: user._id });
   require('../config/socket').disconnectUserSockets(user._id);
   return { receipt, status: 'pending', message: 'Account access is disabled. Data deletion continues in the background. Keep this receipt to check completion.' };
@@ -97,7 +116,9 @@ async function applyRetention(user) {
 }
 async function finishDeletion(record) {
   const owner = record.owner, token = record.leaseOwner, filter = { _id: record._id, leaseOwner: token };
-  await User.updateOne({ _id: owner }, { $set: { deleting: true } });
+  if (!await authorizeDeletion(record)) return;
+  await model('AuthSession').deleteMany({ owner });
+  require('../config/socket').disconnectUserSockets(owner);
   if (await model('AccountOperation').exists({ owner, expiresAt: { $gt: new Date() } })) throw new Error('Waiting for active requests');
   await model('Resume').updateMany({ owner }, { $set: { deleting: true } });
   const jobs = await model('ProcessingJob').find({ owner }).select('_id');

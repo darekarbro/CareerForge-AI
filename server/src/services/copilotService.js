@@ -15,7 +15,7 @@ function questions(content) {
     if (/\d/.test(contribution)) result.push({ id: section + '_' + entry.entryId + '_measurement', kind: 'achievement', context, title: label, prompt: 'For ' + label + ', how was the stated result measured? If unknown, leave this blank.', required: false, measurement: true });
     else if (contribution.split(/\s+/).length < 30) result.push({ id: section + '_' + entry.entryId + '_outcome', kind: 'achievement', context, title: label, prompt: 'For ' + label + ', what outcome can you verify? Leave unknown outcomes blank; a number is not required.', required: false });
   }
-  return result.slice(0, 8);
+  return [...result.filter((question) => question.required), ...result.filter((question) => !question.required)].slice(0, 8);
 }
 async function start(owner, input) {
   if (Object.keys(input).some((key) => !['resumeId', 'targetRole', 'jobDescriptionText', 'workspaceId', 'scope'].includes(key))) throw fail('Unsupported copilot option');
@@ -48,11 +48,13 @@ async function process(execution) {
   await step('inspect', 'Inspect the saved source and selected entries before generating new wording.');
   const sourceRecords = await library.syncResume(job.owner, resume, source, input.sourceRevision);
   const scope = run.scope || 'all', focus = structure.scopedContent(source, scope), baseFacts = library.facts(focus);
-  const ids = ['workExperience', 'projects'].flatMap((section) => focus[section].map((entry) => entry.entryId));
+  const entryContexts = ['workExperience', 'projects'].flatMap((section) => focus[section].map((entry) => ({ section, entryId: entry.entryId })));
+  const ids = entryContexts.map((entry) => entry.entryId);
   const retrievalQuery = library.tokens(run.targetRole + ' ' + input.jobDescriptionText).join(' ').slice(0, 1500);
-  const retrieval = await library.retrieve(job.owner, retrievalQuery, { entryIds: ids, resumeId: run.resumeId, limit: 30 });
+  const retrieval = await library.retrieve(job.owner, retrievalQuery, { entryIds: ids, entryContexts, resumeId: run.resumeId, limit: 30 });
   await step('retrieve', 'Retrieve confirmed facts within the selected experience and project scope.', retrieval.map((item) => item.id));
   const evidenceSnapshot = [...new Map([...sourceRecords.map(library.snapshot), ...retrieval].map((item) => [item.id, item])).values()], confirmed = evidenceSnapshot.filter((item) => item.verification === 'confirmed');
+  input.baseSourceSnapshot = plain(source);
   for (const section of ['workExperience', 'projects']) for (const entry of source[section]) {
     const additions = confirmed.filter((item) => item.context?.entryId === entry.entryId && item.context?.section === section && item.source?.kind !== 'resume' && item.statement.length <= 1800);
     entry.highlights = [...new Set([...(entry.highlights || []), ...additions.map((item) => item.statement)])];
@@ -65,7 +67,7 @@ async function process(execution) {
     return commit(async () => ({ copilotRun: await Run.findOneAndUpdate({ _id: run._id, owner: job.owner }, { $set: { status: 'needs_input', questions: pending, trace, retrieval }, $inc: { revision: 1 } }, { new: true }) }));
   }
   const unresolved = (scope === 'summary' ? [] : questions(structure.scopedContent(source, scope))).filter((question) => question.required);
-  if (!resume.verifiedAt || sourceRecords.filter((item) => !item.context?.entryId || ids.includes(item.context.entryId)).some((item) => item.verification !== 'confirmed') || baseFacts.some((fact) => !sourceRecords.some((item) => item.statement === fact.statement)) || !confirmed.length || unresolved.length) {
+  if (!resume.verifiedAt || sourceRecords.filter((item) => !item.context?.entryId || entryContexts.some((entry) => entry.entryId === item.context.entryId && entry.section === item.context.section)).some((item) => item.verification !== 'confirmed') || baseFacts.some((fact) => !sourceRecords.some((item) => item.statement === fact.statement && item.context?.section === fact.context?.section && item.context?.entryId === fact.context?.entryId)) || !confirmed.length || unresolved.length) {
     await step('review', 'There is not enough confirmed personal contribution to rewrite safely. Add or confirm evidence, then start a new run.');
     return commit(async () => ({ copilotRun: await Run.findOneAndUpdate({ _id: run._id, owner: job.owner }, { $set: { status: 'review_recommended', trace, retrieval }, $inc: { revision: 1 } }, { new: true }) }));
   }

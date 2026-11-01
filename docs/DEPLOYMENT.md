@@ -38,6 +38,8 @@ The supplied Compose file is a localhost development deployment. For hosted use,
 
 Production fails startup without persistent MongoDB or a sufficiently private JWT secret. Separate process modes require Redis. Provider APIs remain optional; external sharing is per user. Never set private credentials in NEXT_PUBLIC_* variables. Firebase Admin keys, SMTP passwords and provider keys stay in the API/worker secret store. The Docker build context excludes environment files, uploads and Git metadata; containers run as a non-root user.
 
+If configured Cloudinary storage fails in production, uploads return a retryable 503 instead of silently saving the original to an ephemeral local filesystem. Development retains the protected local fallback. When Cloudinary is not configured, provide the persistent shared uploads mount described above.
+
 Set TRUST_PROXY only to the known proxy hop count or subnet so IP limits reflect clients correctly. Permit WebSocket upgrades and sensible upload/time limits at the proxy. Ensure private account exports/originals and API responses are not cached by a CDN. Protect Mailpit behind localhost; production uses a real SMTP service instead of a public development inbox.
 
 ## Upgrade and review

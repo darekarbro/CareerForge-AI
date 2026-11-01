@@ -16,7 +16,17 @@ const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 let db, apiServer, frontend, browser, page, directory, log = '', failed = false;
 const errors = [];
 const report = { data: 'fictional only', checks: [], screenshots: [], accessibility: [] };
-async function audit(name) { const result = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze(); const violations = result.violations.map((item) => ({ id: item.id, impact: item.impact, description: item.description, nodes: item.nodes.map((node) => ({ html: node.html, target: node.target, failureSummary: node.failureSummary })) })); report.accessibility.push({ name, violations }); if (violations.length) console.log('ACCESSIBILITY ' + name + ': ' + violations.map((item) => item.id).join(', ')); }
+async function audit(name) {
+  console.log('AUDIT ' + name); let timer;
+  try {
+    const result = await Promise.race([
+      new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze(),
+      new Promise((_, reject) => { timer = setTimeout(() => reject(new Error('Accessibility audit timed out: ' + name)), 45000); }),
+    ]);
+    const violations = result.violations.map((item) => ({ id: item.id, impact: item.impact, description: item.description, nodes: item.nodes.map((node) => ({ html: node.html, target: node.target, failureSummary: node.failureSummary })) }));
+    report.accessibility.push({ name, violations }); if (violations.length) console.log('ACCESSIBILITY ' + name + ': ' + violations.map((item) => item.id).join(', '));
+  } finally { clearTimeout(timer); }
+}
 const pass = (name) => { report.checks.push(name); console.log('PASS ' + name); };
 async function saved() {
   const button = page.getByRole('button', { name: 'Save now', exact: true });
@@ -129,11 +139,11 @@ async function run() {
   await page.getByRole('combobox', { name: /^Practice timer per question/ }).selectOption('60');
   await page.getByRole('combobox', { name: /^Feedback/ }).selectOption('end');
   await page.getByRole('button', { name: 'Start practice', exact: true }).click(); await page.waitForURL(/\/interview\/session\/[^/]+$/);
-  await page.getByRole('timer').waitFor(); await audit('interview-session'); await screenshot('interview');
+  await page.getByText('After completion', { exact: true }).waitFor(); await page.getByRole('timer').waitFor(); await audit('interview-session'); await screenshot('interview');
   for (let index = 1; index <= 3; index++) {
     await page.getByRole('button', { name: new RegExp('^Q' + index + '(?: |$)') }).click();
     await page.getByRole('textbox').fill('I define requirements and constraints, compare alternatives and trade-offs, implement validation, and use tests to verify failure recovery. My course project used Python and React to show input errors before data import.');
-    await page.getByRole('button', { name: 'Submit answer', exact: true }).click(); await page.getByText('Your Submitted Answer:', { exact: true }).waitFor();
+    await page.getByRole('button', { name: 'Submit answer', exact: true }).click(); await page.getByText('Your Submitted Answer:', { exact: true }).waitFor(); if (index < 3) await page.getByText('After completion', { exact: true }).waitFor();
   }
   await page.getByText('Answered: 3 of 3 questions completed', { exact: true }).waitFor();
   await page.getByRole('button', { name: /^Q1/ }).click(); await page.getByRole('button', { name: 'Try this answer again', exact: true }).click();

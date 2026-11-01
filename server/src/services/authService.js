@@ -108,11 +108,23 @@ class AuthService {
       });
     } else {
       if (user.deleting) throw Object.assign(new Error('This account is being deleted'), { statusCode: 403 });
+      const unverifiedLocal = user.authProvider === 'local' && !user.emailVerifiedAt && !user.firebaseUid;
+      if (unverifiedLocal) {
+        // A previously unverified password is not proof of ownership of this email.
+        const password = await require('bcryptjs').hash('firebase-' + crypto.randomBytes(24).toString('hex'), 12);
+        user = await User.findOneAndUpdate({ _id: user._id, authProvider: 'local', emailVerifiedAt: null, firebaseUid: null, deleting: { $ne: true } }, {
+          $set: { password, authProvider: 'firebase', firebaseUid: profile.uid, emailVerifiedAt: new Date() }, $inc: { authVersion: 1 },
+          $unset: { resetHash: 1, resetExpiresAt: 1, resetVersion: 1, verificationHash: 1, verificationExpiresAt: 1 },
+        }, { new: true, runValidators: true });
+        if (!user) throw Object.assign(new Error('This account changed during sign-in. Retry Google sign-in.'), { statusCode: 409 });
+        require('../config/socket').disconnectUserSockets(user._id); await require('../models/AuthSession').deleteMany({ owner: user._id });
+      }
       user.firebaseUid = user.firebaseUid || profile.uid || user.firebaseUid;
       user.name = user.name || profile.name || 'Google User';
       user.avatarUrl = user.avatarUrl || profile.picture || '';
       user.authProvider = user.authProvider || 'firebase';
       user.lastLogin = new Date();
+      user.emailVerifiedAt = user.emailVerifiedAt || new Date();
       await user.save();
     }
     if (!user.emailVerifiedAt) { user.emailVerifiedAt = new Date(); await user.save(); }
@@ -121,6 +133,9 @@ class AuthService {
   }
 
   async register({ name, email, password, targetRolePreference, userAgent }) {
+    name = require('./resumeContent').text(name, 'Name', 120);
+    targetRolePreference = require('./resumeContent').text(targetRolePreference, 'Target role', 120) || 'Fullstack Developer';
+    if (!name || typeof email !== 'string') throw Object.assign(new Error('Provide a name and email address'), { statusCode: 400 });
     if (typeof password !== 'string' || password.length < 8 || Buffer.byteLength(password) > 72) throw Object.assign(new Error('Password must contain at least 8 characters and at most 72 UTF-8 bytes'), { statusCode: 400 });
     const existingUser = await User.findOne({ email: email.trim().toLowerCase() });
     if (existingUser) {
@@ -144,6 +159,7 @@ class AuthService {
   }
 
   async login({ email, password, userAgent }) {
+    if (typeof email !== 'string' || typeof password !== 'string' || !password || password.length > 128) throw Object.assign(new Error('Provide a valid email and password'), { statusCode: 400 });
     const user = await User.findOne({ email: email.trim().toLowerCase() }).select('+password');
     if (!user || user.deleting) {
       const error = new Error('Invalid email or password');
@@ -209,11 +225,10 @@ class AuthService {
       error.statusCode = 401; error.code = 'REAUTH_REQUIRED';
       throw error;
     }
-    user.password = newPassword;
-    user.passwordChangedAt = new Date();
-    user.authVersion = (user.authVersion || 0) + 1;
-    user.resetHash = undefined; user.resetExpiresAt = undefined; user.resetVersion = undefined;
-    await user.save();
+    const password = await require('bcryptjs').hash(newPassword, 12);
+    const changed = await User.findOneAndUpdate({ _id: userId, authProvider: 'local', password: user.password, deleting: { $ne: true }, $expr: { $eq: [{ $ifNull: ['$authVersion', 0] }, user.authVersion || 0] } },
+      { $set: { password, passwordChangedAt: new Date() }, $inc: { authVersion: 1 }, $unset: { resetHash: 1, resetExpiresAt: 1, resetVersion: 1 } });
+    if (!changed) throw Object.assign(new Error('The account changed while confirming your password. Sign in again.'), { statusCode: 401, code: 'SESSION_CHANGED' });
     await require('../models/AuthSession').deleteMany({ owner: userId });
     require('../config/socket').disconnectUserSockets(userId);
     return { success: true };

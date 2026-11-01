@@ -9,7 +9,8 @@ const router = express.Router();
 router.post(
   '/register',
   [
-    body('name').trim().notEmpty().withMessage('Name is required'),
+    body('name').isString().bail().trim().isLength({ min: 1, max: 120 }).withMessage('Name must contain 1 to 120 characters'),
+    body('targetRolePreference').optional().isString().bail().trim().isLength({ min: 1, max: 120 }),
     body('email').isEmail().withMessage('Please provide a valid email'),
     body('password').isString().isLength({ min: 8, max: 128 }).custom((value) => Buffer.byteLength(value, 'utf8') <= 72).withMessage('Password must contain 8–72 UTF-8 bytes'),
     validate,
@@ -21,7 +22,7 @@ router.post(
   '/login',
   [
     body('email').isEmail().withMessage('Please provide a valid email'),
-    body('password').notEmpty().withMessage('Password is required'),
+    body('password').isString().bail().isLength({ min: 1, max: 128 }).withMessage('Provide a password of at most 128 characters'),
     validate,
   ],
   authController.login
@@ -30,7 +31,7 @@ router.post(
 router.post(
   '/firebase',
   [
-    body('idToken').notEmpty().withMessage('Firebase ID token is required'),
+    body('idToken').isString().bail().isLength({ min: 1, max: 20000 }).withMessage('Firebase ID token is required'),
     validate,
   ],
   authController.firebaseLogin

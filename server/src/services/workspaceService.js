@@ -66,7 +66,7 @@ async function details(id, owner) {
     { key: 'completedPractice', label: 'Complete a job-specific practice session', done: interviews.some((item) => item.status === 'completed' && (item.sourceRevision || 1) === (resume?.contentRevision || 1) && String(item.resumeId) === String(workspace.resumeId) && (item.workspaceRevision || 1) === (workspace.preparationRevision || 1)), automatic: true, href: '/interview/setup?workspace=' + id },
     ...Object.entries(manualSteps).map(([key, label]) => ({ key, label, done: workspace.preparation?.[key] === true, automatic: false })),
   ];
-  return { workspace, versions, interviews, application, gap, preparation };
+  return { workspace, versions, interviews: interviews.map((session) => require('./interviewVisibility').publicSession(session)), application, gap, preparation };
 }
 async function setArchived(id, owner, input, archived) {
   const expected = revision(input.revision);

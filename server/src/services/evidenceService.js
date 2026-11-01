@@ -42,7 +42,11 @@ async function archive(id, owner, value) {
 }
 function facts(content) {
   const items = [], add = (kind, title, statement, path, context = {}) => { if (statement?.trim()) items.push({ kind, title, statement: statement.trim(), path, context }); };
-  for (const group of ['technical', 'frameworks', 'tools', 'soft']) (content.skills?.[group] || []).forEach((skill, index) => add('skill', skill, skill, ['skills', group, index]));
+  const skills = new Set();
+  for (const group of ['technical', 'frameworks', 'tools', 'soft', 'all']) (content.skills?.[group] || []).forEach((skill, index) => {
+    const key = require('../providers/resumeFacts').normalizeSkill(skill);
+    if (!skills.has(key)) { skills.add(key); add('skill', skill, skill, ['skills', group, index]); }
+  });
   for (const section of ['workExperience', 'projects']) (content[section] || []).forEach((entry, index) => {
     const title = entry.title || [entry.role, entry.company].filter(Boolean).join(' at '), scope = { section, entryId: entry.entryId };
     if (section === 'projects') add('project', title, entry.description, [section, index, 'description'], scope);
@@ -72,9 +76,9 @@ async function verify(id, owner, value) {
   if (!item) { await get(id, owner); throw fail('Evidence changed elsewhere. Reload it.', 409); } return item;
 }
 const tokens = (value) => [...new Set(String(value || '').normalize('NFKC').toLowerCase().match(/[\p{L}\p{N}+#.]+/gu) || [])].filter((word) => word.length > 2).slice(0, 80);
-async function retrieve(owner, query = '', { entryIds, resumeId, limit = 24 } = {}) {
+async function retrieve(owner, query = '', { entryIds, entryContexts, resumeId, limit = 24 } = {}) {
   const words = tokens(text(query, 'Retrieval query', 1500)), filter = { owner, archivedAt: null, verification: 'confirmed' };
-  if (entryIds) filter.$or = [{ 'context.entryId': { $in: entryIds }, ...(resumeId ? { 'context.recordId': String(resumeId) } : {}) }, { kind: 'skill', 'context.entryId': { $exists: false }, ...(resumeId ? { 'source.resumeId': resumeId } : {}) }];
+  if (entryIds) filter.$or = [{ ...(entryContexts?.length ? { $or: entryContexts.map((entry) => ({ 'context.section': entry.section, 'context.entryId': entry.entryId })) } : { 'context.entryId': { $in: entryIds } }), ...(resumeId ? { 'context.recordId': String(resumeId) } : {}) }, { kind: 'skill', 'context.entryId': { $exists: false }, ...(resumeId ? { 'source.resumeId': resumeId } : {}) }];
   const records = await Evidence.find(filter).sort({ updatedAt: -1 }).limit(4000);
   return records.map((item) => {
     const terms = new Set(tokens(item.title + ' ' + item.statement + ' ' + item.technologies.join(' '))), matched = words.filter((word) => terms.has(word));

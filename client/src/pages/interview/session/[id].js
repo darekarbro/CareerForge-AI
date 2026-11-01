@@ -144,7 +144,7 @@ export default function InterviewSessionPage() {
                   Session Score
                 </span>
                 <span className="font-headline font-black text-2xl text-[#1a1a1a]">
-                  {session.overallScore || 0}%
+                  {session.feedbackMode === 'end' && session.status !== 'completed' ? 'After completion' : (session.overallScore || 0) + '%'}
                 </span>
               </div>
               <Link
