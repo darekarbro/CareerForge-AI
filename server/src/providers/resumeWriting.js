@@ -8,6 +8,7 @@ const tailoringInstructions = `Write a complete, detailed professional resume us
 - Retain at least the original number of distinct bullets for each job and project. Improve each bullet with a precise action, what was built/improved, the stated approach or tools, and the stated outcome. Aim for 20-40 words only when the source contains these details; keep concise facts concise rather than adding unsupported context or repetition.
 - Develop project descriptions into 2-3 clear sentences only when supported: problem/purpose, the candidate's contribution, implementation details and actual result. Keep individual project achievements as separate bullets.
 - Never invent responsibilities, architectures, deployment practices, team sizes, outcomes, percentages, durations or other numbers. A job description guides emphasis; it is not evidence that the candidate has a skill or achievement. Do not derive new metrics or years from dates. addedSkills must be empty.
+- A benefit or purpose is not an observed outcome. Validation, tests and documentation alone do not establish reduced errors, faster imports or improved efficiency. When an outcome is unknown, preserve that uncertainty and describe only the actual contribution.
 - Preserve what each number measures: working with three developers does not establish a three-person team. Keep the original relationship and scope when rewriting quantitative details.
 - Do not infer implementation mechanisms from a feature or technology: authenticated routes do not establish JWT, OAuth or middleware; tests do not establish Jest or CI/CD. Mention a technology or method in a job/project only when that specific source entry supports it. Skills listed elsewhere are not evidence of their use in that entry.
 - Group existing skills into technical, frameworks, tools and soft; skills.all must retain the complete supplied skill set. Do not add placeholder achievements or unsupported keywords.
@@ -40,6 +41,7 @@ function preservesResumeDetail(result, original = {}) {
       if (index < 0) return false;
       const candidate = remaining.splice(index, 1)[0];
       if (!supportedMethods(candidate, entry)) return false;
+      if (require('../services/claimValidation').outcomeIssues(resumeText({ description: candidate.description, highlights: candidate.highlights }), resumeText({ description: entry.description, highlights: entry.highlights })).length) return false;
       if (!Array.isArray(candidate.highlights) || candidate.highlights.some((line) => typeof line !== 'string' || !line.trim()) ||
         candidate.highlights.length < (entry.highlights || []).length) return false;
       if (section === 'workExperience' && Boolean(candidate.current) !== Boolean(entry.current)) return false;
@@ -57,7 +59,7 @@ function preservesResumeDetail(result, original = {}) {
   }
   const sourceNumbers = numbers(resumeText(original));
   const generatedNumbers = numbers(resumeText({ summary: result.summary, workExperience: result.workExperience, projects: result.projects }));
-  return [...generatedNumbers].every((value) => sourceNumbers.has(value)) && supportedMethods({ summary: result.summary }, original);
+  return [...generatedNumbers].every((value) => sourceNumbers.has(value)) && supportedMethods({ summary: result.summary }, original) && !require('../services/claimValidation').outcomeIssues(result.summary, resumeText(original)).length;
 }
 
 function improvementSuggestions(data = {}) {
