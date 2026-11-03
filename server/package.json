@@ -1,6 +1,7 @@
 {
   "name": "careerforge-ai-server",
   "version": "1.0.0",
+  "engines": { "node": "24.x" },
   "description": "Backend API for CareerForge AI Career Readiness Platform",
   "main": "src/server.js",
   "scripts": {

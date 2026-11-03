@@ -1,5 +1,3 @@
-const pdfParse = require('pdf-parse');
-const mammoth = require('mammoth');
 const providerFactory = require('../providers/providerFactory');
 const monitoringAgent = require('./monitoringAgent');
 
@@ -7,30 +5,9 @@ class ParserAgent {
   /**
    * Extract raw text from file buffer based on mimetype or fileType
    */
-  async extractTextFromBuffer(buffer, fileType = 'pdf') {
+  async extractTextFromBuffer(buffer, fileType = 'pdf', options = {}) {
     const type = fileType.toLowerCase();
-
-    if (type.includes('pdf')) {
-      try {
-        // Isolate PDF.js byte operations from Node Buffer's shared-view semantics.
-        const data = await pdfParse(new Uint8Array(buffer));
-        return data.text || '';
-      } catch (err) {
-        throw new Error(`PDF text extraction error: ${err.message}`);
-      }
-    }
-
-    if (type.includes('doc') || type.includes('docx') || type.includes('word')) {
-      try {
-        const result = await mammoth.extractRawText({ buffer });
-        return result.value || '';
-      } catch (err) {
-        throw new Error(`DOCX text extraction error: ${err.message}`);
-      }
-    }
-
-    // Default plain text utf-8
-    return buffer.toString('utf-8');
+    return require('../services/documentText').extract(buffer, type.includes('pdf') ? 'pdf' : /doc|word/.test(type) ? 'docx' : 'txt', { signal: require('../services/jobContext').getSignal(), ...options });
   }
 
   /**

@@ -21,6 +21,17 @@ module.exports = async ({ page, saved, screenshot, pass, audit, resumeId }) => {
   await audit('phase3-project-import-preview');
   await page.getByRole('checkbox', { name: /^I have checked these selected statements/ }).check(); await page.getByRole('button', { name: 'Import confirmed project facts', exact: true }).click();
   await page.getByText('Confirmed project facts imported.', { exact: true }).waitFor(); pass('Project document preview, source passage inspection and selective confirmed import');
+  await page.getByLabel('Project document', { exact: true }).setInputFiles({ name: 'browser-recoverable.txt', mimeType: 'text/plain', buffer: Buffer.from('I wrote Python recovery checks for fictional malformed input.\nI documented Python validation decisions for the course importer.') });
+  await page.getByRole('button', { name: 'Preview project document', exact: true }).click(); await page.getByRole('heading', { name: 'Preview: browser-recoverable.txt', exact: true }).waitFor();
+  await page.getByLabel('Project or experience for imported facts', { exact: true }).selectOption({ label: 'Browser Validation Project · Browser verified resume' });
+  await page.getByRole('checkbox', { name: 'Import source line 1', exact: true }).check(); await page.getByRole('checkbox', { name: 'Import source line 2', exact: true }).check(); await page.getByRole('checkbox', { name: /^I have checked these selected statements/ }).check();
+  const Evidence = require('../../server/src/models/CareerEvidence'), bulk = Evidence.bulkWrite;
+  Evidence.bulkWrite = async function (operations, ...options) { if (operations[0]?.updateOne?.update?.$setOnInsert?.source?.label === 'browser-recoverable.txt') { await bulk.call(this, operations.slice(0, 1), ...options); throw new Error('Synthetic import interruption'); } return bulk.call(this, operations, ...options); };
+  try { await page.getByRole('button', { name: 'Import confirmed project facts', exact: true }).click(); await page.getByRole('heading', { name: 'Finish saved project imports', exact: true }).waitFor(); }
+  finally { Evidence.bulkWrite = bulk; }
+  await page.reload(); await page.getByRole('heading', { name: 'Finish saved project imports', exact: true }).waitFor(); await audit('phase3-import-recovery');
+  await page.getByRole('button', { name: 'Finish import: browser-recoverable.txt', exact: true }).click(); await page.getByRole('heading', { name: 'Finish saved project imports', exact: true }).waitFor({ state: 'detached' });
+  assert.equal(await Evidence.countDocuments({ 'source.label': 'browser-recoverable.txt' }), 2); pass('Interrupted project imports survive reload and resume without duplicate facts');
   await page.goto('http://localhost:3030/resume/' + resumeId + '/edit'); await page.getByRole('button', { name: 'Projects', exact: true }).click(); await page.getByRole('button', { name: 'Add project', exact: true }).click();
   await page.getByLabel('Project name 3', { exact: true }).fill('Scoped copilot project'); await page.getByLabel('Project purpose and your contribution 3', { exact: true }).fill('Course importer.'); await saved();
   await page.getByRole('link', { name: 'Open evidence-backed resume copilot', exact: true }).click(); await page.getByLabel('Copilot source resume', { exact: true }).selectOption(resumeId);

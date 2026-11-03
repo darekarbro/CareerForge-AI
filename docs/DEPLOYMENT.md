@@ -38,6 +38,8 @@ The supplied Compose file is a localhost development deployment. For hosted use,
 
 Production fails startup without persistent MongoDB or a sufficiently private JWT secret. Separate process modes require Redis. Provider APIs remain optional; external sharing is per user. Never set private credentials in NEXT_PUBLIC_* variables. Firebase Admin keys, SMTP passwords and provider keys stay in the API/worker secret store. The Docker build context excludes environment files, uploads and Git metadata; containers run as a non-root user.
 
+All package manifests declare Node `24.x`; `server/.node-version` also covers a native Render service whose root directory is `server`. A dashboard `NODE_VERSION` setting takes precedence on Render, so remove an older override or set it to Node 24. See [Render's version selection rules](https://render.com/docs/node-version). Use `npm ci` for the build, `npm start` for the API and `npm run worker` for its separate worker. Deploy both from the reviewed commit, with matching shared configuration.
+
 If configured Cloudinary storage fails in production, uploads return a retryable 503 instead of silently saving the original to an ephemeral local filesystem. Development retains the protected local fallback. When Cloudinary is not configured, provide the persistent shared uploads mount described above.
 
 Set TRUST_PROXY only to the known proxy hop count or subnet so IP limits reflect clients correctly. Permit WebSocket upgrades and sensible upload/time limits at the proxy. Ensure private account exports/originals and API responses are not cached by a CDN. Protect Mailpit behind localhost; production uses a real SMTP service instead of a public development inbox.
@@ -47,5 +49,15 @@ Set TRUST_PROXY only to the known proxy hop count or subnet so IP limits reflect
 Back up MongoDB, private originals and stable encryption keys first. This release adds collections/indexes through Mongoose and preserves domain records. Existing JWTs without a session ID/issuer/audience require sign-in again. Existing local accounts need email verification, and provider-sharing defaults are off. Tell users to verify through Account & privacy and explicitly choose providers. Old six-character passwords can still sign in; newly registered/reset/changed passwords require eight characters and at most 72 UTF-8 bytes.
 
 Deploy API and worker from the same revision. Wait for worker heartbeat and `/api/health` readiness before sending traffic, then check SMTP verification/recovery on a test account and run the smoke workflow. Keep backward-compatible backups for rollback; rolling back authentication code could bypass session revocation, so stop traffic and revoke sessions before any security rollback.
+
+Run the public preflight after deployment, replacing the URLs for another environment:
+
+```bash
+npm run check:deployment -- --api=https://careerforge-backend-mg0r.onrender.com/api --frontend=https://careerforge-ai-three-eta.vercel.app
+```
+
+It reads health/database/worker readiness, the required Phase 3 OpenAPI operations, authentication guards and frontend routes. It creates no account and sends no mail or career data. A nonzero exit is a release blocker, even if `/api/health` returns 200. It does not prove private SMTP or secret configuration; complete the verified test-account smoke workflow as well. CI also runs this preflight against its rebuilt Compose stack.
+
+The public backend checked on 3 November 2026 returned 200 for health but 404 for `/api/openapi.json` and `/api/evidence/copilot`. That deployed backend must be updated before Phase 3 works in the live frontend. This observation concerns the running service; merging tested code alone does not prove the hosting service deployed it.
 
 CI installs from lockfiles using Node 24 on Ubuntu 24.04, runs backend/frontend tests, lint, the production build and Chrome journeys, then separately builds the full Compose stack and tests SMTP, worker isolation, Redis socket events/outage recovery, restart persistence, export and deletion. Official action revisions are pinned. Browser tests use the hosted runner's installed Chrome and print its version, avoiding a separate browser/dependency download. Screenshots/traces contain fictional fixture data and expire after seven days. No live API keys are needed in CI.

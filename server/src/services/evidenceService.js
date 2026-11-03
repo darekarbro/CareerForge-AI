@@ -56,12 +56,14 @@ function facts(content) {
   return items.slice(0, 500);
 }
 async function syncResume(owner, resume, content = structure.withEntryIds(resume.parsedData), sourceRevision = resume.contentRevision || 1, kind = 'resume') {
+  const signature = (fact) => JSON.stringify([fact.kind, fact.context.section, fact.context.entryId, fact.statement]);
+  const verifiedFacts = new Set(kind === 'resume' && resume.verifiedAt && sourceRevision === (resume.contentRevision || 1) ? facts(structure.withEntryIds(resume.parsedData)).map(signature) : []);
   const records = [...new Map(facts(content).map((raw) => {
     const fact = { ...raw, context: raw.context.entryId ? { ...raw.context, recordId: String(resume._id) } : raw.context };
     const key = kind + ':' + resume._id + ':' + hash(JSON.stringify([fact.context, fact.kind, fact.statement]));
     return [key, { owner, key, kind: fact.kind, title: fact.title, statement: fact.statement, technologies: extractSkills(fact.statement), context: fact.context,
       source: { kind, [kind === 'profile' ? 'profileId' : 'resumeId']: resume._id, revision: sourceRevision, path: fact.path, quote: fact.statement, label: resume.title },
-      verification: resume.verifiedAt ? 'confirmed' : 'unverified', ...(resume.verifiedAt ? { confirmedAt: resume.verifiedAt } : {}), measurement: /\d/.test(fact.statement) ? 'reported' : 'unknown' }];
+      verification: verifiedFacts.has(signature(raw)) ? 'confirmed' : 'unverified', ...(verifiedFacts.has(signature(raw)) ? { confirmedAt: resume.verifiedAt } : {}), measurement: /\d/.test(fact.statement) ? 'reported' : 'unknown' }];
   })).values()];
   const keys = records.map((item) => item.key), existing = await Evidence.countDocuments({ owner, key: { $in: keys } });
   if (await Evidence.countDocuments({ owner, archivedAt: null }) + records.length - existing > 4000) throw fail('Evidence library capacity reached. Archive or consolidate facts before importing more.', 409);
@@ -78,6 +80,8 @@ async function verify(id, owner, value) {
 const tokens = (value) => [...new Set(String(value || '').normalize('NFKC').toLowerCase().match(/[\p{L}\p{N}+#.]+/gu) || [])].filter((word) => word.length > 2).slice(0, 80);
 async function retrieve(owner, query = '', { entryIds, entryContexts, resumeId, limit = 24 } = {}) {
   const words = tokens(text(query, 'Retrieval query', 1500)), filter = { owner, archivedAt: null, verification: 'confirmed' };
+  const pending = await require('../models/EvidenceSource').find({ owner, importPending: true }).select('_id');
+  if (pending.length) filter['source.sourceId'] = { $nin: pending.map((source) => source._id) };
   if (entryIds) filter.$or = [{ ...(entryContexts?.length ? { $or: entryContexts.map((entry) => ({ 'context.section': entry.section, 'context.entryId': entry.entryId })) } : { 'context.entryId': { $in: entryIds } }), ...(resumeId ? { 'context.recordId': String(resumeId) } : {}) }, { kind: 'skill', 'context.entryId': { $exists: false }, ...(resumeId ? { 'source.resumeId': resumeId } : {}) }];
   const records = await Evidence.find(filter).sort({ updatedAt: -1 }).limit(4000);
   return records.map((item) => {
@@ -91,6 +95,7 @@ async function list(owner, options = {}) {
   if (options.search) { const term = text(options.search, 'Search', 160).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); filter.$or = [{ title: new RegExp(term, 'i') }, { statement: new RegExp(term, 'i') }]; }
   const page = Number(options.page || 1); if (!Number.isInteger(page) || page < 1 || page > 80) throw fail('Choose a valid evidence page');
   const [items, total] = await Promise.all([Evidence.find(filter).sort({ updatedAt: -1, _id: 1 }).skip((page - 1) * 50).limit(50), Evidence.countDocuments(filter)]);
-  return { items, total, page, pageSize: 50 };
+  const pendingImports = await require('../models/EvidenceSource').find({ owner, importPending: true }).select('title kind revision').sort({ createdAt: 1 }).limit(20);
+  return { items, total, page, pageSize: 50, pendingImports };
 }
 module.exports = { get, input, context, save, archive, verify, facts, syncResume, retrieve, list, snapshot, hash, tokens };

@@ -70,6 +70,7 @@ jobs:
       - run: docker compose --env-file .env.compose config --quiet
       - run: docker compose --env-file .env.compose up --build -d --wait --wait-timeout 180
       - run: node scripts/testCompose.cjs
+      - run: node scripts/checkDeployment.cjs --api=http://localhost:5000/api --frontend=http://localhost:3000
       - name: Collect container diagnostics
         if: failure()
         run: docker compose --env-file .env.compose logs --no-color --tail 150 > compose-failure.log

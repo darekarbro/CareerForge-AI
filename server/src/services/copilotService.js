@@ -5,7 +5,23 @@ const { plain } = require('../providers/resumeFacts');
 const structure = require('./resumeStructure');
 const { createJob, dispatchJob } = require('./jobService');
 const MAX_STEPS = 8;
+async function inputChange(run, owner) {
+  const resume = await require('../models/Resume').findOne({ _id: run.resumeId, owner, deleting: { $ne: true } }).select('contentRevision');
+  if (!resume || (resume.contentRevision || 1) !== (run.sourceRevision || 1)) return 'The source resume changed. Start a new copilot run with its latest verified facts.';
+  if (run.workspaceId) {
+    const workspace = await require('../models/JobWorkspace').findOne({ _id: run.workspaceId, owner }).select('resumeId preparationRevision archivedAt');
+    if (!workspace || workspace.archivedAt || String(workspace.resumeId) !== String(run.resumeId) || (workspace.preparationRevision || 1) !== (run.workspaceRevision || 1)) return 'The job workspace changed. Start a new copilot run with its latest selected entries.';
+  }
+  return '';
+}
 async function get(id, owner) { const run = await Run.findOne({ _id: id, owner }); if (!run) throw fail('Copilot run not found', 404); return run; }
+async function withJobStatus(owner, runs) {
+  const jobs = await require('../models/ProcessingJob').find({ owner, _id: { $in: runs.map((run) => run.jobId).filter(Boolean) } }).select('status error.message');
+  const byId = new Map(jobs.map((job) => [String(job._id), job]));
+  return runs.map((run) => { const job = byId.get(String(run.jobId)); return { ...run.toObject(), jobStatus: job?.status, jobError: job?.error?.message }; });
+}
+async function details(id, owner) { return (await withJobStatus(owner, [await get(id, owner)]))[0]; }
+async function list(owner) { return withJobStatus(owner, await Run.find({ owner }).sort({ createdAt: -1 }).limit(50)); }
 function questions(content) {
   const result = [];
   for (const section of ['projects', 'workExperience']) for (const entry of content[section] || []) {
@@ -46,12 +62,15 @@ async function process(execution) {
   if (existing) return commit(async () => { await require('./workspaceService').link(job, { $set: { latestVersionId: existing._id } }); const completed = await Run.findOneAndUpdate({ _id: run._id, owner: job.owner }, { $set: { status: 'draft_ready', versionId: existing._id } }, { new: true }); return { copilotRun: completed, tailoredResume: existing }; });
   const resume = await require('./resumeService').getReadyResume(run.resumeId, job.owner), source = structure.withEntryIds(input.sourceSnapshot);
   await step('inspect', 'Inspect the saved source and selected entries before generating new wording.');
+  const changed = await inputChange(run, job.owner);
+  if (changed) { await step('review', changed); return commit(async () => ({ copilotRun: await Run.findOneAndUpdate({ _id: run._id, owner: job.owner }, { $set: { status: 'review_recommended', trace }, $inc: { revision: 1 } }, { new: true }) })); }
   const sourceRecords = await library.syncResume(job.owner, resume, source, input.sourceRevision);
   const scope = run.scope || 'all', focus = structure.scopedContent(source, scope), baseFacts = library.facts(focus);
   const entryContexts = ['workExperience', 'projects'].flatMap((section) => focus[section].map((entry) => ({ section, entryId: entry.entryId })));
   const ids = entryContexts.map((entry) => entry.entryId);
   const retrievalQuery = library.tokens(run.targetRole + ' ' + input.jobDescriptionText).join(' ').slice(0, 1500);
-  const retrieval = await library.retrieve(job.owner, retrievalQuery, { entryIds: ids, entryContexts, resumeId: run.resumeId, limit: 30 });
+  const currentSourceIds = new Set(sourceRecords.map((item) => String(item._id)));
+  const retrieval = (await library.retrieve(job.owner, retrievalQuery, { entryIds: ids, entryContexts, resumeId: run.resumeId, limit: 30 })).filter((item) => item.source?.kind !== 'resume' || currentSourceIds.has(item.id));
   await step('retrieve', 'Retrieve confirmed facts within the selected experience and project scope.', retrieval.map((item) => item.id));
   const evidenceSnapshot = [...new Map([...sourceRecords.map(library.snapshot), ...retrieval].map((item) => [item.id, item])).values()], confirmed = evidenceSnapshot.filter((item) => item.verification === 'confirmed');
   input.baseSourceSnapshot = plain(source);
@@ -78,6 +97,8 @@ async function process(execution) {
   await step('rewrite', scope === 'all' ? 'Generate one resume draft from the confirmed source snapshot; keep changes for user review.' : 'Rewrite only the selected section or entry and preserve the rest of the resume.', confirmed.map((item) => item.id).slice(0, 50));
   return require('./tailoringService').processTailoring({ ...execution, commit: async (write) => {
     await step('validate', 'Check each claim against its own entry and attach supporting evidence. Unsupported wording is withheld.');
+    const changed = await inputChange(run, job.owner);
+    if (changed) { await step('review', changed); return commit(async () => ({ copilotRun: await Run.findOneAndUpdate({ _id: run._id, owner: job.owner }, { $set: { status: 'review_recommended', trace, retrieval }, $inc: { revision: 1 } }, { new: true }) })); }
     await step('review', 'Recommend individual review of the new draft and its evidence. No source profile or resume is overwritten.');
     return commit(async () => { const output = await write(); const completed = await Run.findOneAndUpdate({ _id: run._id, owner: job.owner }, { $set: { status: 'draft_ready', versionId: output.tailoredResume._id, trace, retrieval }, $inc: { revision: 1 } }, { new: true }); return { ...output, copilotRun: completed }; });
   } });
@@ -94,6 +115,9 @@ async function answer(id, owner, input) {
   const resume = await require('./resumeService').getReadyResume(run.resumeId, owner);
   if ((resume.contentRevision || 1) !== run.sourceRevision) throw fail('The resume changed since these questions. Start a new copilot run with the latest facts.', 409);
   let workspace; if (run.workspaceId) { workspace = await require('./workspaceService').inputs(run.workspaceId, owner); if (String(workspace.resumeId) !== String(run.resumeId) || workspace.workspaceRevision !== run.workspaceRevision) throw fail('The job workspace changed. Start a new copilot run with its latest inputs.', 409); }
+  const Evidence = require('../models/CareerEvidence'), keys = answers.filter((answer) => answer.text).map((answer) => 'clarification:' + id + ':' + answer.question.id);
+  const existing = keys.length ? await Evidence.countDocuments({ owner, key: { $in: keys } }) : 0;
+  if (await Evidence.countDocuments({ owner, archivedAt: null }) + keys.length - existing > 4000) throw fail('Evidence library capacity reached. Archive older facts before saving these answers.', 409);
   const claimed = await Run.findOneAndUpdate({ _id: id, owner, revision: input.revision, status: 'needs_input' }, { $set: { status: 'planning', clarified: true, answers: answers.map((item) => ({ questionId: item.question.id, text: item.text, skipped: !item.text })) }, $inc: { revision: 1 } }, { new: true });
   if (!claimed) throw fail('This run is already continuing. Reload it.', 409);
   try {
@@ -101,4 +125,4 @@ async function answer(id, owner, input) {
     return await dispatch(claimed, owner, { sourceSnapshot: structure.selectedContent(resume, workspace?.resumeSelection), rewriteScope: run.scope || 'all', sourceRevision: run.sourceRevision, targetRole: run.targetRole, jobDescriptionText: workspace?.jobDescriptionText || run.jobDescriptionText || '', presentation: structure.presentation(resume.presentation), workspaceRevision: workspace?.workspaceRevision });
   } catch (error) { await Run.updateOne({ _id: id, owner, revision: claimed.revision }, { $set: { status: 'needs_input' } }); throw error; }
 }
-module.exports = { start, process, answer, get, questions, MAX_STEPS };
+module.exports = { start, process, answer, get, details, list, questions, MAX_STEPS };

@@ -49,7 +49,7 @@ async function exportData(user, input) {
   await reauthenticate(user, input);
   if (input.includeOriginals !== undefined && typeof input.includeOriginals !== 'boolean') throw fail('Choose whether to include original files');
   const owner = user._id, data = { formatVersion: 1, exportedAt: new Date().toISOString(), account: require('./authService').publicUser(user), privacy: preferences(user), records: {} };
-  const keys = { Resume: '-originalFileStorage -originalFileUrl', ProcessingJob: '-inputRef.rawInput -leaseOwner -executionOwner -error.stack', JobPayload: '_id jobId createdAt expiresAt', AuthSession: 'device createdAt expiresAt' };
+  const keys = { Resume: '-originalFileStorage -originalFileUrl', ProcessingJob: '-inputRef.rawInput -leaseOwner -executionOwner -error.stack', JobPayload: '_id jobId createdAt expiresAt', AuthSession: 'device createdAt expiresAt', EvidenceSource: '+pendingImport' };
   for (const name of ownedCollections) data.records[name] = await model(name).find({ owner }).select(keys[name] || '').lean();
   const sessions = data.records.InterviewSession.map((item) => item._id);
   data.records.InterviewQuestion = await model('InterviewQuestion').find({ sessionId: { $in: sessions } }).lean();

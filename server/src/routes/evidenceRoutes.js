@@ -19,9 +19,9 @@ router.post('/imports/document', aiLimiter, require('../middlewares/upload').sin
 router.get('/imports/:id', wrap((req) => imports.get(req.params.id, req.user._id)));
 router.post('/imports/:id/confirm', wrap((req) => imports.confirm(req.params.id, req.user._id, req.body)));
 router.delete('/imports/:id', wrap((req) => imports.discard(req.params.id, req.user._id)));
-router.get('/copilot', wrap((req) => require('../models/CopilotRun').find({ owner: req.user._id }).sort({ createdAt: -1 }).limit(50)));
+router.get('/copilot', wrap((req) => copilot.list(req.user._id)));
 router.post('/copilot', aiLimiter, wrap((req) => copilot.start(req.user._id, req.body), 202));
-router.get('/copilot/:id', wrap(async (req) => { const run = await copilot.get(req.params.id, req.user._id); const job = run.jobId ? await require('../models/ProcessingJob').findOne({ _id: run.jobId, owner: req.user._id }).select('status error.message') : null; return { ...run.toObject(), jobStatus: job?.status, jobError: job?.error?.message }; }));
+router.get('/copilot/:id', wrap((req) => copilot.details(req.params.id, req.user._id)));
 router.post('/copilot/:id/answers', aiLimiter, wrap((req) => copilot.answer(req.params.id, req.user._id, req.body), 202));
 router.get('/:id', wrap((req) => library.get(req.params.id, req.user._id)));
 router.put('/:id', wrap((req) => library.save(req.user._id, req.body, req.params.id)));

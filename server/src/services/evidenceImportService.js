@@ -47,13 +47,31 @@ async function document(owner, file) {
   const type = require('node:path').extname(file.originalname).slice(1).toLowerCase();
   if (!['pdf', 'docx', 'txt'].includes(type)) throw fail('Choose a PDF, DOCX or TXT project document');
   let sourceText;
-  try { sourceText = await require('../agents/parserAgent').extractTextFromBuffer(file.buffer, type); }
-  catch { throw fail('This project document could not be read. Use an unencrypted PDF, DOCX or UTF-8 TXT file.', 400); }
+  try { sourceText = await require('../agents/parserAgent').extractTextFromBuffer(file.buffer, type, { maxChars: 48000 }); }
+  catch (error) { if ([408, 413, 503].includes(error.statusCode)) throw error; throw fail('This project document could not be read. Use an unencrypted PDF, DOCX or UTF-8 TXT file.', 400); }
   return create(owner, { kind: 'document', title: file.originalname.slice(0, 180), sourceText, metadata: { fileType: type, originalRetained: false, note: 'Only extracted text is retained; the uploaded file is not stored or sent to AI during preview.' }, technologies: [] });
 }
-async function get(id, owner) { const item = await Source.findOne({ _id: id, owner, $or: [{ confirmedAt: { $ne: null } }, { expiresAt: { $gt: new Date() } }] }); if (!item) throw fail('Import preview not found or expired', 404); return item; }
+async function get(id, owner, pending = false) { const query = Source.findOne({ _id: id, owner, $or: [{ confirmedAt: { $ne: null } }, { expiresAt: { $gt: new Date() } }] }); if (pending) query.select('+pendingImport'); const item = await query; if (!item) throw fail('Import preview not found or expired', 404); return item; }
+async function finish(source, owner) {
+  const items = source.pendingImport || [], keys = items.map((item) => item.key);
+  try {
+    if (!items.length) throw new Error('Missing saved import');
+    try { await Evidence.bulkWrite(items.map((item) => ({ updateOne: { filter: { owner, key: item.key }, update: { $setOnInsert: item }, upsert: true } }))); }
+    catch (error) { if (error.code !== 11000 || await Evidence.countDocuments({ owner, key: { $in: keys } }) !== items.length) throw error; }
+    await Source.updateOne({ _id: source._id, owner, revision: source.revision, importPending: true }, { $set: { importPending: false }, $unset: { pendingImport: 1 }, $inc: { revision: 1 } });
+    return { source: await get(source._id, owner), items: await Evidence.find({ owner, key: { $in: keys } }) };
+  } catch { throw Object.assign(fail('Your confirmed import is saved but did not finish. Retry it from the evidence library.', 503), { code: 'IMPORT_PENDING' }); }
+}
 async function confirm(id, owner, input) {
-  const source = await get(id, owner);
+  const source = await get(id, owner, true);
+  if (source.importPending) {
+    if (Object.keys(input).some((key) => !['revision', 'confirmFacts', 'retry'].includes(key)) || input.retry !== true || input.confirmFacts !== true || source.revision !== revision(input.revision)) throw fail('This saved import needs recovery. Finish it from the evidence library.', 409);
+    return finish(source, owner);
+  }
+  if (source.confirmedAt) {
+    if (input.retry === true && input.confirmFacts === true && !Object.keys(input).some((key) => !['revision', 'confirmFacts', 'retry'].includes(key)) && [source.revision, source.revision - 1].includes(revision(input.revision))) return { source: await get(id, owner), items: await Evidence.find({ owner, 'source.sourceId': source._id }) };
+    throw fail('This preview was already imported. Reload it.', 409);
+  }
   if (Object.keys(input).some((key) => !['revision', 'items', 'confirmFacts', 'context'].includes(key)) || input.confirmFacts !== true || !Array.isArray(input.items) || !input.items.length || input.items.length > 40) throw fail('Select facts and confirm your personal contribution');
   if (source.confirmedAt || source.revision !== revision(input.revision)) throw fail('This preview was already imported or changed. Reload it.', 409);
   const scope = await library.context(owner, input.context), ids = new Set();
@@ -65,11 +83,9 @@ async function confirm(id, owner, input) {
     return { owner, key: 'import:' + source._id + ':' + candidate.id, ...data, context: scope, source: { kind: source.kind, sourceId: source._id, quote: candidate.quote, url: source.url, label: source.title, path: ['line', candidate.line] } };
   });
   if (await Evidence.countDocuments({ owner, archivedAt: null }) + items.length > 4000) throw fail('Evidence library capacity reached', 409);
-  const claimed = await Source.findOneAndUpdate({ _id: id, owner, revision: input.revision, confirmedAt: null }, { $set: { confirmedAt: new Date() }, $unset: { expiresAt: 1 }, $inc: { revision: 1 } }, { new: true });
+  const claimed = await Source.findOneAndUpdate({ _id: id, owner, revision: input.revision, confirmedAt: null }, { $set: { confirmedAt: new Date(), importPending: true, pendingImport: items }, $unset: { expiresAt: 1 }, $inc: { revision: 1 } }, { new: true }).select('+pendingImport');
   if (!claimed) throw fail('This preview was already imported. Reload it.', 409);
-  try { await Evidence.bulkWrite(items.map((item) => ({ updateOne: { filter: { owner, key: item.key }, update: { $setOnInsert: item }, upsert: true } }))); }
-  catch (error) { await Source.updateOne({ _id: id, owner }, { $unset: { confirmedAt: 1 }, $set: { expiresAt: new Date(Date.now() + 86400000) } }); throw error; }
-  return { source: claimed, items: await Evidence.find({ owner, key: { $in: items.map((item) => item.key) } }) };
+  return finish(claimed, owner);
 }
 async function discard(id, owner) { const source = await get(id, owner); if (source.confirmedAt) throw fail('This source supports saved evidence. Archive its facts in the library; full account deletion removes source records.', 409); await Source.deleteOne({ _id: id, owner, confirmedAt: null }); return { discarded: true }; }
 module.exports = { repository, candidates, github, document, get, confirm, discard };
