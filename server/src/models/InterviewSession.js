@@ -11,6 +11,7 @@ const interviewSessionSchema = new mongoose.Schema(
     timeLimitSeconds: { type: Number, default: 0 },
     topicFocus: { type: String, default: '' },
     feedbackMode: { type: String, enum: ['instant', 'end'], default: 'instant' },
+    adaptiveEnabled: { type: Boolean, default: false },
     answerScores: { type: mongoose.Schema.Types.Mixed, default: {} },
     owner: {
       type: mongoose.Schema.Types.ObjectId,

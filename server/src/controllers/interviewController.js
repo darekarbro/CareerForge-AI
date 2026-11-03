@@ -17,6 +17,7 @@ const startSession = async (req, res, next) => {
       jobDescriptionId,
       count: count ?? 5,
       difficulty: req.body.difficulty, timeLimitSeconds: req.body.timeLimitSeconds, topicFocus: req.body.topicFocus, feedbackMode: req.body.feedbackMode,
+      adaptiveEnabled: req.body.adaptiveEnabled,
     });
 
     res.status(202).json({

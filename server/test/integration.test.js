@@ -198,7 +198,7 @@ test('13,20,27: an eight-question JD-aware interview completes after all eight a
   const account = await user(), resume = await ready(account.id);
   const jd = await Description.create({ owner: account.id, targetRole: 'Backend Engineer', rawText: 'Docker required' });
   const generated = await successfulJob(await request('POST', '/api/interview/sessions', { token: account.token,
-    body: { resumeId: String(resume._id), targetRole: 'Backend Engineer', count: 8, jobDescriptionId: String(jd._id) } }));
+    body: { resumeId: String(resume._id), targetRole: 'Backend Engineer', count: 8, jobDescriptionId: String(jd._id), adaptiveEnabled: false } }));
   assert.equal(generated.questions.length, 8); assert(generated.questions[0].questionText.includes('Docker'));
   // Submit independently queued answers concurrently to exercise atomic session aggregates.
   const responses = await Promise.all(generated.questions.map((question) => request('POST',
@@ -484,7 +484,7 @@ test('Resume exports preserve full long-form content across three layouts and ed
 test('Interview modes hide feedback until completion and retries replace scores without inflating counts', async () => {
   const a = await user(), resume = await ready(a.id);
   const output = await successfulJob(await request('POST', '/api/interview/sessions', { token: a.token, body: {
-    resumeId: String(resume._id), targetRole: 'Backend Engineer', count: 3, difficulty: 'Easy', timeLimitSeconds: 120, feedbackMode: 'end', topicFocus: 'API design',
+    resumeId: String(resume._id), targetRole: 'Backend Engineer', count: 3, difficulty: 'Easy', timeLimitSeconds: 120, feedbackMode: 'end', topicFocus: 'API design', adaptiveEnabled: false,
   } }));
   const session = output.session, questions = output.questions;
   assert(questions.every((item) => !item.suggestedAnswer && item.difficulty === 'Easy' && item.topic === 'API design'));
@@ -661,6 +661,7 @@ require('./phase2Cases.cjs')({ test, assert, request, user, ready, facts, succes
 require('./phase3Cases.cjs')({ test, assert, request, user, ready, facts, successfulJob, Resume, Tailored });
 require('./mainAuditCases.cjs')({ test, assert, request, user, ready, facts, successfulJob, Resume });
 require('./phase3ReadinessCases.cjs')({ test, assert, request, user, ready, facts, successfulJob, Resume, Tailored });
+require('./phase4InterviewCases.cjs')({ test, assert, request, user, ready, successfulJob });
 
 test('43: an unavailable configured database falls back in development and fails closed in production', async () => {
   const env = require('../src/config/env');

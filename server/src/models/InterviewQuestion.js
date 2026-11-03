@@ -41,6 +41,14 @@ const interviewQuestionSchema = new mongoose.Schema(
     },
     evaluationJobId: { type: mongoose.Schema.Types.ObjectId, ref: 'ProcessingJob' },
     evaluatedByJobId: mongoose.Schema.Types.ObjectId,
+    adaptationResolvedAt: Date,
+    adaptation: {
+      policyVersion: String,
+      kind: { type: String, enum: ['clarification', 'deeper', 'diagnostic'] },
+      parentQuestionId: mongoose.Schema.Types.ObjectId,
+      sourceAnswerExcerpt: String,
+      reason: String,
+    },
     attempts: [{ userAnswer: String, feedback: mongoose.Schema.Types.Mixed, answeredAt: Date }],
     feedback: {
       clarityScore: { type: Number, min: 0, max: 100 },

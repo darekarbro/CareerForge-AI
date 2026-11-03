@@ -7,12 +7,12 @@ function publicSession(record, visibility = record) {
 }
 function publicQuestion(record, session) {
   const value = plain(record);
-  if (hidden(session)) for (const key of ['feedback', 'suggestedAnswer', 'keyPoints', 'attempts']) delete value[key];
+  if (hidden(session)) for (const key of ['feedback', 'suggestedAnswer', 'keyPoints', 'attempts', 'adaptation']) delete value[key];
   return value;
 }
 function publicOutput(output, session) {
   if (!output) return output;
-  return { ...plain(output), ...(output.session ? { session: publicSession(output.session, session) } : {}), ...(output.question ? { question: publicQuestion(output.question, session) } : {}), ...(output.questions ? { questions: output.questions.map((item) => publicQuestion(item, session)) } : {}) };
+  return { ...plain(output), ...(output.session ? { session: publicSession(output.session, session) } : {}), ...(output.question ? { question: publicQuestion(output.question, session) } : {}), ...(output.followUpQuestion ? { followUpQuestion: publicQuestion(output.followUpQuestion, session) } : {}), ...(output.questions ? { questions: output.questions.map((item) => publicQuestion(item, session)) } : {}) };
 }
 function publicEvent(record, session) {
   const value = plain(record);
