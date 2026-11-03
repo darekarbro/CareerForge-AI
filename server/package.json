@@ -1,6 +1,7 @@
 {
   "name": "careerforge-ai-server",
   "version": "1.0.0",
+  "engines": { "node": "24.x" },
   "description": "Backend API for CareerForge AI Career Readiness Platform",
   "main": "src/server.js",
   "scripts": {
@@ -51,6 +52,10 @@
     "pdfkit": "^0.16.0",
     "socket.io": "^4.8.1",
     "swagger-ui-express": "^5.0.1"
+  },
+  "overrides": {
+    "glob": "^14.0.2",
+    "minimatch": "^11.0.1"
   },
   "devDependencies": {
     "@apidevtools/swagger-parser": "^13.1.0",

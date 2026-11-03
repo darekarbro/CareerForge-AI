@@ -1,6 +1,6 @@
 # Phase 3: evidence-backed resume copilot
 
-Completed on 31 October 2026. Review branch `Phase-3`, based on `Phase-2`. No merge is part of this work.
+Initial delivery completed on 31 October 2026 on `Phase-3`, based on `Phase-2`. Phase 3 has since reached `main`. The current readiness fixes are reviewed in [PR #10](https://github.com/darekarbro/CareerForge-AI/pull/10); no merge or hosted deployment is part of this review.
 
 - [x] Structured career evidence with stable IDs, revisions, verification and measurement states.
 - [x] Inspectable evidence IDs, source passages and current verification for rewritten resume claims.
@@ -23,7 +23,7 @@ Generated claims are checked against their own entry and receive inspectable cit
 
 GitHub ownership and individual contribution are user attested, not externally verified. Document previews are extracted locally and public repository previews use bounded GitHub API reads; preview text is not sent to AI. Structured retrieval is sufficient at the bounded library size, so this phase introduces no vector database or embedding service.
 
-## Validation
+## Initial delivery validation
 
 Career test data is fictional and isolated. The optional live GitHub check previewed this public repository and discarded it without sending its README to AI. Real keys, environment files, temporary databases and generated test evidence remain excluded from Git.
 
@@ -50,6 +50,22 @@ Regression coverage includes cross-account ownership, stable/rejected evidence a
 
 Diagnostic live runs exposed entry-specific factual drift and synthetic quota waits exceeding the runner's provider deadline. The factual correction preserves the validator's rejection rules. Acceptance-only pacing now gives its artificial waits a longer test deadline; application deadlines are unchanged. One fixture also required explicit confirmation of facts collected before source verification, exercising the intended preservation of verification decisions.
 
-Automated accessibility audits are not a complete conformance assessment. Factual checks and lexical citations cannot prove every claim's meaning, authorship or causality. Review is still required. GitHub public quotas, source limits and durable record retention are described in the [workflow guide](docs/PHASE3_WORKFLOWS.md). Existing upstream moderate dependency findings remain documented in the [audit](docs/DEPENDENCY_AUDIT.md).
+Automated accessibility audits are not a complete conformance assessment. Factual checks and lexical citations cannot prove every claim's meaning, authorship or causality. Review is still required. GitHub public quotas, source limits and durable record retention are described in the [workflow guide](docs/PHASE3_WORKFLOWS.md). The dependency findings from the initial delivery were subsequently resolved; current results are in the [audit](docs/DEPENDENCY_AUDIT.md).
 
-GitHub application and container checks run again on the pushed review head. The branch is intended for manual review and remains unmerged.
+## Readiness follow-up — 3 November 2026
+
+The review found and fixed additional failure and concurrency paths:
+
+- Interrupted project imports retain a durable confirmation manifest, resume after a restart/reload, tolerate retries without duplicate facts, and remain excluded from retrieval/citations until complete. Account archives retain pending choices.
+- Citation refresh invalidates edited technologies/measurement context and removes revoked support from historical withheld suggestions.
+- Historical or enriched version content cannot inherit verification from a different current source; removed source facts stay out of new copilot retrieval while library history is preserved.
+- Queued copilot runs recheck source/workspace revisions before processing and before committing a draft. Changed inputs end in a visible review recommendation, with no stale draft saved.
+- Clarification capacity is checked before pending answers are consumed. Failed background jobs show their terminal state. Leaving a copilot page stops its waiter without cancelling work or redirecting back later.
+- PDF/DOCX parsing has worker heap/time bounds, bounded concurrency/waiting and ZIP expansion checks; malformed UTF-8 and oversized text are rejected. Valid PDF, DOCX and Unicode export regressions remain covered.
+- Node 24 is explicit for hosting. A read-only deployment preflight verifies Phase 3 routes, auth guards and worker/database readiness, and runs against Compose in CI.
+
+Current local validation: **129 backend tests, 39 frontend tests, lint with zero warnings, all 29 production pages, 24 browser workflow groups and 42 WCAG A/AA audits passed, with zero accessibility violations.** Full and production-only dependency audits report zero vulnerabilities in both trees. No tests were skipped.
+
+Rebuilt API, worker and frontend images passed all six Compose acceptance groups, including interrupted dependencies, persisted jobs, SMTP, exports and deletion. All seven deployment preflight checks passed against this rebuilt stack. Live Groq passed 16 checks using 14 real requests across all six AI actions and the scoped evidence copilot, with fallback disabled; the public GitHub import preview was also tested and discarded without AI sharing. Exact-head CI results are available on PR #10. Test career data is fictional and private environment files remain excluded from Git.
+
+The public Render backend currently answers health but returns 404 for the Phase 3 API contract and copilot route. It must be deployed from the reviewed code along with the matching worker before the live frontend can use Phase 3. See [deployment instructions and the preflight command](docs/DEPLOYMENT.md). Passing repository checks is distinct from verifying the existing hosted service.

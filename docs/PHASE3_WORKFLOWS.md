@@ -25,6 +25,8 @@ Inspect the original text, select individual passages, rewrite them as your **ow
 
 Only selected passages enter the library, as confirmed facts linked to the chosen context. Their original passage and source URL remain inspectable even after the statement is edited. Confirmation is revision checked and single use. Discard an unused preview; unconfirmed previews expire after 24 hours. Confirmed sources support citations and cannot be discarded independently: archive their facts to stop retrieval, or use full account deletion to remove source records.
 
+An interrupted confirmation saves the chosen facts durably and appears under **Finish saved project imports**, including after a reload. Use its finish button to resume the same confirmed selection; retrying does not create duplicates or overwrite later edits. Partial imports are excluded from retrieval and citations until the entire selection is saved. Account archives include the pending selection. Normal confirmation remains single use; the explicit recovery action is idempotent.
+
 ## Run the copilot
 
 1. Verify and save your source resume. Confirm any earlier unverified library facts needed by the selected scope.
@@ -56,6 +58,8 @@ flowchart TD
 
 Queued runs use the existing owner checks, provider-sharing preferences, encrypted retry inputs, cancellation checkpoints and durable worker recovery. A recovered commit reconnects its saved version instead of generating a duplicate. Changing source or workspace inputs before clarification continues returns a conflict before saving new facts. Failed/cancelled jobs can be inspected in Activity.
 
+Source and workspace revisions are also rechecked when a queued run starts and before its draft is committed. Changes end the run with a visible recommendation to start again with the latest facts, without saving a stale draft. Removed source facts stay in library history but are excluded from new copilot retrieval. Historical or evidence-enriched version content cannot inherit verification from a different current source. Clarification respects the library limit before consuming the pending answers. Leaving the page stops its local waiter while the background job continues; failed jobs are labelled failed in both results and history.
+
 ## Inspect a claim
 
 Expand **Evidence behind this resume** on a tailored version. Each summary, project description and experience/project bullet shows matching evidence IDs, source quotes, verification states and measurement notes. Newly generated versions store snapshots; older versions can collect source evidence explicitly.
@@ -64,6 +68,8 @@ Known quantities, technologies, implementation mechanisms and selected responsib
 
 Rechecking uses current library verification. Rejected, archived, deleted, edited or moved evidence loses its earlier eligibility. A statement can therefore need confirmation after its supporting evidence changes. Existing saved resume content and application snapshots remain reviewable; rechecking does not silently rewrite a past application.
 
+Material changes include technologies and measurement context, even when the statement text is unchanged. Verification-only updates can promote an unchanged fact. Historical withheld suggestions also refresh their citations, so a revoked fact cannot keep an old “confirmed” label there.
+
 Checks are conservative heuristics. Lexical citations can be relevant without proving complete semantic entailment. They do not prove authorship, validate every possible technology or detect every invented claim. Review meaning, causal relationships and scope before using a resume. A resume quality estimate is a writing aid, not an employer's ATS result.
 
 ## Bounds and retention
@@ -71,6 +77,7 @@ Checks are conservative heuristics. Lexical citations can be relevant without pr
 - A library allows 4,000 active facts, with 50 records per page. Collection takes at most 500 facts from one source snapshot.
 - Retrieval ranks normalized matching terms within owned confirmed facts, returning up to 24 library matches or 30 copilot matches. Copilot relevance uses up to 80 terms/1,500 characters; the full permitted source and job description still follow the provider's existing input rules. There is no embedding service or vector database in this phase.
 - Previews accept existing 10 MB upload limits and at most 48,000 extracted characters; up to 40 candidate passages are shown. Large sources require a smaller relevant excerpt, not silent truncation into an asserted fact.
+- PDF/DOCX extraction uses a separate worker with a 15-second execution deadline and bounded JavaScript heap. Each process allows two active parser workers and eight waiting requests, with a 15-second waiting limit; overload returns a retryable busy response. DOCX preflight limits archives to 500 files, 16 MB per expanded file and 32 MB total, checking actual output as well as declared ZIP sizes. Invalid UTF-8, over-limit output and complex documents are rejected. Cancellation terminates an active parser or removes its queued request.
 - Confirmed facts longer than an editable bullet limit are retained in the library but not automatically inserted as bullets. An over-limit combined resume ends with a review recommendation.
 - Facts, confirmed source records and copilot decisions are durable career records. The processing activity/log retention setting applies to supporting job records, not these saved career records. Account export includes all three new collections; full deletion removes them.
 - Deleting a source resume removes its automatically collected evidence and copilot runs. Independently confirmed manual/imported facts remain reusable library records until archived or the account is deleted. Relink them before using them with a different source.
@@ -85,4 +92,4 @@ The explicit live command below consumes Groq quota, disables fallback, uses fic
 node server/scripts/testGroqLive.js --live --evidence --public-repo=darekarbro/CareerForge-AI
 ```
 
-Safe live metrics are written to `.test-tmp/groq-evidence-results.json`; synthetic PDF/browser evidence and temporary databases are ignored by Git. See [Phase 3 results](../PHASE3.md) and the [dependency audit](DEPENDENCY_AUDIT.md) for the final validation scope and remaining upstream advisories.
+Safe live metrics are written to `.test-tmp/groq-evidence-results.json`; synthetic PDF/browser evidence and temporary databases are ignored by Git. See [Phase 3 results](../PHASE3.md) and the [dependency audit](DEPENDENCY_AUDIT.md) for validation and dependency results. Before releasing, run the read-only deployment preflight described in [the deployment guide](DEPLOYMENT.md); a healthy old backend without Phase 3 routes does not pass.
