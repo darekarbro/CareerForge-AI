@@ -10,6 +10,7 @@ const router = express.Router();
 router.use(protect);
 
 router.get('/analytics', interviewController.getAnalytics);
+router.get('/competencies', async (req, res, next) => { try { res.json({ success: true, data: await require('../services/competencyService').getProfile(req.user._id) }); } catch (error) { next(error); } });
 router.get('/sessions', interviewController.listSessions);
 router.get('/descriptions', async (req, res, next) => { try { res.json({ success: true, data: await require('../models/JobDescription').find({ owner: req.user._id }).sort({ createdAt: -1 }).select('title targetRole company') }); } catch (error) { next(error); } });
 

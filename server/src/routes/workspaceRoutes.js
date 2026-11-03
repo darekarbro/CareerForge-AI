@@ -14,5 +14,5 @@ router.put('/:id/preparation', run((req) => service.checklist(req.params.id, req
 router.post('/:id/tailor', aiLimiter, run(async (req) => require('../services/tailoringService').tailorResume(await service.inputs(req.params.id, req.user._id)), 202));
 router.post('/:id/analyze', aiLimiter, run(async (req) => require('../services/gapAnalysisService').runGapAnalysis(await service.inputs(req.params.id, req.user._id)), 202));
 router.post('/:id/interview', aiLimiter, run(async (req) => require('../services/interviewService').startSession({ ...await service.inputs(req.params.id, req.user._id), count: req.body.count || 5,
-  difficulty: req.body.difficulty, timeLimitSeconds: req.body.timeLimitSeconds, topicFocus: req.body.topicFocus, feedbackMode: req.body.feedbackMode }), 202));
+  difficulty: req.body.difficulty, timeLimitSeconds: req.body.timeLimitSeconds, topicFocus: req.body.topicFocus, feedbackMode: req.body.feedbackMode, adaptiveEnabled: req.body.adaptiveEnabled }), 202));
 module.exports = router;
