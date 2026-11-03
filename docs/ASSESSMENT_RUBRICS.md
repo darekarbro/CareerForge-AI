@@ -1,0 +1,23 @@
+# Assessment rubrics (careerforge-assessment-v2)
+
+Resume extraction can use an allowed AI provider. Final resume quality and job matching are repeatable **local rules**, with no external scoring request or token charge. Neither score predicts hiring success or reproduces a commercial ATS. Results disclose the rubric version, input fingerprint, timestamp and provider in `assessmentMeta`; changing this version invalidates earlier cache entries.
+
+## Resume quality
+
+The 0–100 score is rounded once after adding structure × 0.30, listed skills × 0.35, text readability × 0.20 and length × 0.15. Structure awards 25 points for email and phone, 35 for experience **or projects**, 20 for education and 20 for a skills section. Listed skills awards 10 points per distinct recognized dictionary skill, capped at 100; repetition never adds points. Text readability is 80 when extracted text exists, otherwise zero. Length is 100 at 300–900 words, 65 at 100–1200 words outside that range, 30 for other nonempty text, otherwise zero. These legacy dimensions are editing prompts, not an assessment of intelligence, seniority or achievement. A concise graduate resume can be appropriate even with a low length subscore. Adding invented skills to raise a score is never recommended.
+
+Contact details affect only resume completeness. Names, gender, age, nationality and other protected characteristics do not contribute to job matching. Education presence is a completeness check, not a ranking of institutions. Projects receive the same structure credit as employment. Visual formatting, PDF reading order, truthfulness and technical competence cannot be checked from these rules.
+
+## Job requirements and evidence
+
+Job descriptions are split into source clauses and retain original source text. Recognized skills default to required unless an optional phrase or preferred-skills heading applies. Required skills have weight 3, preferred skills weight 1, experience expectations weight 2, and constraints weight 2. Experience and constraints remain separate from skills. Unsupported clauses are retained for manual review, not silently treated as satisfied. Alternatives such as “Python or Java” are flagged for review rather than requiring both skills.
+
+Every requirement has a stable ID, category, weight, source clause and explanation. Matching inspects career content only (summary, skills, experience highlights, projects and education), recording exact JSON field paths and verbatim text excerpts. Skill mentions are self-reported evidence, not proof of proficiency. Explicit negation and instructional text are excluded; contradictory positive and negative evidence is uncertain. Company names, contact fields, metadata and warnings are not skill evidence. A skill appearing only in a copied job description is not a verified skill; source review remains necessary.
+
+`supported` means usable evidence appears in the supplied text. `missing` means no usable supporting evidence was found, including explicit negative evidence. `uncertain` means the requirement needs confirmation, for example an ambiguous date range, skill-specific years, alternative qualification or location/work-authorization constraint. Missing and uncertain states both carry a concrete request for evidence; neither asserts that the candidate is unqualified.
+
+Match score = 100 × supported weight / all classified requirement weight, rounded once. Uncertain requirements receive no positive credit. The score is a conservative evidence-coverage estimate, not a penalty for inability. Evidence coverage also reports supported and total requirement counts. When no requirements can be classified, the displayed score is zero with a manual-review warning; it does not mean a zero-quality candidate. Unclassified clauses are excluded from the numeric denominator and always surfaced as a limitation. There is no calibrated probability or confidence interval.
+
+## Limits and review
+
+English phrase rules and a finite dictionary miss uncommon skills, semantics, complex alternatives, unusual formatting and multilingual documents. Employment dates do not establish years with a specific technology. Overlapping jobs must not double-count experience. Work authorization, salary preferences and availability should be explicitly confirmed rather than inferred from identity or residence. A self-reported claim can be false even when its citation is exact. Review the original resume, JD and requirement explanations before taking action. Evaluation reports must separate deterministic rubric checks from external AI extraction/interview quality and must not call synthetic annotations human reviewer agreement.
