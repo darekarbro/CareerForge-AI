@@ -30,7 +30,7 @@ async function run(options) {
     return { ...JSON.parse(content), sha256: crypto.createHash('sha256').update(content).digest('hex') };
   });
   const datasetVersion = loaded[0].datasetVersion;
-  const allCases = ['development', 'holdout'].flatMap(split => require(`../evaluation/dataset/v1/${split}.json`).cases);
+  const allCases = loaded.flatMap(dataset => dataset.cases);
   const reviews = options.human ? validateReviews(JSON.parse(fs.readFileSync(path.resolve(options.human), 'utf8')), {
     datasetVersion, rubricVersion, validCaseIds: allCases.map(item => item.id),
   }) : [];
