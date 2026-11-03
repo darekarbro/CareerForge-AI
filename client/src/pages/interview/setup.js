@@ -6,7 +6,7 @@ import AppShell from '../../components/AppShell/AppShell';
 import useOwnedResource from '../../hooks/useOwnedResource';
 import usePersistentDraft from '../../hooks/usePersistentDraft';
 import { submitProcessingRequest } from '../../services/processing';
-const empty = { resumeId: '', targetRole: 'Fullstack Developer', workspaceId: '', jobDescriptionId: '', count: 5, difficulty: 'Medium', timeLimitSeconds: 0, feedbackMode: 'instant', topicFocus: '' };
+const empty = { resumeId: '', targetRole: 'Fullstack Developer', workspaceId: '', jobDescriptionId: '', count: 5, difficulty: 'Medium', timeLimitSeconds: 0, feedbackMode: 'instant', topicFocus: '', adaptiveEnabled: true };
 export default function InterviewSetupPage() {
   const router = useRouter(), resumes = useOwnedResource('/resumes'), workspaces = useOwnedResource('/workspaces'), descriptions = useOwnedResource('/interview/descriptions');
   const draft = usePersistentDraft('interview-setup', { userId: resumes.userId, revision: 0, value: empty });
@@ -43,6 +43,7 @@ export default function InterviewSetupPage() {
       <label className="text-sm font-semibold">Practice timer per question<select className="brutal-input block w-full mt-1" value={draft.value.timeLimitSeconds} onChange={(event) => field('timeLimitSeconds', Number(event.target.value))}>{[0, 60, 120, 180, 300].map((item) => <option key={item} value={item}>{item ? item / 60 + ' minutes' : 'Untimed'}</option>)}</select></label>
       <label className="text-sm font-semibold">Feedback<select className="brutal-input block w-full mt-1" value={draft.value.feedbackMode} onChange={(event) => field('feedbackMode', event.target.value)}><option value="instant">After each answer</option><option value="end">After completing the session</option></select></label>
       <label className="text-sm font-semibold sm:col-span-2">Focus topic (optional)<input maxLength={150} className="brutal-input block w-full mt-1" value={draft.value.topicFocus} onChange={(event) => field('topicFocus', event.target.value)} placeholder="e.g. API design, debugging or leadership" /></label>
+      <label className="text-sm sm:col-span-2 flex gap-2 items-start"><input type="checkbox" checked={draft.value.adaptiveEnabled !== false} onChange={(event) => field('adaptiveEnabled', event.target.checked)} /><span>Adapt questions to my answers. Answer in order; the next question may ask for clarification, explore the topic further or check a simpler concept. The question count stays the same.</span></label>
       <p className="text-sm sm:col-span-2">The practice timer keeps running when you switch questions or refresh. It reminds you when time is up; you choose when to submit.</p>
       <button disabled={starting || !draft.value.resumeId} className="brutal-btn-primary sm:col-span-2 px-4 py-3 text-sm disabled:opacity-40">{starting ? 'Preparing questions… You can return through Activity.' : 'Start practice'}</button>
     </form>}
