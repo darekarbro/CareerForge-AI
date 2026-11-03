@@ -14,6 +14,7 @@ module.exports = ({ test, assert, request, user, ready, successfulJob }) => {
     assert.equal(first.followUpQuestion.difficulty, 'Easy'); assert.equal(first.followUpQuestion.adaptation, undefined);
     assert.equal(first.followUpQuestion.suggestedAnswer, undefined); assert.equal(first.question.feedback, undefined);
     assert.deepEqual((await request('GET', '/api/interview/competencies', { token: a.token })).data.data.competencies, []);
+    assert.deepEqual((await request('GET', '/api/interview/learning-plan', { token: a.token })).data.data.items, []);
     const Question = require('../src/models/InterviewQuestion');
     const next = await Question.findById(output.questions[1]._id);
     assert.equal(next.adaptation.kind, 'diagnostic'); assert.equal(next.topic, output.questions[0].topic);
@@ -30,8 +31,22 @@ module.exports = ({ test, assert, request, user, ready, successfulJob }) => {
     assert.equal(profile.competencies[0].attemptCount, 4); assert(profile.competencies[0].evidence.every((item) => item.href.includes('?question=') && item.href.includes('&attempt=')));
     assert.deepEqual((await request('GET', '/api/interview/competencies', { token: b.token })).data.data.competencies, []);
     assert.equal((await request('GET', '/api/interview/competencies')).status, 401);
+    const plan = (await request('GET', '/api/interview/learning-plan', { token: a.token })).data.data;
+    assert.equal(plan.items.length, 1); assert.equal(plan.items[0].sourceEvidence[0].sessionId, String(output.session._id));
+    assert.equal(plan.items[0].reassessment.count, 3);
+    assert.deepEqual((await request('GET', '/api/interview/learning-plan', { token: b.token })).data.data.items, []);
     // A recovered commit cannot adapt the next question again.
     const source = await Question.findById(output.questions[0]._id);
     assert.equal(await require('../src/services/adaptiveInterview').resolveNext(detail.session, source), null);
+  });
+  test('Phase 4: learning plans include owned job skill gaps without inventing competency evidence', async () => {
+    const a = await user(), b = await user(), resume = await ready(a.id);
+    await require('../src/models/GapAnalysis').create({ owner: a.id, resumeId: resume._id, matchScore: 0,
+      requirementMatches: [{ id: 'req-python', label: 'Python', category: 'required_skill', sourceText: 'Python required', status: 'missing', missingEvidence: 'Provide a truthful Python example.' }] });
+    const plan = (await request('GET', '/api/interview/learning-plan', { token: a.token })).data.data;
+    assert.equal(plan.items[0].topic, 'Python'); assert.equal(plan.items[0].confidence, 'unassessed');
+    assert.deepEqual(plan.items[0].sourceEvidence, []); assert.equal(plan.items[0].requirementSources[0].requirementId, 'req-python');
+    assert.deepEqual((await request('GET', '/api/interview/learning-plan', { token: b.token })).data.data.items, []);
+    assert.equal((await request('GET', '/api/interview/learning-plan')).status, 401);
   });
 };
