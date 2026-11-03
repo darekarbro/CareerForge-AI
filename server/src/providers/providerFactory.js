@@ -29,6 +29,20 @@ class ProviderFactory {
     return { ...result, aiProvider: provider };
   }
 
+  // Final assessment scores use a published rubric, never ungrounded provider prose.
+  async executeAssessment(action, params, onAttempt) {
+    if (!['scoreATS', 'analyzeGap'].includes(action)) throw new Error('Unsupported local assessment');
+    throwIfCancelled();
+    const start = Date.now();
+    if (onAttempt) await onAttempt(this.deterministic.name);
+    const result = await this.deterministic[action](params);
+    validateResult(action, result, params);
+    throwIfCancelled();
+    await this.recordUsage(require('../services/jobContext').context.getStore(), { action, provider: this.deterministic.name,
+      model: 'assessment-rules-v2', durationMs: Date.now() - start, status: 'success', inputTokens: 0, outputTokens: 0, costUsd: 0 });
+    return this.withProvider(result, this.deterministic.name);
+  }
+
   async execute(actionName, params = {}, onProviderAttempt = null) {
     throwIfCancelled();
     // UI record identities are not career facts and must not be sent to providers.

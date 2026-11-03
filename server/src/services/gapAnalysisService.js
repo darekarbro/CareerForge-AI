@@ -22,8 +22,9 @@ class GapAnalysisService {
     await checkpoint();
     return commit(async () => {
       const jd = job.inputRef.jobDescriptionId ? await JobDescription.findOne({ _id: job.inputRef.jobDescriptionId, owner: job.owner }) : await JobDescription.findOneAndUpdate({ processingJobId: job._id, owner: job.owner }, { $setOnInsert: { owner: job.owner, rawText: jobDescriptionText, targetRole,
-        company, title: targetRole + (company ? ' @ ' + company : '') } }, { upsert: true, new: true });
+        company, title: targetRole + (company ? ' @ ' + company : ''), parsedRequirements: analysis.requirements } }, { upsert: true, new: true });
       if (!jd) throw Object.assign(new Error('Job description no longer available'), { statusCode: 404 });
+      if (jd.rawText === jobDescriptionText) await JobDescription.updateOne({ _id: jd._id, owner: job.owner, rawText: jobDescriptionText }, { $set: { parsedRequirements: analysis.requirements } });
       try {
         const gapAnalysis = await GapAnalysis.create({ ...analysis, processingJobId: job._id, owner: job.owner, resumeId: resume._id,
           jobDescriptionId: jd._id });

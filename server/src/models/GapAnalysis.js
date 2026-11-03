@@ -4,6 +4,10 @@ const gapAnalysisSchema = new mongoose.Schema(
   {
     processingJobId: { type: mongoose.Schema.Types.ObjectId, unique: true, sparse: true },
     assessmentMeta: mongoose.Schema.Types.Mixed,
+    requirements: mongoose.Schema.Types.Mixed,
+    requirementMatches: [mongoose.Schema.Types.Mixed],
+    rubric: mongoose.Schema.Types.Mixed,
+    evidenceCoverage: mongoose.Schema.Types.Mixed,
     resumeId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Resume',

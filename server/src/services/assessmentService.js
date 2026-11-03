@@ -3,7 +3,7 @@ const Cache = require('../models/AssessmentCache');
 const { plain, resumeText } = require('../providers/resumeFacts');
 const { createJob, dispatchJob } = require('./jobService');
 const { fail } = require('./resumeContent');
-const rubricVersion = 'resume-quality-2026-01';
+const { rubricVersion } = require('./assessmentRubrics');
 function canonical(value) {
   if (Array.isArray(value)) return value.map(canonical);
   if (value && typeof value === 'object') return Object.fromEntries(Object.keys(value).sort().filter((key) => !['_id', '__v', 'warnings'].includes(key)).map((key) => [key, canonical(value[key])]));
@@ -14,8 +14,9 @@ async function cached({ owner, action, params }, calculate) {
   const factory = require('../providers/providerFactory'), status = factory.getProvidersStatus();
   const user = await require('../models/User').findOne({ _id: owner, deleting: { $ne: true } });
   if (!user) throw fail('Account unavailable', 401);
-  const provider = ['groq', 'openrouter', 'gemini'].find((name) => user.emailVerifiedAt && user.privacy?.providers?.[name] && status[name]?.configured) || 'deterministic-fallback';
-  const model = status[provider]?.model || 'offline-rules-v1';
+  const local = ['scoreATS', 'analyzeGap'].includes(action);
+  const provider = local ? 'deterministic-fallback' : ['groq', 'openrouter', 'gemini'].find((name) => user.emailVerifiedAt && user.privacy?.providers?.[name] && status[name]?.configured) || 'deterministic-fallback';
+  const model = local ? 'assessment-rules-v2' : status[provider]?.model || 'offline-rules-v1';
   const fingerprint = crypto.createHash('sha256').update(JSON.stringify({ action, rubricVersion, provider, model, params: canonical(params) })).digest('hex');
   const key = owner + ':' + fingerprint;
   const stored = await Cache.findOne({ owner, fingerprint, expiresAt: { $gt: new Date() } });
@@ -23,7 +24,7 @@ async function cached({ owner, action, params }, calculate) {
   if (pending.has(key)) return pending.get(key);
   const promise = (async () => {
     const result = await calculate();
-    const actualModel = result.aiProvider === 'deterministic-fallback' ? 'offline-rules-v1' : status[result.aiProvider]?.model || model;
+    const actualModel = local ? model : result.aiProvider === 'deterministic-fallback' ? 'offline-rules-v1' : status[result.aiProvider]?.model || model;
     const record = { ...result, assessmentMeta: { rubricVersion, fingerprint, provider: result.aiProvider, model: actualModel,
       assessedAt: new Date().toISOString(), cached: false, kind: action === 'scoreATS' ? 'resume-quality' : 'job-match' } };
     try { await Cache.updateOne({ owner, fingerprint, expiresAt: { $lte: new Date() } }, { $set: { result: record, expiresAt: new Date(Date.now() + (result.aiProvider === provider ? (user.privacy?.cacheDays || 7) * 86400000 : 300000)) } }, { upsert: true }); }
