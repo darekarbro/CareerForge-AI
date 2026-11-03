@@ -1,6 +1,6 @@
 # Phase 3: evidence-backed resume copilot
 
-Initial delivery completed on 31 October 2026 on `Phase-3`, based on `Phase-2`. Phase 3 has since reached `main`. The current readiness fixes are reviewed in [PR #10](https://github.com/darekarbro/CareerForge-AI/pull/10); no merge or hosted deployment is part of this review.
+Initial delivery completed on 31 October 2026 on `Phase-3`, based on `Phase-2`. Phase 3 and the readiness fixes from [PR #10](https://github.com/darekarbro/CareerForge-AI/pull/10) have since reached `main`. Hosted deployment checks and the subsequent live-discovered validation fix are recorded in the [live test report](docs/PHASE3_LIVE_TESTS.md).
 
 - [x] Structured career evidence with stable IDs, revisions, verification and measurement states.
 - [x] Inspectable evidence IDs, source passages and current verification for rewritten resume claims.
@@ -64,8 +64,8 @@ The review found and fixed additional failure and concurrency paths:
 - PDF/DOCX parsing has worker heap/time bounds, bounded concurrency/waiting and ZIP expansion checks; malformed UTF-8 and oversized text are rejected. Valid PDF, DOCX and Unicode export regressions remain covered.
 - Node 24 is explicit for hosting. A read-only deployment preflight verifies Phase 3 routes, auth guards and worker/database readiness, and runs against Compose in CI.
 
-Current local validation: **129 backend tests, 39 frontend tests, lint with zero warnings, all 29 production pages, 24 browser workflow groups and 42 WCAG A/AA audits passed, with zero accessibility violations.** Full and production-only dependency audits report zero vulnerabilities in both trees. No tests were skipped.
+Current local validation: **133 backend tests, 39 frontend tests, lint with zero warnings, all 29 production pages, 24 browser workflow groups and 42 WCAG A/AA audits passed, with zero accessibility violations.** Full and production-only dependency audits report zero vulnerabilities in both trees. No tests were skipped.
 
 Rebuilt API, worker and frontend images passed all six Compose acceptance groups, including interrupted dependencies, persisted jobs, SMTP, exports and deletion. All seven deployment preflight checks passed against this rebuilt stack. Live Groq passed 16 checks using 14 real requests across all six AI actions and the scoped evidence copilot, with fallback disabled; the public GitHub import preview was also tested and discarded without AI sharing. Exact-head CI results are available on PR #10. Test career data is fictional and private environment files remain excluded from Git.
 
-The public Render backend currently answers health but returns 404 for the Phase 3 API contract and copilot route. It must be deployed from the reviewed code along with the matching worker before the live frontend can use Phase 3. See [deployment instructions and the preflight command](docs/DEPLOYMENT.md). Passing repository checks is distinct from verifying the existing hosted service.
+The Render startup failure was traced to an invalid production signing secret. An approved secret replacement restored deployment; the approved Groq key was also configured in Render. Both production services now serve the merged readiness revision, and the public preflight passes. The live review additionally caught unsubstantiated qualitative outcomes in generated wording. The follow-up guard requires entry-specific support for asserted effects and applies to provider validation and claim withholding; unknown, negated and intended effects do not establish an observed result. This follow-up needs its own deployment. See the [live test report](docs/PHASE3_LIVE_TESTS.md) for verified behavior and remaining limits.
