@@ -25,6 +25,11 @@ const jobDescriptionSchema = new mongoose.Schema(
       required: true,
     },
     parsedRequirements: {
+      requiredSkills: [mongoose.Schema.Types.Mixed],
+      preferredSkills: [mongoose.Schema.Types.Mixed],
+      experience: [mongoose.Schema.Types.Mixed],
+      constraints: [mongoose.Schema.Types.Mixed],
+      unclassified: [mongoose.Schema.Types.Mixed],
       mustHaveSkills: [String],
       niceToHaveSkills: [String],
       experienceLevel: String,
@@ -37,4 +42,7 @@ const jobDescriptionSchema = new mongoose.Schema(
   }
 );
 
+jobDescriptionSchema.pre('validate', function () {
+  if (this.isModified('rawText')) this.parsedRequirements = require('../services/jobRequirements').extractRequirements(this.rawText);
+});
 module.exports = mongoose.model('JobDescription', jobDescriptionSchema);
