@@ -3,19 +3,22 @@ const { extractSkills, hasSkill, normalizeSkill, plain, roleId, ROLE_SKILLS } = 
 
 const cleanBullet = (line) => line.trim().replace(/^[•*\-]\s*/, '');
 const sectionNames = {
-  summary: /^(?:professional\s+)?(?:summary|profile|objective|about me)$/i,
-  skills: /^(?:(?:technical|core|key)\s+)?(?:skills|competencies|technologies)$/i,
-  experience: /^(?:(?:professional|work|relevant)\s+)?(?:experience|employment|work history)$/i,
-  education: /^(?:education|academic background|qualifications)$/i,
-  projects: /^(?:(?:personal|key|selected|academic)\s+)?projects$/i,
-  certifications: /^(?:certifications?|certificates?|licenses?)$/i,
+  summary: ['summary', 'profile', 'objective', 'about me'].flatMap((label) => [label, 'professional ' + label]),
+  skills: ['skills', 'competencies', 'technologies'].flatMap((label) => [label, ...['technical', 'core', 'key'].map((prefix) => prefix + ' ' + label)]),
+  experience: ['experience', 'employment', 'work history'].flatMap((label) => [label, ...['professional', 'work', 'relevant'].map((prefix) => prefix + ' ' + label)]),
+  education: ['education', 'academic background', 'qualifications'],
+  projects: ['projects', 'personal projects', 'key projects', 'selected projects', 'academic projects'],
+  certifications: ['certification', 'certifications', 'certificate', 'certificates', 'license', 'licenses'],
 };
+const compactHeading = (value) => value.toLowerCase().replace(/\s+/gu, '');
+const headingSections = new Map(Object.entries(sectionNames).flatMap(([section, labels]) => labels.map((label) => [compactHeading(label), section])));
+const sectionForHeading = (value) => headingSections.get(compactHeading(value.trim().replace(/:$/, '')));
 function sections(text) {
   const result = { header: [] };
   let current = 'header';
   text.split(/\r?\n/).forEach((line) => {
-    const heading = line.trim().replace(/:$/, '');
-    const section = Object.keys(sectionNames).find((name) => sectionNames[name].test(heading));
+    // Normalize only a recognized whole heading; keep every body line verbatim for citations.
+    const section = sectionForHeading(line);
     if (section) { current = section; result[current] ||= []; }
     else (result[current] ||= []).push(line);
   });
