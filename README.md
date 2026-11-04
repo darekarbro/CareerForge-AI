@@ -11,7 +11,7 @@
 [![Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://vercel.com/)
 [![Render](https://img.shields.io/badge/Render-46E3B7?style=for-the-badge&logo=render&logoColor=black)](https://render.com/)
 
-CareerForge AI is a full-stack AI-powered career readiness platform that helps candidates parse resumes, score ATS performance, tailor resumes for target roles, evaluate interview readiness, and manage job applications from one place.
+CareerForge AI is a full-stack AI-powered career readiness platform that helps candidates parse resumes, assess resume quality, explain job-requirement matches, tailor resumes for target roles, practise adaptive interviews, and manage job applications from one place.
 
 It brings together resume intelligence, AI workflows, and productivity tools in a single, streamlined experience for job seekers.
 
@@ -43,6 +43,7 @@ This fragmentation makes the process slow, inconsistent, and difficult to optimi
 - Structured extraction of contact info, skills, work history, education, projects, and certifications
 - Editable career profiles and resumes with autosave, revision history and conflict protection
 - Repeatable resume quality estimates, separate from job-description match reports
+- Published assessment rubrics with required/preferred skills, experience and constraints explained requirement by requirement
 - Per-change tailoring review, manual edits, undo/redo and selected-section rewrites
 - Career evidence library with stable facts, verification states and source-specific context
 - Previewed, selectively confirmed imports from public GitHub projects or personal project documents
@@ -56,6 +57,8 @@ This fragmentation makes the process slow, inconsistent, and difficult to optimi
 - Job search hub with curated deep links for external job boards
 - Application search, deadlines, follow-up dates, notes and a frozen copy of the resume used
 - Interview difficulty, per-question practice timers, delayed feedback, retries and focused follow-up practice
+- Answer-driven clarification, deeper questions and simpler diagnostics within a bounded adaptive interview session
+- Longitudinal competencies linked to original answers, with practice tasks, project milestones and focused reassessments
 - Guided onboarding, a next-action dashboard and an activity centre for background requests
 - Real-time processing events using Socket.IO
 - Email/password authentication with JWT, plus Firebase Google Sign-In for social login
@@ -67,6 +70,8 @@ This fragmentation makes the process slow, inconsistent, and difficult to optimi
 ### Bonus Features
 
 The [Phase 3 workflow guide](docs/PHASE3_WORKFLOWS.md) explains evidence collection, controlled imports, copilot review and factual-check limitations. See [Phase 3 validation](PHASE3.md) for test results.
+
+The [Phase 4 guide](PHASE4.md) demonstrates adaptive assessment and interview flows. The [published evaluation report](docs/PHASE4_EVALUATION_RESULTS.md) measures 40 synthetic cases with a separate holdout and reports formatting weaknesses. These are offline parsing and rubric results; live-provider quality and independent human scoring agreement remain unmeasured. Run `npm run evaluate:phase4` for development-set measurements.
 
 - Live agent timeline for processing pipeline visibility
 - Resume version history and export management
