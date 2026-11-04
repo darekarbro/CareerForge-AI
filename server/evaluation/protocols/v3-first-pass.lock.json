@@ -1,0 +1,21 @@
+{
+  "lockVersion": "phase4-dataset-lock-v1",
+  "runId": "holdout-v3-initial-2026-11-04",
+  "lockedAt": "2026-11-04T17:06:07.643Z",
+  "protocolPath": "server/evaluation/protocols/v3-first-pass.json",
+  "protocolSha256": "181b64347ee2f9ea7cc3276c093704bd229560f6591ceedd3740ecea60139ce2",
+  "datasetVersion": "phase4-synthetic-v3",
+  "datasetPath": "server/evaluation/dataset/v3/holdout.json",
+  "datasetSha256": "daa02764c4d57803e5701e195c7cdd4ec0afefc74683b53b0cdbbf4bf35caff6",
+  "cases": 24,
+  "implementationSha256": "d3d202609d1c6d1640ffee866a972cd2fcc6238f0f813913a9a9fc2de3381c89",
+  "metricsSha256": "a8231f12d7a3d47a60eb766eb28ad927ff7b08fab9af3b3f5e17b28ec08cd643",
+  "evaluatorSha256": "abb526e3fe4a9af1a6d72924a6caeb398730c81a42af56f09b728d17f046479e",
+  "referenceReviewStatus": "approved-before-any-model-execution",
+  "referenceReviewPath": "server/evaluation/dataset/v3/LABEL_REVIEW.md",
+  "referenceReviewSha256": "c5230756e4d76d7fb8d12a4050d4ac47e15c9d257f3e07f98883f1458f88abd0",
+  "authoringPath": "server/evaluation/dataset/v3/AUTHORING.md",
+  "authoringSha256": "de05e9bb37ef88f65fdc86f2cc16b5ce8de6b18623ae488ba318fb4ee1888f37",
+  "outputPath": "docs/PHASE4_ACCURACY_V3_HOLDOUT_RESULTS.json",
+  "receiptPath": "server/evaluation/protocols/v3-first-pass.receipt.json"
+}
