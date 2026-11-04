@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const gapAnalysisSchema = new mongoose.Schema(
   {
     processingJobId: { type: mongoose.Schema.Types.ObjectId, unique: true, sparse: true },
+    sourceRevision: { type: Number, min: 1 },
     assessmentMeta: mongoose.Schema.Types.Mixed,
     requirements: mongoose.Schema.Types.Mixed,
     requirementMatches: [mongoose.Schema.Types.Mixed],
