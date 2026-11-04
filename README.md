@@ -77,6 +77,8 @@ The [formatting regression report](docs/PHASE4_FORMATTING_RESULTS.md) documents 
 
 The [contradictory-skill regression](docs/PHASE4_CONTRADICTION_RESULTS.md) withholds listed-but-denied skills and shows both claims for review. The remaining React extraction mismatch is resolved, with 100% skill F1 on the known v1 cases; matching still marks that conflict uncertain with no supported credit.
 
+The [fresh, untuned v2 holdout](docs/PHASE4_FRESH_HOLDOUT_RESULTS.md) exposes generalization gaps: **21.57% skill F1**, **34.41% requirement-status accuracy**, and **2/8 false-supported decisions** across 24 new synthetic cases. The implementation and metrics stayed frozen, labels were independently agent-reviewed before scoring, and all failures are published. Known-case regression scores should not be treated as real-resume accuracy.
+
 - Live agent timeline for processing pipeline visibility
 - Resume version history and export management
 - Search and application analytics dashboard

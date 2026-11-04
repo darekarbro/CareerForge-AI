@@ -14,6 +14,18 @@ The original report is preserved in `PHASE4_EVALUATION_RESULTS.json`. Since that
 
 The [contradictory-skill follow-up](PHASE4_CONTRADICTION_RESULTS.md) resolves the remaining listed-but-denied skill mismatch using assessment version 3. The earlier formatting report remains preserved. Current citation-integrity totals include both positive and denial evidence; denominator changes should not be interpreted as new supported skills.
 
+## Fresh v2 holdout
+
+The [untuned first-pass v2 report](PHASE4_FRESH_HOLDOUT_RESULTS.md) evaluates 24 newly authored formatting/contradiction cases after implementation, metric and reference-label freeze. It exposes much weaker generalization than the known v1 regressions: skill F1 21.57%, status accuracy 34.41%, and 2/8 false-supported decisions. The raw results, preregistration, dataset lock, author/reviewer attestations and completed receipt are preserved. The separate author and reviewer were agents without implementation/prediction access, not independent humans.
+
+`--dataset-version v2` requires explicit `--holdout`. The initial run used `--first-pass` with its locked protocol; the recorded receipt prevents another initial-run claim. Since the cases are now public, future reproductions are regression-only and must preserve the first-pass output:
+
+```bash
+npm run evaluate:phase4 -- --dataset-version v2 --holdout --output .test-tmp/phase4-v2-regression.json
+```
+
+Default CLI and CI behavior remains v1 development only. The frozen assessment code and metric definitions were not changed after observing v2 results. Its labels were reviewed before execution and were not adjusted to predictions. A later fix needs another unseen holdout before claiming improved generalization.
+
 The JSON output contains separate split summaries, group summaries, case-level errors, timestamps, dataset hashes, an implementation hash and runtime information. Preserve those details with published results. Latency is measured from the actual run, so it varies by machine and background activity. A single independent warmup precedes one timed parse-and-match sample per case. This is a small local benchmark, not a load or service latency test.
 
 ## Metric definitions

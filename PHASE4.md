@@ -42,6 +42,8 @@ The [formatting follow-up](docs/PHASE4_FORMATTING_RESULTS.md) fixes spaced headi
 
 The [contradictory-skill follow-up](docs/PHASE4_CONTRADICTION_RESULTS.md) withholds the remaining listed-but-denied React claim while preserving an uncertain match and both source statements. Development skill F1 is now **100%** on these known cases. Current validation passes 193 backend and 49 frontend tests; earlier reports and fixture labels remain unchanged.
 
+The [fresh v2 first-pass report](docs/PHASE4_FRESH_HOLDOUT_RESULTS.md) tests 24 new cases against the unchanged implementation, with independently agent-authored/reviewed references frozen before execution. It reveals **21.57% skill F1**, **34.41% requirement-status accuracy**, and **2/8 false-supported decisions**. No tuning or label edits followed the run. These results show that perfect known-case regressions did not establish generalization; v2 is now public and subsequent uses are regression-only.
+
 ## Validation
 
 The verification commands are:

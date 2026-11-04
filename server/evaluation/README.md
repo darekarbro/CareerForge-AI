@@ -11,3 +11,11 @@ Holdout cases are stored separately and must not drive implementation tuning. Us
 The v1 cases and initial results are now public. Later runs of this set are labeled regression checks, including the published holdout split. The formatting follow-up preserves both v1 JSON datasets and the initial report; it does not claim fresh unseen evaluation evidence.
 
 Human score agreement is unavailable until independent reviewers supply annotations. Do not substitute fixture scores, AI scores or deterministic expected scores for human judgments. The measurement guide documents the annotation format and runner.
+
+## Fresh v2 first pass
+
+`dataset/v2/holdout.json` adds 24 newly authored, fictional cases: 12 formatting and 12 contradictory-skills cohort cases (nine conflicts, three controls). A separate agent authored them without implementation or prior-fixture access, and another agent semantically reviewed the labels without implementation or prediction access. Their attestations are stored alongside the data. This is agent review, not human review or an externally administered benchmark.
+
+The [preregistered protocol](protocols/v2-first-pass.json) freezes assessment and metric hashes before authoring; the [lock](protocols/v2-first-pass.lock.json) freezes dataset/review/evaluator hashes before scoring. A single initial scored run is preserved in the [receipt](protocols/v2-first-pass.receipt.json) and [report](../../docs/PHASE4_FRESH_HOLDOUT_RESULTS.md). No application, metric or label tuning followed that run. Structural validation tests read the new references but never execute predictions on them.
+
+The initial v2 result is skill F1 21.57%, requirement-status accuracy 34.41%, and 2/8 unsupported supported-skill decisions. Publication now makes v2 a known regression set. Select it explicitly with `--dataset-version v2 --holdout`; later runs are labeled regression-only. Default CLI and CI behavior still use v1 development. Preserve all first-pass reports and reserve another new holdout before claiming that a future fix generalizes.
