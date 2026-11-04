@@ -58,7 +58,7 @@ test('Phase 4: graduate projects receive structure credit and repetition cannot 
   const first = assessResume({ resumeData: graduate });
   assert.equal(first.structureScore, 100);
   assert.equal(assessResume({ resumeData: { ...graduate, skills: { all: Array(30).fill('Python') } } }).keywordScore, first.keywordScore);
-  assert.equal(first.rubric.version, 'careerforge-assessment-v3');
+  assert.equal(first.rubric.version, 'careerforge-assessment-v4');
   assert(first.rubric.limitations.some((text) => text.includes('layout')));
   assert.equal(assessMatch({ jobDescriptionText: 'Unrecognized specialist requirement' }).matchScore, 0);
 });
