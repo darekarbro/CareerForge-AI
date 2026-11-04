@@ -10,9 +10,22 @@ const { evaluateCase, summarize, validateReviews } = require('../evaluation/metr
 const { sha256, evaluatorFingerprint, beginFirstPass, completeFirstPass, failFirstPass, requirePublishedRegression } = require('../evaluation/holdoutProtocol.cjs');
 const implementationFiles = [
   '../src/providers/deterministicProvider.js', '../src/providers/resumeContact.js', '../src/providers/resumeFacts.js',
+  '../src/providers/resumeClaims.js', '../src/providers/resumeLayout.js',
   '../src/providers/resumeEvidence.js', '../src/providers/skillPolarity.js', '../src/providers/skillConflicts.js',
   '../src/services/jobRequirements.js', '../src/services/requirementMatching.js', '../src/services/assessmentRubrics.js',
 ];
+const datasetVersions = ['v1', 'v2', 'v3'];
+const holdoutVersions = ['v2', 'v3'];
+
+function validateOptions(options) {
+  if (!datasetVersions.includes(options.datasetVersion)) throw new Error('Choose dataset version v1, v2 or v3.');
+  if (holdoutVersions.includes(options.datasetVersion) && JSON.stringify(options.splits) !== JSON.stringify(['holdout'])) {
+    throw new Error(`Dataset ${options.datasetVersion} contains only holdout; select --holdout explicitly.`);
+  }
+  if (options.firstPass && (!holdoutVersions.includes(options.datasetVersion) || !options.output || options.human)) {
+    throw new Error('First-pass evaluation requires a v2 or v3 holdout, an output path and no added human annotations.');
+  }
+}
 
 function argumentsFor(argv) {
   const result = { splits: ['development'], output: null, human: null, datasetVersion: 'v1', firstPass: null };
@@ -25,16 +38,14 @@ function argumentsFor(argv) {
       result[key] = value;
     } else throw new Error(`Unknown option: ${argv[i]}`);
   }
-  if (!['v1', 'v2'].includes(result.datasetVersion)) throw new Error('Choose dataset version v1 or v2.');
-  if (result.datasetVersion === 'v2' && JSON.stringify(result.splits) !== JSON.stringify(['holdout'])) throw new Error('Dataset v2 contains only holdout; select --holdout explicitly.');
-  if (result.firstPass && (result.datasetVersion !== 'v2' || !result.output || result.human)) throw new Error('First-pass evaluation requires v2 holdout, an output path and no added human annotations.');
+  validateOptions(result);
   return result;
 }
 
 async function run(options) {
   const selectedVersion = options.datasetVersion || 'v1';
-  if (!['v1', 'v2'].includes(selectedVersion) || selectedVersion === 'v2' && JSON.stringify(options.splits) !== JSON.stringify(['holdout'])) throw new Error('Select an available dataset version and split.');
-  if (selectedVersion === 'v2' && !options.firstPass) requirePublishedRegression(selectedVersion, options.output);
+  validateOptions({ ...options, datasetVersion: selectedVersion });
+  if (holdoutVersions.includes(selectedVersion) && !options.firstPass) requirePublishedRegression(selectedVersion, options.output);
   const provider = new DeterministicProvider();
   const loaded = options.splits.map(split => {
     const filename = path.join(__dirname, '../evaluation/dataset', selectedVersion, split + '.json');

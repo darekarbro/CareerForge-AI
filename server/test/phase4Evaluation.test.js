@@ -59,19 +59,24 @@ test('evaluation defaults to development; holdout requires an explicit option', 
   assert.throws(() => argumentsFor(['--output']));
   assert.throws(() => argumentsFor(['--unknown']));
   assert.equal(argumentsFor([]).datasetVersion, 'v1');
-  assert.equal(argumentsFor(['--dataset-version', 'v2', '--holdout']).datasetVersion, 'v2');
-  assert.throws(() => argumentsFor(['--dataset-version', 'v2']));
-  assert.throws(() => argumentsFor(['--dataset-version', 'v2', '--all']));
+  for (const version of ['v2', 'v3']) {
+    assert.equal(argumentsFor(['--dataset-version', version, '--holdout']).datasetVersion, version);
+    assert.throws(() => argumentsFor(['--dataset-version', version]));
+    assert.throws(() => argumentsFor(['--dataset-version', version, '--all']));
+    assert.throws(() => argumentsFor(['--dataset-version', version, '--holdout', '--first-pass', 'lock.json']));
+    assert.throws(() => argumentsFor(['--dataset-version', version, '--holdout', '--first-pass', 'lock.json', '--output', 'report.json', '--human', 'reviews.json']));
+    assert.equal(argumentsFor(['--dataset-version', version, '--holdout', '--first-pass', 'lock.json', '--output', 'report.json']).firstPass, 'lock.json');
+  }
   assert.throws(() => argumentsFor(['--dataset-version', '../v1', '--holdout']));
   assert.throws(() => argumentsFor(['--first-pass', 'lock.json', '--output', 'report.json']));
-  assert.throws(() => argumentsFor(['--dataset-version', 'v2', '--holdout', '--first-pass', 'lock.json']));
+  assert.throws(() => argumentsFor(['--dataset-version', 'v4', '--holdout']));
 });
 
 test('evaluation provenance includes contact parsing and labels published data as regression evidence', async () => {
   const report = await run(argumentsFor([]));
   const fs = require('node:fs'), path = require('node:path'), crypto = require('node:crypto');
   assert(report.implementationFiles.includes('../src/providers/resumeContact.js'));
-  for (const file of ['resumeEvidence.js', 'skillPolarity.js', 'skillConflicts.js']) assert(report.implementationFiles.includes('../src/providers/' + file));
+  for (const file of ['resumeEvidence.js', 'skillPolarity.js', 'skillConflicts.js', 'resumeClaims.js', 'resumeLayout.js']) assert(report.implementationFiles.includes('../src/providers/' + file));
   const source = report.implementationFiles.map((file) => fs.readFileSync(path.resolve(__dirname, '../scripts', file), 'utf8')).join('\n');
   assert.equal(report.implementationSha256, crypto.createHash('sha256').update(source).digest('hex'));
   assert.deepEqual(report.datasetUsage, { development: 'development-regression' });
