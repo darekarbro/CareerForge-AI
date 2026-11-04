@@ -27,6 +27,7 @@ function buildLearningPlan(profile, gaps = []) {
     limitations: [
       'Plans are suggested practice steps, not verified course recommendations or proof of job readiness.',
       'A missing job-match citation can reflect omitted resume evidence rather than a skill gap. Confirm existing work before choosing training.',
+      'Saved job matches can cover only selected resume entries. Check that selection and your other work before treating a missing citation as a training need.',
       'Only skill requirements from the latest saved report per resume/job pair and non-strength interview topics are used. Availability, eligibility and employer constraints require direct clarification.',
       'Complete the tasks in your own workspace and retain the resulting artifact. Task completion is not automatically verified; reassessment and a human review check the result.',
     ], items: [...topics.values()].slice(0, 8).map((item) => ({
@@ -42,8 +43,29 @@ function buildLearningPlan(profile, gaps = []) {
     })) };
 }
 
-async function getPlan(owner) {
-  const [profile, gaps] = await Promise.all([getProfile(owner), Gap.find({ owner }).sort({ createdAt: -1 }).lean()]);
-  return buildLearningPlan(profile, gaps);
+function currentReports(gaps, resumes) {
+  const revisions = new Map(resumes.map((resume) => [String(resume._id), resume.contentRevision || 1]));
+  const seen = new Set(), current = [], excluded = { stale: 0, unversioned: 0, missingResume: 0 };
+  for (const gap of gaps) {
+    const key = String(gap.resumeId) + ':' + String(gap.jobDescriptionId);
+    if (seen.has(key)) continue;
+    // Select the latest report first. An obsolete latest report must not resurrect an older one.
+    seen.add(key);
+    const revision = revisions.get(String(gap.resumeId));
+    if (!revision) excluded.missingResume++;
+    else if (!Number.isInteger(gap.sourceRevision)) excluded.unversioned++;
+    else if (gap.sourceRevision !== revision) excluded.stale++;
+    else current.push(gap);
+  }
+  return { current, excluded };
 }
-module.exports = { getPlan, buildLearningPlan, rubricVersion };
+
+async function getPlan(owner) {
+  const [profile, gaps, resumes] = await Promise.all([getProfile(owner), Gap.find({ owner }).sort({ createdAt: -1 }).lean(),
+    require('../models/Resume').find({ owner, deleting: { $ne: true } }).select('_id contentRevision').lean()]);
+  const { current, excluded } = currentReports(gaps, resumes);
+  const plan = buildLearningPlan(profile, current);
+  return { ...plan, excludedReports: excluded, limitations: [...plan.limitations,
+    'Job-match reports for older resume revisions and legacy reports without a source revision are excluded. Run Check job match again after editing a resume.'] };
+}
+module.exports = { getPlan, buildLearningPlan, currentReports, rubricVersion };

@@ -41,12 +41,15 @@ module.exports = ({ test, assert, request, user, ready, successfulJob }) => {
   });
   test('Phase 4: learning plans include owned job skill gaps without inventing competency evidence', async () => {
     const a = await user(), b = await user(), resume = await ready(a.id);
-    await require('../src/models/GapAnalysis').create({ owner: a.id, resumeId: resume._id, matchScore: 0,
+    await require('../src/models/GapAnalysis').create({ owner: a.id, resumeId: resume._id, sourceRevision: 1, matchScore: 0,
       requirementMatches: [{ id: 'req-python', label: 'Python', category: 'required_skill', sourceText: 'Python required', status: 'missing', missingEvidence: 'Provide a truthful Python example.' }] });
     const plan = (await request('GET', '/api/interview/learning-plan', { token: a.token })).data.data;
     assert.equal(plan.items[0].topic, 'Python'); assert.equal(plan.items[0].confidence, 'unassessed');
     assert.deepEqual(plan.items[0].sourceEvidence, []); assert.equal(plan.items[0].requirementSources[0].requirementId, 'req-python');
     assert.deepEqual((await request('GET', '/api/interview/learning-plan', { token: b.token })).data.data.items, []);
     assert.equal((await request('GET', '/api/interview/learning-plan')).status, 401);
+    await require('../src/models/Resume').updateOne({ _id: resume._id }, { $set: { contentRevision: 2 } });
+    const changed = (await request('GET', '/api/interview/learning-plan', { token: a.token })).data.data;
+    assert.deepEqual(changed.items, []); assert.equal(changed.excludedReports.stale, 1);
   });
 };

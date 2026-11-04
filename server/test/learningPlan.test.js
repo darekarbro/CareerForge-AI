@@ -1,6 +1,6 @@
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
-const { buildLearningPlan } = require('../src/services/learningPlanService');
+const { buildLearningPlan, currentReports } = require('../src/services/learningPlanService');
 
 test('Phase 4: plans turn linked interview gaps into observable tasks, milestones and reassessment', () => {
   const source = { sessionId: 's1', questionId: 'q1', attemptIndex: 0, href: '/interview/session/s1?question=q1&attempt=0' };
@@ -23,4 +23,17 @@ test('Phase 4: JD-only gaps stay unassessed and superseded reports cannot genera
   assert.equal(plan.items[0].requirementSources[0].analysisId, 'g1'); assert(plan.items[0].reason.includes('does not establish a lack of skill'));
   const newer = { ...report, _id: 'g2', requirementMatches: [{ ...requirement, status: 'supported' }] };
   assert.deepEqual(buildLearningPlan({ competencies: [] }, [newer, report]).items, []);
+});
+
+test('Phase 4: stale latest reports cannot resurrect older report gaps and legacy reports require reassessment', () => {
+  const base = { resumeId: 'r1', jobDescriptionId: 'j1' };
+  const selected = currentReports([
+    { ...base, _id: 'new-stale', sourceRevision: 1 },
+    { ...base, _id: 'old-report', sourceRevision: 2 },
+    { ...base, _id: 'legacy', jobDescriptionId: 'j2' },
+    { ...base, _id: 'current', jobDescriptionId: 'j3', sourceRevision: 2 },
+    { ...base, _id: 'removed-resume', resumeId: 'removed', sourceRevision: 1 },
+  ], [{ _id: 'r1', contentRevision: 2 }]);
+  assert.deepEqual(selected.current.map((item) => item._id), ['current']);
+  assert.deepEqual(selected.excluded, { stale: 1, unversioned: 1, missingResume: 1 });
 });
