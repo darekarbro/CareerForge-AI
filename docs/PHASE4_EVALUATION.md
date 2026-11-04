@@ -5,7 +5,7 @@ Run from the repository root with Node.js and the installed server dependencies:
 ```bash
 node server/scripts/evaluatePhase4.cjs
 node server/scripts/evaluatePhase4.cjs --holdout
-node server/scripts/evaluatePhase4.cjs --all --output docs/PHASE4_CONTRADICTION_RESULTS.json
+node server/scripts/evaluatePhase4.cjs --all --output .test-tmp/phase4-current-regression.json
 ```
 
 The default evaluates only 30 development cases. The holdout option explicitly evaluates the separately stored 10 cases. Use development results while implementing; freeze the implementation before publishing holdout results. If holdout results inform a later fix, add a new holdout version rather than repeatedly tuning against this set. These commands make no network calls, read no `.env`, and use no applicant data. See the [dataset policy](../server/evaluation/README.md).
@@ -24,7 +24,17 @@ The [untuned first-pass v2 report](PHASE4_FRESH_HOLDOUT_RESULTS.md) evaluates 24
 npm run evaluate:phase4 -- --dataset-version v2 --holdout --output .test-tmp/phase4-v2-regression.json
 ```
 
-Default CLI and CI behavior remains v1 development only. The frozen assessment code and metric definitions were not changed after observing v2 results. Its labels were reviewed before execution and were not adjusted to predictions. A later fix needs another unseen holdout before claiming improved generalization.
+The default evaluator CLI and CI evaluation artifact remain v1 development only; the v4 server test suite additionally checks public v2 cases as regressions. The original v2 publication used the frozen assessment code and metric definitions. Its labels were reviewed before execution and were not adjusted to predictions. Later v4 fixes use these public failures as regression cases; the original first-pass records remain preserved.
+
+## V4 accuracy cycle and fresh v3 validation
+
+The [accuracy report](PHASE4_ACCURACY_RESULTS.md) publishes the current v1/v2 regression measurements and a new, independently authored/reviewed v3 holdout. V4 resolves the measured v2 skill/status errors, but its single untuned v3 run reports skill F1 78.17%, status accuracy 66.91% and 3/68 unsupported supported decisions. These remaining failures are included in the publication; no parser, matcher, metric or label tuning followed v3 scoring.
+
+The [v3 protocol](../server/evaluation/protocols/v3-first-pass.json), [dataset lock](../server/evaluation/protocols/v3-first-pass.lock.json), [receipt](../server/evaluation/protocols/v3-first-pass.receipt.json) and [raw report](PHASE4_ACCURACY_V3_HOLDOUT_RESULTS.json) preserve source/dataset/evaluator hashes and the first attempt. After publication, reruns require a separate output path and count as regression evidence:
+
+```bash
+npm run evaluate:phase4 -- --dataset-version v3 --holdout --output .test-tmp/phase4-v3-regression.json
+```
 
 The JSON output contains separate split summaries, group summaries, case-level errors, timestamps, dataset hashes, an implementation hash and runtime information. Preserve those details with published results. Latency is measured from the actual run, so it varies by machine and background activity. A single independent warmup precedes one timed parse-and-match sample per case. This is a small local benchmark, not a load or service latency test.
 
