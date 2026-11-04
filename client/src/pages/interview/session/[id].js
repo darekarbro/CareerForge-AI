@@ -59,8 +59,9 @@ export default function InterviewSessionPage() {
 
   useEffect(() => {
     const index = questions.findIndex((item) => item._id === router.query.question);
-    if (index >= 0) setCurrentIndex(index);
-  }, [router.query.question, questions]);
+    const firstPending = questions.findIndex((item) => !item.answeredAt && item.feedback?.overallScore === undefined);
+    if (index >= 0) setCurrentIndex(session?.adaptiveEnabled && firstPending >= 0 ? Math.min(index, firstPending) : index);
+  }, [router.query.question, questions, session?.adaptiveEnabled]);
 
   const handleSubmitAnswer = async (questionId, userAnswer, retry = false) => {
     if (isSubmitting) return;

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import ProtectedRoute from '../../components/ProtectedRoute/ProtectedRoute';
@@ -11,12 +11,25 @@ export default function InterviewSetupPage() {
   const router = useRouter(), resumes = useOwnedResource('/resumes'), workspaces = useOwnedResource('/workspaces'), descriptions = useOwnedResource('/interview/descriptions');
   const draft = usePersistentDraft('interview-setup', { userId: resumes.userId, revision: 0, value: empty });
   const [starting, setStarting] = useState(false), [error, setError] = useState('');
+  const appliedPlan = useRef('');
   const list = (resumes.data || []).filter((item) => item.processingStatus === 'COMPLETED');
   useEffect(() => {
     if (!draft.ready || !router.query.workspace || !workspaces.data) return;
     const item = workspaces.data.find((entry) => entry._id === router.query.workspace);
     if (item && draft.value.workspaceId !== item._id) draft.change({ ...draft.value, workspaceId: item._id, resumeId: item.resumeId || '', targetRole: item.title, jobDescriptionId: item.jobDescriptionId || '' });
   }, [draft, router.query.workspace, workspaces.data]);
+  useEffect(() => {
+    if (!draft.ready || resumes.loading || descriptions.loading || router.query.workspace || !router.query.topic) return;
+    const key = JSON.stringify([resumes.userId, router.query.topic, router.query.resume, router.query.description, router.query.difficulty]);
+    if (appliedPlan.current === key) return;
+    appliedPlan.current = key;
+    const resume = resumes.data?.find((item) => item._id === router.query.resume && item.processingStatus === 'COMPLETED'), description = descriptions.data?.find((item) => item._id === router.query.description);
+    const topicFocus = String(router.query.topic).slice(0, 150);
+    const difficulty = ['Easy', 'Medium', 'Hard'].includes(router.query.difficulty) ? router.query.difficulty : 'Easy';
+    if (draft.value.topicFocus !== topicFocus || draft.value.difficulty !== difficulty || draft.value.count !== 3 || draft.value.workspaceId || resume && draft.value.resumeId !== resume._id || description && draft.value.jobDescriptionId !== description._id) {
+      draft.change({ ...draft.value, topicFocus, difficulty, count: 3, workspaceId: '', ...(resume ? { resumeId: resume._id } : {}), ...(description ? { jobDescriptionId: description._id } : {}) });
+    }
+  }, [draft, router.query.workspace, router.query.topic, router.query.resume, router.query.description, router.query.difficulty, resumes.data, resumes.loading, resumes.userId, descriptions.data, descriptions.loading]);
   const field = (key, value) => draft.change({ ...draft.value, [key]: value });
   const chooseWorkspace = (id) => {
     const item = workspaces.data?.find((entry) => entry._id === id);
