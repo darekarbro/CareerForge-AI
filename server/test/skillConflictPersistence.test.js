@@ -95,6 +95,16 @@ test('tailored edits and historical restores retain only still-active server-own
   assert.equal(status(saved.reviewedContent), 'uncertain'); assert.deepEqual(saved.reviewedContent.skills.all, []);
 });
 
+test('legacy saved contradictions are flagged during review and retained after saving filtered fields', async () => {
+  const legacy = original(); delete legacy.skillConflicts; legacy.skills.all = ['React']; legacy.skills.technical = ['React'];
+  const record = await resume(legacy);
+  const review = await require('../src/services/importReviewService').review(record._id, record.owner);
+  assert.deepEqual(review.content.skills.all, []); assert.equal(review.skillConflicts.length, 1);
+  const saved = await editing.saveContent(record._id, record.owner, { revision: 1, content: cleanResumeContent(review.content) });
+  assert.deepEqual([...saved.parsedData.skills.all], []); assert.equal(status(saved.parsedData), 'uncertain');
+  assert(saved.parsingWarnings.some((warning) => warning.includes('both claimed and denied')));
+});
+
 test('saved project reordering relocates denial references and removing the denial clears obsolete conflict flags', async () => {
   const content = original(); content.summary = '';
   content.projects = [

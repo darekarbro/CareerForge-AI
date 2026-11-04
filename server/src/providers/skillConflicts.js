@@ -57,7 +57,7 @@ function refreshSkillConflicts(content, previous = {}) {
   const data = plain(content); delete data.skillConflicts;
   const current = reconcileSkillConflicts(data), statements = narrative(current);
   const bySkill = new Map((current.skillConflicts || []).map((conflict) => [normalizeSkill(conflict.skill), conflict]));
-  for (const conflict of activeSkillConflicts(previous)) {
+  for (const conflict of activeSkillConflicts(reconcileSkillConflicts(previous))) {
     const negativeEvidence = uniqueEvidence(statements.filter((item) => conflict.negativeEvidence.some((old) => old.quote === item.quote)
       && explicitlyDeniesSkill(item.quote, conflict.skill)));
     if (negativeEvidence.length && !bySkill.has(normalizeSkill(conflict.skill))) bySkill.set(normalizeSkill(conflict.skill), {

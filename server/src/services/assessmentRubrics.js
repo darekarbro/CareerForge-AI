@@ -1,4 +1,5 @@
 const { extractSkills, resumeText, normalizeSkill, plain } = require('../providers/resumeFacts');
+const { refreshSkillConflicts } = require('../providers/skillConflicts');
 
 const rubricVersion = 'careerforge-assessment-v3';
 const modelVersion = 'assessment-rules-v3';
@@ -19,7 +20,7 @@ function rubric(kind) {
 }
 
 function assessResume({ resumeData = {} } = {}) {
-  const data = plain(resumeData), contact = data.contactInfo || {};
+  const data = refreshSkillConflicts(plain(resumeData), resumeData), contact = data.contactInfo || {};
   const text = resumeText(data), wordCount = text.split(/\s+/).filter(Boolean).length;
   const breakdown = [], strengths = [], improvements = [];
   const check = (category, valid, good, missing, points) => {

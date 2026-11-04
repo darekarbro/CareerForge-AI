@@ -94,3 +94,12 @@ test('provider validation rejects malformed, stale or still-positive contradicti
     assert.throws(() => validateResult('parseResume', invalid, source), /Invalid provider schema/);
   }
 });
+
+test('legacy positive lists cannot inflate a reassessed score or lose the conflict after a filtered review save', () => {
+  const legacy = { summary: 'I do not know React.', skills: { all: ['React'], technical: ['React'] }, projects: [] };
+  assert.equal(assessResume({ resumeData: legacy }).keywordScore, 0);
+  assert.deepEqual(legacy.skills.all, ['React'], 'assessment must not mutate stored legacy facts');
+  const reviewed = { summary: legacy.summary, skills: { all: [], technical: [] }, projects: [] };
+  const refreshed = refreshSkillConflicts(reviewed, legacy);
+  assert.equal(refreshed.skillConflicts[0].skill, 'React'); assert.equal(match(refreshed).requirementMatches[0].status, 'uncertain');
+});

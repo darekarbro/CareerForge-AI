@@ -1,5 +1,5 @@
 const { withEntryIds } = require('./resumeStructure');
-const { activeSkillConflicts, conflictWarnings } = require('../providers/skillConflicts');
+const { activeSkillConflicts, conflictWarnings, refreshSkillConflicts } = require('../providers/skillConflicts');
 const normalize = (value) => String(value || '').normalize('NFKC').toLocaleLowerCase().replace(/[^\p{L}\p{N}]/gu, '');
 async function review(id, owner) {
   const resume = await require('./resumeService').getReadyResume(id, owner);
@@ -9,7 +9,7 @@ async function review(id, owner) {
     catch { available = false; label = 'Saved resume text — original file unavailable'; }
   }
   if (!source) { source = resume.rawText || ''; label = available ? label : resume.sourceType === 'profile' ? 'Verified career profile text' : 'Saved resume text — original file unavailable'; }
-  const content = withEntryIds(resume.parsedData), issues = [], normalized = normalize(source);
+  const content = refreshSkillConflicts(withEntryIds(resume.parsedData), resume.parsedData), issues = [], normalized = normalize(source);
   const walk = (value, path) => {
     if (typeof value === 'string' && value.trim() && !['entryId', '_id'].includes(path.at(-1)) && !normalized.includes(normalize(value))) issues.push({ path, reason: 'Not found verbatim in the source. Confirm that the extracted wording is accurate.' });
     else if (Array.isArray(value)) value.forEach((item, index) => walk(item, [...path, index]));
