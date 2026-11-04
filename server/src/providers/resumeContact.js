@@ -2,10 +2,11 @@ const { instruction } = require('../services/jobRequirements');
 const { SKILLS } = require('./resumeFacts');
 
 const emailPattern = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
-const emailWithLabel = /(?:(?:\b(?:e-?mail|mail|candidate\s+contact)\s*(?::|=|[-=]>?|\/|>)\s*)|mailto:)?<?[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}>?/gi;
-const contactLabel = /^(?:(?:candidate\s+)?contact|e-?mail|mail|phone|tel(?:ephone)?|mobile|location|address|linkedin|github|portfolio)\s*(?::|=|[-=]>?|\/|>)/i;
-const nameLabel = /^(?:(?:full|candidate)\s+name|name|candidate|resume)\s*(?::|=|[-=]>?|\/|>)\s*/i;
-const title = /^(?:resume|curriculum vitae|cv)$/i;
+const emailWithLabel = /(?:(?:\b(?:(?:candidate\s+)?(?:contact|e-?mail(?:\s+address)?|mail)|correspondence|reach\s+me)\s*(?::|=|[-=]>?|[—–/>])\s*)|mailto:)?<?[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}>?/gi;
+const emailLabel = /^(?:(?:candidate\s+)?(?:contact|e-?mail(?:\s+address)?|mail)|correspondence|reach\s+me)\s*(?::|=|[-=]>?|[—–/>])/i;
+const contactLabel = /^(?:(?:candidate\s+)?(?:contact|e-?mail(?:\s+address)?|mail)|correspondence|reach\s+me|phone|tel(?:ephone)?|mobile|location|address|linkedin|github|portfolio)\s*(?::|=|[-=]>?|[—–/>])/i;
+const nameLabel = /^(?:(?:full|candidate)\s+name|name|candidate|r[eé]sum[eé])\s*(?::|=|[-=]>?|[—–/>])\s*/i;
+const title = /^(?:(?:[\p{L}\p{M}’'-]+['’]s\s+)?(?:engineering|professional|career|candidate|personal)\s+)?(?:r[eé]sum[eé]|curriculum vitae|cv|dossier|profile)$/iu;
 const referenceHeading = /^(?:(?:professional|personal)\s+)?(?:references|referees)\s*:?$/i;
 const simpleHeadings = new Set(['reach me', 'who i am', 'about me', 'about', 'contact', 'contact information', 'contact details', 'correspondence', 'identity and contact', 'personal details', 'personal information', 'candidate details', 'applicant details', 'identity', 'name', 'email address', 'profile', 'summary', 'overview', 'biography', 'introduction', 'professional synopsis', 'self-assessment']);
 const heading = /^(?:(?:my|core|key|technical|professional|personal|selected|formal|academic|current)\s+)?(?:skills?(?:\s+(?:and\s+how\s+i\s+use\s+them|summary|sheet))?|competencies|capabilities|tools(?:\s+i\s+use)?|experience|employment|work(?:\s+record)?|career|appointments|education(?:\s+and\s+training)?|training|qualifications?|study|learning(?:\s+record)?|practice|record|repertoire|declaration|statement|role|projects?)\s*[:.=]*$/i;
@@ -74,6 +75,8 @@ function introductoryName(raw) {
   const introduction = line.match(/^(?:i\s+am|i['’]m|my\s+name\s+is)\s+(.+)$/i);
   if (!introduction) return '';
   let candidate = introduction[1].split(/,|\s+and\s+I\b|\s+(?:and\s+)?(?:currently|now)\b/)[0].trim();
+  // Availability, negation and activity predicates after "I am" are not introductions.
+  if (/^(?:not|never|available|unavailable|able|unable|learning|interested|looking|seeking|working|based|located|ready)\b/i.test(candidate)) return '';
   for (const ending of candidate.matchAll(/\.(?=\s|$)/g)) {
     const word = candidate.slice(0, ending.index).match(/([\p{L}\p{M}]+)$/u)?.[1] || '';
     if (word.length === 1 || /^(?:Dr|Mr|Ms|Mrs|Mx|Prof|St|Jr|Sr)$/i.test(word)) continue;
@@ -158,7 +161,7 @@ function contactDetails(lines = []) {
       if (data.names.length > 1) ambiguousContactRow = true;
     }
     if (name && !data.ambiguous && data.names.some(equalName)) identityRows.push(emails[0]);
-    else if (/^(?:(?:candidate\s+)?contact|e-?mail|mail)\s*(?::|=|[-=]>?|\/|>)/i.test(line)) labeled.push(emails[0]);
+    else if (emailLabel.test(line)) labeled.push(emails[0]);
     else if (!data.names.length && !data.ambiguous && !data.unrecognized && (contactSection || identityIndexes.some(identityIndex => Math.abs(identityIndex - index) <= 3))) nearby.push(emails[0]);
   });
   // A multi-name header cannot identify a person, but its sole contact address is still explicit evidence.
