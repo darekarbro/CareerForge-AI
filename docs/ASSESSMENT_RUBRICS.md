@@ -1,8 +1,8 @@
-# Assessment rubrics (careerforge-assessment-v4)
+# Assessment rubrics (careerforge-assessment-v5)
 
 Resume extraction can use an allowed AI provider. Final resume quality and job matching are repeatable **local rules**, with no external scoring request or token charge. Neither score predicts hiring success or reproduces a commercial ATS. Results disclose the rubric version, input fingerprint, timestamp and provider in `assessmentMeta`; changing this version invalidates earlier cache entries.
 
-Version 4 preserves the earlier weights and score formula. The engine `assessment-rules-v4` recognizes semantic, inline and parallel text sections, retains eligible unmapped source statements verbatim for review, and evaluates each skill's assertion separately. It distinguishes candidate work from quoted requirements, other people's claims, employer identities and learning goals. Explicit contradictions still withhold the skill and earn no positive match credit. The new version invalidates cached assessments; all historical reports retain their original versions and measurements.
+Version 5 preserves the earlier weights and score formula. The engine `assessment-rules-v5` extends compact skill declarations and category/value tables, contact labels, bounded skill denials and third-party attribution. Inline job requirement headings carry their category across subsequent list clauses. It retains eligible unmapped source statements verbatim for review and evaluates each skill's assertion separately. Explicit contradictions still withhold the skill and earn no positive match credit. The new version invalidates cached assessments; all historical reports retain their original versions and measurements.
 
 ## Resume quality
 
@@ -12,7 +12,7 @@ Contact details affect only resume completeness. Names, gender, age, nationality
 
 ## Job requirements and evidence
 
-Job descriptions are split into source clauses and retain original source text. Recognized skills default to required unless an optional phrase or preferred-skills heading applies. Required skills have weight 3, preferred skills weight 1, experience expectations weight 2, and constraints weight 2. Experience and constraints remain separate from skills. Unsupported clauses are retained for manual review, not silently treated as satisfied. Alternatives such as “Python or Java” are flagged for review rather than requiring both skills.
+Job descriptions are split into source clauses and retain original source text. Recognized skills default to required unless an optional phrase or preferred-skills heading applies. A heading such as “Preferred skills — Redux; Jest; GraphQL” governs all following list clauses until a new heading; qualifiers elsewhere in prose apply only to their clause. Required skills have weight 3, preferred skills weight 1, experience expectations weight 2, and constraints weight 2. Experience and constraints remain separate from skills. Unsupported clauses are retained for manual review, not silently treated as satisfied. Alternatives such as “Python or Java” are flagged for review rather than requiring both skills.
 
 Every requirement has a stable ID, category, weight, source clause and explanation. Matching inspects career content only (summary, skills, experience highlights, projects and education), recording exact JSON field paths and verbatim text excerpts. Skill mentions are self-reported evidence, not proof of proficiency. Explicit negation and instructional text are excluded; contradictory positive and negative evidence is uncertain. Company names, contact fields, metadata and warnings are not skill evidence. A skill appearing only in a copied job description is not a verified skill; source review remains necessary.
 
