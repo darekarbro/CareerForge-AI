@@ -35,6 +35,13 @@ function aspiringSkill(text, skill) {
 
 function excludedMention(text, skill, listed) {
   if (aspiringSkill(text, skill)) return true;
+  const nextAssertion = /\band\s+(?:(?:I|we)\s+)?(?:use|used|build|built|write|wrote|implement|implemented|maintain|maintained|apply|applied)\b/i;
+  for (const match of text.matchAll(/\b(?:document|article|book|paper|guide|documentation|tutorial)\s+(?:about|on|covering)\s+/gi)) {
+    if (hasSkill(text.slice(match.index + match[0].length).split(nextAssertion)[0], skill)) return true;
+  }
+  for (const match of text.matchAll(/\b(?:to\s+replace|replacing|replacement\s+for)\s+([^.;!?]+?)\s+(?:written|built|developed|implemented)\s+by\s+(?!me\b|us\b)/gi)) {
+    if (hasSkill(match[1], skill)) return true;
+  }
   for (const match of text.matchAll(/\b(?:without|rather than|instead of)\s+/gi)) if (hasSkill(text.slice(match.index + match[0].length), skill)) return true;
   if (skill === 'Go' && !listed && !/\bGolang\b|\bGo\b/.test(text) && !/\b(?:use|using|in|with|language)\s+go\b/i.test(text)) return true;
   if (skill === 'Express' && /\bI\s+express\b/i.test(text) && !/\bExpress\b|express\s+(?:framework|handlers?|server|middleware)/.test(text)) return true;

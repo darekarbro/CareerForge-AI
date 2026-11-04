@@ -1,9 +1,11 @@
 const { hasSkill, normalizeSkill } = require('./resumeFacts');
 const { instruction } = require('../services/jobRequirements');
 const action = 'know|use|understand|learn|study|operate|program';
+const coordinatedAction = action + '|used|understood|learned|learnt|studied|operated|programmed|worked\\s+with';
 const otherRole = '(?:colleague|teammate|team|manager|client|customer|student|applicant|recruiter|partner|friend)';
 const otherAction = '(?:uses?|used|builds?|built|writes?|wrote|knows?|works?|worked|said|says|does\\s+not|doesn[\'’]t|cannot|can[\'’]t|has|have)';
-const namedOwner = '(?!I\\b|We\\b|My\\b|Our\\b|No\\b|Not\\b|This\\b|The\\b|A\\b|An\\b|Candidate\\b)[A-Z][a-z]+(?:\\s+[A-Z][a-z]+)?\\s+' + otherAction + '\\b';
+const namedOwner = '(?!I\\b|We\\b|My\\b|Our\\b|No\\b|Not\\b|This\\b|The\\b|A\\b|An\\b|Candidate\\b)(?:[A-Z][a-z]+|[A-Z]{2,})(?:\\s+(?:[A-Z][a-z]+|[A-Z]{2,}))?\\s+' + otherAction + '\\b';
+const isNamedOwner = value => !/^(?:I|we|my|our|no|not|this|the|a|an|candidate)\b/i.test(value) && new RegExp('^' + namedOwner).test(value);
 
 const denialPrefixes = [
   new RegExp("\\b(?:(?:do|does|did)\\s+not|(?:don|doesn|didn)['’]t)\\s+(?:" + action + ')(?:\\s+or\\s+(?:' + action + '))*\\s+', 'gi'),
@@ -14,8 +16,9 @@ const denialPrefixes = [
   /\b(?:(?:do|does|did)\s+not|(?:don|doesn|didn)['’]t)\s+(?:know|use|understand)\s+/gi,
   /\b(?:(?:do|does|did)\s+not|(?:don|doesn|didn)['’]t)\s+have\s+(?:any\s+)?(?:experience|knowledge|proficiency)\s+(?:with|in|of)\s+/gi,
   /\bnever\s+(?:used|worked\s+with|worked\s+on)\s+/gi,
-  /\bno\s+(?:(?:prior|professional|practical|hands-on)\s+)?(?:experience|knowledge|proficiency)\s+(?:with|in|of)\s+/gi,
-  /\bnot\s+(?:yet\s+)?(?:familiar|proficient|experienced)\s+(?:with|in)\s+/gi,
+  /\bno\s+(?:(?:prior|professional|practical|hands-on)\s+)?(?:skills?|experience|knowledge|proficiency)\s+(?:with|in|of)\s+/gi,
+  /\bno\s+ability\s+to\s+(?:use|understand|operate|program(?:\s+in)?|work\s+(?:with|in)|build\s+(?:with|using))\s+/gi,
+  /\bnot\s+(?:yet\s+)?(?:familiar|proficient|experienced|skilled)\s+(?:with|in)\s+/gi,
 ];
 
 function splitClaimClauses(text) {
@@ -48,7 +51,7 @@ function splitClaimClauses(text) {
       const subject = source.slice(match.index).replace(/^and\s+/i, '');
       const knownSubject = /^(?:I|we|he|she|they)\b/i.test(subject)
         || new RegExp('^(?:my|our|the|a)\\s+' + otherRole + '\\b', 'i').test(subject)
-        || new RegExp('^' + namedOwner).test(subject);
+        || isNamedOwner(subject);
       if (!knownSubject) continue;
     }
     if (/^\r?\n$/.test(match[0])) {
@@ -73,12 +76,13 @@ function nonCandidateClause(value) {
   if (instruction.test(clause)) return true;
   if (new RegExp('^(?:(?:my|our|the|a|another)\\s+)?' + otherRole + '\\b', 'i').test(clause)) return true;
   if (/^(?:he|she|they|his|her|their)\b/i.test(clause)) return true;
-  if (new RegExp('^' + namedOwner).test(clause)) return true;
+  if (isNamedOwner(clause)) return true;
   if (/\b(?:colleague|teammate|manager|client|customer)\b.{0,45}\b(?:said|says|stated|reported|explained)\b/i.test(clause)) return true;
   if (/\b(?:assignment|brief|specification|job description|instructions?|requested approach)\b/i.test(clause)
     && /\b(?:said|says|requires?|asked|requested|wanted|expected|suggested|stated|specified|approach)\b/i.test(clause)
     && !/\bI\s+(?:implemented|built|wrote|used|delivered)\b/i.test(clause)) return true;
-  if (/\b(?:built|written|developed|implemented)\s+by\s+(?!me\b|us\b)/i.test(clause)) return true;
+  const passiveOwner = /\b(?:built|written|developed|implemented)\s+by\s+(?!me\b|us\b)/i.exec(clause);
+  if (passiveOwner && !/\b(?:I|we)\s+(?:(?:have|had|also|then)\s+)*(?:built|wrote|developed|implemented|used|created)\b/i.test(clause.slice(0, passiveOwner.index))) return true;
   return false;
 }
 
@@ -102,8 +106,14 @@ function startsWithSkill(value, skill) {
 }
 
 function deniedListContains(value, skill) {
-  // A new verb after "and" is not a listed skill: startsWithSkill rejects that fragment.
-  return value.split(/\s*(?:,|\||\band\b|\bor\b|\bnor\b)\s*/i).some((part) => startsWithSkill(part, skill));
+  // "or know Python" inherits the negative verb scope; "and use Python"
+  // remains a separate positive assertion unless it repeats the negation.
+  const parts = value.split(/\s*(,|\||\band\b|\bor\b|\bnor\b)\s*/i);
+  return parts.some((part, index) => {
+    const inheritedAction = index > 0 && /^(?:or|nor)$/i.test(parts[index - 1]);
+    const target = inheritedAction ? part.replace(new RegExp('^(?:' + coordinatedAction + ')(?:\\s+or\\s+(?:' + coordinatedAction + '))*\\s+', 'i'), '') : part;
+    return startsWithSkill(target, skill);
+  });
 }
 
 function explicitlyDeniesSkill(text, skill) {

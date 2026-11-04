@@ -93,6 +93,7 @@ test('multiline and multi-sentence quotes keep the original third-party owner', 
 test('mixed named owners never lend their skills to the candidate', () => {
   for (const source of [
     'I use Python and Alice uses React.',
+    'I use Python and ALICE uses React.',
     'Alice uses React and I use Python.',
     'I use Python, and he uses React.',
     'I use Python; Alice does not know Docker.',
@@ -130,4 +131,29 @@ test('purpose clauses cannot be mistaken for employer names', () => {
   same(analyzeSkillClaims('I worked at AWS and used Python.').positiveSkills, ['Python']);
   same(analyzeSkillClaims('I do not know React BUT use Python.').positiveSkills, ['Python']);
   same(analyzeSkillClaims('I have Python skills and use React.').positiveSkills, ['Python', 'React']);
+});
+
+test('skills, ability and coordinated-verb denials cannot become positive evidence', () => {
+  for (const source of ['I have no skills in React.', 'I have no ability to use React.', 'I am not skilled in React.']) {
+    const result = analyzeSkillClaims(source, { context: 'skills' });
+    same(result.positiveSkills, []); same(result.deniedSkills, ['React']);
+  }
+  const coordinated = analyzeSkillClaims('I do not use React or know Python. I use SQL.');
+  same(coordinated.positiveSkills, ['SQL']); same(coordinated.deniedSkills, ['React', 'Python']);
+  const separate = analyzeSkillClaims('I do not use React and know Python.');
+  same(separate.positiveSkills, ['Python']); same(separate.deniedSkills, ['React']);
+});
+
+test('topics and third-party replaced artifacts never establish candidate skill evidence', () => {
+  for (const source of [
+    'I used Python to read a document about React.',
+    'I built a Python tool to replace a React tool written by my colleague.',
+    'I used Python to read a guide on React and used SQL for my own data.',
+  ]) {
+    const result = analyzeSkillClaims(source);
+    same(result.positiveSkills, source.includes('SQL') ? ['Python', 'SQL'] : ['Python']);
+    same(result.deniedSkills, []);
+    assert(result.candidateText.every(quote => source.includes(quote)));
+  }
+  same(analyzeSkillClaims('The React tool was written by my colleague.', { context: 'skills' }).positiveSkills, []);
 });

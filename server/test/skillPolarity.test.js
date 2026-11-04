@@ -14,6 +14,8 @@ test('explicit skill denials recognize bounded knowledge, experience and profici
     'I do not have React skills.', 'I have no React programming skills.',
     'I cannot use React.', "I can't use React.", 'I have never learned React.',
     'I have not studied React.', 'I lack React knowledge.',
+    'I have no skills in React.', 'I have no ability to use React.',
+    'I am not skilled in React.',
   ]) assert.equal(explicitlyDeniesSkill(text, 'React'), true, text);
 });
 
@@ -69,4 +71,24 @@ test('denial recognition does not mutate source text and remains deterministic a
   assert.equal(explicitlyDeniesSkill(text, 'React'), true);
   assert.equal(explicitlyDeniesSkill(text, 'Python'), false);
   assert.equal(text, 'I use Python but do not know React.js.');
+});
+
+test('negative coordinated verbs inherit scope only across or and nor', () => {
+  for (const source of [
+    'I do not use React or know Python.',
+    'I do not use React nor understand Python.',
+    'I cannot use React or operate Python.',
+    'I have never used React or learned Python.',
+  ]) {
+    assert.equal(explicitlyDeniesSkill(source, 'React'), true, source);
+    assert.equal(explicitlyDeniesSkill(source, 'Python'), true, source);
+  }
+  for (const source of [
+    'I do not use React and know Python.',
+    'I have no skills in React but use Python.',
+    'I have no ability to use React; I use Python.',
+    'I am not skilled in React and I use Python.',
+    'My colleague has no skills in Python.',
+  ]) assert.equal(explicitlyDeniesSkill(source, 'Python'), false, source);
+  assert.equal(explicitlyDeniesSkill('I do not use React or know Python developers.', 'Python'), false);
 });
