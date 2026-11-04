@@ -73,6 +73,8 @@ The [Phase 3 workflow guide](docs/PHASE3_WORKFLOWS.md) explains evidence collect
 
 The [Phase 4 guide](PHASE4.md) demonstrates adaptive assessment and interview flows. The [published evaluation report](docs/PHASE4_EVALUATION_RESULTS.md) measures 40 synthetic cases with a separate holdout and reports formatting weaknesses. These are offline parsing and rubric results; live-provider quality and independent human scoring agreement remain unmeasured. Run `npm run evaluate:phase4` for development-set measurements.
 
+The [formatting regression report](docs/PHASE4_FORMATTING_RESULTS.md) documents fixes for spaced headings, inline skills and combined name/email lines: all 14 expected skills in the six published formatting cases are now recovered. The original benchmark remains preserved; this follow-up uses known cases as regression evidence.
+
 - Live agent timeline for processing pipeline visibility
 - Resume version history and export management
 - Search and application analytics dashboard

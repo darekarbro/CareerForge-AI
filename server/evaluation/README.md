@@ -8,4 +8,6 @@ Formatting cases include CRLF, tabs, flattened columns, unusual headings, punctu
 
 Holdout cases are stored separately and must not drive implementation tuning. Use development cases during changes. Run holdout explicitly only when publishing a frozen result, report both splits separately, and create a new holdout version if results inform later tuning. This small, related synthetic set is not a representative sample of real applicants or an externally blinded benchmark.
 
+The v1 cases and initial results are now public. Later runs of this set are labeled regression checks, including the published holdout split. The formatting follow-up preserves both v1 JSON datasets and the initial report; it does not claim fresh unseen evaluation evidence.
+
 Human score agreement is unavailable until independent reviewers supply annotations. Do not substitute fixture scores, AI scores or deterministic expected scores for human judgments. The measurement guide documents the annotation format and runner.

@@ -38,6 +38,8 @@ CI records development results as an artifact. Holdout execution is explicit and
 
 The published baseline has development skill F1 **95.05%**, requirement-status accuracy **94.94%**, and **0/39** unsupported supported-skill decisions. Holdout results are **100%** on the labeled skill/status metrics and **0/16** unsupported supported-skill decisions. Formatting remains weak: development skill recall is **71.43%** in that group. The small related holdout cannot establish general real-resume accuracy. Human scoring agreement and live-provider quality, usage and latency remain unmeasured; neither has been fabricated.
 
+The [formatting follow-up](docs/PHASE4_FORMATTING_RESULTS.md) fixes spaced headings, inline lists and combined name/email lines. On the same published cases, formatting skill recall improves from **71.43% to 100%**, and development skill F1 improves to **99.05%**. This is a regression rerun of known examples; the original baseline above remains historical evidence.
+
 ## Validation
 
 The verification commands are:

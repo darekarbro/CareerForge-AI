@@ -5,10 +5,12 @@ Run from the repository root with Node.js and the installed server dependencies:
 ```bash
 node server/scripts/evaluatePhase4.cjs
 node server/scripts/evaluatePhase4.cjs --holdout
-node server/scripts/evaluatePhase4.cjs --all --output docs/PHASE4_EVALUATION_RESULTS.json
+node server/scripts/evaluatePhase4.cjs --all --output docs/PHASE4_FORMATTING_RESULTS.json
 ```
 
 The default evaluates only 30 development cases. The holdout option explicitly evaluates the separately stored 10 cases. Use development results while implementing; freeze the implementation before publishing holdout results. If holdout results inform a later fix, add a new holdout version rather than repeatedly tuning against this set. These commands make no network calls, read no `.env`, and use no applicant data. See the [dataset policy](../server/evaluation/README.md).
+
+The original report is preserved in `PHASE4_EVALUATION_RESULTS.json`. Since that dataset and its original holdout results are now public, subsequent runs label their use as development/published-holdout regression evidence. The [formatting follow-up](PHASE4_FORMATTING_RESULTS.md) compares the same unchanged reference labels before and after the parsing fixes. A new generalization claim needs a new, independently reserved holdout; a rerun of published cases does not provide one.
 
 The JSON output contains separate split summaries, group summaries, case-level errors, timestamps, dataset hashes, an implementation hash and runtime information. Preserve those details with published results. Latency is measured from the actual run, so it varies by machine and background activity. A single independent warmup precedes one timed parse-and-match sample per case. This is a small local benchmark, not a load or service latency test.
 
@@ -48,7 +50,7 @@ Each entry in `reviews` has this format (the score shown here is only a schema i
 Run:
 
 ```bash
-node server/scripts/evaluatePhase4.cjs --all --human /path/to/human-reviews.json --output docs/PHASE4_EVALUATION_RESULTS.json
+node server/scripts/evaluatePhase4.cjs --all --human /path/to/human-reviews.json --output docs/PHASE4_HUMAN_REVIEW_RESULTS.json
 ```
 
 The runner validates dataset/rubric versions, score bounds, case identifiers and duplicate case/reviewer pairs. Human origin remains a reviewer attestation; software cannot verify it. Scores from multiple reviewers are averaged per case before computing agreement, so multiply reviewed cases do not receive extra weight. Unreviewed cases are excluded, and reviewed-case/review counts remain visible. The repository contains no actual human score reviews; published initial agreement must remain **not measured**.
