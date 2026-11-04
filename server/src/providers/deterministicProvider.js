@@ -17,7 +17,6 @@ class DeterministicProvider extends BaseProvider {
 
   async parseResume(rawText = '') {
     const text = String(rawText), { parts, statements } = splitResumeSections(text);
-    const claims = claimParagraphs(text, statements).map((item) => ({ ...item, ...analyzeSkillClaims(item.text, { context: item.context }) }));
     const positiveSkills = (lines, context = 'narrative') => extractSkills(lines.flatMap((line) => analyzeSkillClaims(line, { context }).positiveSkills).join('\n'));
     const header = parts.header.map((line) => line.trim()).filter(Boolean);
     const { name, email } = contactDetails(text.split(/\r?\n/));
@@ -30,7 +29,7 @@ class DeterministicProvider extends BaseProvider {
       const range = block.join(' ').match(dateRange);
       const title = block[0].replace(dateRange, '').replace(/[|,\s-]+$/, '');
       const identity = title.split(/\s+(?:at|@)\s+|\s+\|\s+|\s+[—–]\s+/i);
-      const companyLine = block[1] && !/^[•*\-]/.test(block[1]) && !dateRange.test(block[1]) ? block[1] : '';
+      const companyLine = block[1] && !/^[•*\-]|\b(?:I|we)\b|^(?:built|wrote|developed|implemented|used|using|reviewed|maintained)\b/i.test(block[1]) && !dateRange.test(block[1]) ? block[1] : '';
       return {
         role: identity[0] || '', company: identity[1] || companyLine,
         startDate: range?.[1] || '', endDate: range?.[2] || '',
@@ -58,6 +57,12 @@ class DeterministicProvider extends BaseProvider {
       certifications: (parts.certifications || []).map(cleanBullet).filter(Boolean).map((name) => ({ name })),
       warnings: ['Offline extraction uses source statements and a limited skill dictionary. Review extracted fields against the original; unknown facts were left empty.'],
     };
+    const companies = new Set(workExperience.map(entry => entry.company).filter(Boolean));
+    const institutions = new Set(parsed.education.map(entry => entry.institution).filter(Boolean));
+    const eligibleStatements = statements.filter(item => !(item.context === 'unknown' && item.text === name)
+      && !(item.section === 'experience' && companies.has(item.text))
+      && !(item.section === 'education' && institutions.has(item.text)));
+    const claims = claimParagraphs(text, eligibleStatements).map((item) => ({ ...item, ...analyzeSkillClaims(item.text, { context: item.context }) }));
     // Preserve eligible unmapped statements verbatim, including denials in a skill section.
     // This keeps evidence reviewable even when a nonstandard layout cannot be placed confidently.
     const retained = [];

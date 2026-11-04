@@ -64,3 +64,14 @@ test('structured work and project fields cannot recover skills from a wrapped th
     for (const row of report.requirementMatches.filter(row => row.label !== 'Python')) assert.equal(row.status, 'missing');
   }
 });
+
+test('recognized person and employer identities are excluded even when they consist entirely of skill names', async () => {
+  const parsed = await provider.parseResume('Ruby Rails\nruby@candidate.example\nSkills\nPython\nExperience\nEngineer\nAWS\n2022 - 2025\nWrote Python tools.');
+  assert.equal(parsed.contactInfo.name, 'Ruby Rails'); assert.equal(parsed.workExperience[0].company, 'AWS');
+  assert.deepEqual(parsed.skills.all, ['Python']);
+  const report = assessMatch({ resumeData: parsed, jobDescriptionText: 'Python, Ruby, Rails and AWS required.' });
+  assert.equal(report.requirementMatches.filter(row => row.status === 'supported').length, 1);
+  const candidateStatement = await provider.parseResume('Ada Vale\nExperience\nEngineer\nI use AWS for deployment.');
+  assert(candidateStatement.skills.all.includes('AWS'));
+  assert.equal(candidateStatement.workExperience[0].company, '');
+});
