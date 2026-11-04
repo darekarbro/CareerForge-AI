@@ -40,6 +40,8 @@ The published baseline has development skill F1 **95.05%**, requirement-status a
 
 The [formatting follow-up](docs/PHASE4_FORMATTING_RESULTS.md) fixes spaced headings, inline lists and combined name/email lines. On the same published cases, formatting skill recall improves from **71.43% to 100%**, and development skill F1 improves to **99.05%**. This is a regression rerun of known examples; the original baseline above remains historical evidence.
 
+The [contradictory-skill follow-up](docs/PHASE4_CONTRADICTION_RESULTS.md) withholds the remaining listed-but-denied React claim while preserving an uncertain match and both source statements. Development skill F1 is now **100%** on these known cases. Current validation passes 193 backend and 49 frontend tests; earlier reports and fixture labels remain unchanged.
+
 ## Validation
 
 The verification commands are:
@@ -53,7 +55,7 @@ npm --prefix client run test:browser
 
 Tests use fictional data and isolated databases. Browser verification covers requirement citations, same-session diagnostics, delayed-feedback privacy, retry history, competency links, learning tasks and reassessment navigation, alongside existing workflows and automated accessibility audits. Local logs, screenshots and traces are saved under the ignored `.test-tmp` directory.
 
-Verified locally on 4 November 2026:
+Initial Phase 4 verification on 4 November 2026 (subsequent checks are recorded in the follow-up reports above):
 
 | Check | Observed result |
 | --- | --- |

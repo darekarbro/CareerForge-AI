@@ -75,6 +75,8 @@ The [Phase 4 guide](PHASE4.md) demonstrates adaptive assessment and interview fl
 
 The [formatting regression report](docs/PHASE4_FORMATTING_RESULTS.md) documents fixes for spaced headings, inline skills and combined name/email lines: all 14 expected skills in the six published formatting cases are now recovered. The original benchmark remains preserved; this follow-up uses known cases as regression evidence.
 
+The [contradictory-skill regression](docs/PHASE4_CONTRADICTION_RESULTS.md) withholds listed-but-denied skills and shows both claims for review. The remaining React extraction mismatch is resolved, with 100% skill F1 on the known v1 cases; matching still marks that conflict uncertain with no supported credit.
+
 - Live agent timeline for processing pipeline visibility
 - Resume version history and export management
 - Search and application analytics dashboard

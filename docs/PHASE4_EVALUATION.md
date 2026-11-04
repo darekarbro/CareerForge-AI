@@ -5,12 +5,14 @@ Run from the repository root with Node.js and the installed server dependencies:
 ```bash
 node server/scripts/evaluatePhase4.cjs
 node server/scripts/evaluatePhase4.cjs --holdout
-node server/scripts/evaluatePhase4.cjs --all --output docs/PHASE4_FORMATTING_RESULTS.json
+node server/scripts/evaluatePhase4.cjs --all --output docs/PHASE4_CONTRADICTION_RESULTS.json
 ```
 
 The default evaluates only 30 development cases. The holdout option explicitly evaluates the separately stored 10 cases. Use development results while implementing; freeze the implementation before publishing holdout results. If holdout results inform a later fix, add a new holdout version rather than repeatedly tuning against this set. These commands make no network calls, read no `.env`, and use no applicant data. See the [dataset policy](../server/evaluation/README.md).
 
 The original report is preserved in `PHASE4_EVALUATION_RESULTS.json`. Since that dataset and its original holdout results are now public, subsequent runs label their use as development/published-holdout regression evidence. The [formatting follow-up](PHASE4_FORMATTING_RESULTS.md) compares the same unchanged reference labels before and after the parsing fixes. A new generalization claim needs a new, independently reserved holdout; a rerun of published cases does not provide one.
+
+The [contradictory-skill follow-up](PHASE4_CONTRADICTION_RESULTS.md) resolves the remaining listed-but-denied skill mismatch using assessment version 3. The earlier formatting report remains preserved. Current citation-integrity totals include both positive and denial evidence; denominator changes should not be interpreted as new supported skills.
 
 The JSON output contains separate split summaries, group summaries, case-level errors, timestamps, dataset hashes, an implementation hash and runtime information. Preserve those details with published results. Latency is measured from the actual run, so it varies by machine and background activity. A single independent warmup precedes one timed parse-and-match sample per case. This is a small local benchmark, not a load or service latency test.
 
@@ -23,7 +25,7 @@ The JSON output contains separate split summaries, group summaries, case-level e
 | JD skill extraction | Micro precision, recall and F1 of `(required/preferred category, canonical skill)` pairs. Initial reference labels do not measure non-skill requirements or unknown technologies. |
 | Requirement status accuracy | Correct `supported`, `missing` or `uncertain` decisions divided by labeled JD skills; an unextracted requirement is incorrect. |
 | Unsupported claim rate | Supported skill decisions whose reference label is missing/uncertain, divided by supported decisions with a reference label. This checks original-input truth even when parsed skill lists contain mistakes. |
-| Citation integrity | Quotes that occur in the exact cited parsed-data field divided by all evidence citations. This checks provenance plumbing; a valid citation can still repeat a parser error or self-report. |
+| Citation integrity | Quotes that occur in the exact cited parsed-data field divided by all positive and denial evidence citations. This checks provenance plumbing; a valid citation can still repeat a parser error or self-report. Denials do not earn positive coverage or score credit. |
 | Supported claim evidence coverage | Supported requirements with at least one valid citation divided by supported requirements. |
 | All requirement evidence coverage | Supported requirements with valid citations divided by all extracted requirements, including experience and constraints. This describes available evidence, not model accuracy. |
 | Human scoring agreement | Mean absolute error and fraction within 10 points versus the mean independent human score for each reviewed case. Unavailable until actual human annotations are supplied. |
@@ -57,6 +59,6 @@ The runner validates dataset/rubric versions, score bounds, case identifiers and
 
 ## Interpreting failures
 
-The offline parser uses a limited dictionary and text headings. Source restrictions reject contact/employer names, instruction-like text and negative or aspirational statements; unfamiliar headings and flattened columns can still lose real evidence. A contradictory skill may remain in the extracted list while the matcher correctly marks its support uncertain. Report any false supported decision even if every quote points to a real parsed field: citation integrity cannot independently establish that the original input supports a claim. Exact case-level errors in the JSON make these limitations inspectable instead of hiding them inside aggregate scores. See the [frozen initial results](PHASE4_EVALUATION_RESULTS.md).
+The offline parser uses a limited dictionary and text headings. Source restrictions reject contact/employer names, instruction-like text and negative or aspirational statements; unfamiliar headings and flattened columns can still lose real evidence. Detected listed-but-denied skills are withheld from positive extraction and retained as uncertain review evidence. Indirect, multilingual or complex temporal contradictions can still be missed. Report any false supported decision even if every quote points to a real parsed field: citation integrity cannot independently establish that the original input supports a claim. Exact case-level errors in the JSON make these limitations inspectable instead of hiding them inside aggregate scores. See the [frozen initial results](PHASE4_EVALUATION_RESULTS.md) and [current contradiction regression](PHASE4_CONTRADICTION_RESULTS.md).
 
 Live AI provider quality is a separate evaluation. This runner does not contact configured providers, infer their current pricing, or claim live-provider reliability from offline results. A later live experiment must preserve the same split boundaries, record provider/model/rubric versions, actual usage, observed latency, explicit data-sharing authorization, and real human review provenance.
