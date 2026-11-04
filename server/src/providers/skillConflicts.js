@@ -6,6 +6,7 @@ const canonical = new Map(SKILLS.map((skill) => [normalizeSkill(skill), skill]))
 const narrative = (content) => resumeEvidence(content).filter((item) => !isSkillList(item));
 const uniqueEvidence = (values) => [...new Map(values.map((item) => [item.path + ':' + item.quote, item])).values()].slice(0, 3);
 const uniqueClaims = (values) => [...new Map(values.map(({ quote }) => [quote, { quote }])).values()].slice(0, 3);
+const warningSuffix = ' was both claimed and denied. It was withheld from positive skills; review the conflicting statements.';
 
 function activeSkillConflicts(content = {}) {
   const data = plain(content), statements = narrative(data);
@@ -66,4 +67,9 @@ function refreshSkillConflicts(content, previous = {}) {
   return suppress(current, [...bySkill.values()]);
 }
 
-module.exports = { reconcileSkillConflicts, activeSkillConflicts, refreshSkillConflicts };
+function conflictWarnings(content, warnings = []) {
+  return [...warnings.filter((warning) => typeof warning === 'string' && !warning.endsWith(warningSuffix)),
+    ...activeSkillConflicts(content).map((conflict) => conflict.skill + warningSuffix)];
+}
+
+module.exports = { reconcileSkillConflicts, activeSkillConflicts, refreshSkillConflicts, conflictWarnings };

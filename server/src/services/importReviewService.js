@@ -1,5 +1,5 @@
 const { withEntryIds } = require('./resumeStructure');
-const { activeSkillConflicts } = require('../providers/skillConflicts');
+const { activeSkillConflicts, conflictWarnings } = require('../providers/skillConflicts');
 const normalize = (value) => String(value || '').normalize('NFKC').toLocaleLowerCase().replace(/[^\p{L}\p{N}]/gu, '');
 async function review(id, owner) {
   const resume = await require('./resumeService').getReadyResume(id, owner);
@@ -19,6 +19,6 @@ async function review(id, owner) {
   const skillConflicts = activeSkillConflicts(content);
   for (const conflict of skillConflicts) issues.push({ path: ['skills'], reason: conflict.skill + ' is both claimed and denied in the source. It was excluded from positive skills; clarify the conflicting statements before confirming it.' });
   for (const key of ['name', 'email']) if (!content.contactInfo?.[key]) issues.push({ path: ['contactInfo', key], reason: 'This contact field was not extracted. Add it if appropriate.' });
-  return { resumeId: resume._id, title: resume.title, fileType: resume.fileType, sourceText: source, sourceLabel: label, originalAvailable: available, content, skillConflicts, issues, warnings: resume.parsingWarnings || [], verifiedAt: resume.verifiedAt || null };
+  return { resumeId: resume._id, title: resume.title, fileType: resume.fileType, sourceText: source, sourceLabel: label, originalAvailable: available, content, skillConflicts, issues, warnings: conflictWarnings(content, resume.parsingWarnings || []), verifiedAt: resume.verifiedAt || null };
 }
 module.exports = { review };

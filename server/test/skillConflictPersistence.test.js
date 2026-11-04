@@ -8,7 +8,7 @@ const Resume = require('../src/models/Resume');
 const Tailored = require('../src/models/TailoredResume');
 const editing = require('../src/services/resumeEditingService');
 const { cleanResumeContent } = require('../src/services/resumeContent');
-const { activeSkillConflicts } = require('../src/providers/skillConflicts');
+const { activeSkillConflicts, conflictWarnings } = require('../src/providers/skillConflicts');
 const { assessMatch } = require('../src/services/requirementMatching');
 const { plain } = require('../src/providers/resumeFacts');
 
@@ -38,7 +38,7 @@ const original = () => ({
 const sourceText = 'Ash Green\nash@candidate.example\nSkills\nReact\nSummary\nI do not know React.';
 async function resume(content = original()) {
   const owner = new mongoose.Types.ObjectId();
-  return Resume.create({ owner, title: 'Conflict review', rawText: sourceText, sourceText, processingStatus: 'COMPLETED', parsedData: content });
+  return Resume.create({ owner, title: 'Conflict review', rawText: sourceText, sourceText, processingStatus: 'COMPLETED', parsedData: content, parsingWarnings: conflictWarnings(content) });
 }
 const currentContent = (record) => cleanResumeContent(plain(record.parsedData || record.reviewedContent || record.tailoredContent));
 const status = (content) => assessMatch({ resumeData: content, jobDescriptionText: 'React required.' }).requirementMatches[0].status;
@@ -63,6 +63,7 @@ test('source edits preserve active conflicts, clear corrected denials and restor
   const unrelated = currentContent(record); unrelated.contactInfo.phone = '5550101234';
   let saved = await editing.saveContent(record._id, record.owner, { revision: 1, content: unrelated });
   assert.equal(activeSkillConflicts(saved.parsedData).length, 1);
+  assert(saved.parsingWarnings.some((warning) => warning.includes('both claimed and denied')));
   assert.equal(status(saved.parsedData), 'uncertain');
   const readded = currentContent(saved); readded.skills.technical.push('React');
   saved = await editing.saveContent(record._id, record.owner, { revision: 2, content: readded });
@@ -70,8 +71,10 @@ test('source edits preserve active conflicts, clear corrected denials and restor
   const corrected = currentContent(saved); corrected.summary = 'Built a React input form.'; corrected.skills.technical.push('React');
   saved = await editing.saveContent(record._id, record.owner, { revision: 3, content: corrected });
   assert.equal(activeSkillConflicts(saved.parsedData).length, 0); assert.equal(status(saved.parsedData), 'supported');
+  assert(!saved.parsingWarnings.some((warning) => warning.includes('both claimed and denied')));
   saved = await editing.restore(record._id, record.owner, { revision: 4, restoreRevision: 1 });
   assert.equal(status(saved.parsedData), 'uncertain'); assert.deepEqual([...saved.parsedData.skills.all], []);
+  assert(saved.parsingWarnings.some((warning) => warning.includes('both claimed and denied')));
   const negativeOnly = original(); delete negativeOnly.skillConflicts;
   const separate = await resume(negativeOnly), forged = currentContent(separate);
   forged.skillConflicts = original().skillConflicts;

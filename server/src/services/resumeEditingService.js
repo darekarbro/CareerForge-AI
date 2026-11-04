@@ -3,7 +3,7 @@ const Tailored = require('../models/TailoredResume');
 const { cleanResumeContent, revision, text, fail } = require('./resumeContent');
 const { resumeText, plain } = require('../providers/resumeFacts');
 const structure = require('./resumeStructure');
-const { refreshSkillConflicts } = require('../providers/skillConflicts');
+const { refreshSkillConflicts, conflictWarnings } = require('../providers/skillConflicts');
 const owned = (id, owner) => require('./resumeService').getReadyResume(id, owner);
 const legacyRevision = (expected) => expected === 1 ? { $or: [{ contentRevision: 1 }, { contentRevision: { $exists: false } }] } : { contentRevision: expected };
 const sourceSnapshot = (item) => ({ revision: item.contentRevision || 1, content: structure.withEntryIds(item.parsedData), title: item.title,
@@ -28,7 +28,7 @@ async function saveContent(id, owner, input, conflictSource) {
   const title = text(input.title ?? before.title, 'Resume title', 120);
   if (!title) throw fail('A resume title is required');
   const updated = await Resume.findOneAndUpdate({ _id: id, owner, deleting: { $ne: true }, ...legacyRevision(expected) }, {
-    $set: { title, parsedData: content, rawText: resumeText(content), contentRevision: expected + 1,
+    $set: { title, parsedData: content, rawText: resumeText(content), contentRevision: expected + 1, parsingWarnings: conflictWarnings(content, before.parsingWarnings || []),
       ...(!before.sourceText && before.sourceType === 'upload' && before.rawText.length <= 48000 ? { sourceText: before.rawText } : {}),
       revisionName: text(input.revisionName ?? before.revisionName, 'Revision name', 100) || 'Verified resume', presentation: structure.presentation(input.presentation ?? before.presentation),
       verifiedAt: new Date(), sourceType: 'edited', aiProvider: 'user-verified', atsScoreStale: true },

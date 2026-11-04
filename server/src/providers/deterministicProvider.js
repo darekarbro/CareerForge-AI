@@ -1,7 +1,7 @@
 const BaseProvider = require('./baseProvider');
 const { extractSkills, hasSkill, normalizeSkill, plain, roleId, ROLE_SKILLS } = require('./resumeFacts');
 const { contactName } = require('./resumeContact');
-const { reconcileSkillConflicts } = require('./skillConflicts');
+const { reconcileSkillConflicts, conflictWarnings } = require('./skillConflicts');
 
 const cleanBullet = (line) => line.trim().replace(/^[•*\-]\s*/, '');
 const sectionNames = {
@@ -95,7 +95,7 @@ class DeterministicProvider extends BaseProvider {
     const all = extractSkills(sources.join('\n'));
     parsed.skills = { technical: all, soft: [], tools: [], frameworks: [], all };
     const reconciled = reconcileSkillConflicts(parsed, skillLines);
-    for (const conflict of reconciled.skillConflicts || []) reconciled.warnings.push(conflict.skill + ' was both claimed and denied. It was withheld from positive skills; review the conflicting statements.');
+    reconciled.warnings = conflictWarnings(reconciled, reconciled.warnings);
     return reconciled;
   }
 
