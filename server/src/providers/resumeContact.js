@@ -7,7 +7,7 @@ const contactLabel = /^(?:(?:candidate\s+)?contact|e-?mail|mail|phone|tel(?:epho
 const nameLabel = /^(?:(?:full|candidate)\s+name|name|candidate|resume)\s*(?::|=|[-=]>?|\/|>)\s*/i;
 const title = /^(?:resume|curriculum vitae|cv)$/i;
 const referenceHeading = /^(?:(?:professional|personal)\s+)?(?:references|referees)\s*:?$/i;
-const simpleHeadings = new Set(['reach me', 'who i am', 'about me', 'about', 'contact', 'contact information', 'correspondence', 'identity and contact', 'personal details', 'identity', 'profile', 'summary', 'self-assessment']);
+const simpleHeadings = new Set(['reach me', 'who i am', 'about me', 'about', 'contact', 'contact information', 'contact details', 'correspondence', 'identity and contact', 'personal details', 'personal information', 'candidate details', 'applicant details', 'identity', 'name', 'email address', 'profile', 'summary', 'overview', 'biography', 'introduction', 'professional synopsis', 'self-assessment']);
 const heading = /^(?:(?:my|core|key|technical|professional|personal|selected|formal|academic|current)\s+)?(?:skills?(?:\s+(?:and\s+how\s+i\s+use\s+them|summary|sheet))?|competencies|capabilities|tools(?:\s+i\s+use)?|experience|employment|work(?:\s+record)?|career|appointments|education(?:\s+and\s+training)?|training|qualifications?|study|learning(?:\s+record)?|practice|record|repertoire|declaration|statement|role|projects?)\s*[:.=]*$/i;
 const role = /^(?:(?:senior|junior|lead|principal|staff|graduate|associate|full[- ]stack|front[- ]end|back[- ]end|software|data|systems?|platform|cloud|devops|quality|security|web|mobile|product|engineering|technical)\s+)*(?:engineer|developer|designer|manager|architect|analyst|consultant|student|researcher|specialist)(?:\s|$)/i;
 const organization = /\b(?:inc|llc|ltd|corp|corporation|university|college|institute|school|academy|services|studio|laboratory|lab|works|cooperative|hospital|foundation|company)\.?$/i;
@@ -73,7 +73,12 @@ function introductoryName(raw) {
   // First-person introductions are identity signals; quoted introductions belong to their speaker.
   const introduction = line.match(/^(?:i\s+am|i['’]m|my\s+name\s+is)\s+(.+)$/i);
   if (!introduction) return '';
-  const candidate = introduction[1].split(/,|\s+and\s+I\b|\s+(?:and\s+)?(?:currently|now)\b/)[0].replace(/\.$/, '').trim();
+  let candidate = introduction[1].split(/,|\s+and\s+I\b|\s+(?:and\s+)?(?:currently|now)\b/)[0].trim();
+  for (const ending of candidate.matchAll(/\.(?=\s|$)/g)) {
+    const word = candidate.slice(0, ending.index).match(/([\p{L}\p{M}]+)$/u)?.[1] || '';
+    if (word.length === 1 || /^(?:Dr|Mr|Ms|Mrs|Mx|Prof|St|Jr|Sr)$/i.test(word)) continue;
+    candidate = candidate.slice(0, ending.index).trim(); break;
+  }
   return validName(candidate) ? candidate : '';
 }
 
@@ -87,6 +92,7 @@ function frontMatterName(lines) {
     const result = row(raw);
     if (result.ambiguous) return '';
     if (result.names.length === 1) return result.names[0];
+    if (result.explicit && !result.unrecognized) continue;
     if (result.hasEmail && !result.names.length || phone.test(line)) continue;
     return '';
   }
@@ -128,7 +134,8 @@ function contactName(lines = []) {
 function contactDetails(lines = []) {
   const usable = documentLines(lines), name = contactName(lines);
   if (!Array.isArray(usable)) return { name, email: '' };
-  const identityRows = [], labeled = [], nearby = [];
+  const identityRows = [], labeled = [], nearby = [], contactRows = [];
+  let ambiguousContactRow = false;
   const equalName = value => value.toLocaleLowerCase().replace(/\s+/g, ' ') === name.toLocaleLowerCase().replace(/\s+/g, ' ');
   const identityIndexes = [];
   usable.forEach((line, index) => {
@@ -144,10 +151,20 @@ function contactDetails(lines = []) {
     const emails = [...new Set(line.match(emailPattern) || [])];
     if (emails.length !== 1) return;
     const data = row(line);
+    if (!data.unrecognized) {
+      contactRows.push(emails[0]);
+      if (data.names.length > 1) ambiguousContactRow = true;
+    }
     if (name && !data.ambiguous && data.names.some(equalName)) identityRows.push(emails[0]);
     else if (/^(?:(?:candidate\s+)?contact|e-?mail|mail)\s*(?::|=|[-=]>?|\/|>)/i.test(line)) labeled.push(emails[0]);
     else if (!data.names.length && !data.ambiguous && !data.unrecognized && (contactSection || identityIndexes.some(identityIndex => Math.abs(identityIndex - index) <= 3))) nearby.push(emails[0]);
   });
+  // A multi-name header cannot identify a person, but its sole contact address is still explicit evidence.
+  // Keep competing contact-formatted addresses ambiguous without considering prose or third-party emails.
+  if (!name && ambiguousContactRow) {
+    const values = [...new Set(contactRows)];
+    return { name, email: values.length === 1 ? values[0] : '' };
+  }
   for (const candidates of [identityRows, labeled, nearby]) {
     const values = [...new Set(candidates)];
     if (values.length) return { name, email: values.length === 1 ? values[0] : '' };
