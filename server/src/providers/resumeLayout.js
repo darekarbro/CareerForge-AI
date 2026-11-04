@@ -41,15 +41,19 @@ function inlineSection(line) {
 }
 
 function splitResumeSections(text) {
+  const source = String(text), lines = source.split(/\r?\n/), offsets = [];
+  let offset = 0;
+  for (const line of lines) { offsets.push(offset); offset += line.length + (source.slice(offset + line.length, offset + line.length + 2) === '\r\n' ? 2 : 1); }
   const parts = { header: [] }, statements = [];
   let current = 'header', columns = null;
   const emit = (value, section, line) => {
     if (!value.trim()) { (parts[section] ||= []).push(''); return; }
     const context = section === 'skills' ? 'skills' : section === 'header' ? 'unknown' : 'narrative';
     (parts[section] ||= []).push(value);
-    statements.push({ text: value, section, context, line });
+    const start = offsets[line - 1] + lines[line - 1].indexOf(value);
+    statements.push({ text: value, section, context, line, start, end: start + value.length });
   };
-  String(text).split(/\r?\n/).forEach((raw, index) => {
+  lines.forEach((raw, index) => {
     if (separator(raw)) { if (!raw.trim()) emit('', current, index + 1); return; }
     const line = frame(raw);
     const cells = line.split(/\s*\|\s*|\t+| {2,}/).map(value => value.trim()).filter(Boolean);
@@ -69,4 +73,18 @@ function splitResumeSections(text) {
   return { parts, statements };
 }
 
-module.exports = { splitResumeSections, headingSection, inlineSection };
+function claimParagraphs(text, statements) {
+  const result = [];
+  for (const item of statements) {
+    const previous = result[result.length - 1];
+    // Table cells and heading boundaries are separate contexts. Keep indentation and newlines
+    // inside actual wrapped prose so every eventual citation still occurs in the raw source.
+    if (previous && previous.section === item.section && previous.line + 1 === item.line
+      && /^\s+$/.test(text.slice(previous.end, item.start))) {
+      previous.text = text.slice(previous.start, item.end); previous.end = item.end; previous.line = item.line;
+    } else result.push({ ...item });
+  }
+  return result;
+}
+
+module.exports = { splitResumeSections, headingSection, inlineSection, claimParagraphs };

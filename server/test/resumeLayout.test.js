@@ -1,6 +1,6 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { splitResumeSections, headingSection } = require('../src/providers/resumeLayout');
+const { splitResumeSections, headingSection, claimParagraphs } = require('../src/providers/resumeLayout');
 
 test('layout recognition accepts semantic headings and decorations without rewriting source claims', () => {
   const source = '# Candidate Name\nTOOLS I USE\nPython :: SQL\nSELF-ASSESSMENT\nI do not know Python.\nWORK + SKILLS / I build SQL reports.\n## Education\nBSc Computing';
@@ -23,4 +23,14 @@ test('unrecognized prose is retained for evidence classification and empty inlin
   const { parts, statements } = splitResumeSections(source);
   assert(statements.some(item => item.text === 'I build Python validators.' && item.context === 'unknown'));
   assert.deepEqual(parts.skills, ['SQL']); assert(parts.experience.includes('Engineer at AWS Services'));
+});
+
+test('wrapped paragraphs preserve exact whitespace and do not cross headings or table columns', () => {
+  const source = 'Summary\r\n  I use Python,\r\n    and React for forms.\r\nSkills\r\nSQL\r\nCAPABILITIES       EMPLOYMENT\r\nJava               Example Works';
+  const { statements } = splitResumeSections(source), paragraphs = claimParagraphs(source, statements);
+  assert.equal(paragraphs[0].text, 'I use Python,\r\n    and React for forms.');
+  assert(paragraphs.some(item => item.text === 'SQL'));
+  assert(paragraphs.some(item => item.text === 'Java'));
+  assert(paragraphs.some(item => item.text === 'Example Works'));
+  for (const item of paragraphs) assert(source.includes(item.text));
 });
