@@ -58,6 +58,13 @@ test('evaluation defaults to development; holdout requires an explicit option', 
   assert.deepEqual(argumentsFor(['--all']).splits, ['development', 'holdout']);
   assert.throws(() => argumentsFor(['--output']));
   assert.throws(() => argumentsFor(['--unknown']));
+  assert.equal(argumentsFor([]).datasetVersion, 'v1');
+  assert.equal(argumentsFor(['--dataset-version', 'v2', '--holdout']).datasetVersion, 'v2');
+  assert.throws(() => argumentsFor(['--dataset-version', 'v2']));
+  assert.throws(() => argumentsFor(['--dataset-version', 'v2', '--all']));
+  assert.throws(() => argumentsFor(['--dataset-version', '../v1', '--holdout']));
+  assert.throws(() => argumentsFor(['--first-pass', 'lock.json', '--output', 'report.json']));
+  assert.throws(() => argumentsFor(['--dataset-version', 'v2', '--holdout', '--first-pass', 'lock.json']));
 });
 
 test('evaluation provenance includes contact parsing and labels published data as regression evidence', async () => {
