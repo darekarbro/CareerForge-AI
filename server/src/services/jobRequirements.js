@@ -21,6 +21,11 @@ function extractRequirements(text = '') {
     if (/^(?:(?:required|essential|mandatory|minimum|must[ -]have)(?:\s+(?:skills|requirements|qualifications))?|requirements|qualifications)\s*:?$/i.test(line)) { section = 'required_skill'; continue; }
     if (/^(?:(?:preferred|optional|desirable)(?:\s+(?:skills|requirements|qualifications))?|nice[ -]to[ -]have|bonus)\s*:?$/i.test(line)) { section = 'preferred_skill'; continue; }
     if (/^(?:responsibilities|about (?:us|the role)|benefits|what we offer)\s*:?$/i.test(line)) { section = 'context'; continue; }
+    // An inline section heading also governs its following semicolon/list clauses.
+    // A qualifier elsewhere in prose still applies only to its own clause.
+    if (/^(?:(?:required|essential|mandatory|minimum|must[ -]have)(?:\s+(?:skills|requirements|qualifications))?|requirements|qualifications)\s*(?::|[—–-]\s)/i.test(line)) section = 'required_skill';
+    else if (/^(?:(?:preferred|optional|desirable)(?:\s+(?:skills|requirements|qualifications))?|nice[ -]to[ -]have|bonus)\s*(?::|[—–-]\s)/i.test(line)) section = 'preferred_skill';
+    else if (/^(?:responsibilities|about (?:us|the role)|benefits|what we offer)\s*(?::|[—–-]\s)/i.test(line)) section = 'context';
     // Explicit qualifiers apply to the clause; headings apply to subsequent clauses.
     const category = optional.test(line) ? 'preferred_skill' : /\brequired\b|must[ -]have|mandatory|essential/i.test(line) ? 'required_skill' : section;
     const skills = extractSkills(line), years = line.match(experience), isConstraint = constraint.test(line);
