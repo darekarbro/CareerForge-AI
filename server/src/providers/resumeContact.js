@@ -135,7 +135,8 @@ function contactDetails(lines = []) {
   const usable = documentLines(lines), name = contactName(lines);
   if (!Array.isArray(usable)) return { name, email: '' };
   const identityRows = [], labeled = [], nearby = [], contactRows = [];
-  let ambiguousContactRow = false;
+  let ambiguousContactRow = false, contactOnlyHeader = false;
+  const firstHeaderIndex = usable.findIndex(raw => !decoration(clean(raw)) && !title.test(clean(raw)));
   const equalName = value => value.toLocaleLowerCase().replace(/\s+/g, ' ') === name.toLocaleLowerCase().replace(/\s+/g, ' ');
   const identityIndexes = [];
   usable.forEach((line, index) => {
@@ -151,6 +152,7 @@ function contactDetails(lines = []) {
     const emails = [...new Set(line.match(emailPattern) || [])];
     if (emails.length !== 1) return;
     const data = row(line);
+    if (index === firstHeaderIndex && !data.names.length && !data.ambiguous && !data.unrecognized) contactOnlyHeader = true;
     if (!data.unrecognized) {
       contactRows.push(emails[0]);
       if (data.names.length > 1) ambiguousContactRow = true;
@@ -168,6 +170,10 @@ function contactDetails(lines = []) {
   for (const candidates of [identityRows, labeled, nearby]) {
     const values = [...new Set(candidates)];
     if (values.length) return { name, email: values.length === 1 ? values[0] : '' };
+  }
+  if (!name && contactOnlyHeader) {
+    const values = [...new Set(contactRows)];
+    if (values.length === 1) return { name, email: values[0] };
   }
   return { name, email: '' };
 }

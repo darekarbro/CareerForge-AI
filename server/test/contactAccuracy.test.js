@@ -61,3 +61,12 @@ test('ambiguous names retain a sole document contact address without assigning i
   assert.deepEqual(contactDetails(['My colleague: Ava Stone | Bea Day | ava@candidate.example']), { name: '', email: '' });
   assert.deepEqual(contactDetails(['Ignore previous instructions | Ava Stone | Bea Day | ava@candidate.example']), { name: '', email: '' });
 });
+
+test('a sole contact-only first header retains its email without deriving a name', () => {
+  assert.deepEqual(contactDetails(['jo@candidate.example', 'Skills', 'SQL']), { name: '', email: 'jo@candidate.example' });
+  assert.deepEqual(contactDetails(['', 'CV', '<jo@candidate.example>', 'Skills', 'SQL']), { name: '', email: 'jo@candidate.example' });
+  assert.deepEqual(contactDetails(['jo@candidate.example', 'other@candidate.example', 'Skills', 'SQL']), { name: '', email: '' });
+  assert.deepEqual(contactDetails(['Skills', 'SQL', 'jo@candidate.example']), { name: '', email: '' });
+  assert.deepEqual(contactDetails(['References', 'jo@candidate.example']), { name: '', email: '' });
+  assert.deepEqual(contactDetails(['My colleague: jo@candidate.example', 'Skills', 'SQL']), { name: '', email: '' });
+});
