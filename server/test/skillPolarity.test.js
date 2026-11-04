@@ -92,3 +92,30 @@ test('negative coordinated verbs inherit scope only across or and nor', () => {
   ]) assert.equal(explicitlyDeniesSkill(source, 'Python'), false, source);
   assert.equal(explicitlyDeniesSkill('I do not use React or know Python developers.', 'Python'), false);
 });
+
+test('technology-specific tooling nouns and coordinated build denials stay bounded to the named skill', () => {
+  for (const source of [
+    'I cannot build or operate CI/CD pipelines.',
+    'I cannot build CI/CD pipelines.',
+    'I have never used CI/CD tooling.',
+    'I cannot build with React or operate Docker tooling.',
+  ]) {
+    const skill = source.includes('CI/CD') ? 'CI/CD' : 'React';
+    assert.equal(explicitlyDeniesSkill(source, skill), true, source);
+    assert.equal(explicitlyDeniesSkill(source, 'Python'), false, source);
+  }
+  assert.equal(explicitlyDeniesSkill('I cannot build with React or operate Docker tooling.', 'Docker'), true);
+  for (const source of ['I cannot build consensus with React developers.', 'I have never used React developers.', 'My lead cannot operate CI/CD pipelines.']) {
+    assert.equal(explicitlyDeniesSkill(source, source.includes('CI/CD') ? 'CI/CD' : 'React'), false, source);
+  }
+});
+
+test('compact skill-first denials require competence rather than ordinary negative outcomes', () => {
+  for (const source of ['Kafka: no experience.', 'React — no prior knowledge.', 'Docker: no hands-on proficiency.']) {
+    assert.equal(explicitlyDeniesSkill(source, source.split(/[: —]/)[0]), true, source);
+    assert.equal(explicitlyDeniesSkill(source, 'Python'), false, source);
+  }
+  for (const source of ['Kafka: no outages.', 'React: no issues with Python.', 'Our lead says Kafka: no experience.']) {
+    assert.equal(explicitlyDeniesSkill(source, 'Kafka'), false, source);
+  }
+});

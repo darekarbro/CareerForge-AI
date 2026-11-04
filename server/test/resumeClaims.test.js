@@ -157,3 +157,42 @@ test('topics and third-party replaced artifacts never establish candidate skill 
   }
   same(analyzeSkillClaims('The React tool was written by my colleague.', { context: 'skills' }).positiveSkills, []);
 });
+
+test('quoted team leads and supervisors cannot lend positive or negative skill evidence to the candidate', () => {
+  for (const source of [
+    '“Our lead uses Rust and Kubernetes.”',
+    '"My supervisor uses Rust and Kubernetes."',
+    "'Our mentor cannot use Rust.'",
+    'Our lead uses Rust and Kubernetes.',
+  ]) {
+    const result = analyzeSkillClaims(source, { context: 'skills' });
+    same(result.positiveSkills, []); same(result.deniedSkills, []); assert.equal(result.excluded, true);
+  }
+  same(analyzeSkillClaims('“I use Rust and Kubernetes.”').positiveSkills, ['Rust', 'Kubernetes']);
+  same(analyzeSkillClaims('I use Python and our lead uses Rust.').positiveSkills, ['Python']);
+});
+
+test('punctuation-bearing and compact denials do not establish positive skills', () => {
+  for (const source of ['I cannot build or operate CI/CD pipelines.', 'I have never used CI/CD tooling.', 'Kafka: no experience.']) {
+    const result = analyzeSkillClaims(source, { context: 'skills' });
+    same(result.positiveSkills, []); same(result.deniedSkills, [source.includes('CI/CD') ? 'CI/CD' : 'Kafka']);
+    assert(result.candidateText.every(quote => source.includes(quote)));
+  }
+  const source = 'My skills: Git, Linux, CI/CD. I cannot build or operate CI/CD pipelines, and I have never used CI/CD tooling.';
+  const conflict = analyzeSkillClaims(source);
+  same(conflict.positiveSkills, ['Git', 'Linux', 'CI/CD']); same(conflict.deniedSkills, ['CI/CD']);
+});
+
+test('selected training projects and wrapped foundations remain personal evidence with exact source spans', () => {
+  const project = 'Selected project: trained a recommendation notebook with TensorFlow.';
+  const foundations = 'My foundations include Algorithms\nand Data Structures.';
+  for (const [source, skills] of [[project, ['TensorFlow']], [foundations, ['Algorithms', 'Data Structures']]]) {
+    const result = analyzeSkillClaims(source);
+    same(result.positiveSkills, skills); same(result.deniedSkills, []);
+    assert(result.candidateText.every(quote => source.includes(quote)));
+    same(analyzeSkillClaims(result.candidateText.join('\n')).positiveSkills, skills);
+  }
+  for (const source of ['The TensorFlow model was trained by my supervisor.', 'I plan to train a TensorFlow model.']) {
+    same(analyzeSkillClaims(source, { context: 'skills' }).positiveSkills, []);
+  }
+});

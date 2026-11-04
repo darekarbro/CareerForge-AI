@@ -3,9 +3,9 @@ const { instruction } = require('../services/jobRequirements');
 const { explicitlyDeniesSkill, splitClaimClauses, nonCandidateClause } = require('./skillPolarity');
 
 const declaration = /^(?:(?:my|our|technical|core|key|current|practical)\s+)*(?:skills?(?:\s+sheet)?|competencies|capabilities|technologies|tools?(?:\s+I\s+use)?|technical repertoire)\s*(?::+|=>|->|[|>])\s*/i;
-const actions = /\b(?:use|used|using|build|built|write|wrote|implement|implemented|maintain|maintained|develop|developed|create|created|design|designed|deliver|delivered|prepare|prepared|administer|administered|operate|operated|package|packaged|query|queried|test|tested|apply|applied|style|styled|store|stored|run|ran|review|reviewed|know|knowledge|skills?|experience|work)\b/i;
-const headlessAction = /^(?:[-*•]\s*|\(\d+\)\s*|\d+[.)]\s*)?(?:Built|Implemented|Wrote|Developed|Created|Maintained|Designed|Delivered|Prepared|Administered|Operated|Packaged|Queried|Tested|Applied|Styled|Stored|Ran|Reviewed|Used|Using|Experience|Skilled|Proficient|Familiar)\b/i;
-const possessivePredicate = /\b(?:my|our)\s+(?:deployment\s+environment|technical\s+background|tech(?:nical)?\s+stack|stack|work|skills?|experience|projects?)\b.{0,70}\b(?:is|are|includes?|consists?\s+of)\b/i;
+const actions = /\b(?:use|used|using|build|built|write|wrote|implement|implemented|maintain|maintained|develop|developed|create|created|design|designed|deliver|delivered|prepare|prepared|administer|administered|operate|operated|package|packaged|query|queried|test|tested|apply|applied|style|styled|store|stored|run|ran|review|reviewed|train|trained|know|knowledge|skills?|experience|work)\b/i;
+const headlessAction = /^(?:[-*•]\s*|\(\d+\)\s*|\d+[.)]\s*)?(?:Built|Implemented|Wrote|Developed|Created|Maintained|Designed|Delivered|Prepared|Administered|Operated|Packaged|Queried|Tested|Applied|Styled|Stored|Ran|Reviewed|Trained|Used|Using|Experience|Skilled|Proficient|Familiar)\b/i;
+const possessivePredicate = /\b(?:my|our)\s+(?:deployment\s+environment|technical\s+background|tech(?:nical)?\s+stack|stack|work|skills?|experience|projects?|foundations|fundamentals)\b.{0,70}\b(?:is|are|includes?|consists?\s+of)\b/i;
 const canonical = new Map(SKILLS.map(skill => [normalizeSkill(skill), skill]));
 
 function bareSkillList(text) {
@@ -26,7 +26,7 @@ function bareSkillList(text) {
 }
 
 function aspiringSkill(text, skill) {
-  for (const match of text.matchAll(/\b(?:(?:want|hope|plan|planning|aim|intend|wish)\s+to|would\s+like\s+to|interested\s+in)\s+(?:learn(?:ing)?|study(?:ing)?|use|try|explore|work\s+with|become\s+(?:proficient|skilled|experienced)\s+in)\s+|\b(?:am|currently|still|started)\s+(?:learning|studying)\s+|^(?:learning|studying)\s+|\b(?:next\s+)?(?:learning\s+)?goals?\s*(?::|is|are)\s*/gi)) {
+  for (const match of text.matchAll(/\b(?:(?:want|hope|plan|planning|aim|intend|wish)\s+to|would\s+like\s+to|interested\s+in)\s+(?:learn(?:ing)?|study(?:ing)?|use|try|explore|train|work\s+with|become\s+(?:proficient|skilled|experienced)\s+in)\s+|\b(?:am|currently|still|started)\s+(?:learning|studying)\s+|^(?:learning|studying)\s+|\b(?:next\s+)?(?:learning\s+)?goals?\s*(?::|is|are)\s*/gi)) {
     const goal = text.slice(match.index + match[0].length).split(/\band\s+(?:(?:I|we)\s+)?(?:use|build|write|implement|maintain|work)\b/i)[0];
     if (hasSkill(goal, skill)) return true;
   }
@@ -39,7 +39,7 @@ function excludedMention(text, skill, listed) {
   for (const match of text.matchAll(/\b(?:document|article|book|paper|guide|documentation|tutorial)\s+(?:about|on|covering)\s+/gi)) {
     if (hasSkill(text.slice(match.index + match[0].length).split(nextAssertion)[0], skill)) return true;
   }
-  for (const match of text.matchAll(/\b(?:to\s+replace|replacing|replacement\s+for)\s+([^.;!?]+?)\s+(?:written|built|developed|implemented)\s+by\s+(?!me\b|us\b)/gi)) {
+  for (const match of text.matchAll(/\b(?:to\s+replace|replacing|replacement\s+for)\s+([^.;!?]+?)\s+(?:written|built|developed|implemented|trained)\s+by\s+(?!me\b|us\b)/gi)) {
     if (hasSkill(match[1], skill)) return true;
   }
   for (const match of text.matchAll(/\b(?:without|rather than|instead of)\s+/gi)) if (hasSkill(text.slice(match.index + match[0].length), skill)) return true;
@@ -74,7 +74,8 @@ function analyzeSkillClaims(text, { context = 'unknown' } = {}) {
       || /^(?:Bachelor|Master|Doctor|Ph\.?D|B\.?Sc|M\.?Sc|B\.?Tech|M\.?Tech)\b/i.test(raw)
       || /^(?:[A-Z][\w.+#-]*\s+)*(?:Services|Solutions|Labs|Company|Works|Consulting|Technologies|Factory)\s*$/u.test(raw);
     const supportedNounClaim = /^\s*(?:and\s+)?(.+?)\s+(?:experience|skills?|proficiency)\s+(?:from|through)\b/i.exec(raw);
-    const candidateAssertion = /\b(?:I|we|my|our)\b/i.test(raw) && actions.test(raw) || headlessAction.test(raw)
+    const projectContribution = raw.replace(/^(?:(?:my|selected|personal|academic|recent)\s+)?project(?:\s+(?:work|contribution))?\s*[:—–-]\s*/i, '');
+    const candidateAssertion = /\b(?:I|we|my|our)\b/i.test(raw) && actions.test(raw) || headlessAction.test(projectContribution)
       || possessivePredicate.test(raw) || supportedNounClaim && bareSkillList(supportedNounClaim[1]);
     const listed = declared || context === 'skills' && !identityOrEmployer || bareSkillList(stripped);
     const copiedRequirement = /\b(?:required|preferred|must[ -]have)\b/i.test(raw) && !candidateAssertion;

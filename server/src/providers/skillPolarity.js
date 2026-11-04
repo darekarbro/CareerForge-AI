@@ -1,8 +1,8 @@
 const { hasSkill, normalizeSkill } = require('./resumeFacts');
 const { instruction } = require('../services/jobRequirements');
-const action = 'know|use|understand|learn|study|operate|program';
+const action = 'know|use|understand|learn|study|operate|program|build';
 const coordinatedAction = action + '|used|understood|learned|learnt|studied|operated|programmed|worked\\s+with';
-const otherRole = '(?:colleague|teammate|team|manager|client|customer|student|applicant|recruiter|partner|friend)';
+const otherRole = '(?:colleague|teammate|team|manager|lead|supervisor|mentor|client|customer|student|applicant|recruiter|partner|friend)';
 const otherAction = '(?:uses?|used|builds?|built|writes?|wrote|knows?|works?|worked|said|says|does\\s+not|doesn[\'’]t|cannot|can[\'’]t|has|have)';
 const namedOwner = '(?!I\\b|We\\b|My\\b|Our\\b|No\\b|Not\\b|This\\b|The\\b|A\\b|An\\b|Candidate\\b)(?:[A-Z][a-z]+|[A-Z]{2,})(?:\\s+(?:[A-Z][a-z]+|[A-Z]{2,}))?\\s+' + otherAction + '\\b';
 const isNamedOwner = value => !/^(?:I|we|my|our|no|not|this|the|a|an|candidate)\b/i.test(value) && new RegExp('^' + namedOwner).test(value);
@@ -10,7 +10,7 @@ const isNamedOwner = value => !/^(?:I|we|my|our|no|not|this|the|a|an|candidate)\
 const denialPrefixes = [
   new RegExp("\\b(?:(?:do|does|did)\\s+not|(?:don|doesn|didn)['’]t)\\s+(?:" + action + ')(?:\\s+or\\s+(?:' + action + '))*\\s+', 'gi'),
   /\b(?:(?:do|does|did)\s+not|(?:don|doesn|didn)['’]t)\s+(?:have|possess)\s+(?:any\s+)?(?:(?:experience|knowledge|proficiency)\s+(?:with|in|of)\s+)?/gi,
-  /\b(?:cannot|can['’]t|could\s+not|couldn['’]t)\s+(?:use|understand|operate|program(?:\s+in)?|work\s+(?:with|in)|build(?:\s+anything)?\s+(?:with|using))\s+/gi,
+  /\b(?:cannot|can['’]t|could\s+not|couldn['’]t)\s+(?:use|understand|operate|program(?:\s+in)?|work\s+(?:with|in)|build(?:\s+anything)?(?:\s+(?:with|using))?)(?:\s+(?:or|nor)\s+(?:use|understand|operate|program(?:\s+in)?|work\s+(?:with|in)|build(?:\s+anything)?(?:\s+(?:with|using))?))*\s+/gi,
   /\b(?:never|have\s+not|haven['’]t|had\s+not|hadn['’]t)\s+(?:used|learned|learnt|studied|worked\s+(?:with|on|in))\s+/gi,
   /\b(?:lack|lacking)\s+(?:(?:experience|knowledge|proficiency)\s+(?:with|in|of)\s+)?/gi,
   /\b(?:(?:do|does|did)\s+not|(?:don|doesn|didn)['’]t)\s+(?:know|use|understand)\s+/gi,
@@ -72,7 +72,7 @@ function splitClaimClauses(text) {
 }
 
 function nonCandidateClause(value) {
-  const clause = String(value).trim().replace(/^and\s+/i, '');
+  const clause = String(value).trim().replace(/^and\s+/i, '').replace(/^["'“‘]+\s*/, '');
   if (instruction.test(clause)) return true;
   if (new RegExp('^(?:(?:my|our|the|a|another)\\s+)?' + otherRole + '\\b', 'i').test(clause)) return true;
   if (/^(?:he|she|they|his|her|their)\b/i.test(clause)) return true;
@@ -81,8 +81,8 @@ function nonCandidateClause(value) {
   if (/\b(?:assignment|brief|specification|job description|instructions?|requested approach)\b/i.test(clause)
     && /\b(?:said|says|requires?|asked|requested|wanted|expected|suggested|stated|specified|approach)\b/i.test(clause)
     && !/\bI\s+(?:implemented|built|wrote|used|delivered)\b/i.test(clause)) return true;
-  const passiveOwner = /\b(?:built|written|developed|implemented)\s+by\s+(?!me\b|us\b)/i.exec(clause);
-  if (passiveOwner && !/\b(?:I|we)\s+(?:(?:have|had|also|then)\s+)*(?:built|wrote|developed|implemented|used|created)\b/i.test(clause.slice(0, passiveOwner.index))) return true;
+  const passiveOwner = /\b(?:built|written|developed|implemented|trained)\s+by\s+(?!me\b|us\b)/i.exec(clause);
+  if (passiveOwner && !/\b(?:I|we)\s+(?:(?:have|had|also|then)\s+)*(?:built|wrote|developed|implemented|used|created|trained)\b/i.test(clause.slice(0, passiveOwner.index))) return true;
   return false;
 }
 
@@ -102,7 +102,7 @@ function startsWithSkill(value, skill) {
   if (!length) return false;
   const rest = candidate.slice(length);
   return !rest || /^[.;!?"'’”)\]](?:\s|$)/.test(rest)
-    || /^\s+(?:skills?\b|programming\b|experience\b|knowledge\b|proficiency\b|ability\b|framework\b|library\b|language\b|services?\b|applications?\b|development\b|tools?\b|at\s+all\b|well\b|yet\b|before\b|currently\b|professionally\b|either\b|in\b|on\b|for\b|as\b|to\b|with\b)/i.test(rest);
+    || /^\s+(?:skills?\b|programming\b|experience\b|knowledge\b|proficiency\b|ability\b|framework\b|library\b|language\b|services?\b|applications?\b|development\b|tools?\b|tooling\b|pipelines?\b|at\s+all\b|well\b|yet\b|before\b|currently\b|professionally\b|either\b|in\b|on\b|for\b|as\b|to\b|with\b)/i.test(rest);
 }
 
 function deniedListContains(value, skill) {
@@ -126,6 +126,11 @@ function explicitlyDeniesSkill(text, skill) {
         }
       }
       for (const match of clause.matchAll(/\bno\s+(.+?)\s+(?:programming\s+)?(?:skills?|experience|knowledge|proficiency|ability)\b/gi)) {
+        if (deniedListContains(match[1], skill)) return true;
+      }
+      // A compact self-assessment can put the skill before its negative qualification.
+      // Require a competence noun, so "Kafka: no outages" cannot deny a skill.
+      for (const match of clause.matchAll(/(?:^|[;,])\s*(.+?)\s*[:—–]\s*no\s+(?:(?:prior|professional|practical|hands-on)\s+)?(?:skills?|experience|knowledge|proficiency|ability)\b/gi)) {
         if (deniedListContains(match[1], skill)) return true;
       }
       for (const match of clause.matchAll(/(?:^|[:,>])\s*(.+?)\s+(?:(?:is|are)\s+not|(?:isn|aren)['’]t)\s+(?:(?:among|one\s+of)\s+my\s+skills|a\s+skill\s+I\s+have|something\s+I\s+(?:know|use))\b/gi)) {
