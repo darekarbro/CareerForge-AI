@@ -3,6 +3,7 @@ const Tailored = require('../models/TailoredResume');
 const { cleanResumeContent, revision, text, fail } = require('./resumeContent');
 const { resumeText, plain } = require('../providers/resumeFacts');
 const structure = require('./resumeStructure');
+const { refreshSkillConflicts } = require('../providers/skillConflicts');
 const owned = (id, owner) => require('./resumeService').getReadyResume(id, owner);
 const legacyRevision = (expected) => expected === 1 ? { $or: [{ contentRevision: 1 }, { contentRevision: { $exists: false } }] } : { contentRevision: expected };
 const sourceSnapshot = (item) => ({ revision: item.contentRevision || 1, content: structure.withEntryIds(item.parsedData), title: item.title,
@@ -19,9 +20,10 @@ function versionContent(item, value) {
 }
 const versionSnapshot = (item) => ({ revision: item.contentRevision || 1, content: versionContent(item), decisions: item.reviewDecisions || {},
   name: item.revisionName || 'Generated draft', presentation: structure.presentation(item.presentation), savedAt: item.updatedAt });
-async function saveContent(id, owner, input) {
+async function saveContent(id, owner, input, conflictSource) {
   if (Object.keys(input).some((key) => !['revision', 'revisionName', 'presentation', 'title', 'content'].includes(key))) throw fail('Unsupported resume update');
-  const expected = revision(input.revision), content = cleanResumeContent(input.content), before = await owned(id, owner);
+  const expected = revision(input.revision), cleaned = cleanResumeContent(input.content), before = await owned(id, owner);
+  const content = refreshSkillConflicts(cleaned, conflictSource || before.parsedData);
   if ((before.contentRevision || 1) !== expected) throw fail('This resume changed elsewhere. Resolve your draft against the latest version.', 409);
   const title = text(input.title ?? before.title, 'Resume title', 120);
   if (!title) throw fail('A resume title is required');
@@ -42,14 +44,15 @@ async function history(id, owner) {
 async function restore(id, owner, input) {
   const resume = await owned(id, owner), entry = (resume.revisionHistory || []).find((item) => item.revision === input.restoreRevision);
   if (!entry) throw fail('That revision is no longer available', 404);
-  return saveContent(id, owner, { revision: input.revision, revisionName: 'Restored ' + (entry.name || 'revision ' + entry.revision), presentation: entry.presentation, title: entry.title, content: plain(entry.content) });
+  return saveContent(id, owner, { revision: input.revision, revisionName: 'Restored ' + (entry.name || 'revision ' + entry.revision), presentation: entry.presentation, title: entry.title, content: plain(entry.content) }, entry.content);
 }
-async function saveVersion(id, versionId, owner, input, replaceDecisions = false) {
+async function saveVersion(id, versionId, owner, input, replaceDecisions = false, conflictSource) {
   await owned(id, owner);
   if (Object.keys(input).some((key) => !['revision', 'revisionName', 'presentation', 'content', 'decisions'].includes(key))) throw fail('Unsupported version update');
-  const expected = revision(input.revision), content = cleanResumeContent(input.content);
+  const expected = revision(input.revision), cleaned = cleanResumeContent(input.content);
   const version = await Tailored.findOne({ _id: versionId, resumeId: id, owner });
   if (!version) throw fail('Resume version not found', 404);
+  const content = refreshSkillConflicts(cleaned, conflictSource || version.reviewedContent || version.tailoredContent);
   if ((version.contentRevision || 1) !== expected) throw fail('This version changed elsewhere. Resolve your draft against the latest version.', 409);
   const choices = input.decisions || {};
   if (!choices || typeof choices !== 'object' || Array.isArray(choices) || Object.keys(choices).length > 5000 ||
@@ -72,7 +75,7 @@ async function versionHistory(id, versionId, owner) {
 async function restoreVersion(id, versionId, owner, input) {
   const entry = (await versionHistory(id, versionId, owner)).find((item) => item.revision === input.restoreRevision);
   if (!entry) throw fail('That revision is no longer available', 404);
-  return saveVersion(id, versionId, owner, { revision: input.revision, revisionName: 'Restored ' + (entry.name || 'revision ' + entry.revision), presentation: entry.presentation, content: plain(entry.content), decisions: entry.decisions }, true);
+  return saveVersion(id, versionId, owner, { revision: input.revision, revisionName: 'Restored ' + (entry.name || 'revision ' + entry.revision), presentation: entry.presentation, content: plain(entry.content), decisions: entry.decisions }, true, entry.content);
 }
 async function saveLayout(id, versionId, owner, input) {
   if (Object.keys(input).some((key) => !['revision', 'settings'].includes(key))) throw fail('Unsupported layout field');

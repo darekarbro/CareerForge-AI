@@ -31,6 +31,11 @@ const tailoredResumeSchema = new mongoose.Schema(
       type: String,
     },
     tailoredContent: {
+      skillConflicts: { type: [{
+        _id: false, skill: String,
+        positiveEvidence: [{ _id: false, quote: String }],
+        negativeEvidence: [{ _id: false, path: String, quote: String }],
+      }], default: undefined },
       contactInfo: mongoose.Schema.Types.Mixed,
       education: [mongoose.Schema.Types.Mixed],
       certifications: [mongoose.Schema.Types.Mixed],

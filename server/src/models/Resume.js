@@ -47,6 +47,11 @@ const resumeSchema = new mongoose.Schema(
       type: String,
     },
     parsedData: {
+      skillConflicts: { type: [{
+        _id: false, skill: String,
+        positiveEvidence: [{ _id: false, quote: String }],
+        negativeEvidence: [{ _id: false, path: String, quote: String }],
+      }], default: undefined },
       contactInfo: {
         name: { type: String, default: '' },
         email: { type: String, default: '' },
