@@ -7,6 +7,10 @@ const DeterministicProvider = require('../src/providers/deterministicProvider');
 const { assessMatch } = require('../src/services/requirementMatching');
 const { rubricVersion } = require('../src/services/assessmentRubrics');
 const { evaluateCase, summarize, validateReviews } = require('../evaluation/metrics.cjs');
+const implementationFiles = [
+  '../src/providers/deterministicProvider.js', '../src/providers/resumeContact.js', '../src/providers/resumeFacts.js',
+  '../src/services/jobRequirements.js', '../src/services/requirementMatching.js', '../src/services/assessmentRubrics.js',
+];
 
 function argumentsFor(argv) {
   const result = { splits: ['development'], output: null, human: null };
@@ -49,17 +53,17 @@ async function run(options) {
     splits[dataset.split] = { datasetSha256: dataset.sha256, annotationScope: dataset.annotationScope,
       metrics: summarize(cases, reviews), byGroup: Object.fromEntries([...new Set(cases.map(item => item.group))].map(group => [group, summarize(cases.filter(item => item.group === group), reviews)])), cases };
   }
-  return { reportVersion: 'phase4-evaluation-v1', generatedAt: new Date().toISOString(), datasetVersion, rubricVersion,
+  return { reportVersion: 'phase4-evaluation-v2', generatedAt: new Date().toISOString(), datasetVersion, rubricVersion,
     runtime: { node: process.version, platform: process.platform, architecture: process.arch },
-    implementationSha256: crypto.createHash('sha256').update([
-      '../src/providers/deterministicProvider.js', '../src/providers/resumeFacts.js',
-      '../src/services/jobRequirements.js', '../src/services/requirementMatching.js', '../src/services/assessmentRubrics.js',
-    ].map(filename => fs.readFileSync(path.join(__dirname, filename), 'utf8')).join('\n')).digest('hex'),
-    method: 'Frozen synthetic raw-text fixtures → deterministic parser → local versioned requirement matcher. One timed pipeline sample per case after independent warmup.',
+    implementationFiles,
+    implementationSha256: crypto.createHash('sha256').update(implementationFiles.map(filename => fs.readFileSync(path.join(__dirname, filename), 'utf8')).join('\n')).digest('hex'),
+    datasetUsage: Object.fromEntries(loaded.map(dataset => [dataset.split, dataset.split === 'holdout' ? 'published-holdout-regression' : 'development-regression'])),
+    method: 'Published synthetic raw-text fixtures → deterministic parser → local versioned requirement matcher. One timed pipeline sample per case after independent warmup.',
     limitations: [
       'Synthetic reference labels were authored independently of application output, not provided by independent human reviewers.',
       'Skill extraction and classification are measured; the initial gold set does not measure experience/constraint correctness, OCR, visual layout or actual job performance.',
       'Holdout is separately stored but small and template-related to development; no population confidence interval or real hiring outcome is established.',
+      'This dataset and its initial holdout results are published. Reruns are regression checks, not fresh unseen holdout evidence.',
       'Citation integrity checks the parsed data path and exact quote, while unsupported claims compare the matching decision with raw-input reference labels.',
       'This run does not measure live LLM accuracy, latency, token consumption, queue/API latency or provider pricing.',
     ], splits };

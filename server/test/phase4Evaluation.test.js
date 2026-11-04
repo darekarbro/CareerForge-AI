@@ -1,7 +1,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const { evaluateCase, summarize, validateReviews, validCitation } = require('../evaluation/metrics.cjs');
-const { argumentsFor } = require('../scripts/evaluatePhase4.cjs');
+const { argumentsFor, run } = require('../scripts/evaluatePhase4.cjs');
 
 const fixture = { id: 'example-01', group: 'misleading', expectedExtraction: { contactInfo: { name: 'Test Candidate', email: '' }, skills: ['Python'] },
   expectedRequirements: [{ category: 'requiredSkills', label: 'Python', status: 'supported' }, { category: 'preferredSkills', label: 'React', status: 'missing' }] };
@@ -58,4 +58,15 @@ test('evaluation defaults to development; holdout requires an explicit option', 
   assert.deepEqual(argumentsFor(['--all']).splits, ['development', 'holdout']);
   assert.throws(() => argumentsFor(['--output']));
   assert.throws(() => argumentsFor(['--unknown']));
+});
+
+test('evaluation provenance includes contact parsing and labels published data as regression evidence', async () => {
+  const report = await run(argumentsFor([]));
+  const fs = require('node:fs'), path = require('node:path'), crypto = require('node:crypto');
+  assert(report.implementationFiles.includes('../src/providers/resumeContact.js'));
+  const source = report.implementationFiles.map((file) => fs.readFileSync(path.resolve(__dirname, '../scripts', file), 'utf8')).join('\n');
+  assert.equal(report.implementationSha256, crypto.createHash('sha256').update(source).digest('hex'));
+  assert.deepEqual(report.datasetUsage, { development: 'development-regression' });
+  assert.equal(report.splits.holdout, undefined);
+  assert(report.limitations.some((line) => line.includes('not fresh unseen holdout evidence')));
 });
