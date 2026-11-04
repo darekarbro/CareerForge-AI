@@ -1,41 +1,12 @@
 const BaseProvider = require('./baseProvider');
 const { extractSkills, hasSkill, normalizeSkill, plain, roleId, ROLE_SKILLS } = require('./resumeFacts');
-const { contactName } = require('./resumeContact');
+const { contactDetails } = require('./resumeContact');
 const { reconcileSkillConflicts, conflictWarnings } = require('./skillConflicts');
+const { splitResumeSections, claimParagraphs } = require('./resumeLayout');
+const { analyzeSkillClaims } = require('./resumeClaims');
+const { resumeText } = require('./resumeFacts');
 
 const cleanBullet = (line) => line.trim().replace(/^[•*\-]\s*/, '');
-const sectionNames = {
-  summary: ['summary', 'profile', 'objective', 'about me'].flatMap((label) => [label, 'professional ' + label]),
-  skills: ['skills', 'competencies', 'technologies'].flatMap((label) => [label, ...['technical', 'core', 'key'].map((prefix) => prefix + ' ' + label)]),
-  experience: ['experience', 'employment', 'work history'].flatMap((label) => [label, ...['professional', 'work', 'relevant'].map((prefix) => prefix + ' ' + label)]),
-  education: ['education', 'academic background', 'qualifications'],
-  projects: ['project', 'projects', 'personal projects', 'key projects', 'selected projects', 'academic projects'],
-  certifications: ['certification', 'certifications', 'certificate', 'certificates', 'license', 'licenses'],
-};
-const compactHeading = (value) => value.toLowerCase().replace(/\s+/gu, '');
-const headingSections = new Map(Object.entries(sectionNames).flatMap(([section, labels]) => labels.map((label) => [compactHeading(label), section])));
-const sectionForHeading = (value) => headingSections.get(compactHeading(value.trim().replace(/:$/, '')));
-const inlineHeading = new RegExp('^\\s*(' + [...headingSections.keys()].map((label) => [...label].join('[ \\t\\u00a0]*')).join('|')
-  + ')(?:\\s*[:|｜]\\s*|\\t+|\\s+[—–-](?:\\s+|$))(.*)$', 'i');
-function sections(text) {
-  const result = { header: [] };
-  let current = 'header';
-  text.split(/\r?\n/).forEach((line) => {
-    // Normalize only a recognized whole heading; keep every body line verbatim for citations.
-    const section = sectionForHeading(line);
-    if (section) { current = section; result[current] ||= []; }
-    else {
-      const inline = line.match(inlineHeading);
-      if (inline) {
-        current = sectionForHeading(inline[1]);
-        // Retain the full payload, including negation/instructions and separators, before evidence filtering.
-        result[current] ||= [];
-        if (inline[2].trim()) result[current].push(inline[2]);
-      } else (result[current] ||= []).push(line);
-    }
-  });
-  return result;
-}
 const blocks = (lines = []) => lines.join('\n').trim().split(/\n\s*\n/).map((block) => block.split('\n').map((line) => line.trim()).filter(Boolean)).filter((block) => block.length);
 const dateRange = /((?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\s+\d{4}|\b(?:19|20)\d{2})\s*(?:-|–|—|to)\s*(Present|Current|Now|(?:(?:[A-Za-z]+)\s+)?(?:19|20)\d{2})/i;
 
@@ -44,18 +15,16 @@ class DeterministicProvider extends BaseProvider {
   isAvailable() { return true; }
 
   async parseResume(rawText = '') {
-    const text = String(rawText), parts = sections(text);
-    const { resumeEvidence, negative } = require('../services/requirementMatching');
-    const { instruction } = require('../services/jobRequirements');
-    const usable = (line) => !instruction.test(line) && !negative(line) && !/\b(?:required|preferred|must[ -]have)\b/i.test(line);
+    const text = String(rawText), { parts, statements } = splitResumeSections(text);
+    const claims = claimParagraphs(text, statements).map((item) => ({ ...item, ...analyzeSkillClaims(item.text, { context: item.context }) }));
+    const positiveSkills = (lines, context = 'narrative') => extractSkills(lines.flatMap((line) => analyzeSkillClaims(line, { context }).positiveSkills).join('\n'));
     const header = parts.header.map((line) => line.trim()).filter(Boolean);
-    const email = text.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/)?.[0] || '';
+    const { name, email } = contactDetails(text.split(/\r?\n/));
     const phone = text.match(/\+?\d[\d ()\-.]{8,20}\d/g)?.find((candidate) => {
       const digits = candidate.replace(/\D/g, '').length;
       return digits >= 10 && digits <= 15;
     }) || '';
     const link = (pattern) => text.match(pattern)?.[0] || '';
-    const name = contactName(header);
     const workExperience = blocks(parts.experience).map((block) => {
       const range = block.join(' ').match(dateRange);
       const title = block[0].replace(dateRange, '').replace(/[|,\s-]+$/, '');
@@ -82,19 +51,25 @@ class DeterministicProvider extends BaseProvider {
       })),
       projects: blocks(parts.projects).map((block) => ({
         title: block[0], description: block.slice(1).filter((line) => !/^[•*\-]/.test(line)).join(' '),
-        technologies: extractSkills(block.filter(usable).join(' ')), link: block.join(' ').match(/https?:\/\/\S+/)?.[0] || '',
+        technologies: positiveSkills(block), link: block.join(' ').match(/https?:\/\/\S+/)?.[0] || '',
         highlights: block.slice(1).filter((line) => /^[•*\-]/.test(line)).map(cleanBullet),
       })),
       certifications: (parts.certifications || []).map(cleanBullet).filter(Boolean).map((name) => ({ name })),
-      warnings: ['Offline extraction uses text headings and a limited skill dictionary. Review extracted fields against the original; unknown facts were left empty.'],
+      warnings: ['Offline extraction uses source statements and a limited skill dictionary. Review extracted fields against the original; unknown facts were left empty.'],
     };
-    // Contact/employer names and source instructions cannot establish candidate skills.
-    const skillLines = parts.skills || [];
-    const sources = [...resumeEvidence(parsed).map((item) => item.quote), ...skillLines]
-      .filter(usable);
-    const all = extractSkills(sources.join('\n'));
+    // Preserve eligible unmapped statements verbatim, including denials in a skill section.
+    // This keeps evidence reviewable even when a nonstandard layout cannot be placed confidently.
+    const retained = [];
+    for (const item of claims) for (const quote of item.candidateText) {
+      if ((item.context !== 'skills' || item.deniedSkills.length) && !resumeText(parsed).includes(quote) && !retained.includes(quote)) retained.push(quote);
+    }
+    if (retained.length) {
+      parsed.summary = [parsed.summary, ...retained].filter(Boolean).join('\n');
+      parsed.warnings.push('Some source statements were retained verbatim in the summary. Review imported section placement.');
+    }
+    const all = extractSkills(claims.flatMap((item) => item.positiveSkills).join('\n'));
     parsed.skills = { technical: all, soft: [], tools: [], frameworks: [], all };
-    const reconciled = reconcileSkillConflicts(parsed, skillLines);
+    const reconciled = reconcileSkillConflicts(parsed, claims.flatMap((item) => item.candidateText));
     reconciled.warnings = conflictWarnings(reconciled, reconciled.warnings);
     return reconciled;
   }

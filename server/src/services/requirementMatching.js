@@ -1,7 +1,7 @@
 const { hasSkill, plain } = require('../providers/resumeFacts');
 const { extractRequirements } = require('./jobRequirements');
 const { rubric } = require('./assessmentRubrics');
-const { resumeEvidence, negative, isSkillList } = require('../providers/resumeEvidence');
+const { resumeEvidence, negative, isSkillList, usablePositive } = require('../providers/resumeEvidence');
 const { activeSkillConflicts } = require('../providers/skillConflicts');
 const { explicitlyDeniesSkill } = require('../providers/skillPolarity');
 
@@ -12,7 +12,7 @@ function evaluateRequirement(requirement, evidence, resumeData) {
     const relevant = evidence.filter((item) => hasSkill(item.quote, row.label));
     const conflict = activeSkillConflicts(resumeData).find((item) => hasSkill(item.skill, row.label));
     const negativeNarrative = relevant.filter((item) => !isSkillList(item) && explicitlyDeniesSkill(item.quote, row.label));
-    const positive = relevant.filter((item) => !negative(item.quote) && !/\b(?:required|preferred|must[ -]have)\b/i.test(item.quote));
+    const positive = relevant.filter((item) => usablePositive(item, row.label));
     const usable = positive;
     row.supportingEvidence = conflict ? conflict.positiveEvidence : usable.slice(0, 3);
     if (conflict || negativeNarrative.length) row.conflictingEvidence = conflict ? conflict.negativeEvidence : negativeNarrative;

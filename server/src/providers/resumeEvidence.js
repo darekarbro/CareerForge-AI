@@ -1,10 +1,13 @@
 const { plain } = require('./resumeFacts');
 const { instruction } = require('../services/jobRequirements');
+const { analyzeSkillClaims } = require('./resumeClaims');
+const { hasSkill } = require('./resumeFacts');
+const { splitClaimClauses } = require('./skillPolarity');
 
 function resumeEvidence(resume = {}) {
   const data = plain(resume), result = [];
   const add = (path, value) => {
-    if (typeof value === 'string') value.split(/\r?\n/).forEach((quote) => {
+    if (typeof value === 'string') splitClaimClauses(value).forEach((quote) => {
       if (quote.trim() && !instruction.test(quote)) result.push({ path, quote });
     });
     else if (Array.isArray(value)) value.forEach((item, index) => add(path + '[' + index + ']', item));
@@ -18,6 +21,7 @@ function resumeEvidence(resume = {}) {
 }
 const negative = (text) => /\b(?:no|never|without|lack(?:ing)?|not(?:\s+(?:yet|experienced|proficient|familiar))?|beginner|aspir(?:ing|ation)|(?:want|plan(?:ning)?|hope)\s+to\s+learn|interested\s+in\s+learning|(?:am|currently|still|started)\s+learning)\b|^learning\b/i.test(text.replace(/\bnot only\b/ig, ''));
 const isSkillList = (item) => /^skills\.|\.technologies\[/.test(item.path);
-const usablePositive = (item) => !instruction.test(item.quote) && !negative(item.quote) && !/\b(?:required|preferred|must[ -]have)\b/i.test(item.quote);
+const positiveSkills = (item) => analyzeSkillClaims(item.quote, { context: isSkillList(item) || !item.path ? 'skills' : 'narrative' }).positiveSkills;
+const usablePositive = (item, skill) => positiveSkills(item).some((value) => !skill || hasSkill(value, skill));
 
-module.exports = { resumeEvidence, negative, isSkillList, usablePositive };
+module.exports = { resumeEvidence, negative, isSkillList, usablePositive, positiveSkills };

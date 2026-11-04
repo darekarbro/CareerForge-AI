@@ -1,5 +1,5 @@
 const { SKILLS, normalizeSkill, hasSkill, extractSkills, plain } = require('./resumeFacts');
-const { resumeEvidence, isSkillList, usablePositive } = require('./resumeEvidence');
+const { resumeEvidence, isSkillList, usablePositive, positiveSkills } = require('./resumeEvidence');
 const { explicitlyDeniesSkill } = require('./skillPolarity');
 
 const canonical = new Map(SKILLS.map((skill) => [normalizeSkill(skill), skill]));
@@ -15,7 +15,7 @@ function activeSkillConflicts(content = {}) {
     const skill = canonical.get(normalizeSkill(conflict?.skill || ''));
     if (!skill || !Array.isArray(conflict.positiveEvidence) || !Array.isArray(conflict.negativeEvidence)) return [];
     const positiveEvidence = conflict.positiveEvidence.flatMap((item, evidenceIndex) => typeof item?.quote === 'string'
-      && hasSkill(item.quote, skill) && usablePositive(item)
+      && usablePositive(item, skill)
       ? [{ path: `skillConflicts[${index}].positiveEvidence[${evidenceIndex}].quote`, quote: item.quote }] : []);
     const negativeEvidence = conflict.negativeEvidence.filter((item) => typeof item?.path === 'string' && typeof item.quote === 'string'
       && statements.some((statement) => statement.path === item.path && statement.quote === item.quote)
@@ -41,12 +41,12 @@ function suppress(content, conflicts) {
 
 function reconcileSkillConflicts(content, listedEvidence = []) {
   const data = plain(content), evidence = resumeEvidence(data);
-  const positive = [...listedEvidence.map((quote) => ({ quote })), ...evidence].filter(usablePositive);
-  const candidates = extractSkills(positive.map((item) => item.quote).join('\n'));
+  const positive = [...listedEvidence.map((quote) => ({ quote })), ...evidence].filter((item) => usablePositive(item));
+  const candidates = extractSkills(positive.flatMap(positiveSkills).join('\n'));
   const conflicts = candidates.flatMap((skill) => {
     const denied = uniqueEvidence(evidence.filter((item) => !isSkillList(item) && explicitlyDeniesSkill(item.quote, skill)));
     if (!denied.length) return [];
-    return [{ skill, positiveEvidence: uniqueClaims(positive.filter((item) => hasSkill(item.quote, skill))), negativeEvidence: denied }];
+    return [{ skill, positiveEvidence: uniqueClaims(positive.filter((item) => usablePositive(item, skill))), negativeEvidence: denied }];
   });
   for (const conflict of activeSkillConflicts(data)) if (!conflicts.some((item) => normalizeSkill(item.skill) === normalizeSkill(conflict.skill))) conflicts.push(conflict);
   return suppress(data, conflicts);
