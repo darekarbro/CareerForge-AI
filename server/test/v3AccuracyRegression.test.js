@@ -38,3 +38,23 @@ test('v3 unsafe decisions stay withheld when assertion order and quote layout ch
     for (const label of ['Rust', 'Kubernetes']) assert.equal(report.requirementMatches.find(row => row.label === label).status, 'missing');
   }
 });
+
+test('external source sections cannot lend compact lists, candidate quotes or denials to resume evidence', async () => {
+  for (const heading of ['Reference context — quoted from the hiring manager', 'Job description:']) {
+    const source = 'Ada Vale\nMy skills: Python\n' + heading + '\nCloud toolkit: AWS\nWeb [React]\nI use Kubernetes.\nI have no Python skills.\nMy skills: Git';
+    const parsed = await provider.parseResume(source);
+    assert.deepEqual(new Set(parsed.skills.all), new Set(['Python', 'Git']));
+    assert.equal(parsed.skillConflicts, undefined, 'a copied denial does not contradict a personal claim');
+    const report = assessMatch({ resumeData: parsed, jobDescriptionText: 'Python, Git, AWS, React and Kubernetes required.' });
+    assert.equal(report.requirementMatches.filter(row => row.status === 'supported').length, 2);
+    for (const label of ['AWS', 'React', 'Kubernetes']) assert.equal(report.requirementMatches.find(row => row.label === label).status, 'missing');
+  }
+});
+
+test('article-bearing technology denials withhold only the denied capability', async () => {
+  const parsed = await provider.parseResume('Ada Vale\nWork kit: CI/CD, Docker\nClarification\nI cannot build a CI/CD pipeline, but I use Docker.');
+  assert.deepEqual(parsed.skills.all, ['Docker']);
+  const report = assessMatch({ resumeData: parsed, jobDescriptionText: 'CI/CD and Docker required.' });
+  assert.equal(report.requirementMatches.find(row => row.label === 'CI/CD').status, 'uncertain');
+  assert.equal(report.requirementMatches.find(row => row.label === 'Docker').status, 'supported');
+});

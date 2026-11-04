@@ -59,7 +59,7 @@ class DeterministicProvider extends BaseProvider {
     };
     const companies = new Set(workExperience.map(entry => entry.company).filter(Boolean));
     const institutions = new Set(parsed.education.map(entry => entry.institution).filter(Boolean));
-    const eligibleStatements = statements.filter(item => !(item.context === 'unknown' && item.text === name)
+    const eligibleStatements = statements.filter(item => item.context !== 'external' && !(item.context === 'unknown' && item.text === name)
       && !(item.section === 'experience' && companies.has(item.text))
       && !(item.section === 'education' && institutions.has(item.text)));
     const claims = claimParagraphs(text, eligibleStatements).map((item) => ({ ...item, ...analyzeSkillClaims(item.text, { context: item.context }) }));

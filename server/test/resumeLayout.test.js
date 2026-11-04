@@ -47,11 +47,13 @@ test('compact capability categories accept slash, bracket and labeled payloads w
   for (const item of statements) {
     assert(source.includes(item.text)); assert.equal(source.slice(item.start, item.end), item.text);
   }
-  for (const prefix of ['Employer', 'Customer', 'Requested approach', 'Unknown label']) {
+  for (const prefix of ['Employer', 'Customer', 'Unknown label']) {
     const row = prefix + ' [React; AWS]';
     assert.equal(splitResumeSections(row).statements[0].context, 'unknown', row);
     assert.equal(headingSection(prefix), null, prefix);
   }
+  assert.equal(splitResumeSections('Requested approach [React; AWS]').statements[0].context, 'external');
+  assert.equal(headingSection('Requested approach'), 'external');
 });
 
 test('wrapped work-kit and strengths lists keep capability context and original line breaks', () => {
@@ -90,6 +92,35 @@ test('correction and reference headings end positive list context without stripp
     assert.equal(statements[statements.length - 1].context, 'narrative');
   }
   const quoted = splitResumeSections('My skills: Python\nReference context — quoted from the hiring manager\n“Our lead uses Rust and Kubernetes.”');
-  assert(quoted.parts.summary.includes('“Our lead uses Rust and Kubernetes.”'));
-  assert.equal(quoted.statements.at(-1).context, 'narrative');
+  assert(quoted.parts.external.includes('“Our lead uses Rust and Kubernetes.”'));
+  assert.equal(quoted.statements.at(-1).context, 'external');
+});
+
+test('external ownership survives nested capability headings, brackets, tables and blank lines', () => {
+  for (const introduction of ['Reference context — quoted from the hiring manager', 'Job description:', 'Copied requirements', 'Assignment brief']) {
+    const source = [introduction, 'Cloud toolkit: AWS', '', 'Web [React; TypeScript]', 'AREA | PRACTICE',
+      'Delivery | CI/CD', 'Skills', 'Python', 'Experience', 'Three years of Docker experience required.'].join('\n');
+    const { parts, statements } = splitResumeSections(source);
+    assert.equal(parts.skills, undefined, introduction);
+    assert.equal(parts.experience, undefined, introduction);
+    assert(statements.length > 0); assert(statements.every(item => item.section === 'external' && item.context === 'external'));
+    assert(statements.every(item => source.slice(item.start, item.end) === item.text));
+  }
+});
+
+test('explicit candidate headings and dated career entries resume personal ownership after copied material', () => {
+  for (const recovery of ['My skills: Python', 'Candidate skills: Python', 'Personal toolkit: Python']) {
+    const { parts, statements } = splitResumeSections('Job description:\nCloud toolkit: AWS\n' + recovery);
+    assert.deepEqual(parts.skills, ['Python']); assert.equal(statements.at(-1).context, 'skills');
+    assert(parts.external.includes('Cloud toolkit: AWS'));
+  }
+  for (const heading of ['Candidate clarification', 'Candidate declaration', 'Personal statement']) {
+    const result = splitResumeSections('Copied requirements\nSkills: React\n' + heading + '\nI do not know React.');
+    assert.equal(result.statements.at(-1).context, 'narrative'); assert.equal(result.parts.summary[0], 'I do not know React.');
+  }
+  const dated = splitResumeSections('Reference context — quoted from the employer\nCloud: Azure\n\nExperience\nEngineer at Example Works, 2021–2025\nI built Python tools.');
+  assert.deepEqual(dated.parts.experience, ['Engineer at Example Works, 2021–2025', 'I built Python tools.']);
+  assert.equal(dated.statements.at(-1).context, 'narrative');
+  const isolatedContactReference = splitResumeSections('Candidate: Ada Vale\nReference only: Dr. Bea Day\nSelected capabilities\nPython');
+  assert.deepEqual(isolatedContactReference.parts.skills, ['Python']);
 });

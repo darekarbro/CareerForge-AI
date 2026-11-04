@@ -15,20 +15,22 @@ const separator = line => !line.trim() || /^[\s+|:═─┌┐└┘├┤┬┴
 // merely because it starts with a broad word such as "Application" or "Cloud".
 const skillCategory = /^(?:web|frontend|front end|backend|back end|server|application|cloud|data|storage|database(?: language)?|testing|tests|checks|delivery|deployment|workflow|focus|strengths|work areas?)$/i;
 const normalizedLabel = value => value.trim().replace(/[_/+-]/g, ' ').replace(/\s+/g, ' ');
+const externalLabel = /^(?:reference (?:context|quote|quotation|statement)|(?:job|role|position) (?:description|requirements)|(?:copied|quoted|external) (?:(?:job|role|position) )?(?:description|requirements|skills|assignment|brief)|(?:assignment|project) brief|requested approach|(?:hiring manager|recruiter|employer) (?:quote|requirements|statement)|(?:quoted|copied) from (?:the )?(?:hiring manager|recruiter|employer|job description))$/i;
 
 function headingSection(value) {
   const text = frame(value).replace(/\s*(?::+|[.\s]{2,}|[=>-]+)\s*$/, '').trim();
   const exact = known.get(compact(text));
   if (exact) return exact;
   const label = text.toLowerCase().replace(/[_/+-]/g, ' ').replace(/\s+/g, ' ').trim();
+  if (externalLabel.test(label)) return 'external';
   if (!label || label.length > 75 || /[.!?@,'";]|\b(?:not|never|cannot)\b/i.test(label)) return null;
   if (/^(?:(?:my|self|personal|candidate|signed|skill)\s+){0,3}(?:declaration|statement|assessment|note)s?$/.test(label)
     || /^(?:(?:my|personal|candidate|skills?|project|resume|background)\s+){0,2}(?:correction|clarification|amendment|addendum|note)(?:\s+(?:to this resume|from the candidate))?$/.test(label)
-    || /^(?:context|notes?)\b/.test(label) || /^(?:reference context|who i am|about(?: me)?(?: experience)?|about my work|introduction|overview)$/.test(label)) return 'summary';
+    || /^(?:context|notes?)\b/.test(label) || /^(?:who i am|about(?: me)?(?: experience)?|about my work|introduction|overview)$/.test(label)) return 'summary';
   if (/^(?:contact|correspondence|reach me|identity(?: and contact)?|personal details|career contact)$/.test(label)) return 'header';
   if (/^(?:(?:formal|academic|learning|educational|my)\s+){0,2}(?:study|studies|education|training|learning|qualifications)(?:\s+(?:record|and training))?$/.test(label)
     || /^academic record$/.test(label)) return 'education';
-  if (/^(?:(?:my|technical|core|key|professional|practical|selected|current|delivery|cloud|application|development|work|team)\s+){0,3}(?:skills?|capabilities|competencies|technologies|toolbox|toolkit|repertoire|tools|tooling|stack|proficiencies|kit)(?:\s+(?:summary|list|sheet|i use|and how i use them))?$/.test(label)
+  if (/^(?:(?:my|candidate|personal|self|technical|core|key|professional|practical|selected|current|delivery|cloud|application|development|work|team)\s+){0,3}(?:skills?|capabilities|competencies|technologies|toolbox|toolkit|repertoire|tools|tooling|stack|proficiencies|kit)(?:\s+(?:summary|list|sheet|i use|and how i use them))?$/.test(label)
     || /^(?:technical notes|team practices|how i (?:build|ship|work|develop)|what i (?:use|know|work with)|work skills)$/.test(label)) return 'skills';
   if (/^(?:(?:my|current|selected|engineering|professional|relevant|work|career|past|role)\s+){0,3}(?:practice|record|history|experience|employment|appointments|work|career|role)$/.test(label)
     || /^what i (?:have )?(?:built|delivered|implemented)$/.test(label)) return 'experience';
@@ -40,8 +42,9 @@ function inlineSection(line) {
   const bracket = line.indexOf('[');
   if (bracket > 0 && bracket <= 75) {
     const prefix = line.slice(0, bracket).trim();
-    if (headingSection(prefix) === 'skills' || skillCategory.test(normalizedLabel(prefix))) {
-      return { section: 'skills', text: line.slice(bracket + 1, /\]\s*$/.test(line) ? line.lastIndexOf(']') : undefined).trim() };
+    const section = headingSection(prefix);
+    if (section === 'skills' || section === 'external' || skillCategory.test(normalizedLabel(prefix))) {
+      return { section: section === 'external' ? 'external' : 'skills', text: line.slice(bracket + 1, /\]\s*$/.test(line) ? line.lastIndexOf(']') : undefined).trim() };
     }
   }
   // Try only short label prefixes, so arbitrary prose is never stripped as a heading.
@@ -54,6 +57,18 @@ function inlineSection(line) {
   return null;
 }
 
+function personalRecovery(line, section, nextLines) {
+  // A copied source can contain its own Skills/Cloud/Experience subheadings.
+  // Blank lines and those nested headings cannot change the owner back to the candidate.
+  if (/^(?:my|candidate|personal|self|signed)\s+(?:resume|profile|skills?|capabilities|competencies|technologies|toolbox|toolkit|tools?|tooling|stack|declaration|statement|assessment|clarification|correction|experience|education|projects?)\b/i.test(line)) return true;
+  if (/^(?:candidate\s+)?resume\s*$/i.test(line)) return true;
+  if (!['experience', 'projects', 'education'].includes(section)) return false;
+  const entry = [line, ...nextLines].join('\n');
+  // A dated career entry establishes a resume boundary more clearly than the
+  // generic heading alone; copied experience requirements stay external.
+  return /\b(?:19|20)\d{2}\s*(?:[-–—]|to)\s*(?:(?:19|20)\d{2}|present|current|now)\b/i.test(entry);
+}
+
 function splitResumeSections(text) {
   const source = String(text), lines = source.split(/\r?\n/), offsets = [];
   let offset = 0;
@@ -62,7 +77,7 @@ function splitResumeSections(text) {
   let current = 'header', columns = null;
   const emit = (value, section, line) => {
     if (!value.trim()) { (parts[section] ||= []).push(''); return; }
-    const context = section === 'skills' ? 'skills' : section === 'header' ? 'unknown' : 'narrative';
+    const context = section === 'external' ? 'external' : section === 'skills' ? 'skills' : section === 'header' ? 'unknown' : 'narrative';
     (parts[section] ||= []).push(value);
     const start = offsets[line - 1] + lines[line - 1].indexOf(value);
     statements.push({ text: value, section, context, line, start, end: start + value.length });
@@ -70,6 +85,11 @@ function splitResumeSections(text) {
   lines.forEach((raw, index) => {
     if (separator(raw)) { if (!raw.trim()) emit('', current, index + 1); return; }
     const line = frame(raw);
+    const section = headingSection(line), inline = inlineSection(line);
+    if (current === 'external') {
+      if (!personalRecovery(line, section || inline?.section, lines.slice(index + 1, index + 5))) { emit(line, 'external', index + 1); return; }
+      current = 'header'; columns = null;
+    }
     const cells = line.split(/\s*\|\s*|\t+| {2,}/).map(value => value.trim()).filter(Boolean);
     const headings = cells.map(headingSection);
     if (cells.length === 2 && /^(?:area|category|domain)$/i.test(cells[0])
@@ -77,13 +97,11 @@ function splitResumeSections(text) {
       columns = [null, 'skills']; current = 'skills'; parts.skills ||= []; return;
     }
     if (cells.length > 1 && headings.every(Boolean)) { columns = headings; current = headings[0]; return; }
-    const section = headingSection(line);
     if (section) { current = section; columns = null; parts[current] ||= []; return; }
     if (columns && cells.length > 1) {
       cells.forEach((cell, column) => { if (columns[column]) emit(cell, columns[column], index + 1); });
       return;
     }
-    const inline = inlineSection(line);
     if (inline) { current = inline.section; columns = null; emit(inline.text, current, index + 1); return; }
     // Unrecognized blocks remain observable to the source-claim classifier, even without a heading.
     emit(line, current, index + 1);
