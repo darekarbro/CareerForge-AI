@@ -41,14 +41,18 @@ function suppress(content, conflicts) {
 
 function reconcileSkillConflicts(content, listedEvidence = []) {
   const data = plain(content), evidence = resumeEvidence(data);
+  const previous = activeSkillConflicts(data);
   const positive = [...listedEvidence.map((quote) => ({ quote })), ...evidence].filter((item) => usablePositive(item));
   const candidates = extractSkills(positive.flatMap(positiveSkills).join('\n'));
   const conflicts = candidates.flatMap((skill) => {
     const denied = uniqueEvidence(evidence.filter((item) => !isSkillList(item) && explicitlyDeniesSkill(item.quote, skill)));
     if (!denied.length) return [];
-    return [{ skill, positiveEvidence: uniqueClaims(positive.filter((item) => usablePositive(item, skill))), negativeEvidence: denied }];
+    const prior = previous.find((item) => normalizeSkill(item.skill) === normalizeSkill(skill));
+    // Withheld technology lists no longer appear in positive content. Retain their
+    // still-active original claims when another narrative claim rebuilds the same conflict.
+    return [{ skill, positiveEvidence: uniqueClaims([...(prior?.positiveEvidence || []), ...positive.filter((item) => usablePositive(item, skill))]), negativeEvidence: denied }];
   });
-  for (const conflict of activeSkillConflicts(data)) if (!conflicts.some((item) => normalizeSkill(item.skill) === normalizeSkill(conflict.skill))) conflicts.push(conflict);
+  for (const conflict of previous) if (!conflicts.some((item) => normalizeSkill(item.skill) === normalizeSkill(conflict.skill))) conflicts.push(conflict);
   return suppress(data, conflicts);
 }
 

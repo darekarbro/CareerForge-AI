@@ -103,3 +103,13 @@ test('legacy positive lists cannot inflate a reassessed score or lose the confli
   const refreshed = refreshSkillConflicts(reviewed, legacy);
   assert.equal(refreshed.skillConflicts[0].skill, 'React'); assert.equal(match(refreshed).requirementMatches[0].status, 'uncertain');
 });
+
+test('repeated reconciliation retains active original project and technology claims after withholding', () => {
+  const source = { skills: { all: ['Python'] }, summary: 'I have no experience with TensorFlow.', projects: [{ title: 'Model notebook', description: 'Trained a TensorFlow model.', technologies: ['TensorFlow'] }] };
+  const first = reconcileSkillConflicts(source);
+  assert.deepEqual(first.skillConflicts[0].positiveEvidence.map(item => item.quote), ['Trained a TensorFlow model.', 'TensorFlow']);
+  assert.deepEqual(first.projects[0].technologies, []);
+  assert.deepEqual(reconcileSkillConflicts(first), first);
+  assert.deepEqual(reconcileSkillConflicts(reconcileSkillConflicts(first)), first);
+  assert.equal(match(first, 'TensorFlow required.').requirementMatches[0].status, 'uncertain');
+});
