@@ -9,6 +9,7 @@
     "worker": "node src/worker.js",
     "dev": "nodemon src/server.js",
     "test": "node --require ./test/setup.cjs --test --test-concurrency=1 test/*.test.js",
+    "evaluate:phase4": "node scripts/evaluatePhase4.cjs",
     "test:groq": "node scripts/testGroqLive.js --live"
   },
   "keywords": [
