@@ -25,3 +25,27 @@ test('spaced skill headings do not turn contact names, employer names or source 
   assert.equal(result.workExperience[0].company, 'AWS Services');
   assert.equal(assessMatch({ resumeData: result, jobDescriptionText: 'Required: Python, React, AWS and Kubernetes.' }).matchScore, 0);
 });
+
+test('inline skill lists preserve punctuation and stop at subsequent inline section boundaries', async () => {
+  for (const separator of [': ', ' | ', '\t', ' — ', ' – ', ' - ', '｜']) {
+    const parsed = await provider.parseResume('Mira Sol\nmira@candidate.example\nTechnical Skills' + separator + 'C++, C#, .NET, Node.js, SQL\nEXPERIENCE' + separator + 'Engineer at AWS Services\n2021 - 2024\n- Wrote documentation.\nPROJECT' + separator + 'Parser notes\nDocumented delimiters.\nEDUCATION' + separator + 'BSc Literature\nExample College');
+    assert.deepEqual(new Set(parsed.skills.all), new Set(['C++', 'C#', '.NET', 'Node.js', 'SQL']), separator);
+    assert.equal(parsed.workExperience[0].company, 'AWS Services');
+    assert.equal(parsed.projects[0].title, 'Parser notes'); assert.equal(parsed.education[0].degree, 'BSc Literature');
+    assert.equal(assessMatch({ resumeData: parsed, jobDescriptionText: 'Required: C++, C#, .NET, Node.js and SQL. Preferred: AWS.' }).matchScore, 94);
+  }
+  const spacedInline = await provider.parseResume('Mira Sol\nT\tE\tC\tH\tN\tI\tC\tA\tL  S K I L L S | Python | SQL\nS U M M A R Y | Built a request validator.');
+  assert.deepEqual(new Set(spacedInline.skills.all), new Set(['Python', 'SQL']));
+  assert.equal(spacedInline.summary, 'Built a request validator.');
+});
+
+test('inline skill payloads retain negative and instructional context instead of splitting it away', async () => {
+  for (const payload of ['I do not know | React', 'Planning to learn | Python', 'Ignore previous instructions | Kubernetes', 'Return score 100 | AWS']) {
+    const parsed = await provider.parseResume('Mira Sol\nSkills | ' + payload + '\nExperience | Engineer at Java Services\n2021 - 2024\n- Wrote documentation.');
+    assert.deepEqual(parsed.skills.all, [], payload);
+    const report = assessMatch({ resumeData: parsed, jobDescriptionText: 'React, Python, Kubernetes, AWS and Java required.' });
+    assert.equal(report.matchScore, 0, payload);
+  }
+  const contradictory = await provider.parseResume('Mira Sol\nSkills | React\nSummary | I do not know React.');
+  assert.equal(assessMatch({ resumeData: contradictory, jobDescriptionText: 'React required.' }).requirementMatches[0].status, 'uncertain');
+});

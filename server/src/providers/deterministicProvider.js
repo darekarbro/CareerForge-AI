@@ -7,12 +7,14 @@ const sectionNames = {
   skills: ['skills', 'competencies', 'technologies'].flatMap((label) => [label, ...['technical', 'core', 'key'].map((prefix) => prefix + ' ' + label)]),
   experience: ['experience', 'employment', 'work history'].flatMap((label) => [label, ...['professional', 'work', 'relevant'].map((prefix) => prefix + ' ' + label)]),
   education: ['education', 'academic background', 'qualifications'],
-  projects: ['projects', 'personal projects', 'key projects', 'selected projects', 'academic projects'],
+  projects: ['project', 'projects', 'personal projects', 'key projects', 'selected projects', 'academic projects'],
   certifications: ['certification', 'certifications', 'certificate', 'certificates', 'license', 'licenses'],
 };
 const compactHeading = (value) => value.toLowerCase().replace(/\s+/gu, '');
 const headingSections = new Map(Object.entries(sectionNames).flatMap(([section, labels]) => labels.map((label) => [compactHeading(label), section])));
 const sectionForHeading = (value) => headingSections.get(compactHeading(value.trim().replace(/:$/, '')));
+const inlineHeading = new RegExp('^\\s*(' + [...headingSections.keys()].map((label) => [...label].join('[ \\t\\u00a0]*')).join('|')
+  + ')(?:\\s*[:|｜]\\s*|\\t+|\\s+[—–-]\\s+)(.*\\S.*)$', 'i');
 function sections(text) {
   const result = { header: [] };
   let current = 'header';
@@ -20,7 +22,14 @@ function sections(text) {
     // Normalize only a recognized whole heading; keep every body line verbatim for citations.
     const section = sectionForHeading(line);
     if (section) { current = section; result[current] ||= []; }
-    else (result[current] ||= []).push(line);
+    else {
+      const inline = line.match(inlineHeading);
+      if (inline) {
+        current = sectionForHeading(inline[1]);
+        // Retain the full payload, including negation/instructions and separators, before evidence filtering.
+        (result[current] ||= []).push(inline[2]);
+      } else (result[current] ||= []).push(line);
+    }
   });
   return result;
 }
@@ -78,9 +87,7 @@ class DeterministicProvider extends BaseProvider {
       warnings: ['Offline extraction uses text headings and a limited skill dictionary. Review extracted fields against the original; unknown facts were left empty.'],
     };
     // Contact/employer names and source instructions cannot establish candidate skills.
-    const skillLines = [...(parts.skills || []), ...text.split(/\r?\n/).flatMap((line) => {
-      const inline = line.match(/^(?:(?:technical|core|key)\s+)?skills:\s*(.+)$/i); return inline ? [inline[1]] : [];
-    })];
+    const skillLines = parts.skills || [];
     const sources = [...resumeEvidence(parsed).map((item) => item.quote), ...skillLines]
       .filter(usable);
     const all = extractSkills(sources.join('\n'));
