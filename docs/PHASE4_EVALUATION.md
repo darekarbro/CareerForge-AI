@@ -24,11 +24,11 @@ The [untuned first-pass v2 report](PHASE4_FRESH_HOLDOUT_RESULTS.md) evaluates 24
 npm run evaluate:phase4 -- --dataset-version v2 --holdout --output .test-tmp/phase4-v2-regression.json
 ```
 
-The default evaluator CLI and CI evaluation artifact remain v1 development only; the v4 server test suite additionally checks public v2 cases as regressions. The original v2 publication used the frozen assessment code and metric definitions. Its labels were reviewed before execution and were not adjusted to predictions. Later v4 fixes use these public failures as regression cases; the original first-pass records remain preserved.
+The default evaluator CLI and CI evaluation artifact remain v1 development only; the current server test suite additionally checks public v2/v3 cases as regressions. The original v2 publication used the frozen assessment code and metric definitions. Its labels were reviewed before execution and were not adjusted to predictions. Later fixes use these public failures as regression cases; the original first-pass records remain preserved.
 
 ## V4 accuracy cycle and fresh v3 validation
 
-The [accuracy report](PHASE4_ACCURACY_RESULTS.md) publishes the current v1/v2 regression measurements and a new, independently authored/reviewed v3 holdout. V4 resolves the measured v2 skill/status errors, but its single untuned v3 run reports skill F1 78.17%, status accuracy 66.91% and 3/68 unsupported supported decisions. These remaining failures are included in the publication; no parser, matcher, metric or label tuning followed v3 scoring.
+The [v4 accuracy report](PHASE4_ACCURACY_RESULTS.md) preserves its v1/v2 regression measurements and independently authored/reviewed v3 first pass. That single untuned v3 run reports skill F1 78.17%, status accuracy 66.91% and 3/68 unsupported supported decisions. Those failures were published without changing the frozen implementation or labels. The subsequent [v5 regression report](PHASE4_V3_REGRESSION_RESULTS.md) documents fixes informed by these public cases, with unchanged references/metrics and separate raw results. V3 is regression evidence for this later work.
 
 The [v3 protocol](../server/evaluation/protocols/v3-first-pass.json), [dataset lock](../server/evaluation/protocols/v3-first-pass.lock.json), [receipt](../server/evaluation/protocols/v3-first-pass.receipt.json) and [raw report](PHASE4_ACCURACY_V3_HOLDOUT_RESULTS.json) preserve source/dataset/evaluator hashes and the first attempt. After publication, reruns require a separate output path and count as regression evidence:
 
