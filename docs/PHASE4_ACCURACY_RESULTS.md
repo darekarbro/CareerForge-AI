@@ -2,7 +2,7 @@
 
 The v4 engine resolves the measured skill-extraction and matching errors in the published v1/v2 cases. **The fresh v3 holdout still exposes limitations:** skill F1 is **78.17%**, requirement-status accuracy is **66.91%**, and **3/68 supported decisions are unsupported** by the reference labels. Known-set success does not establish general accuracy.
 
-Published 4 November 2026. All fixtures are fictional, English-dominant raw text. References were authored and reviewed by separate agents, not independent human annotators. This experiment measures the offline fallback parser and local matcher; it does not measure live LLM quality, PDF/OCR reading order, technical proficiency or hiring outcomes.
+Published 4 November 2026. All fixtures are fictional, English-dominant raw text. V2/v3 references were authored and reviewed by separate agents, not independent human annotators. V1 labels were authored independently of model output; a separate blind-review record is not available for v1. This experiment measures the offline fallback parser and local matcher; it does not measure live LLM quality, PDF/OCR reading order, technical proficiency or hiring outcomes.
 
 ## What changed
 
