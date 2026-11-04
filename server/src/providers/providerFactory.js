@@ -4,6 +4,7 @@ const GeminiProvider = require('./geminiProvider');
 const DeterministicProvider = require('./deterministicProvider');
 const { validateResult } = require('./validateResult');
 const { throwIfCancelled } = require('../services/jobContext');
+const { modelVersion } = require('../services/assessmentRubrics');
 
 class ProviderFactory {
   constructor() {
@@ -39,7 +40,7 @@ class ProviderFactory {
     validateResult(action, result, params);
     throwIfCancelled();
     await this.recordUsage(require('../services/jobContext').context.getStore(), { action, provider: this.deterministic.name,
-      model: 'assessment-rules-v2', durationMs: Date.now() - start, status: 'success', inputTokens: 0, outputTokens: 0, costUsd: 0 });
+      model: modelVersion, durationMs: Date.now() - start, status: 'success', inputTokens: 0, outputTokens: 0, costUsd: 0 });
     return this.withProvider(result, this.deterministic.name);
   }
 

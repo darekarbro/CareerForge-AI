@@ -1,6 +1,8 @@
-# Assessment rubrics (careerforge-assessment-v2)
+# Assessment rubrics (careerforge-assessment-v3)
 
 Resume extraction can use an allowed AI provider. Final resume quality and job matching are repeatable **local rules**, with no external scoring request or token charge. Neither score predicts hiring success or reproduces a commercial ATS. Results disclose the rubric version, input fingerprint, timestamp and provider in `assessmentMeta`; changing this version invalidates earlier cache entries.
+
+Version 3 preserves the version 2 weights and score formula. It withholds explicitly contradicted skills from positive skill and project-technology lists, retains both statements for review, and marks a still-active conflict uncertain with no positive match credit. Historical evaluation reports retain their original version 2 results; the updated engine is `assessment-rules-v3`.
 
 ## Resume quality
 
@@ -15,6 +17,8 @@ Job descriptions are split into source clauses and retain original source text. 
 Every requirement has a stable ID, category, weight, source clause and explanation. Matching inspects career content only (summary, skills, experience highlights, projects and education), recording exact JSON field paths and verbatim text excerpts. Skill mentions are self-reported evidence, not proof of proficiency. Explicit negation and instructional text are excluded; contradictory positive and negative evidence is uncertain. Company names, contact fields, metadata and warnings are not skill evidence. A skill appearing only in a copied job description is not a verified skill; source review remains necessary.
 
 `supported` means usable evidence appears in the supplied text. `missing` means no usable supporting evidence was found, including explicit negative evidence. `uncertain` means the requirement needs confirmation, for example an ambiguous date range, skill-specific years, alternative qualification or location/work-authorization constraint. Missing and uncertain states both carry a concrete request for evidence; neither asserts that the candidate is unqualified.
+
+Conflict detection uses bounded, skill-specific English denials such as “I do not know React,” “never used React” or “no experience with React.” Aliases and source order do not change the result. Unrelated negation and learning intentions do not cancel an explicit listed skill. Original claims and current denial quotes are stored outside positive resume content; they do not add keywords or appear in generated resume text. Unrelated edits preserve active conflicts; correcting or removing the referenced denial clears the old flag. Complex temporal statements, indirect or multilingual denials still require human review.
 
 Match score = 100 × supported weight / all classified requirement weight, rounded once. Uncertain requirements receive no positive credit. The score is a conservative evidence-coverage estimate, not a penalty for inability. Evidence coverage also reports supported and total requirement counts. When no requirements can be classified, the displayed score is zero with a manual-review warning; it does not mean a zero-quality candidate. Unclassified clauses are excluded from the numeric denominator and always surfaced as a limitation. There is no calibrated probability or confidence interval.
 

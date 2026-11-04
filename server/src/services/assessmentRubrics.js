@@ -1,6 +1,7 @@
 const { extractSkills, resumeText, normalizeSkill, plain } = require('../providers/resumeFacts');
 
-const rubricVersion = 'careerforge-assessment-v2';
+const rubricVersion = 'careerforge-assessment-v3';
+const modelVersion = 'assessment-rules-v3';
 const commonLimitations = [
   'Scores describe evidence in the supplied resume, not verified competence, hiring probability or an employer ATS result.',
   'Extraction errors, missing context and a limited English skill dictionary can change the result. Review the original documents.',
@@ -42,4 +43,4 @@ function assessResume({ resumeData = {} } = {}) {
     rubric: { ...rubric('resume-quality'), weights: { structure: .3, listedSkills: .35, textReadability: .2, length: .15 },
       uncertainty: { level: 'limited', reason: 'Heuristics evaluate available text only; no calibrated confidence interval is available.' } } };
 }
-module.exports = { rubricVersion, rubric, assessResume };
+module.exports = { rubricVersion, modelVersion, rubric, assessResume };

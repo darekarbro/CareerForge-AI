@@ -3,7 +3,7 @@ const Cache = require('../models/AssessmentCache');
 const { plain, resumeText } = require('../providers/resumeFacts');
 const { createJob, dispatchJob } = require('./jobService');
 const { fail } = require('./resumeContent');
-const { rubricVersion } = require('./assessmentRubrics');
+const { rubricVersion, modelVersion } = require('./assessmentRubrics');
 function canonical(value) {
   if (Array.isArray(value)) return value.map(canonical);
   if (value && typeof value === 'object') return Object.fromEntries(Object.keys(value).sort().filter((key) => !['_id', '__v', 'warnings'].includes(key)).map((key) => [key, canonical(value[key])]));
@@ -16,7 +16,7 @@ async function cached({ owner, action, params }, calculate) {
   if (!user) throw fail('Account unavailable', 401);
   const local = ['scoreATS', 'analyzeGap'].includes(action);
   const provider = local ? 'deterministic-fallback' : ['groq', 'openrouter', 'gemini'].find((name) => user.emailVerifiedAt && user.privacy?.providers?.[name] && status[name]?.configured) || 'deterministic-fallback';
-  const model = local ? 'assessment-rules-v2' : status[provider]?.model || 'offline-rules-v1';
+  const model = local ? modelVersion : status[provider]?.model || 'offline-rules-v1';
   const fingerprint = crypto.createHash('sha256').update(JSON.stringify({ action, rubricVersion, provider, model, params: canonical(params) })).digest('hex');
   const key = owner + ':' + fingerprint;
   const stored = await Cache.findOne({ owner, fingerprint, expiresAt: { $gt: new Date() } });
