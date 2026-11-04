@@ -1,6 +1,7 @@
 const BaseProvider = require('./baseProvider');
 const { extractSkills, hasSkill, normalizeSkill, plain, roleId, ROLE_SKILLS } = require('./resumeFacts');
 const { contactName } = require('./resumeContact');
+const { reconcileSkillConflicts } = require('./skillConflicts');
 
 const cleanBullet = (line) => line.trim().replace(/^[•*\-]\s*/, '');
 const sectionNames = {
@@ -74,7 +75,7 @@ class DeterministicProvider extends BaseProvider {
         github: link(/(?:https?:\/\/)?(?:www\.)?github\.com\/[a-zA-Z0-9_-]+/i),
         portfolio: header.join('\n').match(/Portfolio:\s*(https?:\/\/\S+)/i)?.[1] || '',
       },
-      summary: (parts.summary || []).map((line) => line.trim()).filter(Boolean).join(' '),
+      summary: (parts.summary || []).map((line) => line.trim()).filter(Boolean).join('\n'),
       skills: { technical: [], soft: [], tools: [], frameworks: [], all: [] }, workExperience,
       education: blocks(parts.education).map((block) => ({
         degree: block[0], institution: block[1] || '', graduationYear: block.join(' ').match(/\b(?:19|20)\d{2}\b/)?.[0] || '',
@@ -93,7 +94,9 @@ class DeterministicProvider extends BaseProvider {
       .filter(usable);
     const all = extractSkills(sources.join('\n'));
     parsed.skills = { technical: all, soft: [], tools: [], frameworks: [], all };
-    return parsed;
+    const reconciled = reconcileSkillConflicts(parsed, skillLines);
+    for (const conflict of reconciled.skillConflicts || []) reconciled.warnings.push(conflict.skill + ' was both claimed and denied. It was withheld from positive skills; review the conflicting statements.');
+    return reconciled;
   }
 
   async tailorResume({ resumeData, targetRole = 'Fullstack Developer', jobDescriptionText = '' }) {

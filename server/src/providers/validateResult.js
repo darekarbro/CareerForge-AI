@@ -12,6 +12,15 @@ function validateResult(action, result, params) {
     typeof result.summary === 'string' && strings(result.skills?.all) &&
     entries(result.workExperience, ['role', 'company']) && entries(result.education, ['degree', 'institution']) &&
     entries(result.projects, ['title']) && entries(result.certifications, ['name']);
+  if (action === 'parseResume' && valid && result.skillConflicts !== undefined) {
+    const { activeSkillConflicts } = require('./skillConflicts');
+    const conflicts = activeSkillConflicts(result);
+    const positiveSkills = [...Object.values(result.skills).flat(), ...result.projects.flatMap((item) => item.technologies || [])].filter((item) => typeof item === 'string');
+    valid = Array.isArray(result.skillConflicts) && result.skillConflicts.length <= 100 && conflicts.length === result.skillConflicts.length
+      && conflicts.every((conflict) => !positiveSkills.some((skill) => normalizeSkill(skill) === normalizeSkill(conflict.skill))
+        && (typeof params !== 'string' || conflict.positiveEvidence.some((item) => params.includes(item.quote))
+          && conflict.negativeEvidence.every((item) => params.includes(item.quote))));
+  }
   if (action === 'tailorResume') {
     const original = new Set(Object.values(params.resumeData?.skills || {}).flat()
       .filter((value) => typeof value === 'string').map(normalizeSkill));

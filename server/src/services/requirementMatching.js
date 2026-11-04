@@ -1,36 +1,24 @@
 const { hasSkill, plain } = require('../providers/resumeFacts');
-const { extractRequirements, instruction } = require('./jobRequirements');
+const { extractRequirements } = require('./jobRequirements');
 const { rubric } = require('./assessmentRubrics');
+const { resumeEvidence, negative, isSkillList } = require('../providers/resumeEvidence');
+const { activeSkillConflicts } = require('../providers/skillConflicts');
+const { explicitlyDeniesSkill } = require('../providers/skillPolarity');
 
-function resumeEvidence(resume = {}) {
-  const data = plain(resume), result = [];
-  const add = (path, value) => {
-    if (typeof value === 'string') value.split(/\r?\n/).forEach((quote) => {
-      if (quote.trim() && !instruction.test(quote)) result.push({ path, quote });
-    });
-    else if (Array.isArray(value)) value.forEach((item, index) => add(path + '[' + index + ']', item));
-  };
-  add('summary', data.summary);
-  for (const key of ['all', 'technical', 'soft', 'tools', 'frameworks']) add('skills.' + key, data.skills?.[key]);
-  for (const [section, fields] of Object.entries({ workExperience: ['role', 'highlights'], projects: ['title', 'description', 'technologies', 'highlights'], education: ['degree', 'fieldOfStudy'], certifications: ['name'] })) {
-    for (const [index, entry] of (data[section] || []).entries()) for (const field of fields) add(section + '[' + index + '].' + field, entry[field]);
-  }
-  return result;
-}
-const negative = (text) => /\b(?:no|never|without|lack(?:ing)?|not(?:\s+(?:yet|experienced|proficient|familiar))?|beginner|aspir(?:ing|ation)|(?:want|plan(?:ning)?|hope)\s+to\s+learn|interested\s+in\s+learning|(?:am|currently|still|started)\s+learning)\b|^learning\b/i.test(text.replace(/\bnot only\b/ig, ''));
-const isSkillList = (item) => /^skills\.|\.technologies\[/.test(item.path);
 
 function evaluateRequirement(requirement, evidence, resumeData) {
   const row = { ...requirement, status: 'missing', supportingEvidence: [], missingEvidence: '', explanation: '' };
   if (/_skill$/.test(row.category)) {
     const relevant = evidence.filter((item) => hasSkill(item.quote, row.label));
-    const negativeNarrative = relevant.filter((item) => !isSkillList(item) && negative(item.quote));
+    const conflict = activeSkillConflicts(resumeData).find((item) => hasSkill(item.skill, row.label));
+    const negativeNarrative = relevant.filter((item) => !isSkillList(item) && explicitlyDeniesSkill(item.quote, row.label));
     const positive = relevant.filter((item) => !negative(item.quote) && !/\b(?:required|preferred|must[ -]have)\b/i.test(item.quote));
     const usable = positive;
-    row.supportingEvidence = usable.slice(0, 3);
-    row.status = row.ambiguousAlternative || negativeNarrative.length && usable.length ? 'uncertain' : usable.length ? 'supported' : 'missing';
+    row.supportingEvidence = conflict ? conflict.positiveEvidence : usable.slice(0, 3);
+    if (conflict || negativeNarrative.length) row.conflictingEvidence = conflict ? conflict.negativeEvidence : negativeNarrative;
+    row.status = row.ambiguousAlternative || conflict || negativeNarrative.length && usable.length ? 'uncertain' : usable.length ? 'supported' : 'missing';
     row.missingEvidence = row.status === 'supported' ? '' : row.ambiguousAlternative ? 'Confirm which alternative qualification is acceptable.'
-      : negativeNarrative.length ? 'Clarify the negative or conflicting skill statement with a concrete example.' : 'Add a truthful project, course or work example demonstrating ' + row.label + '.';
+      : conflict || negativeNarrative.length ? 'Clarify the negative or conflicting skill statement with a concrete example.' : 'Add a truthful project, course or work example demonstrating ' + row.label + '.';
     row.explanation = row.status === 'supported' ? 'A direct skill mention is self-reported evidence; it does not verify proficiency.'
       : row.status === 'uncertain' ? 'Ambiguous alternatives or contradictory statements require manual review.' : 'No usable positive evidence was found; this does not establish inability.';
   } else if (row.category === 'experience') {
