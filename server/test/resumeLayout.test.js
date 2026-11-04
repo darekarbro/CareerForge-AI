@@ -34,3 +34,62 @@ test('wrapped paragraphs preserve exact whitespace and do not cross headings or 
   assert(paragraphs.some(item => item.text === 'Example Works'));
   for (const item of paragraphs) assert(source.includes(item.text));
 });
+
+test('compact capability categories accept slash, bracket and labeled payloads with exact source spans', () => {
+  const rows = ['TOOLBOX // Python · FastAPI · PostgreSQL · Docker', 'DELIVERY // Linux · CI/CD',
+    'Web [TypeScript; ReactJS; Redux]', 'Server [Nodejs; Express]', 'Storage [Postgres]', 'Checks [Jest]',
+    'Cloud toolkit: AWS, Docker, Kubernetes, Terraform.', 'Application stack: C# and .NET',
+    'Cloud: Azure', 'Database language: SQL', 'Testing: Cypress and Jest', 'Workflow: Git',
+    'Focus: Golang, Microservices, System Design, Kafka.', 'Skills list: MySQL, Git.', 'Tooling — Nodejs | Express | MongoDB | Redis.'];
+  const source = ['Candidate Name', ...rows].join('\n'), { parts, statements } = splitResumeSections(source);
+  assert.equal(parts.skills.length, rows.length);
+  assert(statements.filter(item => item.section === 'skills').every(item => item.context === 'skills'));
+  for (const item of statements) {
+    assert(source.includes(item.text)); assert.equal(source.slice(item.start, item.end), item.text);
+  }
+  for (const prefix of ['Employer', 'Customer', 'Requested approach', 'Unknown label']) {
+    const row = prefix + ' [React; AWS]';
+    assert.equal(splitResumeSections(row).statements[0].context, 'unknown', row);
+    assert.equal(headingSection(prefix), null, prefix);
+  }
+});
+
+test('wrapped work-kit and strengths lists keep capability context and original line breaks', () => {
+  for (const newline of ['\n', '\r\n']) {
+    const source = ['Work kit: C++, Rust,', '  Linux, and Docker.', 'Strengths: Algorithms and', '  Data Structures.',
+      'Candidate clarification', 'I have no Rust skills.'].join(newline);
+    const { statements, parts } = splitResumeSections(source), paragraphs = claimParagraphs(source, statements);
+    assert.deepEqual(parts.skills, ['C++, Rust,', 'Linux, and Docker.', 'Algorithms and', 'Data Structures.']);
+    assert.equal(parts.summary[0], 'I have no Rust skills.');
+    assert(paragraphs.some(item => item.text === 'Algorithms and' + newline + '  Data Structures.' && item.context === 'skills'));
+    assert(paragraphs.every(item => source.includes(item.text)));
+  }
+});
+
+test('category/value capability tables read only the capability column and stop at a real section boundary', () => {
+  for (const delimiter of [' | ', '\t', '       ']) {
+    const source = ['AREA' + delimiter + 'PRACTICE', 'Application' + delimiter + 'C#, .NET', 'Cloud' + delimiter + 'Azure',
+      'Data' + delimiter + 'SQL', 'Delivery' + delimiter + 'Git, CI/CD', 'Experience: Example Works', 'Built Python validators.'].join('\n');
+    const { parts, statements } = splitResumeSections(source);
+    assert.deepEqual(parts.skills, ['C#, .NET', 'Azure', 'SQL', 'Git, CI/CD']);
+    assert.deepEqual(parts.experience, ['Example Works', 'Built Python validators.']);
+    assert(!statements.some(item => ['AREA', 'PRACTICE', 'Application', 'Cloud', 'Data', 'Delivery'].includes(item.text)));
+    assert(statements.every(item => source.includes(item.text)));
+  }
+  const unrelated = splitResumeSections('CUSTOMER | EMPLOYER\nAWS Services | React Factory');
+  assert.equal(unrelated.parts.skills, undefined);
+  assert(unrelated.statements.every(item => item.context === 'unknown'));
+});
+
+test('correction and reference headings end positive list context without stripping denial content', () => {
+  for (const heading of ['Candidate clarification', 'Skills correction', 'Project correction', 'Correction to this resume',
+    'Clarification from the candidate', 'Amendment', 'Addendum', 'Background note']) {
+    const source = 'Delivery skills\nGit, CI/CD\n' + heading + '\nI have never used CI/CD tooling.';
+    const { parts, statements } = splitResumeSections(source);
+    assert.deepEqual(parts.skills, ['Git, CI/CD']); assert.deepEqual(parts.summary, ['I have never used CI/CD tooling.']);
+    assert.equal(statements[statements.length - 1].context, 'narrative');
+  }
+  const quoted = splitResumeSections('My skills: Python\nReference context — quoted from the hiring manager\n“Our lead uses Rust and Kubernetes.”');
+  assert(quoted.parts.summary.includes('“Our lead uses Rust and Kubernetes.”'));
+  assert.equal(quoted.statements.at(-1).context, 'narrative');
+});
