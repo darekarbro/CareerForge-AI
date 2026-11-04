@@ -1,5 +1,6 @@
 const BaseProvider = require('./baseProvider');
 const { extractSkills, hasSkill, normalizeSkill, plain, roleId, ROLE_SKILLS } = require('./resumeFacts');
+const { contactName } = require('./resumeContact');
 
 const cleanBullet = (line) => line.trim().replace(/^[•*\-]\s*/, '');
 const sectionNames = {
@@ -52,8 +53,7 @@ class DeterministicProvider extends BaseProvider {
       return digits >= 10 && digits <= 15;
     }) || '';
     const link = (pattern) => text.match(pattern)?.[0] || '';
-    const first = header.find((line) => !/^(resume|curriculum vitae|cv)$/i.test(line));
-    const name = first && /^[\p{L} .'-]{3,80}$/u.test(first) ? first : '';
+    const name = contactName(header);
     const workExperience = blocks(parts.experience).map((block) => {
       const range = block.join(' ').match(dateRange);
       const title = block[0].replace(dateRange, '').replace(/[|,\s-]+$/, '');

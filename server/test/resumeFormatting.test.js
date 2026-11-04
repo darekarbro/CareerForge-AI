@@ -49,3 +49,20 @@ test('inline skill payloads retain negative and instructional context instead of
   const contradictory = await provider.parseResume('Mira Sol\nSkills | React\nSummary | I do not know React.');
   assert.equal(assessMatch({ resumeData: contradictory, jobDescriptionText: 'React required.' }).requirementMatches[0].status, 'uncertain');
 });
+
+test('combined contact headers recover names and emails without promoting identity text to skill evidence', async () => {
+  for (const header of ['React Candidate | python@candidate.example', 'python@candidate.example\tReact Candidate', 'Name: React Candidate; Email: python@candidate.example']) {
+    const parsed = await provider.parseResume(header + '\nS K I L L S | SQL\nEXPERIENCE | Engineer at AWS Services\n2021 - 2024\n- Wrote documentation.');
+    assert.equal(parsed.contactInfo.name, 'React Candidate', header); assert.equal(parsed.contactInfo.email, 'python@candidate.example');
+    assert.deepEqual(parsed.skills.all, ['SQL']);
+    const report = assessMatch({ resumeData: parsed, jobDescriptionText: 'SQL required. Python, React and AWS preferred.' });
+    assert.equal(report.requirementMatches.filter((row) => row.status === 'supported').length, 1);
+  }
+});
+
+test('ambiguous combined contact headers remain unknown while actual inline skills still match', async () => {
+  const parsed = await provider.parseResume('Ava Stone | Bea Day | ava@candidate.example\nSKILLS | Python | SQL');
+  assert.equal(parsed.contactInfo.name, ''); assert.equal(parsed.contactInfo.email, 'ava@candidate.example');
+  assert.deepEqual(new Set(parsed.skills.all), new Set(['Python', 'SQL']));
+  assert.equal(assessMatch({ resumeData: parsed, jobDescriptionText: 'Python and SQL required.' }).matchScore, 100);
+});
