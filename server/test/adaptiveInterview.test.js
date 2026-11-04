@@ -20,3 +20,18 @@ test('Phase 4: delayed feedback sanitizes adaptive metadata in processing output
   assert.equal(output.followUpQuestion.adaptation, undefined); assert.equal(output.followUpQuestion.suggestedAnswer, undefined);
   assert.equal(output.followUpQuestion.keyPoints, undefined);
 });
+
+test('Phase 4: consecutive diagnostics narrow the check and refer to the previous answer without repeating the prompt', () => {
+  const first = selectFollowUp({ ...seed, order: 1, userAnswer: 'No idea', feedback: { technicalScore: 20 } });
+  const response = 'I would send a request for one record and check that the response contains its identifier.';
+  const source = { ...first, _id: 'second', order: 2, userAnswer: response, feedback: { technicalScore: 35 } };
+  const second = selectFollowUp(source);
+  assert.equal(second.adaptation.kind, 'diagnostic'); assert.equal(second.difficulty, 'Easy');
+  assert.notEqual(second.questionText, first.questionText); assert(second.questionText.includes(response));
+  assert(second.questionText.includes('Predict one result')); assert.deepEqual(second.keyPoints, ['Single input', 'Expected result', 'Observable check']);
+  assert.deepEqual(selectFollowUp(source), second);
+  const third = selectFollowUp({ ...second, _id: 'third', order: 3, userAnswer: response, feedback: { technicalScore: 35 } });
+  assert.notEqual(third.questionText, second.questionText); assert(third.questionText.includes('first action'));
+  const hidden = publicOutput({ followUpQuestion: second }, { feedbackMode: 'end', status: 'in_progress' });
+  assert.equal(hidden.followUpQuestion.adaptation, undefined); assert.equal(hidden.followUpQuestion.keyPoints, undefined);
+});
