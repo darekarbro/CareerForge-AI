@@ -9,6 +9,7 @@ const { rubricVersion } = require('../src/services/assessmentRubrics');
 const { evaluateCase, summarize, validateReviews } = require('../evaluation/metrics.cjs');
 const implementationFiles = [
   '../src/providers/deterministicProvider.js', '../src/providers/resumeContact.js', '../src/providers/resumeFacts.js',
+  '../src/providers/resumeEvidence.js', '../src/providers/skillPolarity.js', '../src/providers/skillConflicts.js',
   '../src/services/jobRequirements.js', '../src/services/requirementMatching.js', '../src/services/assessmentRubrics.js',
 ];
 

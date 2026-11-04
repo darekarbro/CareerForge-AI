@@ -35,7 +35,7 @@ function evaluateCase(fixture, parsed, match, latencyMs = 0) {
   const predicted = new Map(skillRows.map(item => [requirementKey(item), item]));
   const supported = rows.filter(item => item.status === 'supported');
   const labeledSupported = supported.filter(item => gold.has(requirementKey(item)));
-  const citations = rows.flatMap(item => item.supportingEvidence || []);
+  const citations = rows.flatMap(item => [...(item.supportingEvidence || []), ...(item.conflictingEvidence || [])]);
   return { id: fixture.id, group: fixture.group, matchScore: match.matchScore, latencyMs,
     resumeSkills: setCounts(expected.skills.map(normalizeSkill), (parsed.skills?.all || []).map(normalizeSkill)),
     contacts: { correct: ['name', 'email'].filter(key => (parsed.contactInfo?.[key] || '').trim() === expected.contactInfo[key].trim()).length, total: 2 },

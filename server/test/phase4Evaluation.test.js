@@ -64,9 +64,18 @@ test('evaluation provenance includes contact parsing and labels published data a
   const report = await run(argumentsFor([]));
   const fs = require('node:fs'), path = require('node:path'), crypto = require('node:crypto');
   assert(report.implementationFiles.includes('../src/providers/resumeContact.js'));
+  for (const file of ['resumeEvidence.js', 'skillPolarity.js', 'skillConflicts.js']) assert(report.implementationFiles.includes('../src/providers/' + file));
   const source = report.implementationFiles.map((file) => fs.readFileSync(path.resolve(__dirname, '../scripts', file), 'utf8')).join('\n');
   assert.equal(report.implementationSha256, crypto.createHash('sha256').update(source).digest('hex'));
   assert.deepEqual(report.datasetUsage, { development: 'development-regression' });
   assert.equal(report.splits.holdout, undefined);
   assert(report.limitations.some((line) => line.includes('not fresh unseen holdout evidence')));
+});
+
+test('denial citations are measured without counting them as supported-skill coverage', () => {
+  const data = { ...parsed, summary: 'I do not know React.' };
+  const report = { matchScore: 0, requirementMatches: [{ category: 'preferred_skill', label: 'React', status: 'uncertain', supportingEvidence: [{ path: 'skills.all[1]', quote: 'React' }], conflictingEvidence: [{ path: 'summary', quote: 'Fabricated denial' }] }] };
+  const metrics = summarize([evaluateCase(fixture, data, report)]);
+  assert.equal(metrics.citationIntegrity.valid, 1); assert.equal(metrics.citationIntegrity.total, 2); assert.equal(metrics.citationIntegrity.rate, .5);
+  assert.equal(metrics.evidenceCoverage.supported, 0); assert.equal(metrics.evidenceCoverage.supportedClaimCoverage, null);
 });
