@@ -1,0 +1,17 @@
+{
+  "runId": "holdout-v2-initial-2026-11-04",
+  "state": "completed",
+  "startedAt": "2026-11-04T14:15:11.702Z",
+  "datasetVersion": "phase4-synthetic-v2",
+  "datasetSha256": "82af4e8009775d91f5872c2541214de52302c098d37fcce69d0141b7ec8895c4",
+  "implementationSha256": "302c2cc6e9d9d4495af6f29ccffb76f75d1a0b8b84ada60db3ee99228d6127f2",
+  "metricsSha256": "a8231f12d7a3d47a60eb766eb28ad927ff7b08fab9af3b3f5e17b28ec08cd643",
+  "evaluatorSha256": "2ca8569b12a52b8b40a3c705d766d6e681a6e6e7e44234a887bdb0cb0e54253e",
+  "protocolSha256": "8aa6826d05ba9f89d1968511e75cf0cc942757c4d6617853ee794c7c414cbff1",
+  "lockSha256": "396a2105b70f431f5114cc4d0e6e7135d657d012faeda4eb33896225418c96f3",
+  "outputPath": "docs/PHASE4_FRESH_HOLDOUT_RESULTS.json",
+  "frozenCommit": "85919c7487ee64b536ad3ca1f885c9aa79be9f1a",
+  "completedCases": 24,
+  "completedAt": "2026-11-04T14:15:11.774Z",
+  "reportSha256": "e5760ccdd49345382dd3d448d1c7c9efacb1552431808ba29090c8270a3b4a95"
+}
