@@ -15,7 +15,7 @@ const compactHeading = (value) => value.toLowerCase().replace(/\s+/gu, '');
 const headingSections = new Map(Object.entries(sectionNames).flatMap(([section, labels]) => labels.map((label) => [compactHeading(label), section])));
 const sectionForHeading = (value) => headingSections.get(compactHeading(value.trim().replace(/:$/, '')));
 const inlineHeading = new RegExp('^\\s*(' + [...headingSections.keys()].map((label) => [...label].join('[ \\t\\u00a0]*')).join('|')
-  + ')(?:\\s*[:|｜]\\s*|\\t+|\\s+[—–-]\\s+)(.*\\S.*)$', 'i');
+  + ')(?:\\s*[:|｜]\\s*|\\t+|\\s+[—–-](?:\\s+|$))(.*)$', 'i');
 function sections(text) {
   const result = { header: [] };
   let current = 'header';
@@ -28,7 +28,8 @@ function sections(text) {
       if (inline) {
         current = sectionForHeading(inline[1]);
         // Retain the full payload, including negation/instructions and separators, before evidence filtering.
-        (result[current] ||= []).push(inline[2]);
+        result[current] ||= [];
+        if (inline[2].trim()) result[current].push(inline[2]);
       } else (result[current] ||= []).push(line);
     }
   });

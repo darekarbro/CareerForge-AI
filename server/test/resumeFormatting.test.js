@@ -66,3 +66,15 @@ test('ambiguous combined contact headers remain unknown while actual inline skil
   assert.deepEqual(new Set(parsed.skills.all), new Set(['Python', 'SQL']));
   assert.equal(assessMatch({ resumeData: parsed, jobDescriptionText: 'Python and SQL required.' }).matchScore, 100);
 });
+
+test('empty inline headings still end skill sections and never promote the next employer name', async () => {
+  for (const separator of [':', ' |', '\t', ' — ', ' —', '｜']) {
+    for (const skills of ['Skills' + separator + '\nPython', 'Skills | Python']) {
+      const parsed = await provider.parseResume('React Candidate | python@candidate.example\n' + skills + '\nExperience' + separator + '\nEngineer at AWS Services\n2021 - 2024\n- Wrote documentation.');
+      assert.deepEqual(parsed.skills.all, ['Python'], JSON.stringify(separator));
+      assert.equal(parsed.workExperience[0].company, 'AWS Services');
+      const report = assessMatch({ resumeData: parsed, jobDescriptionText: 'Python required. AWS and React preferred.' });
+      assert.equal(report.requirementMatches.filter((row) => row.status === 'supported').length, 1);
+    }
+  }
+});
