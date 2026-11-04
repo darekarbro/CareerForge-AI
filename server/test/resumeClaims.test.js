@@ -196,3 +196,19 @@ test('selected training projects and wrapped foundations remain personal evidenc
     same(analyzeSkillClaims(source, { context: 'skills' }).positiveSkills, []);
   }
 });
+
+test('external layout ownership vetoes copied positive assertions, lists and denials', () => {
+  for (const source of ['I use Rust and Kubernetes.', '“I use Rust and Kubernetes.”', 'Python, SQL, Docker', 'I have no React skills.']) {
+    assert.deepEqual(analyzeSkillClaims(source, { context: 'external' }), { positiveSkills: [], deniedSkills: [], candidateText: [], excluded: true });
+  }
+  same(analyzeSkillClaims('I use Rust and Kubernetes.').positiveSkills, ['Rust', 'Kubernetes']);
+  same(analyzeSkillClaims('I have no React skills.').deniedSkills, ['React']);
+});
+
+test('article-prefixed technology denials preserve unrelated personal work evidence', () => {
+  const source = 'I cannot build a CI/CD pipeline, but I use Docker.';
+  const result = analyzeSkillClaims(source, { context: 'skills' });
+  same(result.positiveSkills, ['Docker']); same(result.deniedSkills, ['CI/CD']);
+  assert(result.candidateText.every(quote => source.includes(quote)));
+  same(analyzeSkillClaims('I use a CI/CD pipeline with no outages.').positiveSkills, ['CI/CD']);
+});

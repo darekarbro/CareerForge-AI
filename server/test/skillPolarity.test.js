@@ -119,3 +119,15 @@ test('compact skill-first denials require competence rather than ordinary negati
     assert.equal(explicitlyDeniesSkill(source, 'Kafka'), false, source);
   }
 });
+
+test('articles before bounded technology targets preserve denial scope', () => {
+  for (const [source, skill] of [
+    ['I cannot build a CI/CD pipeline, but I use Docker.', 'CI/CD'],
+    ['I cannot operate an AWS service.', 'AWS'],
+    ['I have never used a React library.', 'React'],
+  ]) assert.equal(explicitlyDeniesSkill(source, skill), true, source);
+  assert.equal(explicitlyDeniesSkill('I cannot build a CI/CD pipeline, but I use Docker.', 'Docker'), false);
+  for (const source of ['I use a CI/CD pipeline with no outages.', 'I cannot build a team with React developers.', 'I have never used a React developer.']) {
+    assert.equal(explicitlyDeniesSkill(source, source.includes('CI/CD') ? 'CI/CD' : 'React'), false, source);
+  }
+});

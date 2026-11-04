@@ -97,7 +97,7 @@ function skillPrefixLength(value, skill) {
 }
 
 function startsWithSkill(value, skill) {
-  const candidate = value.trim().replace(/^(?:any|the|either|both)\s+/i, '').replace(/^["'“‘([]\s*/, '');
+  const candidate = value.trim().replace(/^(?:a|an|any|the|either|both)\s+/i, '').replace(/^["'“‘([]\s*/, '');
   const length = skillPrefixLength(candidate, skill);
   if (!length) return false;
   const rest = candidate.slice(length);

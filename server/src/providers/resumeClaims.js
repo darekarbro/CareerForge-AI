@@ -59,6 +59,9 @@ function excludedMention(text, skill, listed) {
 // candidateText contains exact eligible source substrings, never generated prose.
 // Both positive and denied sets can contain a skill when separate assertions conflict.
 function analyzeSkillClaims(text, { context = 'unknown' } = {}) {
+  // Ownership supplied by the layout takes precedence over words inside copied material.
+  // Even a first-person quotation or denial in a reference block belongs to that source.
+  if (context === 'external') return { positiveSkills: [], deniedSkills: [], candidateText: [], excluded: true };
   const positive = new Set(), denied = new Set(), candidateText = [];
   let continuation = false;
   for (const raw of splitClaimClauses(text)) {
