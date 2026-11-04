@@ -5,6 +5,7 @@ const { reconcileSkillConflicts, conflictWarnings } = require('./skillConflicts'
 const { splitResumeSections, claimParagraphs } = require('./resumeLayout');
 const { analyzeSkillClaims } = require('./resumeClaims');
 const { resumeText } = require('./resumeFacts');
+const { splitClaimClauses } = require('./skillPolarity');
 
 const cleanBullet = (line) => line.trim().replace(/^[•*\-]\s*/, '');
 const blocks = (lines = []) => lines.join('\n').trim().split(/\n\s*\n/).map((block) => block.split('\n').map((line) => line.trim()).filter(Boolean)).filter((block) => block.length);
@@ -34,7 +35,7 @@ class DeterministicProvider extends BaseProvider {
         role: identity[0] || '', company: identity[1] || companyLine,
         startDate: range?.[1] || '', endDate: range?.[2] || '',
         current: /present|current|now/i.test(range?.[2] || ''),
-        highlights: block.slice(companyLine ? 2 : 1).map(cleanBullet).filter((line) => line && !dateRange.test(line)),
+        highlights: splitClaimClauses(block.slice(companyLine ? 2 : 1).join('\n')).map(cleanBullet).filter((line) => line && !dateRange.test(line)),
       };
     });
     const parsed = {
@@ -50,9 +51,9 @@ class DeterministicProvider extends BaseProvider {
         degree: block[0], institution: block[1] || '', graduationYear: block.join(' ').match(/\b(?:19|20)\d{2}\b/)?.[0] || '',
       })),
       projects: blocks(parts.projects).map((block) => ({
-        title: block[0], description: block.slice(1).filter((line) => !/^[•*\-]/.test(line)).join(' '),
-        technologies: positiveSkills(block), link: block.join(' ').match(/https?:\/\/\S+/)?.[0] || '',
-        highlights: block.slice(1).filter((line) => /^[•*\-]/.test(line)).map(cleanBullet),
+        title: block[0], description: splitClaimClauses(block.slice(1).join('\n')).filter((line) => !/^[•*\-]/.test(line)).join('\n'),
+        technologies: positiveSkills([block.join('\n')]), link: block.join(' ').match(/https?:\/\/\S+/)?.[0] || '',
+        highlights: splitClaimClauses(block.slice(1).join('\n')).filter((line) => /^[•*\-]/.test(line)).map(cleanBullet),
       })),
       certifications: (parts.certifications || []).map(cleanBullet).filter(Boolean).map((name) => ({ name })),
       warnings: ['Offline extraction uses source statements and a limited skill dictionary. Review extracted fields against the original; unknown facts were left empty.'],

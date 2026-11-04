@@ -52,3 +52,15 @@ test('wrapped candidate assertions keep exact citations after extraction and mat
   for (const row of report.requirementMatches) assert(row.supportingEvidence.every(item => validCitation(parsed, item)));
   assert.equal(validateResult('parseResume', parsed, source), parsed);
 });
+
+test('structured work and project fields cannot recover skills from a wrapped third-party quote', async () => {
+  for (const heading of ['Projects\nDemo', 'Experience\nEngineer at Example Lab\n2022 - 2025']) {
+    const source = 'Ada Vale\n' + heading + '\nMy colleague said: "I use React.\nI use AWS."\nI built Python tools.';
+    const parsed = await provider.parseResume(source);
+    assert.deepEqual(parsed.skills.all, ['Python']);
+    if (parsed.projects.length) assert.deepEqual(parsed.projects[0].technologies, ['Python']);
+    const report = assessMatch({ resumeData: parsed, jobDescriptionText: 'Python, React and AWS required.' });
+    assert.equal(report.requirementMatches.find(row => row.label === 'Python').status, 'supported');
+    for (const row of report.requirementMatches.filter(row => row.label !== 'Python')) assert.equal(row.status, 'missing');
+  }
+});
