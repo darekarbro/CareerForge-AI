@@ -7,6 +7,11 @@ const { validate } = require('../middlewares/validate');
 const router = express.Router();
 
 router.use(protect);
+router.get('/reminders', async (req, res, next) => { try { res.json({ success: true, data: await require('../services/applicationCalendar').reminders(req.user._id) }); } catch (error) { next(error); } });
+router.get('/calendar.ics', async (req, res, next) => { try {
+  const apps = await require('../models/Application').find({ owner: req.user._id, ...(req.query.id ? { _id: req.query.id } : { status: { $nin: ['offer', 'rejected'] } }) });
+  res.type('text/calendar').attachment('careerforge-applications.ics').send(require('../services/applicationCalendar').calendar(apps));
+} catch (error) { next(error); } });
 
 router.get('/analytics', applicationController.getAnalytics);
 router.get('/resume-versions', async (req, res, next) => { try { res.json({ success: true, data: await require('../models/TailoredResume').find({ owner: req.user._id }).sort({ createdAt: -1 }).select('targetRole version createdAt resumeId') }); } catch (error) { next(error); } });

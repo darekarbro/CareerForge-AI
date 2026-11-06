@@ -33,8 +33,19 @@ class ApplicationService {
       extra.resumeSnapshot = { content: require('../providers/resumeFacts').plain(version.reviewedContent || version.tailoredContent),
         version: version.version, contentRevision: version.contentRevision || 1, resumeId: version.resumeId, capturedAt: new Date() };
     } else if (data.resumeVersionId === '') { extra.resumeVersionId = null; extra.resumeSnapshot = null; }
-    for (const field of ['deadline', 'followUpAt']) if (data[field] !== undefined) extra[field] = parseDate(data[field]);
-    const allowed = ['company', 'roleTitle', 'sourcePlatform', 'jobLink', 'status', 'salaryRange', 'location', 'notes', 'appliedDate', 'deadline', 'followUpAt', 'workspaceId', 'resumeVersionId', 'revision', 'statusNote'];
+    for (const field of ['deadline', 'followUpAt', 'interviewAt']) if (data[field] !== undefined) extra[field] = parseDate(data[field]);
+    if (data.notificationPreferences !== undefined) {
+      const p = data.notificationPreferences;
+      if (!p || typeof p !== 'object' || Array.isArray(p) || Object.keys(p).some((k) => !['inApp', 'calendarAlarm', 'leadMinutes'].includes(k)) || typeof p.inApp !== 'boolean' || typeof p.calendarAlarm !== 'boolean' || ![0, 15, 60, 1440].includes(p.leadMinutes)) throw fail('Choose supported notification preferences');
+      extra.notificationPreferences = p;
+    }
+    if (data.recruiter !== undefined) {
+      const r = data.recruiter;
+      if (!r || typeof r !== 'object' || Array.isArray(r) || Object.keys(r).some((k) => !['name', 'email', 'phone', 'notes'].includes(k))) throw fail('Provide supported recruiter contact fields');
+      extra.recruiter = Object.fromEntries(['name', 'email', 'phone', 'notes'].map((key) => [key, require('./resumeContent').text(r[key], 'Recruiter ' + key, key === 'notes' ? 2000 : 200)]));
+      if (extra.recruiter.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(extra.recruiter.email)) throw fail('Provide a valid recruiter email');
+    }
+    const allowed = ['company', 'roleTitle', 'sourcePlatform', 'jobLink', 'status', 'salaryRange', 'location', 'notes', 'appliedDate', 'deadline', 'followUpAt', 'interviewAt', 'notificationPreferences', 'recruiter', 'workspaceId', 'resumeVersionId', 'revision', 'statusNote'];
     if (Object.keys(data).some((key) => !allowed.includes(key))) throw fail('Unsupported application field');
     for (const field of ['company', 'roleTitle', 'salaryRange', 'location', 'notes', 'statusNote']) if (data[field] !== undefined) require('./resumeContent').text(data[field], field, field === 'notes' ? 10000 : 300);
     if (data.jobLink !== undefined) extra.jobLink = require('./resumeContent').url(data.jobLink, 'Job link');
@@ -47,7 +58,7 @@ class ApplicationService {
       const literal = String(search).slice(0, 200).replace(/[.*+?^$(){}|[\]\\]/g, '\\$&');
       query.$or = [{ company: { $regex: literal, $options: 'i' } }, { roleTitle: { $regex: literal, $options: 'i' } }];
     }
-    if (due === '1') query.$and = [{ status: { $nin: ['offer', 'rejected'] } }, { $or: [{ deadline: { $ne: null, $lte: new Date(Date.now() + 7 * 86400000) } }, { followUpAt: { $ne: null, $lte: new Date(Date.now() + 7 * 86400000) } }] }];
+    if (due === '1') query.$and = [{ status: { $nin: ['offer', 'rejected'] } }, { $or: ['deadline', 'followUpAt', 'interviewAt'].map((field) => ({ [field]: { $ne: null, $lte: new Date(Date.now() + 7 * 86400000) } })) }];
     const allowedSort = ['-lastUpdated', 'lastUpdated', '-appliedDate', 'appliedDate', 'company', 'roleTitle', 'deadline', 'followUpAt'];
     return Application.find(query).sort(allowedSort.includes(sort) ? sort : '-lastUpdated');
   }
@@ -60,7 +71,7 @@ class ApplicationService {
     const created = await Application.create({ owner: userId, ...extra, company: data.company, roleTitle: data.roleTitle,
       sourcePlatform: data.sourcePlatform || 'LinkedIn', jobLink: extra.jobLink, status, appliedDate,
       salaryRange: data.salaryRange || '', location: data.location || '', notes: data.notes || '',
-      timeline: [{ status, updatedAt: new Date(), note: 'Application added to pipeline' }] });
+      timeline: [{ status, updatedAt: new Date(), note: data.statusNote || 'Application added to pipeline' }] });
     await this.syncWorkspace(created, userId);
     return created;
   }
@@ -70,9 +81,9 @@ class ApplicationService {
     if (data.revision !== undefined && data.revision !== (app.revision || 1)) throw fail('This application changed elsewhere. Reload before saving.', 409);
     const extra = await this.validateLinks(userId, data, app); Object.assign(app, extra);
     if (data.status && !stagesList.includes(data.status)) throw fail('Invalid application status');
-    if (data.status && data.status !== app.status) {
-      app.timeline.push({ status: data.status, updatedAt: new Date(), note: data.statusNote || 'Status updated to ' + data.status });
-      app.status = data.status;
+    if ((data.status && data.status !== app.status) || data.statusNote) {
+      app.timeline.push({ status: data.status || app.status, updatedAt: new Date(), note: data.statusNote || 'Status updated to ' + data.status });
+      if (data.status) app.status = data.status;
     }
     for (const key of ['company', 'roleTitle', 'sourcePlatform', 'salaryRange', 'location', 'notes']) {
       if (data[key] !== undefined) app[key] = data[key];
