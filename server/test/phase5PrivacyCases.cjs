@@ -1,0 +1,27 @@
+module.exports = ({ test, assert, request, user, ready }) => {
+  test('Phase 5: account archive and deletion include preference, pack and private attachment data', async () => {
+    const a = await user(), b = await user(), resume = await ready(a.id);
+    const prefs = { revision: 0, roles: ['Engineer'], locations: [], workModes: [], avoidCompanies: [] };
+    assert.equal((await request('PUT', '/api/workspaces/preferences', { token: a.token, body: prefs })).status, 200);
+    const workspace = (await request('POST', '/api/workspaces', { token: a.token, body: { company: 'Privacy Co', title: 'Engineer', description: 'Python required.', resumeId: String(resume._id) } })).data.data;
+    assert.equal((await request('POST', '/api/workspaces/' + workspace._id + '/pack', { token: a.token, body: {} })).status, 200);
+    assert.equal((await request('GET', '/api/workspaces/' + workspace._id + '/pack', { token: b.token })).status, 404);
+    const application = (await request('POST', '/api/applications', { token: a.token, body: { company: 'Privacy Co', roleTitle: 'Engineer', workspaceId: workspace._id } })).data.data;
+    const form = new FormData(); form.append('file', new Blob(['Private export example']), 'example.txt'); form.append('revision', '1');
+    const uploaded = (await request('POST', '/api/applications/' + application._id + '/attachments', { token: a.token, body: form })).data.data;
+    const attachment = uploaded.attachments[0];
+    const response = await request('POST', '/api/privacy/export', { token: a.token, body: { password: 'original-password' } });
+    assert.equal(response.status, 200);
+    const zip = await require('jszip').loadAsync(response.data), data = JSON.parse(await zip.file('account-data.json').async('string'));
+    assert.equal(data.records.OpportunityPreferences.length, 1); assert.equal(data.records.ApplicationPack.length, 1);
+    assert.equal(data.records.Application[0].attachments[0].data, undefined);
+    assert.equal(await zip.file('attachments/' + application._id + '/' + attachment._id + '-example.txt').async('string'), 'Private export example');
+    const noFiles = await request('POST', '/api/privacy/export', { token: a.token, body: { password: 'original-password', includeOriginals: false } });
+    const leanZip = await require('jszip').loadAsync(noFiles.data);
+    assert.equal(leanZip.folder('attachments').file(/.*/).length, 0);
+    const deletion = await request('POST', '/api/privacy/delete', { token: a.token, body: { password: 'original-password', confirmation: 'DELETE' } });
+    assert.equal(deletion.status, 202); await require('../src/services/privacyService').sweepDeletions();
+    for (const name of ['Application', 'ApplicationPack', 'OpportunityPreferences', 'JobWorkspace']) assert.equal(await require('../src/models/' + name).countDocuments({ owner: a.id }), 0, name);
+    assert.equal((await request('GET', '/api/applications/' + application._id + '/attachments/' + attachment._id, { token: a.token })).status, 401);
+  });
+};

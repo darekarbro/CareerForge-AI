@@ -667,6 +667,7 @@ require('./mainAuditCases.cjs')({ test, assert, request, user, ready, facts, suc
 require('./phase3ReadinessCases.cjs')({ test, assert, request, user, ready, facts, successfulJob, Resume, Tailored });
 require('./phase4InterviewCases.cjs')({ test, assert, request, user, ready, successfulJob });
 require('./phase5RankingCases.cjs')({ test, assert, request, user, ready });
+require('./phase5PrivacyCases.cjs')({ test, assert, request, user, ready });
 require('./phase5ApplicationCases.cjs')({ test, assert, request, user });
 
 test('43: an unavailable configured database falls back in development and fails closed in production', async () => {
