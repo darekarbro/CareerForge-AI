@@ -19,6 +19,9 @@ module.exports = ({ test, assert, request, user, ready }) => {
     const noFiles = await request('POST', '/api/privacy/export', { token: a.token, body: { password: 'original-password', includeOriginals: false } });
     const leanZip = await require('jszip').loadAsync(noFiles.data);
     assert.equal(leanZip.folder('attachments').file(/.*/).length, 0);
+    assert.equal((await request('DELETE', '/api/resumes/' + resume._id, { token: a.token })).status, 200);
+    assert.equal(await require('../src/models/ApplicationPack').countDocuments({ owner: a.id }), 0);
+    assert.equal((await request('GET', '/api/applications/' + application._id + '/attachments/' + attachment._id, { token: a.token })).data.toString(), 'Private export example');
     const deletion = await request('POST', '/api/privacy/delete', { token: a.token, body: { password: 'original-password', confirmation: 'DELETE' } });
     assert.equal(deletion.status, 202); await require('../src/services/privacyService').sweepDeletions();
     for (const name of ['Application', 'ApplicationPack', 'OpportunityPreferences', 'JobWorkspace']) assert.equal(await require('../src/models/' + name).countDocuments({ owner: a.id }), 0, name);
