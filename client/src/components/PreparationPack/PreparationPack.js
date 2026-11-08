@@ -5,9 +5,9 @@ import useOwnedResource from '../../hooks/useOwnedResource';
 
 const labels = { coverLetter: 'Cover letter', recruiter: 'Recruiter introduction', referral: 'Referral request', followUp: 'Application follow-up' };
 
-function DraftEditor({ pack, stale, disabled, busy, onSave, onCopy, onDownload, checks }) {
-  const [kind, setKind] = useState('coverLetter');
-  const [body, setBody] = useState(pack.drafts.coverLetter);
+function DraftEditor({ pack, stale, disabled, busy, onSave, onCopy, onDownload, checks, initialKind, onKindChange }) {
+  const [kind, setKind] = useState(initialKind);
+  const [body, setBody] = useState(pack.drafts[initialKind]);
   const [confirmed, setConfirmed] = useState(false);
   const dirty = body !== pack.drafts[kind];
   const reviewed = !dirty && pack.reviewed.includes(kind);
@@ -15,7 +15,7 @@ function DraftEditor({ pack, stale, disabled, busy, onSave, onCopy, onDownload, 
   return <div className="space-y-3 border-t-2 border-black pt-4">
     <h3 className="font-bold text-lg">Review your drafts</h3>
     <p className="text-sm">Edit each message and check every claim. Review unlocks copying and export. You choose where and when to send it.</p>
-    <label className="block text-sm font-semibold">Preparation draft<select value={kind} disabled={busy || dirty} onChange={(event) => { setKind(event.target.value); setBody(pack.drafts[event.target.value]); setConfirmed(false); }} className="brutal-input block w-full mt-1">{Object.entries(labels).map(([key, label]) => <option key={key} value={key}>{label}{pack.reviewed.includes(key) ? ' · Reviewed' : ''}</option>)}</select></label>
+    <label className="block text-sm font-semibold">Preparation draft<select value={kind} disabled={busy || dirty} onChange={(event) => { setKind(event.target.value); onKindChange(event.target.value); setBody(pack.drafts[event.target.value]); setConfirmed(false); }} className="brutal-input block w-full mt-1">{Object.entries(labels).map(([key, label]) => <option key={key} value={key}>{label}{pack.reviewed.includes(key) ? ' · Reviewed' : ''}</option>)}</select></label>
     <label className="block text-sm font-semibold">Draft text<textarea rows={12} maxLength={16000} disabled={blocked} value={body} onChange={(event) => { setBody(event.target.value); setConfirmed(false); }} className="brutal-input block w-full mt-1" /></label>
     <p className="text-sm" role="status">{dirty ? 'Unsaved edits. Save or discard them before switching drafts.' : reviewed ? 'Reviewed and saved.' : 'Draft needs your review.'}</p>
     {checks?.[kind]?.length > 0 && <div className="text-sm"><p className="font-semibold">Claims to resolve before review</p><ul className="list-disc pl-5">{checks[kind].map((issue, index) => <li key={index}>{typeof issue === 'string' ? issue : issue.message || issue.reason || JSON.stringify(issue)}</li>)}</ul></div>}
@@ -35,6 +35,7 @@ export default function PreparationPack({ workspaceId, disabled = false, refresh
   const resource = useOwnedResource(url);
   const { reload } = resource;
   const [busy, setBusy] = useState(false), [error, setError] = useState(''), [message, setMessage] = useState('');
+  const [selectedKind, setSelectedKind] = useState('coverLetter');
   const identity = resource.userId + ':' + workspaceId;
   const active = useRef(identity); active.current = identity;
   const previous = useRef(refreshKey);
@@ -74,7 +75,7 @@ export default function PreparationPack({ workspaceId, disabled = false, refresh
           <section><h3 className="font-bold text-lg">Interview topics</h3><ul className="space-y-3 mt-2">{pack.snapshot.topics.map((topic) => <li key={topic.title} className="text-sm"><p className="font-semibold">{topic.title} · {topic.supported ? 'Confirmed evidence available' : 'Prepare or clarify'}</p><p>{topic.prompt}</p></li>)}</ul></section>
         </div>
         <details className="text-sm"><summary className="font-bold cursor-pointer">Evidence used</summary>{pack.snapshot.evidence.length ? <ul className="space-y-3 mt-2">{pack.snapshot.evidence.map((fact) => <li key={fact.id}><Link href={'/evidence?search=' + encodeURIComponent(fact.title)} className="underline text-blue-700 font-semibold">{fact.title}</Link><p className="whitespace-pre-wrap">{fact.statement}</p><p className="text-xs">{fact.reason} · confirmed fact revision {fact.revision}</p></li>)}</ul> : <p className="mt-2">No confirmed facts in the selected resume scope. Verify your resume or its career evidence before reviewing experience claims.</p>}</details>
-        <DraftEditor key={identity + ':' + pack.revision} pack={pack} stale={state.stale} checks={state.checks} disabled={disabled} busy={busy} onSave={save} onCopy={copy} onDownload={() => perform(async () => { await api.download(url + '/download', 'application-preparation.txt'); })} />
+        <DraftEditor key={identity + ':' + pack.revision} pack={pack} stale={state.stale} checks={state.checks} disabled={disabled} busy={busy} onSave={save} onCopy={copy} initialKind={selectedKind} onKindChange={setSelectedKind} onDownload={() => perform(async () => { await api.download(url + '/download', 'application-preparation.txt'); })} />
         <p className="text-xs">{state.limitations}</p>
       </>}
     </>}
