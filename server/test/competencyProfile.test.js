@@ -14,7 +14,8 @@ test('Phase 4: longitudinal competencies link every attempt without counting ret
   ]);
   assert.equal(profile.competencies.length, 1);
   const item = profile.competencies[0];
-  assert.equal(item.status, 'strength'); assert.equal(item.averageScore, 83); assert.equal(item.sampleCount, 2);
+  assert.equal(item.status, 'developing'); assert.equal(item.averageScore, 83); assert.equal(item.sampleCount, 2);
+  assert.equal(item.assessedSampleCount, 1);
   assert.equal(item.attemptCount, 3); assert.equal(item.confidence, 'low'); assert.equal(item.trend.delta, 51);
   assert.equal(item.evidence[2].current, false); assert.equal(item.evidence[2].attemptIndex, 0);
   assert.equal(item.evidence[2].href, '/interview/session/s1?question=q1&attempt=0');
@@ -35,11 +36,12 @@ test('checked technical scores drive practice gaps and unassessed answers only r
   const profile = buildProfile([
     answer('q1', 'HTTP caching', 'rubric-checked', 55, 62),
     answer('q2', 'Unverified topic', 'unassessed', 50, 20),
+    { ...answer('q3', 'Unverified topic', undefined, 85, 85), feedback: { aiProvider: 'deterministic-fallback', technicalScore: 85, overallScore: 85 } },
   ]);
   const unassessed = profile.competencies.find(item => item.topic === 'Unverified topic');
   assert.equal(unassessed.assessmentBasis, 'unassessed');
   assert.equal(unassessed.assessedSampleCount, 0);
-  assert.equal(unassessed.evidence[0].href, '/interview/session/q2?question=q2&attempt=0');
+  assert(unassessed.evidence.some(item => item.href === '/interview/session/q2?question=q2&attempt=0'));
   const plan = buildLearningPlan(profile);
   assert.deepEqual(plan.items.map(item => item.topic), ['HTTP caching']);
   assert.equal(plan.items[0].reassessment.difficulty, 'Medium');

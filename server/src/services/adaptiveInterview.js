@@ -1,4 +1,5 @@
 const Question = require('../models/InterviewQuestion');
+const { storedTechnicalAssessment } = require('../providers/offlineInterviewRubric');
 
 const policyVersion = 'adaptive-interview-v3';
 function selectFollowUp(question) {
@@ -6,7 +7,7 @@ function selectFollowUp(question) {
   const words = answer.split(/\s+/).filter(Boolean).length;
   const topic = question.topic || 'this topic';
   const focus = (question.keyPoints || []).find((point) => !answer.toLowerCase().includes(point.toLowerCase())) || 'validation and failure handling';
-  const assessment = question.feedback?.technicalAssessment;
+  const assessment = storedTechnicalAssessment(question.feedback);
   const checked = assessment === 'rubric-checked';
   const diagnostic = question.feedback?.technicalScore < 40 || !checked &&
     (words < 8 || /\b(?:don['’]?t know|not sure|no idea|cannot explain)\b/i.test(answer));

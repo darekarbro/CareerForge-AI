@@ -47,3 +47,18 @@ test('rubric terms alone and technical topics outside the rule scope cannot earn
   assert.equal(feedback.technicalAssessment, 'unassessed');
   assert.equal(selectFollowUp({ ...question, feedback, userAnswer: keywords }).adaptation.kind, 'clarification');
 });
+
+test('offline rules reject isolated cache terms, rejected directives and unsafe invariants', async () => {
+  const cases = [
+    ['cache', 'Cache-Control, no-store, repeat request, origin.'],
+    ['cache', 'Set Cache-Control to no-cache instead of no-store. Repeat the request through a proxy and check both requests reach the origin.'],
+    ['binary-search', 'The array need not have sorted order. Compare the middle value and discard a half. Test an empty array.'],
+    ['atomicity', 'Use one transaction for debit and a separate transaction for credit. Commit after both writes succeed. Force a failure and verify both balances remain unchanged.'],
+  ];
+  for (const [topic, userAnswer] of cases) {
+    const question = interview.questions[topic];
+    const feedback = await provider.evaluateAnswer({ question, userAnswer });
+    assert(feedback.technicalScore < 40, topic);
+    assert.equal(selectFollowUp({ ...question, feedback, userAnswer }).adaptation.kind, 'diagnostic');
+  }
+});

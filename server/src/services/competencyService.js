@@ -1,5 +1,6 @@
 const Session = require('../models/InterviewSession');
 const Question = require('../models/InterviewQuestion');
+const { storedTechnicalAssessment } = require('../providers/offlineInterviewRubric');
 
 const rubricVersion = 'competency-evidence-v2';
 const limitations = [
@@ -19,9 +20,10 @@ function buildProfile(questions) {
     group.scores.push(question.feedback.overallScore);
     if (Number.isFinite(question.feedback.technicalScore)) group.technicalScores.push(question.feedback.technicalScore);
     group.sessions.add(String(question.sessionId));
-    if (question.feedback.technicalAssessment !== 'unassessed') {
+    const assessment = storedTechnicalAssessment(question.feedback);
+    if (assessment !== 'unassessed') {
       group.judgments.push({ sessionId: String(question.sessionId), score: question.feedback.overallScore,
-        technical: question.feedback.technicalAssessment === 'rubric-checked' && Number.isFinite(question.feedback.technicalScore)
+        technical: assessment === 'rubric-checked' && Number.isFinite(question.feedback.technicalScore)
           ? question.feedback.technicalScore : null });
     }
     const attempts = [...(question.attempts || []), { userAnswer: question.userAnswer, feedback: question.feedback, answeredAt: question.answeredAt }];
@@ -30,7 +32,7 @@ function buildProfile(questions) {
       group.evidence.push({ sessionId: String(question.sessionId), questionId: String(question._id), attemptIndex,
         current: attemptIndex === attempts.length - 1, questionText: question.questionText, answerExcerpt: (attempt.userAnswer || '').slice(0, 500),
         score: attempt.feedback.overallScore, technicalScore: attempt.feedback.technicalScore,
-        technicalAssessment: attempt.feedback.technicalAssessment, provider: attempt.feedback.aiProvider || 'unknown', answeredAt: attempt.answeredAt,
+        technicalAssessment: storedTechnicalAssessment(attempt.feedback), provider: attempt.feedback.aiProvider || 'unknown', answeredAt: attempt.answeredAt,
         href: `/interview/session/${question.sessionId}?question=${question._id}&attempt=${attemptIndex}` });
     });
     groups.set(key, group);
