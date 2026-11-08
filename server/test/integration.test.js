@@ -666,6 +666,8 @@ require('./phase3Cases.cjs')({ test, assert, request, user, ready, facts, succes
 require('./mainAuditCases.cjs')({ test, assert, request, user, ready, facts, successfulJob, Resume });
 require('./phase3ReadinessCases.cjs')({ test, assert, request, user, ready, facts, successfulJob, Resume, Tailored });
 require('./phase4InterviewCases.cjs')({ test, assert, request, user, ready, successfulJob });
+require('./phase5RankingCases.cjs')({ test, assert, request, user, ready });
+require('./phase5ApplicationCases.cjs')({ test, assert, request, user });
 
 test('43: an unavailable configured database falls back in development and fails closed in production', async () => {
   const env = require('../src/config/env');

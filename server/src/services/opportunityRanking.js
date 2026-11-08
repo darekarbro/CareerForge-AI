@@ -1,5 +1,5 @@
 const Preferences = require('../models/OpportunityPreferences');
-const { fail, list, revision } = require('./resumeContent');
+const { fail, text, revision } = require('./resumeContent');
 const { assessMatch } = require('./requirementMatching');
 const structure = require('./resumeStructure');
 const { plain } = require('../providers/resumeFacts');
@@ -10,7 +10,10 @@ const contains = (text, term) => (' ' + normalize(text).replace(/[^\p{L}\p{N}+#]
 async function get(owner) { return await Preferences.findOne({ owner }).lean() || { ...defaults }; }
 async function save(owner, input) {
   if (!input || typeof input !== 'object' || Object.keys(input).some((key) => !['roles', 'locations', 'workModes', 'avoidCompanies', 'revision'].includes(key))) throw fail('Unsupported opportunity preference');
-  const data = Object.fromEntries(['roles', 'locations', 'workModes', 'avoidCompanies'].map((key) => [key, [...new Set(list(input[key], key, 20, 120))]]));
+  const data = Object.fromEntries(['roles', 'locations', 'workModes', 'avoidCompanies'].map((key) => {
+    if (!Array.isArray(input[key]) || input[key].length > 20) throw fail('Choose at most 20 values for ' + key);
+    return [key, [...new Set(input[key].map((item) => text(item, key, 120)).filter(Boolean))]];
+  }));
   if (data.workModes.some((mode) => !['remote', 'hybrid', 'onsite'].includes(mode))) throw fail('Choose remote, hybrid or onsite');
   const expected = revision(input.revision);
   if (!expected) {
