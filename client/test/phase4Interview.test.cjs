@@ -31,6 +31,28 @@ test('Phase 4: answer evidence links open the requested question and historical 
   const attempts = screen.getByText('Previous attempts (1)').closest('details'); assert.equal(attempts.open, true); assert(screen.getByText('My first response.'));
 });
 
+test('Phase 4: provisional offline feedback does not present a placeholder as technical depth', () => {
+  const Panel = load('components/FeedbackPanel/FeedbackPanel.js').default;
+  const feedback = { clarityScore: 71, relevanceScore: 73, structureScore: 75, technicalScore: 50, overallScore: 67 };
+  const panel = fields => React.createElement(Panel, { feedback: { ...feedback, ...fields } });
+  const view = render(panel({ technicalAssessment: 'unassessed' }));
+  assert(screen.getByText('Provisional overall score'));
+  assert(screen.getByText('Unassessed'));
+  assert.equal(screen.queryByText('50%'), null);
+
+  view.rerender(panel({ aiProvider: 'deterministic-fallback' }));
+  assert(screen.getByText('Unassessed'));
+  assert.equal(screen.queryByText('50%'), null);
+
+  view.rerender(panel({ aiProvider: 'groq' }));
+  assert(screen.getByText('Overall Score:'));
+  assert(screen.getByText('50%'));
+
+  view.rerender(panel({ aiProvider: 'deterministic-fallback', technicalAssessment: 'rubric-checked', technicalScore: 92 }));
+  assert(screen.getByText('92%'));
+  assert.equal(screen.queryByText('Unassessed'), null);
+});
+
 test('Phase 4: future adaptive question links stop at the first unanswered question', async () => {
   h.router.query = { id: 's1', question: 'q3' };
   const Page = load('pages/interview/session/[id].js').default, originalGet = api.get;

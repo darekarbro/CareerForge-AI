@@ -24,3 +24,24 @@ test('Phase 4: competency and learning views have recoverable endpoint errors', 
   api.get = async (url) => url === '/interview/competencies' || url === '/interview/learning-plan' ? Promise.reject(new Error('Offline')) : originalGet(url);
   render(React.createElement(Page)); await screen.findByRole('button', { name: 'Retry profile' }); assert(screen.getByRole('button', { name: 'Retry learning plan' }));
 });
+
+test('Phase 4: competency profile separates checked technical scores from unassessed answer history', async () => {
+  const Page = load('pages/interview/progress.js').default, originalGet = api.get;
+  const evidence = { sessionId: 's1', questionId: 'q1', attemptIndex: 0, current: true, questionText: 'Explain an index.', answerExcerpt: 'It speeds up reads.', score: 57, provider: 'deterministic-fallback', answeredAt: '2026-11-04', href: '/interview/session/s1?question=q1&attempt=0' };
+  const counts = { sampleCount: 1, sessionCount: 1, attemptCount: 1, confidence: 'low' };
+  api.get = async url => {
+    if (url === '/interview/competencies') return respond({ competencies: [
+      { ...counts, topic: 'SQL', status: 'developing', assessmentBasis: 'unassessed', averageScore: 57, assessmentScore: null, trend: { firstScore: 57, latestScore: 57 }, evidence: [evidence] },
+      { ...counts, topic: 'Binary search', status: 'strength', assessmentBasis: 'technical', averageScore: 67, assessmentScore: 92, evidence: [] },
+    ] });
+    if (url === '/interview/learning-plan') return respond({ items: [] });
+    return originalGet(url);
+  };
+  render(React.createElement(Page));
+  await screen.findByText('Unassessed');
+  assert(screen.getByText('Demonstrated strength · Technical score 92%'));
+  assert.equal(screen.queryByText(/57%|67%/), null);
+  fireEvent.click(screen.getByText('Answers behind SQL'));
+  assert.equal(screen.getByRole('link', { name: 'Explain an index. · Attempt 1 (latest)' }).getAttribute('href'), evidence.href);
+  assert(screen.getByText(/Technical correctness unassessed/));
+});

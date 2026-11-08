@@ -8,7 +8,17 @@ import { submitProcessingRequest } from '../../services/processing';
 
 const statusLabels = { gap: 'Needs practice', developing: 'Developing', strength: 'Demonstrated strength' };
 function EvidenceLinks({ evidence = [] }) {
-  return <ul className="space-y-3 text-sm">{evidence.map((item) => <li key={item.sessionId + ':' + item.questionId + ':' + item.attemptIndex} className="border-l-4 pl-3"><Link href={item.href} className="underline text-blue-800">{item.questionText} · Attempt {item.attemptIndex + 1}{item.current ? ' (latest)' : ''}</Link><blockquote className="mt-1 whitespace-pre-wrap">{item.answerExcerpt}</blockquote><p className="text-xs text-gray-600 mt-1">{item.score}% · {item.provider === 'deterministic-fallback' ? 'Offline rubric estimate' : 'Practice estimate'} · {new Date(item.answeredAt).toLocaleDateString()}</p></li>)}</ul>;
+  return <ul className="space-y-3 text-sm">{evidence.map((item) => {
+    const unassessed = item.technicalAssessment === 'unassessed'
+      || (!item.technicalAssessment && item.provider === 'deterministic-fallback');
+    const score = item.technicalAssessment === 'rubric-checked' && Number.isFinite(item.technicalScore)
+      ? `Technical score ${item.technicalScore}%` : `${item.score}% · Practice estimate`;
+    return <li key={item.sessionId + ':' + item.questionId + ':' + item.attemptIndex} className="border-l-4 pl-3">
+      <Link href={item.href} className="underline text-blue-800">{item.questionText} · Attempt {item.attemptIndex + 1}{item.current ? ' (latest)' : ''}</Link>
+      <blockquote className="mt-1 whitespace-pre-wrap">{item.answerExcerpt}</blockquote>
+      <p className="text-xs text-gray-600 mt-1">{unassessed ? 'Technical correctness unassessed' : score} · {new Date(item.answeredAt).toLocaleDateString()}</p>
+    </li>;
+  })}</ul>;
 }
 export default function InterviewProgressPage() {
   const profile = useOwnedResource('/interview/competencies'), plan = useOwnedResource('/interview/learning-plan'), router = useRouter();
@@ -34,12 +44,17 @@ export default function InterviewProgressPage() {
     {error && <p role="alert" className="bg-red-50 p-3">{error}</p>}
     <section className="brutal-card p-5 space-y-4"><h2 className="text-xl font-bold">Your competency profile</h2>
       {profile.loading ? <p role="status">Loading competency evidence…</p> : profile.error ? <p role="alert">{profile.error} <button onClick={() => profile.reload()} className="underline">Retry profile</button></p> : <>
-        {!profile.data?.competencies.length ? <p className="text-sm">Answer practice questions to build your profile. Feedback from sessions set to “After completing the session” appears after completion.</p> : <ul className="space-y-5">{profile.data.competencies.map((item) => <li key={item.topic} className="border-2 p-4 space-y-3">
-          <div className="flex flex-wrap justify-between gap-2"><h3 className="font-bold">{item.topic}</h3><span className="text-sm">{statusLabels[item.status]} · {item.averageScore}%</span></div>
-          <p className="text-sm">{item.sampleCount} questions across {item.sessionCount} sessions · {item.attemptCount} answer attempts · {item.confidence} confidence. Latest attempts count once per question.</p>
-          {item.trend && <p className="text-sm">First to latest attempt: {item.trend.firstScore}% → {item.trend.latestScore}%. Different questions and difficulty can affect this change.</p>}
-          <details><summary className="cursor-pointer text-sm font-semibold">Answers behind {item.topic}</summary><div className="mt-3"><EvidenceLinks evidence={item.evidence} /></div>{item.omittedEvidenceCount > 0 && <p className="text-sm mt-3">{item.omittedEvidenceCount} older answers are available in practice history.</p>}</details>
-        </li>)}</ul>}
+        {!profile.data?.competencies.length ? <p className="text-sm">Answer practice questions to build your profile. Feedback from sessions set to “After completing the session” appears after completion.</p> : <ul className="space-y-5">{profile.data.competencies.map((item) => {
+          const unassessed = item.assessmentBasis === 'unassessed';
+          const score = item.assessmentScore ?? item.averageScore;
+          const scoreLabel = item.assessmentBasis === 'technical' ? 'Technical score ' : '';
+          return <li key={item.topic} className="border-2 p-4 space-y-3">
+            <div className="flex flex-wrap justify-between gap-2"><h3 className="font-bold">{item.topic}</h3><span className="text-sm">{unassessed ? 'Unassessed' : `${statusLabels[item.status]} · ${scoreLabel}${score}%`}</span></div>
+            <p className="text-sm">{item.sampleCount} questions across {item.sessionCount} sessions · {item.attemptCount} answer attempts{!unassessed && ` · ${item.confidence} confidence`}. Latest attempts count once per question.</p>
+            {!unassessed && item.trend && <p className="text-sm">Overall practice score from first to latest attempt {item.trend.firstScore}% → {item.trend.latestScore}%. Different questions and difficulty can affect this change.</p>}
+            <details><summary className="cursor-pointer text-sm font-semibold">Answers behind {item.topic}</summary><div className="mt-3"><EvidenceLinks evidence={item.evidence} /></div>{item.omittedEvidenceCount > 0 && <p className="text-sm mt-3">{item.omittedEvidenceCount} older answers are available in practice history.</p>}</details>
+          </li>;
+        })}</ul>}
         <details className="text-sm"><summary>How to interpret these assessments</summary><p className="mt-2">Rubric {profile.data?.rubricVersion}</p><ul className="list-disc pl-5 mt-2 space-y-1">{profile.data?.limitations?.map((item) => <li key={item}>{item}</li>)}</ul></details>
       </>}
     </section>
