@@ -15,6 +15,16 @@ router.get('/calendar.ics', async (req, res, next) => { try {
 
 router.get('/analytics', applicationController.getAnalytics);
 router.get('/resume-versions', async (req, res, next) => { try { res.json({ success: true, data: await require('../models/TailoredResume').find({ owner: req.user._id }).sort({ createdAt: -1 }).select('targetRole version createdAt resumeId') }); } catch (error) { next(error); } });
+router.post('/:id/attachments', require('multer')({ storage: require('multer').memoryStorage(), limits: { fileSize: 2 * 1024 * 1024, files: 1 } }).single('file'), async (req, res, next) => { try {
+  res.status(201).json({ success: true, data: await require('../services/applicationAttachments').add(req.params.id, req.user._id, req.body, req.file) });
+} catch (error) { next(error); } });
+router.get('/:id/attachments/:attachmentId', async (req, res, next) => { try {
+  const file = await require('../services/applicationAttachments').get(req.params.id, req.user._id, req.params.attachmentId);
+  res.type('application/octet-stream').attachment(file.name).send(file.data);
+} catch (error) { next(error); } });
+router.delete('/:id/attachments/:attachmentId', async (req, res, next) => { try {
+  res.json({ success: true, data: await require('../services/applicationAttachments').remove(req.params.id, req.user._id, req.params.attachmentId, req.body) });
+} catch (error) { next(error); } });
 router.get('/:id/resume', async (req, res, next) => { try {
   const application = await require('../models/Application').findOne({ _id: req.params.id, owner: req.user._id });
   if (!application?.resumeSnapshot?.content) return res.status(404).json({ success: false, message: 'No saved resume copy for this application' });

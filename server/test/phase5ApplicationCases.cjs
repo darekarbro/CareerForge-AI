@@ -1,0 +1,41 @@
+module.exports = ({ test, assert, request, user }) => {
+  test('Phase 5: reminders, recruiter contacts and status notes persist with owned calendar export', async () => {
+    const a = await user(), b = await user();
+    const body = { company: 'Records Co', roleTitle: 'Engineer', deadline: '2026-01-01', interviewAt: '2026-01-02T10:30:00+05:30', followUpAt: '2026-01-03', recruiter: { name: 'Recruiter', email: 'recruiter@example.test', phone: '+1 555 0100', notes: 'Discuss role scope' }, notificationPreferences: { inApp: true, calendarAlarm: true, leadMinutes: 15 } };
+    let app = (await request('POST', '/api/applications', { token: a.token, body })).data.data;
+    assert.equal(app.recruiter.email, body.recruiter.email);
+    assert.equal(app.interviewAt, '2026-01-02T05:00:00.000Z');
+    let reminders = (await request('GET', '/api/applications/reminders', { token: a.token })).data.data;
+    assert.equal(reminders.length, 3); assert(reminders.every((item) => item.overdue));
+    assert.deepEqual((await request('GET', '/api/applications/reminders', { token: b.token })).data.data, []);
+    let calendar = (await request('GET', '/api/applications/calendar.ics', { token: a.token })).data.toString();
+    assert(calendar.includes('BEGIN:VALARM')); assert(calendar.includes('TRIGGER:-PT15M')); assert(calendar.includes('DTSTART:20260102T050000Z')); assert(calendar.includes('DTSTART;VALUE=DATE:20260101'));
+    assert(!(await request('GET', '/api/applications/calendar.ics?id=' + app._id, { token: b.token })).data.toString().includes('Records Co'));
+    const next = await request('PUT', '/api/applications/' + app._id, { token: a.token, body: { revision: app.revision, status: 'interview', statusNote: 'Recruiter confirmed interview', notificationPreferences: { inApp: false, calendarAlarm: false, leadMinutes: 0 } } });
+    assert.equal(next.status, 200); app = next.data.data;
+    assert.equal(app.timeline.at(-1).note, 'Recruiter confirmed interview');
+    assert.deepEqual((await request('GET', '/api/applications/reminders', { token: a.token })).data.data, []);
+    calendar = (await request('GET', '/api/applications/calendar.ics', { token: a.token })).data.toString(); assert(!calendar.includes('VALARM'));
+    assert.equal((await request('PUT', '/api/applications/' + app._id, { token: a.token, body: { revision: 1, status: 'offer' } })).status, 409);
+  });
+  test('Phase 5: attachment bytes are private, revision protected, downloadable and removable', async () => {
+    const a = await user(), b = await user();
+    const app = (await request('POST', '/api/applications', { token: a.token, body: { company: 'Attachment Co', roleTitle: 'Engineer' } })).data.data;
+    const upload = (revision) => { const form = new FormData(); form.append('file', new Blob(['Private work example'], { type: 'text/plain' }), 'work-example.txt'); form.append('revision', String(revision)); return form; };
+    assert.equal((await request('POST', '/api/applications/' + app._id + '/attachments', { token: b.token, body: upload(1) })).status, 404);
+    let response = await request('POST', '/api/applications/' + app._id + '/attachments', { token: a.token, body: upload(1) });
+    assert.equal(response.status, 201, JSON.stringify(response.data));
+    const added = response.data.data, attachment = added.attachments[0];
+    assert.equal(added.revision, 2); assert.equal(attachment.data, undefined); assert.equal(attachment.name, 'work-example.txt');
+    assert.equal((await request('POST', '/api/applications/' + app._id + '/attachments', { token: a.token, body: upload(1) })).status, 409);
+    response = await request('GET', '/api/applications/' + app._id + '/attachments/' + attachment._id, { token: a.token });
+    assert.equal(response.data.toString(), 'Private work example');
+    assert.equal((await request('GET', '/api/applications/' + app._id + '/attachments/' + attachment._id, { token: b.token })).status, 404);
+    const listing = (await request('GET', '/api/applications', { token: a.token })).data.data;
+    assert.equal(listing[0].attachments[0].data, undefined);
+    assert.equal((await request('DELETE', '/api/applications/' + app._id + '/attachments/' + attachment._id, { token: a.token, body: { revision: 1 } })).status, 409);
+    response = await request('DELETE', '/api/applications/' + app._id + '/attachments/' + attachment._id, { token: a.token, body: { revision: 2 } });
+    assert.equal(response.data.data.attachments.length, 0);
+    assert.equal((await request('GET', '/api/applications/' + app._id + '/attachments/' + attachment._id, { token: a.token })).status, 404);
+  });
+};
