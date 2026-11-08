@@ -1,0 +1,282 @@
+{
+  "datasetVersion": "phase4-expanded-synthetic-v1",
+  "annotationMethod": "agent-authored synthetic challenge cases labeled before scoring",
+  "requirements": [
+    {
+      "id": "experience-explicit-duration",
+      "resumeData": { "summary": "I have 4.5 years of experience with Python developing batch reconciliation jobs." },
+      "jobDescriptionText": "At least 3 years of experience with Python",
+      "expected": [{ "category": "experience", "sourceText": "At least 3 years of experience with Python", "minimumYears": 3, "scopeSkills": ["Python"], "optional": false, "status": "supported" }],
+      "rationale": "The personal duration clearly meets the minimum for the named technology."
+    },
+    {
+      "id": "experience-two-durations",
+      "resumeData": { "summary": "I have 7 years with Python and 1 year with PostgreSQL maintaining invoice queries." },
+      "jobDescriptionText": "Minimum 4 years with PostgreSQL",
+      "expected": [{ "category": "experience", "sourceText": "Minimum 4 years with PostgreSQL", "minimumYears": 4, "scopeSkills": ["PostgreSQL"], "optional": false, "status": "uncertain" }],
+      "rationale": "Seven years belongs to Python. Only one year with PostgreSQL is attested, so the required duration lacks support."
+    },
+    {
+      "id": "experience-third-party-duration",
+      "resumeData": { "summary": "My colleague has 8 years with AWS. I have 1 year with AWS maintaining staging alarms." },
+      "jobDescriptionText": "Minimum 4 years with AWS",
+      "expected": [{ "category": "experience", "sourceText": "Minimum 4 years with AWS", "minimumYears": 4, "scopeSkills": ["AWS"], "optional": false, "status": "uncertain" }],
+      "rationale": "The colleague's eight years do not establish the candidate's duration."
+    },
+    {
+      "id": "experience-closed-intervals",
+      "resumeData": { "workExperience": [
+        { "role": "Software developer", "company": "Fictional Cedar Lab", "startDate": "2016-01-01", "endDate": "2018-07-01" },
+        { "role": "Software developer", "company": "Fictional Dune Lab", "startDate": "2019-01-01", "endDate": "2022-01-01" }
+      ] },
+      "jobDescriptionText": "At least 4 years of professional experience",
+      "expected": [{ "category": "experience", "sourceText": "At least 4 years of professional experience", "minimumYears": 4, "scopeSkills": [], "optional": false, "status": "supported" }],
+      "rationale": "Two non-overlapping closed periods sum to over five years of general professional tenure."
+    },
+    {
+      "id": "experience-overlap",
+      "resumeData": { "workExperience": [
+        { "role": "Platform engineer", "company": "Fictional Willow Lab", "startDate": "2017-01-01", "endDate": "2021-01-01" },
+        { "role": "Consulting engineer", "company": "Fictional Elm Lab", "startDate": "2019-01-01", "endDate": "2023-01-01" }
+      ] },
+      "jobDescriptionText": "At least 7 years of professional experience",
+      "expected": [{ "category": "experience", "sourceText": "At least 7 years of professional experience", "minimumYears": 7, "scopeSkills": [], "optional": false, "status": "uncertain" }],
+      "rationale": "The union spans six years. Counting overlapping years twice would falsely meet the requirement."
+    },
+    {
+      "id": "experience-open-ended",
+      "resumeData": { "workExperience": [{ "role": "Platform engineer", "company": "Fictional Tern Lab", "startDate": "2020-01-01", "endDate": "Present" }] },
+      "jobDescriptionText": "At least 2 years of professional experience",
+      "expected": [{ "category": "experience", "sourceText": "At least 2 years of professional experience", "minimumYears": 2, "scopeSkills": [], "optional": false, "status": "uncertain" }],
+      "rationale": "This rubric avoids inferring a current end date from a possibly stale resume."
+    },
+    {
+      "id": "experience-month-unit",
+      "resumeData": { "summary": "I have 2 years of experience with React delivering internal dashboards." },
+      "jobDescriptionText": "At least 18 months of experience with React",
+      "expected": [{ "category": "experience", "sourceText": "At least 18 months of experience with React", "minimumYears": 1.5, "scopeSkills": ["React"], "optional": false, "status": "supported" }],
+      "rationale": "Eighteen months is one and a half years. The attested React duration exceeds that minimum."
+    },
+    {
+      "id": "experience-preferred-range",
+      "resumeData": { "summary": "I have 3 years of experience with Kubernetes managing deployment rollouts." },
+      "jobDescriptionText": "Preferred: 2–4 years with Kubernetes",
+      "expected": [{ "category": "experience", "sourceText": "Preferred: 2–4 years with Kubernetes", "minimumYears": 2, "scopeSkills": ["Kubernetes"], "optional": true, "status": "supported" }],
+      "rationale": "The preferred lower bound is two years and the attested duration falls within the range."
+    },
+    {
+      "id": "experience-unrelated-domain",
+      "resumeData": { "summary": "I have 8 years of retail experience, operating store checkouts and restocking shelves." },
+      "jobDescriptionText": "At least 4 years of software delivery experience",
+      "expected": [{ "category": "experience", "sourceText": "At least 4 years of software delivery experience", "minimumYears": 4, "scopeSkills": [], "optional": false, "status": "uncertain" }],
+      "rationale": "Store operations do not establish time spent delivering software."
+    },
+    {
+      "id": "experience-qualitative",
+      "resumeData": { "summary": "I investigated errors in pre-release integration tests." },
+      "jobDescriptionText": "Experience managing on-call incident response is required",
+      "expected": [{ "category": "experience", "sourceText": "Experience managing on-call incident response is required", "status": "uncertain" }],
+      "rationale": "The posting asks for qualitative experience and pre-release testing alone does not establish incident ownership."
+    },
+    {
+      "id": "experience-negated-minimum",
+      "resumeData": { "summary": "I do not have 4 years of experience with Linux. I have completed a short Linux lab." },
+      "jobDescriptionText": "Minimum 4 years with Linux",
+      "expected": [{ "category": "experience", "sourceText": "Minimum 4 years with Linux", "minimumYears": 4, "scopeSkills": ["Linux"], "optional": false, "status": "uncertain" }],
+      "rationale": "The apparent four-year mention is a denial. A short lab cannot replace that evidence."
+    },
+    {
+      "id": "constraint-remote-country",
+      "resumeData": { "contactInfo": { "location": "Toronto" }, "summary": "I collaborated remotely with a distributed team." },
+      "jobDescriptionText": "Remote work from within Canada only",
+      "expected": [{ "category": "constraint", "sourceText": "Remote work from within Canada only", "status": "uncertain" }],
+      "rationale": "A contact city and prior remote work do not confirm current eligibility or availability."
+    },
+    {
+      "id": "constraint-authorization-relocation",
+      "resumeData": { "summary": "I am permitted to work at my current location. I have moved for a prior job." },
+      "jobDescriptionText": "Work authorization in the role's country is required\nRelocation to Mapleford within 60 days is required",
+      "expected": [
+        { "category": "constraint", "sourceText": "Work authorization in the role's country is required", "status": "uncertain" },
+        { "category": "constraint", "sourceText": "Relocation to Mapleford within 60 days is required", "status": "uncertain" }
+      ],
+      "rationale": "Both practical constraints require direct confirmation for this specific job."
+    },
+    {
+      "id": "constraint-utc-overlap",
+      "resumeData": { "summary": "I worked flexible hours on a rotating project." },
+      "jobDescriptionText": "A 3-hour overlap with UTC+2 is required every weekday",
+      "expected": [{ "category": "constraint", "sourceText": "A 3-hour overlap with UTC+2 is required every weekday", "status": "uncertain" }],
+      "rationale": "The UTC notation specifies an availability constraint, even without the words time zone."
+    },
+    {
+      "id": "constraint-driving-licence",
+      "resumeData": { "summary": "I arranged local equipment deliveries for an operations team." },
+      "jobDescriptionText": "A driving licence is mandatory for field visits",
+      "expected": [{ "category": "constraint", "sourceText": "A driving licence is mandatory for field visits", "status": "uncertain" }],
+      "rationale": "A required licence is a practical constraint. Arranging deliveries does not prove possession."
+    },
+    {
+      "id": "constraint-benefit-control",
+      "resumeData": { "contactInfo": { "location": "Larkfield" } },
+      "jobDescriptionText": "On-site work in Larkfield is required\nBenefits: Reimbursement for optional conference travel",
+      "expected": [{ "category": "constraint", "sourceText": "On-site work in Larkfield is required", "status": "uncertain" }],
+      "rationale": "The on-site requirement is explicit. An optional conference benefit does not impose travel on the applicant."
+    },
+    {
+      "id": "constraint-shifts-and-travel",
+      "resumeData": { "summary": "I coordinated weekend handovers on a previous project." },
+      "jobDescriptionText": "Evening shifts are required on weekdays\nAt least 20% travel is required",
+      "expected": [
+        { "category": "constraint", "sourceText": "Evening shifts are required on weekdays", "status": "uncertain" },
+        { "category": "constraint", "sourceText": "At least 20% travel is required", "status": "uncertain" }
+      ],
+      "rationale": "Scheduling and travel are distinct candidate-relevant constraints. Prior weekend work does not confirm either."
+    }
+  ],
+  "interview": {
+    "questions": {
+      "binary-search": {
+        "topic": "Binary search",
+        "questionText": "What prerequisite makes ordinary binary search on an array valid, and how would you check the implementation?",
+        "category": "technical",
+        "difficulty": "Medium",
+        "keyPoints": ["Sorted order", "Midpoint comparison", "Boundary test"],
+        "suggestedAnswer": "Search a monotonic ordering. Compare the middle element and discard the half that cannot contain the target. Test boundaries, absent keys and an empty input."
+      },
+      "atomicity": {
+        "topic": "Transaction atomicity",
+        "questionText": "How would you make a two-write debit and credit atomic, and prove a failure between them does not leave a partial transfer?",
+        "category": "technical",
+        "difficulty": "Medium",
+        "keyPoints": ["Transaction atomicity", "Commit and rollback", "Failure injection"],
+        "suggestedAnswer": "Place both writes in one database transaction. Commit after both succeed and roll back if either fails. Force a failure after the debit and confirm that neither balance changes."
+      },
+      "cache": {
+        "topic": "HTTP cache directives",
+        "questionText": "Which HTTP response directive stops storage of a private account payload by browser and shared HTTP caches, and how would you verify it?",
+        "category": "technical",
+        "difficulty": "Medium",
+        "keyPoints": ["No-store directive", "Shared and private caches", "Repeat request"],
+        "suggestedAnswer": "Use Cache-Control: no-store. It tells private and shared HTTP caches not to store the response. No-cache permits storage with validation before reuse. Verify the header and repeat the request through an isolated cache to check that the origin receives both requests."
+      }
+    },
+    "answers": [
+      {
+        "id": "binary-sound-terms",
+        "questionId": "binary-search",
+        "userAnswer": "I check that the input has sorted order using the same comparator as the search. Each midpoint comparison discards the half that cannot contain the key. A boundary test should cover the first and last elements, a missing key, and an empty array.",
+        "expectedTechnical": "sound",
+        "expectedFollowUp": "deeper",
+        "rationale": "Correct prerequisite, discard invariant and concrete edge cases justify a more demanding follow-up."
+      },
+      {
+        "id": "binary-sound-paraphrase",
+        "questionId": "binary-search",
+        "userAnswer": "Values must rise consistently from left to right under the same relation used for lookup. Looking at the central element tells me which side can still contain the desired value. I would exercise an empty sequence and verify the first and final valid positions plus a key outside the sequence.",
+        "expectedTechnical": "sound",
+        "expectedFollowUp": "deeper",
+        "rationale": "The answer gives the same prerequisite and checks in different words."
+      },
+      {
+        "id": "binary-unsound-terms",
+        "questionId": "binary-search",
+        "userAnswer": "Sorted order is unnecessary. A midpoint comparison can always discard the left half even when the entries are arbitrarily shuffled. My boundary test would check one central key only, because an absent key and the first position cannot expose a mistake in the search.",
+        "expectedTechnical": "unsound",
+        "expectedFollowUp": "diagnostic",
+        "rationale": "The stated invariant is false. An unsorted array can hide the target in a discarded half."
+      },
+      {
+        "id": "atomicity-sound-terms",
+        "questionId": "atomicity",
+        "userAnswer": "Transaction atomicity requires both writes in a single transaction. I commit only after both updates succeed and rollback on an error. For failure injection, I force the credit to throw after the debit and check that both balances retain their previous amounts before retrying.",
+        "expectedTechnical": "sound",
+        "expectedFollowUp": "deeper",
+        "rationale": "The answer explains the commit boundary and validates the state after an injected failure."
+      },
+      {
+        "id": "atomicity-sound-paraphrase",
+        "questionId": "atomicity",
+        "userAnswer": "Enclose the subtraction and addition in one all-or-nothing unit of work. Make the change durable only after both operations succeed. Deliberately throw after the subtraction and read back each account from a separate connection to confirm both retain their original amounts.",
+        "expectedTechnical": "sound",
+        "expectedFollowUp": "deeper",
+        "rationale": "The same all-or-nothing behavior and observable failure test are present without rubric phrases."
+      },
+      {
+        "id": "atomicity-unsound-separate-commit",
+        "questionId": "atomicity",
+        "userAnswer": "For transaction atomicity I commit the debit before starting the credit. If failure injection makes the credit throw, its rollback automatically reverses the debit even though that earlier transaction has already been committed. I therefore only need to assert that the credit reported an error.",
+        "expectedTechnical": "unsound",
+        "expectedFollowUp": "diagnostic",
+        "rationale": "A later rollback cannot reverse a committed transaction. The proposed test misses a partial debit."
+      },
+      {
+        "id": "atomicity-unsound-two-connections",
+        "questionId": "atomicity",
+        "userAnswer": "Transaction atomicity happens automatically when the two accounts are in one database. I run each write on a separate connection with autocommit enabled. After failure injection I call rollback on the credit connection, which will cancel the debit commit on the other connection without checking balances.",
+        "expectedTechnical": "unsound",
+        "expectedFollowUp": "diagnostic",
+        "rationale": "Separate autocommit operations do not share a transaction and cannot be rolled back as a unit."
+      },
+      {
+        "id": "atomicity-no-answer",
+        "questionId": "atomicity",
+        "userAnswer": "I don't know.",
+        "expectedTechnical": "unsound",
+        "expectedFollowUp": "diagnostic",
+        "rationale": "The answer provides no technical evidence. Start with a simpler diagnostic."
+      },
+      {
+        "id": "cache-sound-terms",
+        "questionId": "cache",
+        "userAnswer": "I use the no-store directive in Cache-Control so shared and private HTTP caches do not keep the payload. No-cache can still permit storage. I would repeat the request through an isolated test proxy and check the origin sees both requests, while inspecting the response header each time.",
+        "expectedTechnical": "sound",
+        "expectedFollowUp": "deeper",
+        "rationale": "The response directive and distinction are correct and the verification observes a real cache behavior."
+      },
+      {
+        "id": "cache-partial",
+        "questionId": "cache",
+        "userAnswer": "I would add a Cache-Control response header and inspect it with the browser's network tools. I have not picked a directive or a way to see whether a proxy reused the response.",
+        "expectedTechnical": "partial",
+        "expectedFollowUp": "clarification",
+        "rationale": "The header and inspection method are relevant. The key directive and behavioral check need clarification."
+      }
+    ],
+    "contrasts": [
+      { "soundAnswerId": "binary-sound-terms", "unsoundAnswerId": "binary-unsound-terms" },
+      { "soundAnswerId": "binary-sound-paraphrase", "unsoundAnswerId": "binary-unsound-terms" },
+      { "soundAnswerId": "atomicity-sound-terms", "unsoundAnswerId": "atomicity-unsound-separate-commit" },
+      { "soundAnswerId": "atomicity-sound-paraphrase", "unsoundAnswerId": "atomicity-unsound-two-connections" }
+    ]
+  },
+  "progress": {
+    "attempts": [
+      { "questionId": "q-binary-1", "sessionId": "session-a", "currentAnswerId": "binary-sound-terms" },
+      { "questionId": "q-binary-2", "sessionId": "session-b", "currentAnswerId": "binary-sound-paraphrase", "previousAnswerId": "binary-unsound-terms" },
+      { "questionId": "q-atomicity-1", "sessionId": "session-a", "currentAnswerId": "atomicity-unsound-separate-commit" },
+      { "questionId": "q-atomicity-2", "sessionId": "session-b", "currentAnswerId": "atomicity-unsound-two-connections" },
+      { "questionId": "q-cache-1", "sessionId": "session-b", "currentAnswerId": "cache-partial" }
+    ],
+    "expectedCompetencies": [
+      { "topic": "Binary search", "status": "strength", "sampleCount": 2, "sessionCount": 2, "attemptCount": 3, "rationale": "Two latest technically sound answers across sessions. The corrected misconception stays linked as a previous attempt." },
+      { "topic": "Transaction atomicity", "status": "gap", "sampleCount": 2, "sessionCount": 2, "attemptCount": 2, "rationale": "Both current answers misunderstand the commit boundary." },
+      { "topic": "HTTP cache directives", "status": "developing", "sampleCount": 1, "sessionCount": 1, "attemptCount": 1, "rationale": "One partial answer identifies the header and needs a targeted clarification." }
+    ],
+    "jobResumeData": { "skills": { "all": ["SQL"] } },
+    "resumeRevisions": [{ "_id": "resume-a", "contentRevision": 3 }],
+    "jobReports": [
+      { "_id": "report-current", "resumeId": "resume-a", "jobDescriptionId": "job-a", "sourceRevision": 3, "jobDescriptionText": "Required: SQL, Docker\nRemote work from Canada only" },
+      { "_id": "report-latest-stale", "resumeId": "resume-a", "jobDescriptionId": "job-b", "sourceRevision": 2, "jobDescriptionText": "Required: Kubernetes" },
+      { "_id": "report-older-same-revision", "resumeId": "resume-a", "jobDescriptionId": "job-b", "sourceRevision": 3, "jobDescriptionText": "Required: Redis" },
+      { "_id": "report-legacy", "resumeId": "resume-a", "jobDescriptionId": "job-c", "jobDescriptionText": "Required: Terraform" },
+      { "_id": "report-deleted-resume", "resumeId": "resume-removed", "jobDescriptionId": "job-d", "sourceRevision": 1, "jobDescriptionText": "Required: Git" }
+    ],
+    "expectedExcludedReports": { "stale": 1, "unversioned": 1, "missingResume": 1 },
+    "expectedRecommendations": [
+      { "topic": "Transaction atomicity", "difficulty": "Easy", "evidenceKind": "interview", "rationale": "Practice the basic commit and rollback boundary after two incorrect explanations." },
+      { "topic": "HTTP cache directives", "difficulty": "Medium", "evidenceKind": "interview", "rationale": "Build on a partial understanding with a focused policy and verification exercise." },
+      { "topic": "Docker", "difficulty": "Easy", "evidenceKind": "unassessed-job-gap", "rationale": "Identify existing evidence or practice after verifying a Docker requirement from the current report. The resume does not establish a practice weakness." }
+    ]
+  }
+}
