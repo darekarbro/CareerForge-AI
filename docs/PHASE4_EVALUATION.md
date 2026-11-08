@@ -64,10 +64,10 @@ Zero-denominator rates are `null`, not fabricated perfect scores. F1 uses the st
 
 ## Collect independent human reviews
 
-The [v5 reviewer packet](PHASE4_HUMAN_REVIEW_PACKET.md) contains all 10 v1 holdout inputs and the scoring instructions. Give the packet and one copy of the [blank ballot](../server/evaluation/human-review.v5-holdout.ballot.json) to each of two reviewers. Keep their ratings independent. Once both ballots are complete, combine their `reviews` arrays into a copy of the same JSON document and save it as `.test-tmp/phase4-human-reviews.json`. Verify that both reviewers scored every case and that the combined document contains 20 scores. The holdout-only command below evaluates those ratings with the current rubric and writes a separate agreement report.
+The v5 reviewer packet contains all 10 v1 holdout inputs and the scoring instructions. Give the packet and one copy of the blank ballot to each of two reviewers. Keep their ratings independent. Once both ballots are complete, combine their `reviews` arrays into a copy of the same JSON document and save it as `.test-tmp/phase4-human-reviews.json`. The command checks that both reviewers rated each case and compares their scores against the archived v5 predictions. [V5 reviewer packet](PHASE4_HUMAN_REVIEW_PACKET.md) · [Blank ballot](../server/evaluation/human-review.v5-holdout.ballot.json)
 
 ```bash
-node server/scripts/evaluatePhase4.cjs --dataset-version v1 --holdout --human .test-tmp/phase4-human-reviews.json --output docs/PHASE4_HUMAN_REVIEW_RESULTS.json
+node server/scripts/evaluatePhase4HumanAgreement.cjs --human .test-tmp/phase4-human-reviews.json --output docs/PHASE4_HUMAN_REVIEW_RESULTS.json
 ```
 
 As of 8 November 2026, both reviewer ballots are pending. Agreement remains unmeasured until their scores are supplied. The released packet contains the inputs and scoring rules so reviewers can work independently of the predictions.

@@ -1,5 +1,21 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
+const { evaluateAgreement } = require('../scripts/evaluatePhase4HumanAgreement.cjs');
+const blankBallot = require('../evaluation/human-review.v5-holdout.ballot.json');
+
+test('the pending human packet compares complete ballots to archived v5 scores', () => {
+  // Fictional ballots exercise the import. No reviewer scores are published by this test.
+  const reviews = blankBallot.reviews.flatMap(item => ['reviewer-01', 'reviewer-02'].map((reviewerId, index) => ({
+    ...item, reviewerId, reviewedAt: '2026-11-08T00:00:00Z', matchScore: 55 + index * 10,
+  })));
+  assert.throws(() => evaluateAgreement(blankBallot), /Invalid/);
+  assert.throws(() => evaluateAgreement({ ...blankBallot, reviews: reviews.slice(1) }), /two complete/);
+  const report = evaluateAgreement({ ...blankBallot, reviews });
+  assert.equal(report.rubricVersion, 'careerforge-assessment-v5');
+  assert.equal(report.humanScoreAgreement.reviewedCases, 10);
+  assert.equal(report.humanScoreAgreement.reviews, 20);
+  assert.equal(typeof report.humanScoreAgreement.meanAbsoluteError, 'number');
+});
 const { evaluateCase, summarize, validateReviews, validCitation } = require('../evaluation/metrics.cjs');
 const { argumentsFor, run } = require('../scripts/evaluatePhase4.cjs');
 
