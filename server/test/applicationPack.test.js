@@ -34,10 +34,12 @@ test('preparation pack uses selected confirmed evidence, persists reviewed draft
   assert.equal(state.pack.snapshot.topics.find((topic) => topic.title === 'SQL').supported, false);
   await assert.rejects(pack.view(workspace._id, other), { statusCode: 404 });
   await assert.rejects(pack.download(workspace._id, owner), { statusCode: 409 });
+  await assert.rejects(pack.reviewedDraft(workspace._id, owner, 'recruiter'), { statusCode: 409 });
   await assert.rejects(pack.save(workspace._id, owner, { revision: state.pack.revision, kind: 'coverLetter', body: state.pack.drafts.coverLetter, reviewed: true }), /Confirm/);
   await assert.rejects(pack.save(workspace._id, owner, { revision: state.pack.revision, kind: 'coverLetter', body: 'I led 700 engineers.', reviewed: true, confirmed: true }), /unsupported/);
   const oldRevision = state.pack.revision;
   state = await pack.save(workspace._id, owner, { revision: oldRevision, kind: 'coverLetter', body: state.pack.drafts.coverLetter, reviewed: true, confirmed: true });
+  assert.equal((await pack.reviewedDraft(workspace._id, owner, 'coverLetter')).body, state.pack.drafts.coverLetter);
   await assert.rejects(pack.save(workspace._id, owner, { revision: oldRevision, kind: 'coverLetter', body: state.pack.drafts.coverLetter, reviewed: false }), { statusCode: 409 });
   const exported = await pack.download(workspace._id, owner);
   assert(exported.includes('Selected resume: Selected resume'));
@@ -49,6 +51,7 @@ test('preparation pack uses selected confirmed evidence, persists reviewed draft
   const evidence = await require('../src/models/CareerEvidence').findOne({ owner, kind: 'project', 'context.entryId': 'include' });
   await require('../src/models/CareerEvidence').updateOne({ _id: evidence._id }, { $set: { verification: 'rejected' }, $inc: { revision: 1 } });
   assert.equal((await pack.view(workspace._id, owner)).stale, true);
+  await assert.rejects(pack.reviewedDraft(workspace._id, owner, 'coverLetter'), { statusCode: 409 });
   await assert.rejects(pack.download(workspace._id, owner), { statusCode: 409 });
   state = await pack.generate(workspace._id, owner, { revision: state.pack.revision });
   assert(!state.pack.drafts.coverLetter.includes('12 users'));

@@ -120,4 +120,12 @@ async function download(id, owner) {
     'Evidence citations\n' + snap.evidence.map((fact) => fact.title + ' [' + fact.id + ', revision ' + fact.revision + ']: ' + fact.statement).join('\n'),
   ].join('\n\n');
 }
-module.exports = { view, generate, save, download, drafts, topics, rankEvidence, checks, kinds, labels };
+async function reviewedDraft(id, owner, kind) {
+  if (!kinds.includes(kind)) throw fail('Choose a supported draft');
+  const state = await view(id, owner);
+  if (!state.pack) throw fail('Create a preparation pack first', 404);
+  if (state.stale) throw fail('Regenerate this preparation pack after the source changes.', 409);
+  if (!state.pack.reviewed.includes(kind)) throw fail('Review and save this draft before copying it.', 409);
+  return { kind, body: state.pack.drafts[kind], revision: state.pack.revision };
+}
+module.exports = { view, generate, save, download, reviewedDraft, drafts, topics, rankEvidence, checks, kinds, labels };
