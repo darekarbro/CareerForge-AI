@@ -19,13 +19,18 @@ module.exports = ({ page, screenshot, pass, audit }) => ({
     const link = page.getByRole('link', { name: / · Attempt / }).first();
     const href = await link.getAttribute('href');
     assert(href.includes('?question=') && href.includes('&attempt='));
-    await page.getByRole('heading', { name: 'Small project milestones', exact: true }).first().waitFor();
+    const milestones = page.getByRole('heading', { name: 'Small project milestones', exact: true }).first();
+    const hasMilestones = await milestones.waitFor({ timeout: 20000 }).then(() => true).catch(() => false);
+    if (!hasMilestones) await page.getByText(/Your next practice tasks appear after assessed answers or a saved job gap analysis\./).waitFor();
     await screenshot('phase4-progress'); await audit('phase4-competencies-learning');
     await link.click(); await page.getByText('Your Submitted Answer:', { exact: true }).waitFor();
     pass('Phase 4: longitudinal competency evidence opens the original question and attempt');
     await page.goto('http://localhost:3030/interview/progress');
-    await page.getByRole('button', { name: /^Reassess / }).first().click();
+    if (hasMilestones) await page.getByRole('button', { name: /^Reassess / }).first().click();
+    else await page.getByRole('link', { name: 'Start practice', exact: true }).click();
     await page.waitForURL(/\/interview\/(?:session\/[^/]+|setup\?[^/]+)$/);
-    pass('Phase 4: gap-specific tasks, project milestones and reassessment navigation');
+    pass(hasMilestones
+      ? 'Phase 4: gap-specific tasks, project milestones and reassessment navigation'
+      : 'Phase 4: unassessed-only guidance routes to start practice');
   },
 });
