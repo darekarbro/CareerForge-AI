@@ -59,7 +59,7 @@ test('evaluation defaults to development; holdout requires an explicit option', 
   assert.throws(() => argumentsFor(['--output']));
   assert.throws(() => argumentsFor(['--unknown']));
   assert.equal(argumentsFor([]).datasetVersion, 'v1');
-  for (const version of ['v2', 'v3']) {
+  for (const version of ['v2', 'v3', 'v4']) {
     assert.equal(argumentsFor(['--dataset-version', version, '--holdout']).datasetVersion, version);
     assert.throws(() => argumentsFor(['--dataset-version', version]));
     assert.throws(() => argumentsFor(['--dataset-version', version, '--all']));
@@ -69,7 +69,7 @@ test('evaluation defaults to development; holdout requires an explicit option', 
   }
   assert.throws(() => argumentsFor(['--dataset-version', '../v1', '--holdout']));
   assert.throws(() => argumentsFor(['--first-pass', 'lock.json', '--output', 'report.json']));
-  assert.throws(() => argumentsFor(['--dataset-version', 'v4', '--holdout']));
+  assert.throws(() => argumentsFor(['--dataset-version', 'v5', '--holdout']));
 });
 
 test('evaluation provenance includes contact parsing and labels published data as regression evidence', async () => {

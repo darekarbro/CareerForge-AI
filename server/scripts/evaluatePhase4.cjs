@@ -14,16 +14,16 @@ const implementationFiles = [
   '../src/providers/resumeEvidence.js', '../src/providers/skillPolarity.js', '../src/providers/skillConflicts.js',
   '../src/services/jobRequirements.js', '../src/services/requirementMatching.js', '../src/services/assessmentRubrics.js',
 ];
-const datasetVersions = ['v1', 'v2', 'v3'];
-const holdoutVersions = ['v2', 'v3'];
+const holdoutVersions = ['v2', 'v3', 'v4'];
+const datasetVersions = ['v1', ...holdoutVersions];
 
 function validateOptions(options) {
-  if (!datasetVersions.includes(options.datasetVersion)) throw new Error('Choose dataset version v1, v2 or v3.');
+  if (!datasetVersions.includes(options.datasetVersion)) throw new Error(`Choose a dataset version from ${datasetVersions.join(', ')}.`);
   if (holdoutVersions.includes(options.datasetVersion) && JSON.stringify(options.splits) !== JSON.stringify(['holdout'])) {
     throw new Error(`Dataset ${options.datasetVersion} contains only holdout; select --holdout explicitly.`);
   }
   if (options.firstPass && (!holdoutVersions.includes(options.datasetVersion) || !options.output || options.human)) {
-    throw new Error('First-pass evaluation requires a v2 or v3 holdout, an output path and no added human annotations.');
+    throw new Error('First-pass evaluation requires a versioned holdout, an output path and no added human annotations.');
   }
 }
 
