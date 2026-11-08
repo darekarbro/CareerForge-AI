@@ -1,0 +1,2154 @@
+{
+  "reportVersion": "phase4-evaluation-v3",
+  "generatedAt": "2026-11-08T06:27:50.942Z",
+  "datasetVersion": "phase4-synthetic-v4",
+  "rubricVersion": "careerforge-assessment-v5",
+  "runtime": {
+    "node": "v25.9.0",
+    "platform": "win32",
+    "architecture": "x64"
+  },
+  "implementationFiles": [
+    "../src/providers/deterministicProvider.js",
+    "../src/providers/resumeContact.js",
+    "../src/providers/resumeFacts.js",
+    "../src/providers/resumeClaims.js",
+    "../src/providers/resumeLayout.js",
+    "../src/providers/resumeEvidence.js",
+    "../src/providers/skillPolarity.js",
+    "../src/providers/skillConflicts.js",
+    "../src/services/jobRequirements.js",
+    "../src/services/requirementMatching.js",
+    "../src/services/assessmentRubrics.js"
+  ],
+  "implementationSha256": "8e1e1cce20886140c5a330b0a688b06e277c09042352ba2befcb0f59c23a377e",
+  "metricsSha256": "a8231f12d7a3d47a60eb766eb28ad927ff7b08fab9af3b3f5e17b28ec08cd643",
+  "evaluatorSha256": "0bf8735002bedefe1e783583d02869eec578d790b1c1e9e4f6ff8b015caf2245",
+  "firstPass": {
+    "runId": "holdout-v4-v5-initial-2026-11-08",
+    "startedAt": "2026-11-08T06:27:49.640Z",
+    "datasetVersion": "phase4-synthetic-v4",
+    "datasetSha256": "ec8a5160fec1dc34fd9129a1325c0d42b88945b0a7fc7b13381a8e1dc5d2396d",
+    "implementationSha256": "8e1e1cce20886140c5a330b0a688b06e277c09042352ba2befcb0f59c23a377e",
+    "metricsSha256": "a8231f12d7a3d47a60eb766eb28ad927ff7b08fab9af3b3f5e17b28ec08cd643",
+    "evaluatorSha256": "0bf8735002bedefe1e783583d02869eec578d790b1c1e9e4f6ff8b015caf2245",
+    "protocolSha256": "b7799944f69a747884efc945af3b16eafd245b3a69ae4f1d0da1fd2d0eb42e5d",
+    "lockSha256": "939a43fb279f6fac73c88c8890798873321b5f32acd91447a87b00fff2b4f4b4",
+    "outputPath": "docs/PHASE4_V5_HOLDOUT_RESULTS.json",
+    "frozenCommit": "652143efb3c0474659a8d3f408345f62f5f65e26",
+    "receiptPath": "server/evaluation/protocols/v4-first-pass.receipt.json",
+    "protocolPath": "server/evaluation/protocols/v4-first-pass.json",
+    "lockPath": "server/evaluation/protocols/v4-first-pass.lock.json"
+  },
+  "datasetUsage": {
+    "holdout": "fresh-holdout-first-pass"
+  },
+  "method": "Fresh, independently agent-authored raw-text holdout scored once after implementation/metric/dataset freeze. Deterministic parser → local versioned requirement matcher; one timed pipeline sample per case after independent warmup.",
+  "limitations": [
+    "Synthetic reference labels were authored independently of application output, not provided by independent human reviewers.",
+    "Skill extraction and classification are measured; the initial gold set does not measure experience/constraint correctness, OCR, visual layout or actual job performance.",
+    "The new holdout is small, synthetic and English-dominant; no population confidence interval or real hiring outcome is established.",
+    "This is the initial scored run of this newly authored holdout against the preregistered unchanged implementation. After publication, reruns are regression evidence only.",
+    "Citation integrity checks the parsed data path and exact quote, while unsupported claims compare the matching decision with raw-input reference labels.",
+    "This run does not measure live LLM accuracy, latency, token consumption, queue/API latency or provider pricing."
+  ],
+  "splits": {
+    "holdout": {
+      "datasetSha256": "ec8a5160fec1dc34fd9129a1325c0d42b88945b0a7fc7b13381a8e1dc5d2396d",
+      "annotationScope": {
+        "extraction": [
+          "contactInfo.name",
+          "contactInfo.email",
+          "skills"
+        ],
+        "requirements": [
+          "requiredSkills",
+          "preferredSkills"
+        ],
+        "evidencePolicy": "Use explicit candidate evidence from the resume and explicit skill categories from the job description. An unresolved first-person contradiction makes the requirement uncertain and keeps the skill out of expected extraction."
+      },
+      "metrics": {
+        "cases": 30,
+        "extractionAccuracy": {
+          "contactExact": {
+            "correct": 37,
+            "total": 60,
+            "rate": 0.616667
+          },
+          "resumeSkills": {
+            "truePositive": 84,
+            "falsePositive": 11,
+            "falseNegative": 36,
+            "precision": 0.884211,
+            "recall": 0.7,
+            "f1": 0.781395
+          },
+          "jdSkills": {
+            "truePositive": 162,
+            "falsePositive": 2,
+            "falseNegative": 2,
+            "precision": 0.987805,
+            "recall": 0.987805,
+            "f1": 0.987805
+          }
+        },
+        "requirementStatusAccuracy": {
+          "correct": 116,
+          "total": 164,
+          "rate": 0.707317
+        },
+        "unsupportedClaimRate": {
+          "count": 10,
+          "total": 89,
+          "rate": 0.11236
+        },
+        "citationIntegrity": {
+          "valid": 283,
+          "total": 283,
+          "rate": 1
+        },
+        "evidenceCoverage": {
+          "supportedWithValidEvidence": 90,
+          "supported": 90,
+          "totalRequirements": 172,
+          "supportedClaimCoverage": 1,
+          "allRequirementCoverage": 0.523256
+        },
+        "humanScoreAgreement": {
+          "status": "not-measured",
+          "reviewedCases": 0,
+          "reviews": 0,
+          "meanAbsoluteError": null,
+          "withinTenPointsRate": null,
+          "reason": "No independent human reviewer scores have been supplied; synthetic reference labels are not human score reviews."
+        },
+        "latencyMs": {
+          "scope": "Local raw-text parsing plus requirement matching; excludes upload, queue, database, network and UI.",
+          "samples": 30,
+          "p50": 43.4314,
+          "p95": 79.2332,
+          "mean": 39.855063
+        },
+        "providerCost": {
+          "mode": "offline-rules",
+          "externalRequests": 0,
+          "billedTokens": 0,
+          "costUsd": 0,
+          "scope": "No external provider calls; infrastructure and engineering cost excluded."
+        }
+      },
+      "byGroup": {
+        "graduate": {
+          "cases": 6,
+          "extractionAccuracy": {
+            "contactExact": {
+              "correct": 9,
+              "total": 12,
+              "rate": 0.75
+            },
+            "resumeSkills": {
+              "truePositive": 20,
+              "falsePositive": 2,
+              "falseNegative": 7,
+              "precision": 0.909091,
+              "recall": 0.740741,
+              "f1": 0.816327
+            },
+            "jdSkills": {
+              "truePositive": 35,
+              "falsePositive": 0,
+              "falseNegative": 0,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1
+            }
+          },
+          "requirementStatusAccuracy": {
+            "correct": 26,
+            "total": 35,
+            "rate": 0.742857
+          },
+          "unsupportedClaimRate": {
+            "count": 2,
+            "total": 21,
+            "rate": 0.095238
+          },
+          "citationIntegrity": {
+            "valid": 63,
+            "total": 63,
+            "rate": 1
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 21,
+            "supported": 21,
+            "totalRequirements": 39,
+            "supportedClaimCoverage": 1,
+            "allRequirementCoverage": 0.538462
+          },
+          "humanScoreAgreement": {
+            "status": "not-measured",
+            "reviewedCases": 0,
+            "reviews": 0,
+            "meanAbsoluteError": null,
+            "withinTenPointsRate": null,
+            "reason": "No independent human reviewer scores have been supplied; synthetic reference labels are not human score reviews."
+          },
+          "latencyMs": {
+            "scope": "Local raw-text parsing plus requirement matching; excludes upload, queue, database, network and UI.",
+            "samples": 6,
+            "p50": 47.2225,
+            "p95": 62.2024,
+            "mean": 46.565933
+          },
+          "providerCost": {
+            "mode": "offline-rules",
+            "externalRequests": 0,
+            "billedTokens": 0,
+            "costUsd": 0,
+            "scope": "No external provider calls; infrastructure and engineering cost excluded."
+          }
+        },
+        "experienced": {
+          "cases": 6,
+          "extractionAccuracy": {
+            "contactExact": {
+              "correct": 8,
+              "total": 12,
+              "rate": 0.666667
+            },
+            "resumeSkills": {
+              "truePositive": 24,
+              "falsePositive": 1,
+              "falseNegative": 15,
+              "precision": 0.96,
+              "recall": 0.615385,
+              "f1": 0.75
+            },
+            "jdSkills": {
+              "truePositive": 43,
+              "falsePositive": 0,
+              "falseNegative": 0,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1
+            }
+          },
+          "requirementStatusAccuracy": {
+            "correct": 27,
+            "total": 43,
+            "rate": 0.627907
+          },
+          "unsupportedClaimRate": {
+            "count": 1,
+            "total": 22,
+            "rate": 0.045455
+          },
+          "citationIntegrity": {
+            "valid": 71,
+            "total": 71,
+            "rate": 1
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 22,
+            "supported": 22,
+            "totalRequirements": 47,
+            "supportedClaimCoverage": 1,
+            "allRequirementCoverage": 0.468085
+          },
+          "humanScoreAgreement": {
+            "status": "not-measured",
+            "reviewedCases": 0,
+            "reviews": 0,
+            "meanAbsoluteError": null,
+            "withinTenPointsRate": null,
+            "reason": "No independent human reviewer scores have been supplied; synthetic reference labels are not human score reviews."
+          },
+          "latencyMs": {
+            "scope": "Local raw-text parsing plus requirement matching; excludes upload, queue, database, network and UI.",
+            "samples": 6,
+            "p50": 43.4314,
+            "p95": 79.2332,
+            "mean": 51.170017
+          },
+          "providerCost": {
+            "mode": "offline-rules",
+            "externalRequests": 0,
+            "billedTokens": 0,
+            "costUsd": 0,
+            "scope": "No external provider calls; infrastructure and engineering cost excluded."
+          }
+        },
+        "sparse": {
+          "cases": 6,
+          "extractionAccuracy": {
+            "contactExact": {
+              "correct": 12,
+              "total": 12,
+              "rate": 1
+            },
+            "resumeSkills": {
+              "truePositive": 8,
+              "falsePositive": 0,
+              "falseNegative": 1,
+              "precision": 1,
+              "recall": 0.888889,
+              "f1": 0.941176
+            },
+            "jdSkills": {
+              "truePositive": 20,
+              "falsePositive": 0,
+              "falseNegative": 0,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1
+            }
+          },
+          "requirementStatusAccuracy": {
+            "correct": 19,
+            "total": 20,
+            "rate": 0.95
+          },
+          "unsupportedClaimRate": {
+            "count": 0,
+            "total": 8,
+            "rate": 0
+          },
+          "citationIntegrity": {
+            "valid": 24,
+            "total": 24,
+            "rate": 1
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 8,
+            "supported": 8,
+            "totalRequirements": 20,
+            "supportedClaimCoverage": 1,
+            "allRequirementCoverage": 0.4
+          },
+          "humanScoreAgreement": {
+            "status": "not-measured",
+            "reviewedCases": 0,
+            "reviews": 0,
+            "meanAbsoluteError": null,
+            "withinTenPointsRate": null,
+            "reason": "No independent human reviewer scores have been supplied; synthetic reference labels are not human score reviews."
+          },
+          "latencyMs": {
+            "scope": "Local raw-text parsing plus requirement matching; excludes upload, queue, database, network and UI.",
+            "samples": 6,
+            "p50": 12.7451,
+            "p95": 21.8831,
+            "mean": 12.27255
+          },
+          "providerCost": {
+            "mode": "offline-rules",
+            "externalRequests": 0,
+            "billedTokens": 0,
+            "costUsd": 0,
+            "scope": "No external provider calls; infrastructure and engineering cost excluded."
+          }
+        },
+        "formatting": {
+          "cases": 6,
+          "extractionAccuracy": {
+            "contactExact": {
+              "correct": 2,
+              "total": 12,
+              "rate": 0.166667
+            },
+            "resumeSkills": {
+              "truePositive": 16,
+              "falsePositive": 2,
+              "falseNegative": 7,
+              "precision": 0.888889,
+              "recall": 0.695652,
+              "f1": 0.780488
+            },
+            "jdSkills": {
+              "truePositive": 29,
+              "falsePositive": 2,
+              "falseNegative": 2,
+              "precision": 0.935484,
+              "recall": 0.935484,
+              "f1": 0.935484
+            }
+          },
+          "requirementStatusAccuracy": {
+            "correct": 20,
+            "total": 31,
+            "rate": 0.645161
+          },
+          "unsupportedClaimRate": {
+            "count": 2,
+            "total": 17,
+            "rate": 0.117647
+          },
+          "citationIntegrity": {
+            "valid": 56,
+            "total": 56,
+            "rate": 1
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 18,
+            "supported": 18,
+            "totalRequirements": 31,
+            "supportedClaimCoverage": 1,
+            "allRequirementCoverage": 0.580645
+          },
+          "humanScoreAgreement": {
+            "status": "not-measured",
+            "reviewedCases": 0,
+            "reviews": 0,
+            "meanAbsoluteError": null,
+            "withinTenPointsRate": null,
+            "reason": "No independent human reviewer scores have been supplied; synthetic reference labels are not human score reviews."
+          },
+          "latencyMs": {
+            "scope": "Local raw-text parsing plus requirement matching; excludes upload, queue, database, network and UI.",
+            "samples": 6,
+            "p50": 27.4594,
+            "p95": 67.5986,
+            "mean": 38.018767
+          },
+          "providerCost": {
+            "mode": "offline-rules",
+            "externalRequests": 0,
+            "billedTokens": 0,
+            "costUsd": 0,
+            "scope": "No external provider calls; infrastructure and engineering cost excluded."
+          }
+        },
+        "misleading": {
+          "cases": 6,
+          "extractionAccuracy": {
+            "contactExact": {
+              "correct": 6,
+              "total": 12,
+              "rate": 0.5
+            },
+            "resumeSkills": {
+              "truePositive": 16,
+              "falsePositive": 6,
+              "falseNegative": 6,
+              "precision": 0.727273,
+              "recall": 0.727273,
+              "f1": 0.727273
+            },
+            "jdSkills": {
+              "truePositive": 35,
+              "falsePositive": 0,
+              "falseNegative": 0,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1
+            }
+          },
+          "requirementStatusAccuracy": {
+            "correct": 24,
+            "total": 35,
+            "rate": 0.685714
+          },
+          "unsupportedClaimRate": {
+            "count": 5,
+            "total": 21,
+            "rate": 0.238095
+          },
+          "citationIntegrity": {
+            "valid": 69,
+            "total": 69,
+            "rate": 1
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 21,
+            "supported": 21,
+            "totalRequirements": 35,
+            "supportedClaimCoverage": 1,
+            "allRequirementCoverage": 0.6
+          },
+          "humanScoreAgreement": {
+            "status": "not-measured",
+            "reviewedCases": 0,
+            "reviews": 0,
+            "meanAbsoluteError": null,
+            "withinTenPointsRate": null,
+            "reason": "No independent human reviewer scores have been supplied; synthetic reference labels are not human score reviews."
+          },
+          "latencyMs": {
+            "scope": "Local raw-text parsing plus requirement matching; excludes upload, queue, database, network and UI.",
+            "samples": 6,
+            "p50": 46.8674,
+            "p95": 101.0282,
+            "mean": 51.24805
+          },
+          "providerCost": {
+            "mode": "offline-rules",
+            "externalRequests": 0,
+            "billedTokens": 0,
+            "costUsd": 0,
+            "scope": "No external provider calls; infrastructure and engineering cost excluded."
+          }
+        }
+      },
+      "cases": [
+        {
+          "id": "v4-graduate-civic-maps",
+          "group": "graduate",
+          "matchScore": 63,
+          "latencyMs": 62.20240000000001,
+          "resumeSkills": {
+            "truePositive": 4,
+            "falsePositive": 0,
+            "falseNegative": 1
+          },
+          "contacts": {
+            "correct": 2,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 6,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 5,
+            "total": 6
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 4
+          },
+          "citationIntegrity": {
+            "valid": 12,
+            "total": 12
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 4,
+            "supported": 4,
+            "totalRequirements": 7
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [
+              "Accessibility"
+            ],
+            "contacts": [],
+            "requirements": [
+              {
+                "requirement": "requiredSkills:accessibility",
+                "expected": "supported",
+                "actual": "missing"
+              }
+            ]
+          }
+        },
+        {
+          "id": "v4-graduate-marsh-survey",
+          "group": "graduate",
+          "matchScore": 71,
+          "latencyMs": 51.46530000000001,
+          "resumeSkills": {
+            "truePositive": 3,
+            "falsePositive": 1,
+            "falseNegative": 1
+          },
+          "contacts": {
+            "correct": 2,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 6,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 4,
+            "total": 6
+          },
+          "unsupportedClaims": {
+            "count": 1,
+            "total": 4
+          },
+          "citationIntegrity": {
+            "valid": 12,
+            "total": 12
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 4,
+            "supported": 4,
+            "totalRequirements": 7
+          },
+          "failures": {
+            "unexpectedSkills": [
+              "PostgreSQL"
+            ],
+            "missingSkills": [
+              "Scikit-Learn"
+            ],
+            "contacts": [],
+            "requirements": [
+              {
+                "requirement": "preferredSkills:scikit-learn",
+                "expected": "supported",
+                "actual": "missing"
+              },
+              {
+                "requirement": "preferredSkills:postgresql",
+                "expected": "missing",
+                "actual": "supported"
+              }
+            ]
+          }
+        },
+        {
+          "id": "v4-graduate-library-loans",
+          "group": "graduate",
+          "matchScore": 93,
+          "latencyMs": 47.222500000000025,
+          "resumeSkills": {
+            "truePositive": 5,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "contacts": {
+            "correct": 1,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 6,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 6,
+            "total": 6
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 5
+          },
+          "citationIntegrity": {
+            "valid": 15,
+            "total": 15
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 5,
+            "supported": 5,
+            "totalRequirements": 6
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [],
+            "contacts": [
+              "name"
+            ],
+            "requirements": []
+          }
+        },
+        {
+          "id": "v4-graduate-museum-membership",
+          "group": "graduate",
+          "matchScore": 44,
+          "latencyMs": 22.76690000000002,
+          "resumeSkills": {
+            "truePositive": 2,
+            "falsePositive": 0,
+            "falseNegative": 1
+          },
+          "contacts": {
+            "correct": 2,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 5,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 4,
+            "total": 5
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 2
+          },
+          "citationIntegrity": {
+            "valid": 6,
+            "total": 6
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 2,
+            "supported": 2,
+            "totalRequirements": 5
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [
+              "User Research"
+            ],
+            "contacts": [],
+            "requirements": [
+              {
+                "requirement": "requiredSkills:user research",
+                "expected": "supported",
+                "actual": "missing"
+              }
+            ]
+          }
+        },
+        {
+          "id": "v4-graduate-greenhouse-robot",
+          "group": "graduate",
+          "matchScore": 50,
+          "latencyMs": 51.32560000000001,
+          "resumeSkills": {
+            "truePositive": 2,
+            "falsePositive": 1,
+            "falseNegative": 2
+          },
+          "contacts": {
+            "correct": 1,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 6,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 3,
+            "total": 6
+          },
+          "unsupportedClaims": {
+            "count": 1,
+            "total": 3
+          },
+          "citationIntegrity": {
+            "valid": 9,
+            "total": 9
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 3,
+            "supported": 3,
+            "totalRequirements": 7
+          },
+          "failures": {
+            "unexpectedSkills": [
+              "Python"
+            ],
+            "missingSkills": [
+              "C++",
+              "Git"
+            ],
+            "contacts": [
+              "name"
+            ],
+            "requirements": [
+              {
+                "requirement": "requiredSkills:c++",
+                "expected": "supported",
+                "actual": "missing"
+              },
+              {
+                "requirement": "preferredSkills:python",
+                "expected": "missing",
+                "actual": "supported"
+              },
+              {
+                "requirement": "preferredSkills:git",
+                "expected": "supported",
+                "actual": "missing"
+              }
+            ]
+          }
+        },
+        {
+          "id": "v4-graduate-ticketing-tests",
+          "group": "graduate",
+          "matchScore": 50,
+          "latencyMs": 44.412900000000036,
+          "resumeSkills": {
+            "truePositive": 4,
+            "falsePositive": 0,
+            "falseNegative": 2
+          },
+          "contacts": {
+            "correct": 1,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 6,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 4,
+            "total": 6
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 3
+          },
+          "citationIntegrity": {
+            "valid": 9,
+            "total": 9
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 3,
+            "supported": 3,
+            "totalRequirements": 7
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [
+              "CI/CD",
+              "Git"
+            ],
+            "contacts": [
+              "name"
+            ],
+            "requirements": [
+              {
+                "requirement": "requiredSkills:ci/cd",
+                "expected": "supported",
+                "actual": "missing"
+              },
+              {
+                "requirement": "preferredSkills:git",
+                "expected": "supported",
+                "actual": "missing"
+              }
+            ]
+          }
+        },
+        {
+          "id": "v4-experienced-freight-routing",
+          "group": "experienced",
+          "matchScore": 60,
+          "latencyMs": 79.23320000000001,
+          "resumeSkills": {
+            "truePositive": 5,
+            "falsePositive": 0,
+            "falseNegative": 2
+          },
+          "contacts": {
+            "correct": 0,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 8,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 6,
+            "total": 8
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 4
+          },
+          "citationIntegrity": {
+            "valid": 13,
+            "total": 13
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 4,
+            "supported": 4,
+            "totalRequirements": 9
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [
+              "PostgreSQL",
+              "Redis"
+            ],
+            "contacts": [
+              "name",
+              "email"
+            ],
+            "requirements": [
+              {
+                "requirement": "requiredSkills:postgresql",
+                "expected": "supported",
+                "actual": "missing"
+              },
+              {
+                "requirement": "preferredSkills:redis",
+                "expected": "supported",
+                "actual": "missing"
+              }
+            ]
+          }
+        },
+        {
+          "id": "v4-experienced-permit-office",
+          "group": "experienced",
+          "matchScore": 59,
+          "latencyMs": 43.43139999999994,
+          "resumeSkills": {
+            "truePositive": 4,
+            "falsePositive": 0,
+            "falseNegative": 2
+          },
+          "contacts": {
+            "correct": 2,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 7,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 5,
+            "total": 7
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 4
+          },
+          "citationIntegrity": {
+            "valid": 12,
+            "total": 12
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 4,
+            "supported": 4,
+            "totalRequirements": 8
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [
+              "Azure",
+              "CI/CD"
+            ],
+            "contacts": [],
+            "requirements": [
+              {
+                "requirement": "requiredSkills:azure",
+                "expected": "supported",
+                "actual": "missing"
+              },
+              {
+                "requirement": "preferredSkills:ci/cd",
+                "expected": "supported",
+                "actual": "missing"
+              }
+            ]
+          }
+        },
+        {
+          "id": "v4-experienced-instrument-shop",
+          "group": "experienced",
+          "matchScore": 24,
+          "latencyMs": 28.05409999999995,
+          "resumeSkills": {
+            "truePositive": 2,
+            "falsePositive": 0,
+            "falseNegative": 5
+          },
+          "contacts": {
+            "correct": 2,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 7,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 3,
+            "total": 7
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 2
+          },
+          "citationIntegrity": {
+            "valid": 6,
+            "total": 6
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 2,
+            "supported": 2,
+            "totalRequirements": 8
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [
+              "PHP",
+              "Laravel",
+              "MySQL",
+              "Redis",
+              "Git"
+            ],
+            "contacts": [],
+            "requirements": [
+              {
+                "requirement": "requiredSkills:php",
+                "expected": "supported",
+                "actual": "missing"
+              },
+              {
+                "requirement": "requiredSkills:laravel",
+                "expected": "supported",
+                "actual": "missing"
+              },
+              {
+                "requirement": "requiredSkills:mysql",
+                "expected": "supported",
+                "actual": "missing"
+              },
+              {
+                "requirement": "preferredSkills:redis",
+                "expected": "supported",
+                "actual": "missing"
+              }
+            ]
+          }
+        },
+        {
+          "id": "v4-experienced-crop-images",
+          "group": "experienced",
+          "matchScore": 93,
+          "latencyMs": 62.76189999999997,
+          "resumeSkills": {
+            "truePositive": 7,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "contacts": {
+            "correct": 2,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 7,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 7,
+            "total": 7
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 6
+          },
+          "citationIntegrity": {
+            "valid": 19,
+            "total": 19
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 6,
+            "supported": 6,
+            "totalRequirements": 7
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [],
+            "contacts": [],
+            "requirements": []
+          }
+        },
+        {
+          "id": "v4-experienced-reading-room",
+          "group": "experienced",
+          "matchScore": 24,
+          "latencyMs": 58.54200000000003,
+          "resumeSkills": {
+            "truePositive": 3,
+            "falsePositive": 0,
+            "falseNegative": 3
+          },
+          "contacts": {
+            "correct": 0,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 7,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 3,
+            "total": 7
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 2
+          },
+          "citationIntegrity": {
+            "valid": 9,
+            "total": 9
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 2,
+            "supported": 2,
+            "totalRequirements": 8
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [
+              "React",
+              "Next.js",
+              "TypeScript"
+            ],
+            "contacts": [
+              "name",
+              "email"
+            ],
+            "requirements": [
+              {
+                "requirement": "requiredSkills:react",
+                "expected": "supported",
+                "actual": "missing"
+              },
+              {
+                "requirement": "requiredSkills:next.js",
+                "expected": "supported",
+                "actual": "missing"
+              },
+              {
+                "requirement": "requiredSkills:typescript",
+                "expected": "supported",
+                "actual": "missing"
+              },
+              {
+                "requirement": "preferredSkills:figma",
+                "expected": "missing",
+                "actual": "uncertain"
+              }
+            ]
+          }
+        },
+        {
+          "id": "v4-experienced-ferry-product",
+          "group": "experienced",
+          "matchScore": 46,
+          "latencyMs": 34.99750000000006,
+          "resumeSkills": {
+            "truePositive": 3,
+            "falsePositive": 1,
+            "falseNegative": 3
+          },
+          "contacts": {
+            "correct": 2,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 7,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 3,
+            "total": 7
+          },
+          "unsupportedClaims": {
+            "count": 1,
+            "total": 4
+          },
+          "citationIntegrity": {
+            "valid": 12,
+            "total": 12
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 4,
+            "supported": 4,
+            "totalRequirements": 7
+          },
+          "failures": {
+            "unexpectedSkills": [
+              "Scrum"
+            ],
+            "missingSkills": [
+              "Product Strategy",
+              "Roadmapping",
+              "Communication"
+            ],
+            "contacts": [],
+            "requirements": [
+              {
+                "requirement": "requiredSkills:product strategy",
+                "expected": "supported",
+                "actual": "missing"
+              },
+              {
+                "requirement": "requiredSkills:roadmapping",
+                "expected": "supported",
+                "actual": "missing"
+              },
+              {
+                "requirement": "preferredSkills:communication",
+                "expected": "supported",
+                "actual": "missing"
+              },
+              {
+                "requirement": "preferredSkills:scrum",
+                "expected": "missing",
+                "actual": "supported"
+              }
+            ]
+          }
+        },
+        {
+          "id": "v4-sparse-market-counts",
+          "group": "sparse",
+          "matchScore": 86,
+          "latencyMs": 12.74509999999998,
+          "resumeSkills": {
+            "truePositive": 2,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "contacts": {
+            "correct": 2,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 3,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 3,
+            "total": 3
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 2
+          },
+          "citationIntegrity": {
+            "valid": 6,
+            "total": 6
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 2,
+            "supported": 2,
+            "totalRequirements": 3
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [],
+            "contacts": [],
+            "requirements": []
+          }
+        },
+        {
+          "id": "v4-sparse-choir-page",
+          "group": "sparse",
+          "matchScore": 75,
+          "latencyMs": 21.883100000000013,
+          "resumeSkills": {
+            "truePositive": 2,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "contacts": {
+            "correct": 2,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 4,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 4,
+            "total": 4
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 2
+          },
+          "citationIntegrity": {
+            "valid": 6,
+            "total": 6
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 2,
+            "supported": 2,
+            "totalRequirements": 4
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [],
+            "contacts": [],
+            "requirements": []
+          }
+        },
+        {
+          "id": "v4-sparse-radio-station",
+          "group": "sparse",
+          "matchScore": 86,
+          "latencyMs": 13.336000000000013,
+          "resumeSkills": {
+            "truePositive": 2,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "contacts": {
+            "correct": 2,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 3,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 3,
+            "total": 3
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 2
+          },
+          "citationIntegrity": {
+            "valid": 6,
+            "total": 6
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 2,
+            "supported": 2,
+            "totalRequirements": 3
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [],
+            "contacts": [],
+            "requirements": []
+          }
+        },
+        {
+          "id": "v4-sparse-print-dispatch",
+          "group": "sparse",
+          "matchScore": 0,
+          "latencyMs": 4.8740999999999985,
+          "resumeSkills": {
+            "truePositive": 0,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "contacts": {
+            "correct": 2,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 3,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 3,
+            "total": 3
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 0
+          },
+          "citationIntegrity": {
+            "valid": 0,
+            "total": 0
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 0,
+            "supported": 0,
+            "totalRequirements": 3
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [],
+            "contacts": [],
+            "requirements": []
+          }
+        },
+        {
+          "id": "v4-sparse-zine-workshop",
+          "group": "sparse",
+          "matchScore": 0,
+          "latencyMs": 4.556700000000092,
+          "resumeSkills": {
+            "truePositive": 0,
+            "falsePositive": 0,
+            "falseNegative": 1
+          },
+          "contacts": {
+            "correct": 2,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 3,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 2,
+            "total": 3
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 0
+          },
+          "citationIntegrity": {
+            "valid": 0,
+            "total": 0
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 0,
+            "supported": 0,
+            "totalRequirements": 3
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [
+              "Figma"
+            ],
+            "contacts": [],
+            "requirements": [
+              {
+                "requirement": "requiredSkills:figma",
+                "expected": "supported",
+                "actual": "missing"
+              }
+            ]
+          }
+        },
+        {
+          "id": "v4-sparse-ceramic-ledger",
+          "group": "sparse",
+          "matchScore": 75,
+          "latencyMs": 16.240299999999934,
+          "resumeSkills": {
+            "truePositive": 2,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "contacts": {
+            "correct": 2,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 4,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 4,
+            "total": 4
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 2
+          },
+          "citationIntegrity": {
+            "valid": 6,
+            "total": 6
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 2,
+            "supported": 2,
+            "totalRequirements": 4
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [],
+            "contacts": [],
+            "requirements": []
+          }
+        },
+        {
+          "id": "v4-formatting-costume-catalog",
+          "group": "formatting",
+          "matchScore": 83,
+          "latencyMs": 44.893299999999954,
+          "resumeSkills": {
+            "truePositive": 4,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "contacts": {
+            "correct": 0,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 6,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 6,
+            "total": 6
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 4
+          },
+          "citationIntegrity": {
+            "valid": 14,
+            "total": 14
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 4,
+            "supported": 4,
+            "totalRequirements": 6
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [],
+            "contacts": [
+              "name",
+              "email"
+            ],
+            "requirements": []
+          }
+        },
+        {
+          "id": "v4-formatting-heating-meter",
+          "group": "formatting",
+          "matchScore": 100,
+          "latencyMs": 67.59860000000003,
+          "resumeSkills": {
+            "truePositive": 3,
+            "falsePositive": 2,
+            "falseNegative": 0
+          },
+          "contacts": {
+            "correct": 1,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 5,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 3,
+            "total": 5
+          },
+          "unsupportedClaims": {
+            "count": 2,
+            "total": 5
+          },
+          "citationIntegrity": {
+            "valid": 15,
+            "total": 15
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 5,
+            "supported": 5,
+            "totalRequirements": 5
+          },
+          "failures": {
+            "unexpectedSkills": [
+              "MongoDB",
+              "Redis"
+            ],
+            "missingSkills": [],
+            "contacts": [
+              "email"
+            ],
+            "requirements": [
+              {
+                "requirement": "preferredSkills:mongodb",
+                "expected": "missing",
+                "actual": "supported"
+              },
+              {
+                "requirement": "preferredSkills:redis",
+                "expected": "missing",
+                "actual": "supported"
+              }
+            ]
+          }
+        },
+        {
+          "id": "v4-formatting-archive-checksums",
+          "group": "formatting",
+          "matchScore": 0,
+          "latencyMs": 11.330999999999904,
+          "resumeSkills": {
+            "truePositive": 0,
+            "falsePositive": 0,
+            "falseNegative": 4
+          },
+          "contacts": {
+            "correct": 1,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 5,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 1,
+            "total": 5
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 0
+          },
+          "citationIntegrity": {
+            "valid": 0,
+            "total": 0
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 0,
+            "supported": 0,
+            "totalRequirements": 5
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [
+              "Rust",
+              "Linux",
+              "Git",
+              "Docker"
+            ],
+            "contacts": [
+              "name"
+            ],
+            "requirements": [
+              {
+                "requirement": "requiredSkills:rust",
+                "expected": "supported",
+                "actual": "missing"
+              },
+              {
+                "requirement": "requiredSkills:linux",
+                "expected": "supported",
+                "actual": "missing"
+              },
+              {
+                "requirement": "requiredSkills:git",
+                "expected": "supported",
+                "actual": "missing"
+              },
+              {
+                "requirement": "preferredSkills:docker",
+                "expected": "supported",
+                "actual": "missing"
+              }
+            ]
+          }
+        },
+        {
+          "id": "v4-formatting-harbor-simulation",
+          "group": "formatting",
+          "matchScore": 40,
+          "latencyMs": 27.45939999999996,
+          "resumeSkills": {
+            "truePositive": 2,
+            "falsePositive": 0,
+            "falseNegative": 2
+          },
+          "contacts": {
+            "correct": 0,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 3,
+            "falsePositive": 2,
+            "falseNegative": 2
+          },
+          "requirementStatus": {
+            "correct": 1,
+            "total": 5
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 1
+          },
+          "citationIntegrity": {
+            "valid": 6,
+            "total": 6
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 2,
+            "supported": 2,
+            "totalRequirements": 5
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [
+              "Algorithms",
+              "Data Structures"
+            ],
+            "contacts": [
+              "name",
+              "email"
+            ],
+            "requirements": [
+              {
+                "requirement": "requiredSkills:algorithms",
+                "expected": "supported",
+                "actual": "missing"
+              },
+              {
+                "requirement": "requiredSkills:data structures",
+                "expected": "supported",
+                "actual": "missing"
+              },
+              {
+                "requirement": "preferredSkills:python",
+                "expected": "supported",
+                "actual": "not-extracted"
+              },
+              {
+                "requirement": "preferredSkills:java",
+                "expected": "missing",
+                "actual": "not-extracted"
+              }
+            ]
+          }
+        },
+        {
+          "id": "v4-formatting-form-workshop",
+          "group": "formatting",
+          "matchScore": 50,
+          "latencyMs": 25.582799999999907,
+          "resumeSkills": {
+            "truePositive": 2,
+            "falsePositive": 0,
+            "falseNegative": 1
+          },
+          "contacts": {
+            "correct": 0,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 4,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 3,
+            "total": 4
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 2
+          },
+          "citationIntegrity": {
+            "valid": 6,
+            "total": 6
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 2,
+            "supported": 2,
+            "totalRequirements": 4
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [
+              "User Research"
+            ],
+            "contacts": [
+              "name",
+              "email"
+            ],
+            "requirements": [
+              {
+                "requirement": "requiredSkills:user research",
+                "expected": "supported",
+                "actual": "missing"
+              }
+            ]
+          }
+        },
+        {
+          "id": "v4-formatting-trail-status",
+          "group": "formatting",
+          "matchScore": 92,
+          "latencyMs": 51.247499999999945,
+          "resumeSkills": {
+            "truePositive": 5,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "contacts": {
+            "correct": 0,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 6,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 6,
+            "total": 6
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 5
+          },
+          "citationIntegrity": {
+            "valid": 15,
+            "total": 15
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 5,
+            "supported": 5,
+            "totalRequirements": 6
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [],
+            "contacts": [
+              "name",
+              "email"
+            ],
+            "requirements": []
+          }
+        },
+        {
+          "id": "v4-misleading-studio-cloud",
+          "group": "misleading",
+          "matchScore": 71,
+          "latencyMs": 53.25070000000005,
+          "resumeSkills": {
+            "truePositive": 4,
+            "falsePositive": 1,
+            "falseNegative": 0
+          },
+          "contacts": {
+            "correct": 2,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 6,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 6,
+            "total": 6
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 4
+          },
+          "citationIntegrity": {
+            "valid": 12,
+            "total": 12
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 4,
+            "supported": 4,
+            "totalRequirements": 6
+          },
+          "failures": {
+            "unexpectedSkills": [
+              "Figma"
+            ],
+            "missingSkills": [],
+            "contacts": [],
+            "requirements": []
+          }
+        },
+        {
+          "id": "v4-misleading-warranty-migration",
+          "group": "misleading",
+          "matchScore": 21,
+          "latencyMs": 22.445500000000038,
+          "resumeSkills": {
+            "truePositive": 0,
+            "falsePositive": 1,
+            "falseNegative": 3
+          },
+          "contacts": {
+            "correct": 2,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 6,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 2,
+            "total": 6
+          },
+          "unsupportedClaims": {
+            "count": 1,
+            "total": 1
+          },
+          "citationIntegrity": {
+            "valid": 3,
+            "total": 3
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 1,
+            "supported": 1,
+            "totalRequirements": 6
+          },
+          "failures": {
+            "unexpectedSkills": [
+              "Kafka"
+            ],
+            "missingSkills": [
+              "Java",
+              "Spring Boot",
+              "REST API"
+            ],
+            "contacts": [],
+            "requirements": [
+              {
+                "requirement": "requiredSkills:java",
+                "expected": "supported",
+                "actual": "missing"
+              },
+              {
+                "requirement": "requiredSkills:spring boot",
+                "expected": "supported",
+                "actual": "missing"
+              },
+              {
+                "requirement": "requiredSkills:rest api",
+                "expected": "supported",
+                "actual": "missing"
+              },
+              {
+                "requirement": "requiredSkills:kafka",
+                "expected": "missing",
+                "actual": "supported"
+              }
+            ]
+          }
+        },
+        {
+          "id": "v4-misleading-water-quality",
+          "group": "misleading",
+          "matchScore": 83,
+          "latencyMs": 101.02819999999997,
+          "resumeSkills": {
+            "truePositive": 4,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "contacts": {
+            "correct": 2,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 6,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 6,
+            "total": 6
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 4
+          },
+          "citationIntegrity": {
+            "valid": 16,
+            "total": 16
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 4,
+            "supported": 4,
+            "totalRequirements": 6
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [],
+            "contacts": [],
+            "requirements": []
+          }
+        },
+        {
+          "id": "v4-misleading-gallery-refresh",
+          "group": "misleading",
+          "matchScore": 27,
+          "latencyMs": 32.91509999999994,
+          "resumeSkills": {
+            "truePositive": 0,
+            "falsePositive": 1,
+            "falseNegative": 3
+          },
+          "contacts": {
+            "correct": 0,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 5,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 1,
+            "total": 5
+          },
+          "unsupportedClaims": {
+            "count": 1,
+            "total": 1
+          },
+          "citationIntegrity": {
+            "valid": 4,
+            "total": 4
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 1,
+            "supported": 1,
+            "totalRequirements": 5
+          },
+          "failures": {
+            "unexpectedSkills": [
+              "JavaScript"
+            ],
+            "missingSkills": [
+              "HTML",
+              "CSS",
+              "Sass"
+            ],
+            "contacts": [
+              "name",
+              "email"
+            ],
+            "requirements": [
+              {
+                "requirement": "requiredSkills:html",
+                "expected": "supported",
+                "actual": "missing"
+              },
+              {
+                "requirement": "requiredSkills:css",
+                "expected": "supported",
+                "actual": "missing"
+              },
+              {
+                "requirement": "requiredSkills:javascript",
+                "expected": "uncertain",
+                "actual": "supported"
+              },
+              {
+                "requirement": "preferredSkills:sass",
+                "expected": "supported",
+                "actual": "missing"
+              }
+            ]
+          }
+        },
+        {
+          "id": "v4-misleading-plaque-inspections",
+          "group": "misleading",
+          "matchScore": 100,
+          "latencyMs": 50.98140000000012,
+          "resumeSkills": {
+            "truePositive": 4,
+            "falsePositive": 2,
+            "falseNegative": 0
+          },
+          "contacts": {
+            "correct": 0,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 6,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 4,
+            "total": 6
+          },
+          "unsupportedClaims": {
+            "count": 2,
+            "total": 6
+          },
+          "citationIntegrity": {
+            "valid": 18,
+            "total": 18
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 6,
+            "supported": 6,
+            "totalRequirements": 6
+          },
+          "failures": {
+            "unexpectedSkills": [
+              "FastAPI",
+              "MongoDB"
+            ],
+            "missingSkills": [],
+            "contacts": [
+              "name",
+              "email"
+            ],
+            "requirements": [
+              {
+                "requirement": "preferredSkills:fastapi",
+                "expected": "missing",
+                "actual": "supported"
+              },
+              {
+                "requirement": "preferredSkills:mongodb",
+                "expected": "missing",
+                "actual": "supported"
+              }
+            ]
+          }
+        },
+        {
+          "id": "v4-misleading-transit-display",
+          "group": "misleading",
+          "matchScore": 75,
+          "latencyMs": 46.86739999999986,
+          "resumeSkills": {
+            "truePositive": 4,
+            "falsePositive": 1,
+            "falseNegative": 0
+          },
+          "contacts": {
+            "correct": 0,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 6,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 5,
+            "total": 6
+          },
+          "unsupportedClaims": {
+            "count": 1,
+            "total": 5
+          },
+          "citationIntegrity": {
+            "valid": 16,
+            "total": 16
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 5,
+            "supported": 5,
+            "totalRequirements": 6
+          },
+          "failures": {
+            "unexpectedSkills": [
+              "Java"
+            ],
+            "missingSkills": [],
+            "contacts": [
+              "name",
+              "email"
+            ],
+            "requirements": [
+              {
+                "requirement": "preferredSkills:java",
+                "expected": "missing",
+                "actual": "supported"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}
