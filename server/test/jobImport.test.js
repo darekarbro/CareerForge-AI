@@ -42,7 +42,10 @@ test('preview never saves, detects tracked and archived aliases within the owner
 
 test('manual entries are recognized and source failures provide a manual fallback', async () => {
   const origin = imports.source('https://boards.greenhouse.io/acme/jobs/12');
-  assert(imports.matchingWorkspace([{ company: ' ACME ', title: 'Engineer' }], origin, { company: 'Acme', title: 'engineer' }));
+  const imported = { company: 'Acme', title: 'engineer', description: 'Build Python services.' };
+  assert(imports.matchingWorkspace([{ company: ' ACME ', title: 'Engineer', description: 'Build Python services.' }], origin, imported));
+  assert.equal(imports.matchingWorkspace([{ company: 'Acme', title: 'Engineer', description: imported.description, jobUrl: 'https://boards.greenhouse.io/acme/jobs/13' }], origin, imported), undefined);
+  assert.equal(imports.matchingWorkspace([{ company: 'Acme', title: 'Engineer', description: 'Build React interfaces.' }], origin, imported), undefined);
   await assert.rejects(imports.preview('owner', { url: origin.jobUrl }, { get: async () => { throw new Error('redirect'); } }), /manually/);
   await assert.rejects(imports.preview('owner', { url: origin.jobUrl, save: true }), /Provide a job URL/);
   await assert.rejects(imports.preview('owner', { url: origin.jobUrl }, { get: async () => ({ status: 302 }) }), /manually/);

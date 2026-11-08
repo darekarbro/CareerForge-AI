@@ -49,8 +49,12 @@ function fields(job, origin) {
 function matchingWorkspace(items, origin, imported) {
   const norm = (value) => String(value || '').normalize('NFKC').trim().toLowerCase().replace(/\s+/g, ' ');
   return items.find((item) => {
-    try { if (source(item.jobUrl).key === origin.key) return true; } catch { /* Saved manual source. */ }
-    return norm(item.company) === norm(imported.company) && norm(item.title) === norm(imported.title);
+    // Distinct posting IDs remain separate opportunities even when an employer
+    // uses the same role title for several openings. Manual entries without a
+    // URL need the same description too before they count as a duplicate.
+    try { return source(item.jobUrl).key === origin.key; } catch { /* Saved manual source. */ }
+    return !item.jobUrl && norm(item.company) === norm(imported.company) && norm(item.title) === norm(imported.title)
+      && Boolean(item.description) && norm(item.description) === norm(imported.description);
   });
 }
 async function preview(owner, input, dependencies = {}) {
@@ -62,7 +66,7 @@ async function preview(owner, input, dependencies = {}) {
     if (response.status < 200 || response.status >= 300) throw new Error('Source unavailable');
   } catch { throw fail('The public job API is unavailable or this posting is no longer published. Paste the job details manually.', 422); }
   const result = fields(response.data, origin);
-  const items = dependencies.findExisting ? await dependencies.findExisting(owner) : await require('../models/JobWorkspace').find({ owner }).select('company title jobUrl archivedAt').lean();
+  const items = dependencies.findExisting ? await dependencies.findExisting(owner) : await require('../models/JobWorkspace').find({ owner }).select('company title description jobUrl archivedAt').lean();
   const duplicate = matchingWorkspace(items, origin, result.fields);
   return { ...result, source: { provider: origin.provider, url: origin.jobUrl, documentation: origin.documentation, fetchedAt: new Date().toISOString() }, duplicate: duplicate ? { workspaceId: String(duplicate._id), archived: Boolean(duplicate.archivedAt) } : null };
 }
