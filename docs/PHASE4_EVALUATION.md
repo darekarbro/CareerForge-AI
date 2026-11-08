@@ -44,6 +44,10 @@ The frozen v5 engine's first run on dataset v4 is recorded with its dataset lock
 
 Separate reports cover non-skill requirement and practice quality on synthetic challenges, and actual Groq extraction and interview responses with usage and timing. [Expanded evaluation](PHASE4_EXPANDED_VALIDATION.md) · [Live evaluation](PHASE4_LIVE_VALIDATION.md)
 
+## V6 regression measurements
+
+The v6 reruns use the published v1–v4 fixtures, the expanded experience and interview cases, and the existing live Groq benchmark. Results include the original first-pass comparisons, the live case failure and the scope of the offline scoring checks. [V6 results and reproduction commands](PHASE4_V6_REGRESSION_RESULTS.md)
+
 ## Metric definitions
 
 | Metric | Definition and scope |

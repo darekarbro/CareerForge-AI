@@ -25,7 +25,13 @@ Phase 4 provides inspectable assessment evidence, answer-driven interview routin
 
 Adaptive sessions answer in order so future prompts cannot collect drafts before adaptation. The first topic can continue through the entire session; use separate focused sessions for broader coverage. A one-question session has no follow-up slot. Existing sessions retain their saved fixed/adaptive behavior.
 
+Offline practice checks selected binary search, transaction atomicity and HTTP storage questions. Other technical topics keep their answer history with provisional feedback. Those provisional answers do not establish competency strengths or gaps or create interview-based learning tasks. [Offline scoring and routing](docs/ADAPTIVE_INTERVIEWS.md)
+
 ## Validation status
+
+Assessment v6 passed all 30 public v4 regression cases with 60/60 exact contact fields, 120/120 skills, 164/164 correct requirement decisions and 0/115 unsupported positive decisions. The expanded rerun matched all 11 experience judgments, all eight practical constraints and all 10 offline technical bands and follow-up branches. The live rerun accepted 15/16 cases, with 100% resume skill F1 and 7/8 end-to-end interview cases matching both the expected band and branch. One interview case failed after HTTP success. These reruns measure the published inputs. [V6 regression and live results](docs/PHASE4_V6_REGRESSION_RESULTS.md)
+
+### Frozen v5 results
 
 The frozen v5 engine's first pass on 30 new v4 cases achieved 78.14% skill F1, 116/164 correct requirement statuses and 37/60 exact contact fields. Ten of 89 labeled positive decisions were unsupported by the reference evidence. Third-party attribution accounted for eight of those ten decisions. [Fresh holdout results](docs/PHASE4_V5_HOLDOUT_RESULTS.md)
 
@@ -35,7 +41,9 @@ The live Groq GPT-OSS 120B benchmark accepted all 16 fictional cases. Resume ski
 
 The broader offline suite matched 6/11 experience judgments and 5/8 constraint judgments. Interview technical bands and follow-up branches each matched 4/10 references. Three supported experience decisions lacked sufficient evidence. Practice history retained all six answer links, while competency statuses and learning recommendations showed semantic errors in the tested history. [Expanded validation](docs/PHASE4_EXPANDED_VALIDATION.md)
 
-Human scoring agreement is pending two independent ballots. Each reviewer scores the same 10 fictional cases from the published v1 holdout using the v5 rubric. The evaluator can calculate agreement once both reviewers return their scores. [Reviewer packet](docs/PHASE4_HUMAN_REVIEW_PACKET.md) · [Blank ballot](server/evaluation/human-review.v5-holdout.ballot.json)
+### Independent human scoring
+
+Human scoring agreement is pending two independent ballots. Each reviewer scores the same 10 fictional cases from the published v1 holdout using the v5 rubric. The evaluator compares both ballots against the archived v5 predictions once they are complete. [Reviewer packet](docs/PHASE4_HUMAN_REVIEW_PACKET.md) · [Blank ballot](server/evaluation/human-review.v5-holdout.ballot.json)
 
 ## Reproduce verification
 
