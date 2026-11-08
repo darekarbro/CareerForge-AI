@@ -29,6 +29,23 @@ test('Phase 4: alternative qualifications, source instructions and context need 
   assert(result.unclassified.length >= 2);
 });
 
+test('Phase 4: bracketed headings set the category for later and inline requirements', () => {
+  const result = extractRequirements('[REQUIRED SKILLS]\nPython\n[PREFERRED SKILLS] Java\nReact\n[Required skills]\nDocker');
+  assert.deepEqual(result.requiredSkills.map(item => item.label), ['Python', 'Docker']);
+  assert.deepEqual(result.preferredSkills.map(item => item.label), ['Java', 'React']);
+  assert.equal(result.preferredSkills[0].sourceText, '[PREFERRED SKILLS] Java');
+});
+
+test('Phase 4: separate duration phrases keep their units, lower bounds, and skill scopes', () => {
+  const source = 'Preferred: 18 months with Python and 2–4 years with PostgreSQL';
+  const result = extractRequirements(source);
+  assert.deepEqual(result.experience.map(({ minimumYears, scopeSkills, optional }) => ({ minimumYears, scopeSkills, optional })), [
+    { minimumYears: 1.5, scopeSkills: ['Python'], optional: true },
+    { minimumYears: 2, scopeSkills: ['PostgreSQL'], optional: true },
+  ]);
+  assert(result.experience.every(item => source.includes(item.sourceText)));
+});
+
 test('Phase 4: job-description documents persist extraction when source text changes', async () => {
   const Model = require('../src/models/JobDescription');
   const item = new Model({ owner: new (require('mongoose').Types.ObjectId)(), targetRole: 'Engineer', rawText: 'Python required; Docker preferred; Hybrid location' });

@@ -1,10 +1,91 @@
-const { hasSkill, plain } = require('../providers/resumeFacts');
-const { extractRequirements } = require('./jobRequirements');
+const { extractSkills, hasSkill, normalizeSkill, plain } = require('../providers/resumeFacts');
+const { extractRequirements, experienceDurations } = require('./jobRequirements');
 const { rubric } = require('./assessmentRubrics');
 const { resumeEvidence, negative, isSkillList, usablePositive } = require('../providers/resumeEvidence');
 const { activeSkillConflicts } = require('../providers/skillConflicts');
-const { explicitlyDeniesSkill } = require('../providers/skillPolarity');
+const { explicitlyDeniesSkill, nonCandidateClause } = require('../providers/skillPolarity');
 
+const durationEvidenceField = /^(?:summary$|workExperience\[\d+\]\.highlights\[|projects\[\d+\]\.(?:description$|highlights\[))/;
+const nonDomainWords = /^(?:a|an|the|of|in|with|and|or|for|as|professional|commercial|practical|relevant|prior|industry|work|working|employment|experience|practice|hands|on)$/;
+const months = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
+
+function domainWords(text) {
+  const lower = text.toLowerCase();
+  const words = (lower.match(/[a-z]+/g) || []).filter(word => !nonDomainWords.test(word));
+  if (!words.includes('software')) return words;
+  return words.map(word => /^(?:developer|development|engineer|engineering|delivery|delivering)$/.test(word) ? 'delivery' : word);
+}
+
+function coversDomain(text, domain) {
+  const words = new Set(domainWords(text));
+  return domain.every(word => words.has(word));
+}
+
+function personalDuration(item, claim) {
+  if (claim.approximateOrUpperBound || negative(claim.sourceText) || nonCandidateClause(claim.sourceText)) return false;
+  if (/^["'“‘]/.test(item.quote)) return false;
+  if (/\b(?:required|preferred|must[ -]have|mandatory)\b/i.test(claim.sourceText)) return false;
+  const prefix = claim.prefix.replace(/^[-*•]\s*/, '').trim();
+  if (!prefix || /^(?:experience|(?:i|we)\s+(?:have|had|bring|offer|possess|spent|accumulated|completed))\s*:?\s*(?:a total of|over|more than|at least)?$/i.test(prefix)) {
+    return Boolean(claim.scope || claim.generalExperience || /^experience\s*:/i.test(prefix));
+  }
+  const beforeFor = prefix.replace(/(?:\s+for|:)$/i, '');
+  if (beforeFor === prefix) return false;
+  if (extractSkills(beforeFor).some(skill => normalizeSkill(skill) === normalizeSkill(beforeFor))) return true;
+  return /^(?:i|we)\s+(?:(?:have|had|personally)\s+)*(?:worked|used|built|developed|managed|maintained|served|operated)\s+/i.test(beforeFor)
+    && !/\b(?:colleague|teammate|vendor|contractor|manager|client|partner|team|friend|their|his|her)\b/i.test(beforeFor);
+}
+
+function closedDate(value, isStart) {
+  const numeric = /^(\d{4})(?:-(\d{2})(?:-(\d{2}))?)?$/.exec(value);
+  const named = /^([a-z]{3,9})\s+(\d{4})$/i.exec(value);
+  const year = Number(numeric?.[1] || named?.[2]);
+  if (year < 1900 || !Number.isFinite(year)) return NaN;
+  const month = numeric?.[2] ? Number(numeric[2]) - 1 : named ? months.indexOf(named[1].slice(0, 3).toLowerCase()) : isStart ? 11 : 0;
+  if (month < 0 || month > 11) return NaN;
+  const lastDay = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
+  const day = numeric?.[3] ? Number(numeric[3]) : isStart ? lastDay : 1;
+  return day >= 1 && day <= lastDay ? Date.UTC(year, month, day) : NaN;
+}
+
+function datedExperienceEvidence(resumeData, evidence, domain, minimumYears) {
+  const now = Date.now();
+  const intervals = (resumeData.workExperience || []).flatMap((entry, index) => {
+    const path = `workExperience[${index}]`;
+    const scopeEvidence = domain.length ? evidence.find(item => item.path === path + '.role' && coversDomain(item.quote, domain) && !negative(item.quote)) : null;
+    if (entry.current || domain.length && !scopeEvidence) return [];
+    const startQuote = String(entry.startDate || ''), endQuote = String(entry.endDate || '');
+    const start = closedDate(startQuote.trim(), true), end = closedDate(endQuote.trim(), false);
+    if (!Number.isFinite(start) || !Number.isFinite(end) || end <= start || end > now) return [];
+    return [{ start, end, evidence: [
+      { path: path + '.startDate', quote: startQuote }, { path: path + '.endDate', quote: endQuote }, ...(scopeEvidence ? [scopeEvidence] : []),
+    ] }];
+  }).sort((a, b) => a.start - b.start);
+  // Use the union of conservatively bounded closed intervals to avoid counting concurrent jobs twice.
+  const merged = [];
+  for (const { start, end } of intervals) {
+    const last = merged.at(-1);
+    if (last && start <= last.end) last.end = Math.max(last.end, end);
+    else merged.push({ start, end });
+  }
+  const years = merged.reduce((sum, item) => sum + (item.end - item.start) / (365.25 * 86400000), 0);
+  return years >= minimumYears ? intervals.flatMap(item => item.evidence) : [];
+}
+
+function experienceEvidence(row, evidence, resumeData) {
+  if (!Number.isFinite(row.minimumYears)) return [];
+  const scopeSkills = row.scopeSkills || [];
+  if (scopeSkills.some(skill => activeSkillConflicts(resumeData).some(conflict => hasSkill(conflict.skill, skill))
+    || evidence.some(item => !isSkillList(item) && explicitlyDeniesSkill(item.quote, skill)))) return [];
+  const domain = scopeSkills.length ? [] : domainWords(experienceDurations(row.sourceText || row.label)[0]?.scope || '');
+  const direct = evidence.filter(item => durationEvidenceField.test(item.path) && !nonCandidateClause(item.quote)).flatMap(item =>
+    experienceDurations(item.quote).filter(claim => claim.years >= row.minimumYears && personalDuration(item, claim)
+      && scopeSkills.every(skill => hasSkill(claim.scope, skill)) && coversDomain(claim.scope, domain))
+      .map(claim => ({ path: item.path, quote: claim.sourceText })));
+  if (direct.length) return direct.slice(0, 3);
+  // A dated role alone cannot establish the portion of time spent with a particular skill.
+  return scopeSkills.length ? [] : datedExperienceEvidence(resumeData, evidence, domain, row.minimumYears);
+}
 
 function evaluateRequirement(requirement, evidence, resumeData) {
   const row = { ...requirement, status: 'missing', supportingEvidence: [], missingEvidence: '', explanation: '' };
@@ -22,36 +103,10 @@ function evaluateRequirement(requirement, evidence, resumeData) {
     row.explanation = row.status === 'supported' ? 'A direct skill mention is self-reported evidence; it does not verify proficiency.'
       : row.status === 'uncertain' ? 'Ambiguous alternatives or contradictory statements require manual review.' : 'No usable positive evidence was found; this does not establish inability.';
   } else if (row.category === 'experience') {
-    row.status = 'uncertain';
-    const years = evidence.filter((item) => !isSkillList(item) && !negative(item.quote)).map((item) => {
-      const match = item.quote.match(/(\d+(?:\.\d+)?)\s*\+?\s*(?:years?|yrs?)\b/i);
-      return { ...item, years: match ? Number(match[1]) : null };
-    }).filter((item) => item.years !== null && (!row.scopeSkills?.length || row.scopeSkills.every((skill) => hasSkill(item.quote, skill))));
-    if (Number.isFinite(row.minimumYears) && years.some((item) => item.years >= row.minimumYears)) {
-      row.status = 'supported'; row.supportingEvidence = years.filter((item) => item.years >= row.minimumYears).slice(0, 3).map(({ path, quote }) => ({ path, quote }));
-    } else if (Number.isFinite(row.minimumYears) && !row.scopeSkills?.length) {
-      // Only closed date intervals are considered. Year-only dates use a conservative lower bound.
-      const intervals = (resumeData.workExperience || []).map((entry, index) => {
-        const start = String(entry.startDate || ''), end = String(entry.endDate || '');
-        const parse = (value, isStart) => /^\d{4}$/.test(value) ? Date.UTC(Number(value), isStart ? 11 : 0, isStart ? 31 : 1) : Date.parse(value);
-        return { start: parse(start, true), end: /present|current|now/i.test(end) ? NaN : parse(end, false), index, startQuote: start, endQuote: end };
-      }).filter((entry) => Number.isFinite(entry.start) && Number.isFinite(entry.end) && entry.end > entry.start && entry.end <= Date.now()).sort((a, b) => a.start - b.start);
-      const merged = [];
-      for (const item of intervals) {
-        const last = merged[merged.length - 1];
-        if (last && item.start <= last.end) last.end = Math.max(last.end, item.end);
-        else merged.push({ start: item.start, end: item.end });
-      }
-      const totalYears = merged.reduce((sum, item) => sum + (item.end - item.start) / (365.25 * 86400000), 0);
-      if (totalYears >= row.minimumYears) {
-        row.status = 'supported'; row.supportingEvidence = intervals.flatMap((item) => [
-          { path: 'workExperience[' + item.index + '].startDate', quote: item.startQuote },
-          { path: 'workExperience[' + item.index + '].endDate', quote: item.endQuote },
-        ]);
-      }
-    }
+    row.supportingEvidence = experienceEvidence(row, evidence, resumeData);
+    row.status = row.supportingEvidence.length ? 'supported' : 'uncertain';
     row.missingEvidence = row.status === 'supported' ? '' : 'Confirm relevant duration, scope and seniority with dates and examples; employment tenure alone does not prove skill-specific years.';
-    row.explanation = row.status === 'supported' ? 'An explicit duration statement or conservative non-overlapping closed employment intervals cover the stated minimum; relevance still needs review.' : 'Available evidence does not establish the requested experience. Ambiguous dates and open-ended roles are not estimated.';
+    row.explanation = row.status === 'supported' ? 'A personal duration statement or relevant closed employment dates cover the stated minimum.' : 'Available evidence does not establish the requested experience. Ambiguous dates and open-ended roles are not estimated.';
   } else {
     row.status = 'uncertain';
     row.missingEvidence = 'Confirm this constraint explicitly with the candidate and employer: ' + row.label;
