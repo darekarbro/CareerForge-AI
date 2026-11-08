@@ -1,0 +1,1441 @@
+{
+  "reportVersion": "phase4-live-validation-v1",
+  "startedAt": "2026-11-08T06:21:27.860Z",
+  "state": "completed",
+  "provider": "groq",
+  "configuredModel": "openai/gpt-oss-120b",
+  "timeoutMs": 30000,
+  "rubricVersion": "careerforge-assessment-v5",
+  "policyVersion": "adaptive-interview-v2",
+  "dataScope": "Fictional text only",
+  "datasetVersion": "phase4-synthetic-v1",
+  "runnerSha256": "26c74a75ba32efa5486977a230bc6c0781e5ac3393511bc69392054474fa9059",
+  "adapterSha256": "ba75128cbd467dce567d3c0bd0d9e5d9862561efe2d9f09fa10c416e0f7154bb",
+  "followUpPolicySha256": "3f1cd869fadd25b4e3185c9ce784491f5c8406298108bc5a99cc0df42071824d",
+  "resumeFixtureSha256": "36b2e52efb88178fd654d315db000e99d31d78cc59efc7459cdd03c4776b6ab5",
+  "interviewFixtureSha256": "495eea8212e4e2da331f7defc61998f4b05b940f1181ef7724b855d73c72d426",
+  "interviewReferenceProvenance": "Agent-authored synthetic expectations, fixed before live responses.",
+  "plannedCases": 16,
+  "requestCap": 20,
+  "priceBasisUsdPerMillionTokens": {
+    "openai/gpt-oss-120b": {
+      "input": 0.15,
+      "cachedInput": 0.075,
+      "output": 0.6,
+      "source": "https://console.groq.com/docs/model/openai/gpt-oss-120b",
+      "verifiedOn": "2026-11-08"
+    }
+  },
+  "runtime": {
+    "node": "v25.9.0",
+    "platform": "win32",
+    "arch": "x64"
+  },
+  "cases": [
+    {
+      "id": "graduate-01",
+      "action": "parseResume",
+      "status": "accepted",
+      "latencyMs": 1710.902,
+      "measurement": {
+        "id": "graduate-01",
+        "group": "graduate",
+        "matchScore": 86,
+        "latencyMs": 1710.902,
+        "resumeSkills": {
+          "truePositive": 2,
+          "falsePositive": 0,
+          "falseNegative": 0
+        },
+        "contacts": {
+          "correct": 2,
+          "total": 2
+        },
+        "requirementExtraction": {
+          "truePositive": 3,
+          "falsePositive": 0,
+          "falseNegative": 0
+        },
+        "requirementStatus": {
+          "correct": 3,
+          "total": 3
+        },
+        "unsupportedClaims": {
+          "count": 0,
+          "total": 2
+        },
+        "citationIntegrity": {
+          "valid": 6,
+          "total": 6
+        },
+        "evidenceCoverage": {
+          "supportedWithValidEvidence": 2,
+          "supported": 2,
+          "totalRequirements": 3
+        },
+        "failures": {
+          "unexpectedSkills": [],
+          "missingSkills": [],
+          "contacts": [],
+          "requirements": []
+        }
+      },
+      "parsedContacts": {
+        "name": "Mira Patel",
+        "email": "mira@candidate.example"
+      },
+      "dictionarySkills": [
+        "Python",
+        "SQL"
+      ],
+      "outOfDictionarySkills": [],
+      "rawResumeQuotes": {
+        "correct": 6,
+        "total": 6
+      },
+      "rows": [
+        {
+          "label": "Python",
+          "category": "required_skill",
+          "status": "supported",
+          "supportingEvidence": [
+            {
+              "path": "skills.all[0]",
+              "quote": "Python"
+            },
+            {
+              "path": "skills.technical[0]",
+              "quote": "Python"
+            },
+            {
+              "path": "projects[0].description",
+              "quote": "Built search with Python and SQL."
+            }
+          ],
+          "conflictingEvidence": []
+        },
+        {
+          "label": "SQL",
+          "category": "required_skill",
+          "status": "supported",
+          "supportingEvidence": [
+            {
+              "path": "skills.all[1]",
+              "quote": "SQL"
+            },
+            {
+              "path": "skills.technical[1]",
+              "quote": "SQL"
+            },
+            {
+              "path": "projects[0].description",
+              "quote": "Built search with Python and SQL."
+            }
+          ],
+          "conflictingEvidence": []
+        },
+        {
+          "label": "Docker",
+          "category": "preferred_skill",
+          "status": "missing",
+          "supportingEvidence": [],
+          "conflictingEvidence": []
+        }
+      ]
+    },
+    {
+      "id": "experienced-01",
+      "action": "parseResume",
+      "status": "accepted",
+      "latencyMs": 1609.532,
+      "measurement": {
+        "id": "experienced-01",
+        "group": "experienced",
+        "matchScore": 73,
+        "latencyMs": 1609.532,
+        "resumeSkills": {
+          "truePositive": 4,
+          "falsePositive": 0,
+          "falseNegative": 0
+        },
+        "contacts": {
+          "correct": 2,
+          "total": 2
+        },
+        "requirementExtraction": {
+          "truePositive": 3,
+          "falsePositive": 0,
+          "falseNegative": 0
+        },
+        "requirementStatus": {
+          "correct": 3,
+          "total": 3
+        },
+        "unsupportedClaims": {
+          "count": 0,
+          "total": 2
+        },
+        "citationIntegrity": {
+          "valid": 5,
+          "total": 5
+        },
+        "evidenceCoverage": {
+          "supportedWithValidEvidence": 3,
+          "supported": 3,
+          "totalRequirements": 5
+        },
+        "failures": {
+          "unexpectedSkills": [],
+          "missingSkills": [],
+          "contacts": [],
+          "requirements": []
+        }
+      },
+      "parsedContacts": {
+        "name": "Elena Diaz",
+        "email": "elena@candidate.example"
+      },
+      "dictionarySkills": [
+        "Python",
+        "Django",
+        "PostgreSQL",
+        "Docker"
+      ],
+      "outOfDictionarySkills": [],
+      "rawResumeQuotes": {
+        "correct": 5,
+        "total": 5
+      },
+      "rows": [
+        {
+          "label": "Python",
+          "category": "required_skill",
+          "status": "supported",
+          "supportingEvidence": [
+            {
+              "path": "skills.all[0]",
+              "quote": "Python"
+            },
+            {
+              "path": "skills.technical[0]",
+              "quote": "Python"
+            }
+          ],
+          "conflictingEvidence": []
+        },
+        {
+          "label": "Django",
+          "category": "required_skill",
+          "status": "supported",
+          "supportingEvidence": [
+            {
+              "path": "skills.all[1]",
+              "quote": "Django"
+            },
+            {
+              "path": "skills.technical[1]",
+              "quote": "Django"
+            }
+          ],
+          "conflictingEvidence": []
+        },
+        {
+          "label": "Kubernetes",
+          "category": "preferred_skill",
+          "status": "missing",
+          "supportingEvidence": [],
+          "conflictingEvidence": []
+        },
+        {
+          "label": "3+ years of experience",
+          "category": "experience",
+          "status": "supported",
+          "supportingEvidence": [
+            {
+              "path": "summary",
+              "quote": "Backend developer with 5 years of experience."
+            }
+          ],
+          "conflictingEvidence": []
+        },
+        {
+          "label": "Remote only.",
+          "category": "constraint",
+          "status": "uncertain",
+          "supportingEvidence": [],
+          "conflictingEvidence": []
+        }
+      ]
+    },
+    {
+      "id": "sparse-05",
+      "action": "parseResume",
+      "status": "accepted",
+      "latencyMs": 1073.351,
+      "measurement": {
+        "id": "sparse-05",
+        "group": "sparse",
+        "matchScore": 50,
+        "latencyMs": 1073.351,
+        "resumeSkills": {
+          "truePositive": 1,
+          "falsePositive": 0,
+          "falseNegative": 0
+        },
+        "contacts": {
+          "correct": 2,
+          "total": 2
+        },
+        "requirementExtraction": {
+          "truePositive": 2,
+          "falsePositive": 0,
+          "falseNegative": 0
+        },
+        "requirementStatus": {
+          "correct": 2,
+          "total": 2
+        },
+        "unsupportedClaims": {
+          "count": 0,
+          "total": 1
+        },
+        "citationIntegrity": {
+          "valid": 2,
+          "total": 2
+        },
+        "evidenceCoverage": {
+          "supportedWithValidEvidence": 1,
+          "supported": 1,
+          "totalRequirements": 2
+        },
+        "failures": {
+          "unexpectedSkills": [],
+          "missingSkills": [],
+          "contacts": [],
+          "requirements": []
+        }
+      },
+      "parsedContacts": {
+        "name": "",
+        "email": "jo@candidate.example"
+      },
+      "dictionarySkills": [
+        "SQL"
+      ],
+      "outOfDictionarySkills": [],
+      "rawResumeQuotes": {
+        "correct": 2,
+        "total": 2
+      },
+      "rows": [
+        {
+          "label": "SQL",
+          "category": "required_skill",
+          "status": "supported",
+          "supportingEvidence": [
+            {
+              "path": "skills.all[0]",
+              "quote": "SQL"
+            },
+            {
+              "path": "skills.technical[0]",
+              "quote": "SQL"
+            }
+          ],
+          "conflictingEvidence": []
+        },
+        {
+          "label": "PostgreSQL",
+          "category": "required_skill",
+          "status": "missing",
+          "supportingEvidence": [],
+          "conflictingEvidence": []
+        }
+      ]
+    },
+    {
+      "id": "formatting-04",
+      "action": "parseResume",
+      "status": "accepted",
+      "latencyMs": 1482.257,
+      "measurement": {
+        "id": "formatting-04",
+        "group": "formatting",
+        "matchScore": 100,
+        "latencyMs": 1482.257,
+        "resumeSkills": {
+          "truePositive": 2,
+          "falsePositive": 0,
+          "falseNegative": 0
+        },
+        "contacts": {
+          "correct": 2,
+          "total": 2
+        },
+        "requirementExtraction": {
+          "truePositive": 2,
+          "falsePositive": 0,
+          "falseNegative": 0
+        },
+        "requirementStatus": {
+          "correct": 2,
+          "total": 2
+        },
+        "unsupportedClaims": {
+          "count": 0,
+          "total": 2
+        },
+        "citationIntegrity": {
+          "valid": 4,
+          "total": 4
+        },
+        "evidenceCoverage": {
+          "supportedWithValidEvidence": 2,
+          "supported": 2,
+          "totalRequirements": 2
+        },
+        "failures": {
+          "unexpectedSkills": [],
+          "missingSkills": [],
+          "contacts": [],
+          "requirements": []
+        }
+      },
+      "parsedContacts": {
+        "name": "Noor Ali",
+        "email": "noor@candidate.example"
+      },
+      "dictionarySkills": [
+        "Java",
+        "SQL"
+      ],
+      "outOfDictionarySkills": [],
+      "rawResumeQuotes": {
+        "correct": 4,
+        "total": 4
+      },
+      "rows": [
+        {
+          "label": "Java",
+          "category": "required_skill",
+          "status": "supported",
+          "supportingEvidence": [
+            {
+              "path": "skills.all[0]",
+              "quote": "Java"
+            },
+            {
+              "path": "skills.technical[0]",
+              "quote": "Java"
+            }
+          ],
+          "conflictingEvidence": []
+        },
+        {
+          "label": "SQL",
+          "category": "preferred_skill",
+          "status": "supported",
+          "supportingEvidence": [
+            {
+              "path": "skills.all[1]",
+              "quote": "SQL"
+            },
+            {
+              "path": "skills.technical[1]",
+              "quote": "SQL"
+            }
+          ],
+          "conflictingEvidence": []
+        }
+      ]
+    },
+    {
+      "id": "formatting-06",
+      "action": "parseResume",
+      "status": "accepted",
+      "latencyMs": 1711.396,
+      "measurement": {
+        "id": "formatting-06",
+        "group": "formatting",
+        "matchScore": 86,
+        "latencyMs": 1711.396,
+        "resumeSkills": {
+          "truePositive": 2,
+          "falsePositive": 0,
+          "falseNegative": 0
+        },
+        "contacts": {
+          "correct": 2,
+          "total": 2
+        },
+        "requirementExtraction": {
+          "truePositive": 3,
+          "falsePositive": 0,
+          "falseNegative": 0
+        },
+        "requirementStatus": {
+          "correct": 3,
+          "total": 3
+        },
+        "unsupportedClaims": {
+          "count": 0,
+          "total": 2
+        },
+        "citationIntegrity": {
+          "valid": 4,
+          "total": 4
+        },
+        "evidenceCoverage": {
+          "supportedWithValidEvidence": 2,
+          "supported": 2,
+          "totalRequirements": 3
+        },
+        "failures": {
+          "unexpectedSkills": [],
+          "missingSkills": [],
+          "contacts": [],
+          "requirements": []
+        }
+      },
+      "parsedContacts": {
+        "name": "Ava Stone",
+        "email": "ava@candidate.example"
+      },
+      "dictionarySkills": [
+        "Python",
+        "SQL"
+      ],
+      "outOfDictionarySkills": [],
+      "rawResumeQuotes": {
+        "correct": 4,
+        "total": 4
+      },
+      "rows": [
+        {
+          "label": "Python",
+          "category": "required_skill",
+          "status": "supported",
+          "supportingEvidence": [
+            {
+              "path": "skills.all[0]",
+              "quote": "Python"
+            },
+            {
+              "path": "skills.technical[0]",
+              "quote": "Python"
+            }
+          ],
+          "conflictingEvidence": []
+        },
+        {
+          "label": "SQL",
+          "category": "required_skill",
+          "status": "supported",
+          "supportingEvidence": [
+            {
+              "path": "skills.all[1]",
+              "quote": "SQL"
+            },
+            {
+              "path": "skills.technical[1]",
+              "quote": "SQL"
+            }
+          ],
+          "conflictingEvidence": []
+        },
+        {
+          "label": "MySQL",
+          "category": "preferred_skill",
+          "status": "missing",
+          "supportingEvidence": [],
+          "conflictingEvidence": []
+        }
+      ]
+    },
+    {
+      "id": "misleading-03",
+      "action": "parseResume",
+      "status": "accepted",
+      "latencyMs": 1437.195,
+      "measurement": {
+        "id": "misleading-03",
+        "group": "misleading",
+        "matchScore": 14,
+        "latencyMs": 1437.195,
+        "resumeSkills": {
+          "truePositive": 1,
+          "falsePositive": 0,
+          "falseNegative": 0
+        },
+        "contacts": {
+          "correct": 2,
+          "total": 2
+        },
+        "requirementExtraction": {
+          "truePositive": 3,
+          "falsePositive": 0,
+          "falseNegative": 0
+        },
+        "requirementStatus": {
+          "correct": 3,
+          "total": 3
+        },
+        "unsupportedClaims": {
+          "count": 0,
+          "total": 1
+        },
+        "citationIntegrity": {
+          "valid": 2,
+          "total": 2
+        },
+        "evidenceCoverage": {
+          "supportedWithValidEvidence": 1,
+          "supported": 1,
+          "totalRequirements": 3
+        },
+        "failures": {
+          "unexpectedSkills": [],
+          "missingSkills": [],
+          "contacts": [],
+          "requirements": []
+        }
+      },
+      "parsedContacts": {
+        "name": "Jules Day",
+        "email": "jules@candidate.example"
+      },
+      "dictionarySkills": [
+        "HTML"
+      ],
+      "outOfDictionarySkills": [],
+      "rawResumeQuotes": {
+        "correct": 2,
+        "total": 2
+      },
+      "rows": [
+        {
+          "label": "Kubernetes",
+          "category": "required_skill",
+          "status": "missing",
+          "supportingEvidence": [],
+          "conflictingEvidence": []
+        },
+        {
+          "label": "AWS",
+          "category": "required_skill",
+          "status": "missing",
+          "supportingEvidence": [],
+          "conflictingEvidence": []
+        },
+        {
+          "label": "HTML",
+          "category": "preferred_skill",
+          "status": "supported",
+          "supportingEvidence": [
+            {
+              "path": "skills.all[0]",
+              "quote": "HTML"
+            },
+            {
+              "path": "skills.technical[0]",
+              "quote": "HTML"
+            }
+          ],
+          "conflictingEvidence": []
+        }
+      ]
+    },
+    {
+      "id": "misleading-05",
+      "action": "parseResume",
+      "status": "accepted",
+      "latencyMs": 1162.876,
+      "measurement": {
+        "id": "misleading-05",
+        "group": "misleading",
+        "matchScore": 43,
+        "latencyMs": 1162.876,
+        "resumeSkills": {
+          "truePositive": 1,
+          "falsePositive": 0,
+          "falseNegative": 0
+        },
+        "contacts": {
+          "correct": 2,
+          "total": 2
+        },
+        "requirementExtraction": {
+          "truePositive": 3,
+          "falsePositive": 0,
+          "falseNegative": 0
+        },
+        "requirementStatus": {
+          "correct": 3,
+          "total": 3
+        },
+        "unsupportedClaims": {
+          "count": 0,
+          "total": 1
+        },
+        "citationIntegrity": {
+          "valid": 4,
+          "total": 4
+        },
+        "evidenceCoverage": {
+          "supportedWithValidEvidence": 1,
+          "supported": 1,
+          "totalRequirements": 3
+        },
+        "failures": {
+          "unexpectedSkills": [],
+          "missingSkills": [],
+          "contacts": [],
+          "requirements": []
+        }
+      },
+      "parsedContacts": {
+        "name": "Drew West",
+        "email": "drew@candidate.example"
+      },
+      "dictionarySkills": [
+        "SQL"
+      ],
+      "outOfDictionarySkills": [],
+      "rawResumeQuotes": {
+        "correct": 4,
+        "total": 4
+      },
+      "rows": [
+        {
+          "label": "SQL",
+          "category": "required_skill",
+          "status": "supported",
+          "supportingEvidence": [
+            {
+              "path": "skills.all[0]",
+              "quote": "SQL"
+            },
+            {
+              "path": "skills.technical[0]",
+              "quote": "SQL"
+            }
+          ],
+          "conflictingEvidence": []
+        },
+        {
+          "label": "PostgreSQL",
+          "category": "required_skill",
+          "status": "missing",
+          "supportingEvidence": [],
+          "conflictingEvidence": [
+            {
+              "path": "summary",
+              "quote": "No experience with PostgreSQL or Redis."
+            }
+          ]
+        },
+        {
+          "label": "Redis",
+          "category": "preferred_skill",
+          "status": "missing",
+          "supportingEvidence": [],
+          "conflictingEvidence": [
+            {
+              "path": "summary",
+              "quote": "No experience with PostgreSQL or Redis."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "misleading-06",
+      "action": "parseResume",
+      "status": "accepted",
+      "latencyMs": 1357.922,
+      "measurement": {
+        "id": "misleading-06",
+        "group": "misleading",
+        "matchScore": 0,
+        "latencyMs": 1357.922,
+        "resumeSkills": {
+          "truePositive": 0,
+          "falsePositive": 1,
+          "falseNegative": 0
+        },
+        "contacts": {
+          "correct": 2,
+          "total": 2
+        },
+        "requirementExtraction": {
+          "truePositive": 1,
+          "falsePositive": 0,
+          "falseNegative": 0
+        },
+        "requirementStatus": {
+          "correct": 1,
+          "total": 1
+        },
+        "unsupportedClaims": {
+          "count": 0,
+          "total": 0
+        },
+        "citationIntegrity": {
+          "valid": 3,
+          "total": 3
+        },
+        "evidenceCoverage": {
+          "supportedWithValidEvidence": 0,
+          "supported": 0,
+          "totalRequirements": 1
+        },
+        "failures": {
+          "unexpectedSkills": [
+            "React"
+          ],
+          "missingSkills": [],
+          "contacts": [],
+          "requirements": []
+        }
+      },
+      "parsedContacts": {
+        "name": "Ash Green",
+        "email": "ash@candidate.example"
+      },
+      "dictionarySkills": [
+        "React"
+      ],
+      "outOfDictionarySkills": [],
+      "rawResumeQuotes": {
+        "correct": 3,
+        "total": 3
+      },
+      "rows": [
+        {
+          "label": "React",
+          "category": "required_skill",
+          "status": "uncertain",
+          "supportingEvidence": [
+            {
+              "path": "skills.all[0]",
+              "quote": "React"
+            },
+            {
+              "path": "skills.technical[0]",
+              "quote": "React"
+            }
+          ],
+          "conflictingEvidence": [
+            {
+              "path": "summary",
+              "quote": "I do not know React."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "live-sql-complete",
+      "action": "evaluateAnswer",
+      "status": "accepted",
+      "latencyMs": 1548.414,
+      "expected": {
+        "technicalBand": [
+          80,
+          100
+        ],
+        "branch": "deeper",
+        "rationale": "Explains binding, avoids interpolation, and gives expected results for relevant tests."
+      },
+      "scores": {
+        "technicalScore": 95,
+        "overallScore": 90,
+        "clarityScore": 90,
+        "relevanceScore": 95,
+        "structureScore": 80
+      },
+      "feedback": {
+        "comments": "The candidate provides a concise, technically correct solution and relevant test scenarios. Minor improvements in answer structure and breadth of testing would raise the score.",
+        "strengths": [
+          "Clearly states use of a parameterized query with a placeholder",
+          "Specifies binding the value via the driver rather than string concatenation",
+          "Identifies appropriate test cases: normal name, name with apostrophe, malicious input"
+        ],
+        "improvements": [
+          "Could format answer with bullet points for easier readability",
+          "Mention other safe practices such as using prepared statements or ORM abstractions",
+          "Include additional edge‑case tests (e.g., very long strings, Unicode, null values)"
+        ]
+      },
+      "observedBranch": "deeper",
+      "followUpQuestion": "Building on your answer about SQL query parameters, compare two approaches under a new constraint: a dependency fails or the workload doubles. Explain the trade-off, a test, and a recovery strategy.",
+      "technicalBandCorrect": true,
+      "expectedBranchCorrect": true
+    },
+    {
+      "id": "live-sql-partial",
+      "action": "evaluateAnswer",
+      "status": "accepted",
+      "latencyMs": 1369.989,
+      "expected": {
+        "technicalBand": [
+          45,
+          85
+        ],
+        "branch": "clarification",
+        "rationale": "Gives the correct mechanism and omits test evidence requested in the question."
+      },
+      "scores": {
+        "technicalScore": 55,
+        "overallScore": 55,
+        "clarityScore": 60,
+        "relevanceScore": 70,
+        "structureScore": 40
+      },
+      "feedback": {
+        "comments": "The answer correctly identifies prepared statements with placeholders as the mitigation technique, but it is overly brief and omits the testing strategy and deeper technical explanation expected for the question.",
+        "strengths": [
+          "Mentions use of prepared statements",
+          "Identifies placeholder and separate binding of user input"
+        ],
+        "improvements": [
+          "Provide concrete example of parameterized query syntax",
+          "Explain why this prevents SQL injection",
+          "Describe specific test cases (normal name, name with apostrophe, malicious payload)",
+          "Mention avoiding string concatenation and any ORM/driver specifics"
+        ]
+      },
+      "observedBranch": "clarification",
+      "followUpQuestion": "In your previous answer about SQL query parameters, you said: “I would use a prepared statement with a placeholder and send the name separately.”. Clarify Bound parameters: describe your own action and one concrete example or test.",
+      "technicalBandCorrect": true,
+      "expectedBranchCorrect": true
+    },
+    {
+      "id": "live-sql-unsafe",
+      "action": "evaluateAnswer",
+      "status": "accepted",
+      "latencyMs": 1416.299,
+      "expected": {
+        "technicalBand": [
+          0,
+          39
+        ],
+        "branch": "diagnostic",
+        "rationale": "String concatenation with quotes is unsafe and the test does not exercise injection."
+      },
+      "scores": {
+        "technicalScore": 20,
+        "overallScore": 38,
+        "clarityScore": 60,
+        "relevanceScore": 30,
+        "structureScore": 40
+      },
+      "feedback": {
+        "comments": "The answer is easy to read but fails to address the core security requirement. It suggests concatenating user input, which is vulnerable to SQL injection, rather than using prepared statements or parameterized queries. The response does not mention testing for special characters or malicious payloads, and it does not follow a structured STAR format. To improve, the candidate should describe a safe, parameterized query approach, explain why quoting is inadequate, and outline comprehensive testing scenarios.",
+        "strengths": [
+          "Clear and concise description of approach"
+        ],
+        "improvements": [
+          "Use parameterized queries instead of string concatenation",
+          "Explain why quoting alone is insufficient",
+          "Test edge cases such as apostrophes and malicious inputs",
+          "Provide a more secure implementation",
+          "Follow STAR format if required"
+        ]
+      },
+      "observedBranch": "diagnostic",
+      "followUpQuestion": "Let us take a smaller step on SQL query parameters. Define one basic concept, give a simple example, and describe how you would check it works.",
+      "technicalBandCorrect": true,
+      "expectedBranchCorrect": true
+    },
+    {
+      "id": "live-sql-injection",
+      "action": "evaluateAnswer",
+      "status": "accepted",
+      "latencyMs": 1214.112,
+      "expected": {
+        "technicalBand": [
+          0,
+          39
+        ],
+        "branch": "diagnostic",
+        "rationale": "The grading instruction supplies no evidence and the proposed query is unsafe."
+      },
+      "scores": {
+        "technicalScore": 0,
+        "overallScore": 5,
+        "clarityScore": 10,
+        "relevanceScore": 5,
+        "structureScore": 0
+      },
+      "feedback": {
+        "comments": "The answer is technically incorrect, promotes unsafe practices, does not address the question, lacks structure, and ignores the suggested answer. Scores reflect these deficiencies.",
+        "strengths": [
+          "Attempted to respond to the question"
+        ],
+        "improvements": [
+          "Provide a correct solution using parameterized queries",
+          "Explain why concatenation is unsafe",
+          "Include test cases such as normal input, apostrophe, and malicious payload",
+          "Follow any required answer formatting guidelines"
+        ]
+      },
+      "observedBranch": "diagnostic",
+      "followUpQuestion": "Let us take a smaller step on SQL query parameters. Define one basic concept, give a simple example, and describe how you would check it works.",
+      "technicalBandCorrect": true,
+      "expectedBranchCorrect": true
+    },
+    {
+      "id": "live-payment-complete",
+      "action": "evaluateAnswer",
+      "status": "accepted",
+      "latencyMs": 1259.354,
+      "expected": {
+        "technicalBand": [
+          80,
+          100
+        ],
+        "branch": "deeper",
+        "rationale": "Covers stable keys, atomic deduplication, outcome reuse and concurrent or ambiguous completion tests."
+      },
+      "scores": {
+        "technicalScore": 90,
+        "overallScore": 88,
+        "clarityScore": 90,
+        "relevanceScore": 95,
+        "structureScore": 80
+      },
+      "feedback": {
+        "comments": "The answer directly addresses the problem using the recommended idempotency key approach and includes a reasonable testing plan. It could be strengthened by elaborating on implementation details and edge‑case handling.",
+        "strengths": [
+          "Correctly identifies idempotency key as solution",
+          "Mentions atomic claim and payload verification",
+          "Includes testing strategy for duplicate submissions and timeout"
+        ],
+        "improvements": [
+          "Provide more detail on how the key is stored and validated across services",
+          "Explain handling of mismatched payloads or stale keys",
+          "Discuss response handling and error codes for client feedback"
+        ]
+      },
+      "observedBranch": "deeper",
+      "followUpQuestion": "Building on your answer about Retry safety, compare two approaches under a new constraint: a dependency fails or the workload doubles. Explain the trade-off, a test, and a recovery strategy.",
+      "technicalBandCorrect": true,
+      "expectedBranchCorrect": true
+    },
+    {
+      "id": "live-payment-unsafe",
+      "action": "evaluateAnswer",
+      "status": "accepted",
+      "latencyMs": 1284.643,
+      "expected": {
+        "technicalBand": [
+          0,
+          39
+        ],
+        "branch": "diagnostic",
+        "rationale": "A timeout does not prove failure and a new key breaks deduplication."
+      },
+      "scores": {
+        "technicalScore": 20,
+        "overallScore": 38,
+        "clarityScore": 60,
+        "relevanceScore": 40,
+        "structureScore": 30
+      },
+      "feedback": {
+        "comments": "The candidate’s answer is brief and mentions idempotency, but it misapplies the concept by generating a new key for each retry, which could lead to duplicate charges. It lacks technical depth, proper structure, and alignment with the recommended solution.",
+        "strengths": [
+          "Concise and mentions idempotency keys"
+        ],
+        "improvements": [
+          "Explain that the same idempotency key must be reused for retries",
+          "Describe atomic claim and result storage to prevent double charges",
+          "Address how to handle in‑progress or completed outcomes",
+          "Provide testing considerations for concurrent submissions"
+        ]
+      },
+      "observedBranch": "diagnostic",
+      "followUpQuestion": "Let us take a smaller step on Retry safety. Define one basic concept, give a simple example, and describe how you would check it works.",
+      "technicalBandCorrect": true,
+      "expectedBranchCorrect": true
+    },
+    {
+      "id": "live-counter-partial",
+      "action": "evaluateAnswer",
+      "status": "accepted",
+      "latencyMs": 1310.918,
+      "expected": {
+        "technicalBand": [
+          55,
+          90
+        ],
+        "branch": "clarification",
+        "rationale": "Explains the race and a sound fix, with no concurrency test."
+      },
+      "scores": {
+        "technicalScore": 65,
+        "overallScore": 70,
+        "clarityScore": 70,
+        "relevanceScore": 85,
+        "structureScore": 60
+      },
+      "feedback": {
+        "comments": "The answer correctly pinpoints the cause of the lost increment and suggests a viable fix, but it is very brief and lacks depth. Adding more detail about concurrency control mechanisms and illustrating the solution would improve technical completeness and structure.",
+        "strengths": [
+          "Clearly identifies the race condition where both workers read the same value",
+          "Provides a direct mitigation by using an atomic database increment"
+        ],
+        "improvements": [
+          "Explain why the race condition occurs in more detail",
+          "Mention alternative solutions such as transactional locks or optimistic concurrency with version checks and retries",
+          "Describe how an atomic increment works at the database level",
+          "Provide a brief example or pseudo‑code"
+        ]
+      },
+      "observedBranch": "clarification",
+      "followUpQuestion": "In your previous answer about Concurrent database updates, you said: “Both workers can read the same counter and overwrite each other, losing one increment. I would use an atomic database increment.”. Clarify Lost update: describe your own action and one concrete example or test.",
+      "technicalBandCorrect": true,
+      "expectedBranchCorrect": true
+    },
+    {
+      "id": "live-counter-unknown",
+      "action": "evaluateAnswer",
+      "status": "accepted",
+      "latencyMs": 1222.113,
+      "expected": {
+        "technicalBand": [
+          0,
+          15
+        ],
+        "branch": "diagnostic",
+        "rationale": "No technical answer was supplied."
+      },
+      "scores": {
+        "technicalScore": 0,
+        "overallScore": 5,
+        "clarityScore": 10,
+        "relevanceScore": 5,
+        "structureScore": 0
+      },
+      "feedback": {
+        "comments": "The candidate did not answer the technical question, offering no explanation or solution. While the response is clear in its admission of lack of knowledge, it fails to address relevance, structure, or technical depth.",
+        "strengths": [
+          "Honest about not knowing the answer"
+        ],
+        "improvements": [
+          "Provide an explanation of why increments can be lost due to race conditions",
+          "Suggest atomic operations, transactions, or optimistic locking as solutions",
+          "Demonstrate understanding of concurrency control"
+        ]
+      },
+      "observedBranch": "diagnostic",
+      "followUpQuestion": "Let us take a smaller step on Concurrent database updates. Define one basic concept, give a simple example, and describe how you would check it works.",
+      "technicalBandCorrect": true,
+      "expectedBranchCorrect": true
+    }
+  ],
+  "requests": [
+    {
+      "caseId": "graduate-01",
+      "action": "parseResume",
+      "httpStatus": 200,
+      "responseModel": "openai/gpt-oss-120b",
+      "usage": {
+        "inputTokens": 1058,
+        "outputTokens": 533,
+        "cachedInputTokens": null
+      },
+      "latencyMs": 1706.052,
+      "estimatedUsd": 0.0004785
+    },
+    {
+      "caseId": "experienced-01",
+      "action": "parseResume",
+      "httpStatus": 200,
+      "responseModel": "openai/gpt-oss-120b",
+      "usage": {
+        "inputTokens": 1070,
+        "outputTokens": 464,
+        "cachedInputTokens": null
+      },
+      "latencyMs": 1607.745,
+      "estimatedUsd": 0.0004389
+    },
+    {
+      "caseId": "sparse-05",
+      "action": "parseResume",
+      "httpStatus": 200,
+      "responseModel": "openai/gpt-oss-120b",
+      "usage": {
+        "inputTokens": 1025,
+        "outputTokens": 362,
+        "cachedInputTokens": null
+      },
+      "latencyMs": 1071.725,
+      "estimatedUsd": 0.00037095
+    },
+    {
+      "caseId": "formatting-04",
+      "action": "parseResume",
+      "httpStatus": 200,
+      "responseModel": "openai/gpt-oss-120b",
+      "usage": {
+        "inputTokens": 1060,
+        "outputTokens": 479,
+        "cachedInputTokens": null
+      },
+      "latencyMs": 1480.459,
+      "estimatedUsd": 0.0004464
+    },
+    {
+      "caseId": "formatting-06",
+      "action": "parseResume",
+      "httpStatus": 200,
+      "responseModel": "openai/gpt-oss-120b",
+      "usage": {
+        "inputTokens": 1040,
+        "outputTokens": 635,
+        "cachedInputTokens": 768
+      },
+      "latencyMs": 1709.471,
+      "estimatedUsd": 0.0004794
+    },
+    {
+      "caseId": "misleading-03",
+      "action": "parseResume",
+      "httpStatus": 200,
+      "responseModel": "openai/gpt-oss-120b",
+      "usage": {
+        "inputTokens": 1046,
+        "outputTokens": 499,
+        "cachedInputTokens": null
+      },
+      "latencyMs": 1435.349,
+      "estimatedUsd": 0.0004563
+    },
+    {
+      "caseId": "misleading-05",
+      "action": "parseResume",
+      "httpStatus": 200,
+      "responseModel": "openai/gpt-oss-120b",
+      "usage": {
+        "inputTokens": 1041,
+        "outputTokens": 395,
+        "cachedInputTokens": 768
+      },
+      "latencyMs": 1160.816,
+      "estimatedUsd": 0.00033555
+    },
+    {
+      "caseId": "misleading-06",
+      "action": "parseResume",
+      "httpStatus": 200,
+      "responseModel": "openai/gpt-oss-120b",
+      "usage": {
+        "inputTokens": 1037,
+        "outputTokens": 493,
+        "cachedInputTokens": 768
+      },
+      "latencyMs": 1356.068,
+      "estimatedUsd": 0.00039375
+    },
+    {
+      "caseId": "live-sql-complete",
+      "action": "evaluateAnswer",
+      "httpStatus": 200,
+      "responseModel": "openai/gpt-oss-120b",
+      "usage": {
+        "inputTokens": 627,
+        "outputTokens": 540,
+        "cachedInputTokens": null
+      },
+      "latencyMs": 1545.675,
+      "estimatedUsd": 0.00041805
+    },
+    {
+      "caseId": "live-sql-partial",
+      "action": "evaluateAnswer",
+      "httpStatus": 200,
+      "responseModel": "openai/gpt-oss-120b",
+      "usage": {
+        "inputTokens": 568,
+        "outputTokens": 451,
+        "cachedInputTokens": null
+      },
+      "latencyMs": 1367.876,
+      "estimatedUsd": 0.0003558
+    },
+    {
+      "caseId": "live-sql-unsafe",
+      "action": "evaluateAnswer",
+      "httpStatus": 200,
+      "responseModel": "openai/gpt-oss-120b",
+      "usage": {
+        "inputTokens": 593,
+        "outputTokens": 580,
+        "cachedInputTokens": null
+      },
+      "latencyMs": 1414.205,
+      "estimatedUsd": 0.00043695
+    },
+    {
+      "caseId": "live-sql-injection",
+      "action": "evaluateAnswer",
+      "httpStatus": 200,
+      "responseModel": "openai/gpt-oss-120b",
+      "usage": {
+        "inputTokens": 593,
+        "outputTokens": 344,
+        "cachedInputTokens": null
+      },
+      "latencyMs": 1211.844,
+      "estimatedUsd": 0.00029535
+    },
+    {
+      "caseId": "live-payment-complete",
+      "action": "evaluateAnswer",
+      "httpStatus": 200,
+      "responseModel": "openai/gpt-oss-120b",
+      "usage": {
+        "inputTokens": 618,
+        "outputTokens": 419,
+        "cachedInputTokens": null
+      },
+      "latencyMs": 1257.17,
+      "estimatedUsd": 0.0003441
+    },
+    {
+      "caseId": "live-payment-unsafe",
+      "action": "evaluateAnswer",
+      "httpStatus": 200,
+      "responseModel": "openai/gpt-oss-120b",
+      "usage": {
+        "inputTokens": 599,
+        "outputTokens": 389,
+        "cachedInputTokens": 256
+      },
+      "latencyMs": 1282.872,
+      "estimatedUsd": 0.00030405
+    },
+    {
+      "caseId": "live-counter-partial",
+      "action": "evaluateAnswer",
+      "httpStatus": 200,
+      "responseModel": "openai/gpt-oss-120b",
+      "usage": {
+        "inputTokens": 577,
+        "outputTokens": 427,
+        "cachedInputTokens": null
+      },
+      "latencyMs": 1308.898,
+      "estimatedUsd": 0.00034275
+    },
+    {
+      "caseId": "live-counter-unknown",
+      "action": "evaluateAnswer",
+      "httpStatus": 200,
+      "responseModel": "openai/gpt-oss-120b",
+      "usage": {
+        "inputTokens": 558,
+        "outputTokens": 492,
+        "cachedInputTokens": 256
+      },
+      "latencyMs": 1219.832,
+      "estimatedUsd": 0.0003597
+    }
+  ],
+  "stopReason": null,
+  "completedAt": "2026-11-08T06:23:30.010Z",
+  "summary": {
+    "requestedCases": 16,
+    "attemptedCases": 16,
+    "acceptedCases": 16,
+    "failedCases": 0,
+    "unattemptedCases": 0,
+    "physicalRequests": 16,
+    "successfulHttpResponses": 16,
+    "acceptedActionLatencyMs": {
+      "parseResume": {
+        "samples": 8,
+        "p50": 1437.195,
+        "p95": 1711.396
+      },
+      "evaluateAnswer": {
+        "samples": 8,
+        "p50": 1284.643,
+        "p95": 1548.414
+      }
+    },
+    "tokenUsage": {
+      "reportedRequests": 16,
+      "inputTokens": 13110,
+      "cachedInputTokens": 2816,
+      "outputTokens": 7502
+    },
+    "cost": {
+      "mode": "published-rate-estimate",
+      "pricedRequests": 16,
+      "actualInvoicedUsd": null,
+      "estimatedUsdForPricedRequests": 0.0062565
+    },
+    "resume": {
+      "acceptedCases": 8,
+      "extractionAccuracy": {
+        "contactExact": {
+          "correct": 16,
+          "total": 16,
+          "rate": 1
+        },
+        "resumeSkills": {
+          "truePositive": 13,
+          "falsePositive": 1,
+          "falseNegative": 0,
+          "precision": 0.928571,
+          "recall": 1,
+          "f1": 0.962963
+        },
+        "jdSkills": {
+          "truePositive": 20,
+          "falsePositive": 0,
+          "falseNegative": 0,
+          "precision": 1,
+          "recall": 1,
+          "f1": 1
+        }
+      },
+      "requirementStatusAccuracy": {
+        "correct": 20,
+        "total": 20,
+        "rate": 1
+      },
+      "unsupportedClaimRate": {
+        "count": 0,
+        "total": 11,
+        "rate": 0
+      },
+      "citationIntegrity": {
+        "valid": 30,
+        "total": 30,
+        "rate": 1
+      },
+      "evidenceCoverage": {
+        "supportedWithValidEvidence": 12,
+        "supported": 12,
+        "totalRequirements": 22,
+        "supportedClaimCoverage": 1,
+        "allRequirementCoverage": 0.545455
+      },
+      "rawResumeQuoteCoverage": {
+        "correct": 30,
+        "total": 30
+      }
+    },
+    "interview": {
+      "acceptedCases": 8,
+      "technicalBandCorrect": 8,
+      "expectedBranchCorrect": 8,
+      "jointCorrect": 8
+    }
+  }
+}
