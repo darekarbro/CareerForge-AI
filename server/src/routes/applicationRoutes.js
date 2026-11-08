@@ -7,6 +7,9 @@ const { validate } = require('../middlewares/validate');
 const router = express.Router();
 
 router.use(protect);
+router.get('/export.csv', async (req, res, next) => { try { res.type('text/csv').attachment('careerforge-applications.csv').send(await require('../services/applicationCsv').exportCsv(req.user._id)); } catch (error) { next(error); } });
+router.post('/import/preview', async (req, res, next) => { try { res.json({ success: true, data: await require('../services/applicationCsv').preview(req.user._id, req.body) }); } catch (error) { next(error); } });
+router.post('/import', async (req, res, next) => { try { res.status(201).json({ success: true, data: await require('../services/applicationCsv').importRows(req.user._id, req.body) }); } catch (error) { next(error); } });
 router.get('/reminders', async (req, res, next) => { try { res.json({ success: true, data: await require('../services/applicationCalendar').reminders(req.user._id) }); } catch (error) { next(error); } });
 router.get('/calendar.ics', async (req, res, next) => { try {
   const apps = await require('../models/Application').find({ owner: req.user._id, ...(req.query.id ? { _id: req.query.id } : { status: { $nin: ['offer', 'rejected'] } }) });

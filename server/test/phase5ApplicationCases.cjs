@@ -1,4 +1,24 @@
 module.exports = ({ test, assert, request, user }) => {
+  test('Phase 5: CSV import previews invalid rows and duplicates, requires selected rows, and exports owned records', async () => {
+    const a = await user(), b = await user();
+    await request('POST', '/api/applications', { token: a.token, body: { company: 'Saved Co', roleTitle: 'Engineer', jobLink: 'https://example.test/job/one' } });
+    const csv = 'company,roleTitle,status,deadline,recruiterEmail,notes\r\nSaved Co,Engineer,saved,,,Existing\r\nNew Co,Developer,applied,2027-12-01,recruiter@example.test,"Notes, with commas"\r\nBroken Co,Designer,invalid,,,Invalid stage\r\nNew Co,Developer,saved,,,Repeat in file\r\nDate Co,Designer,saved,2026-02-30,,Invalid date';
+    let response = await request('POST', '/api/applications/import/preview', { token: a.token, body: { csv } });
+    assert.equal(response.status, 200, JSON.stringify(response.data));
+    const preview = response.data.data;
+    assert.equal(preview.importable, 1); assert(preview.rows[0].duplicate.applicationId);
+    assert(preview.rows[2].error.includes('status')); assert.equal(preview.rows[3].duplicate.row, 3); assert(preview.rows[4].error.includes('date'));
+    assert.equal((await request('POST', '/api/applications/import', { token: a.token, body: { csv, rows: [3, 4] } })).status, 409);
+    assert.equal((await request('GET', '/api/applications', { token: a.token })).data.data.length, 1);
+    response = await request('POST', '/api/applications/import', { token: a.token, body: { csv, rows: [3] } });
+    assert.equal(response.status, 201, JSON.stringify(response.data)); assert.equal(response.data.data.imported.length, 1);
+    assert.equal((await request('POST', '/api/applications/import', { token: a.token, body: { csv, rows: [3] } })).status, 409);
+    const exported = (await request('GET', '/api/applications/export.csv', { token: a.token })).data.toString();
+    assert(exported.includes('New Co')); assert(exported.includes('recruiter@example.test')); assert(exported.includes('Notes, with commas'));
+    assert(!(await request('GET', '/api/applications/export.csv', { token: b.token })).data.toString().includes('New Co'));
+    const check = (await request('POST', '/api/applications/import/preview', { token: b.token, body: { csv: exported } })).data.data;
+    assert.equal(check.importable, 2, JSON.stringify(check));
+  });
   test('Phase 5: reminders, recruiter contacts and status notes persist with owned calendar export', async () => {
     const a = await user(), b = await user();
     const body = { company: 'Records Co', roleTitle: 'Engineer', deadline: '2026-01-01', interviewAt: '2026-01-02T10:30:00+05:30', followUpAt: '2026-01-03', recruiter: { name: 'Recruiter', email: 'recruiter@example.test', phone: '+1 555 0100', notes: 'Discuss role scope' }, notificationPreferences: { inApp: true, calendarAlarm: true, leadMinutes: 15 } };
