@@ -1,6 +1,6 @@
 # Phase 4 — Adaptive assessments and interviews
 
-Phase 4 adds inspectable assessment evidence, answer-driven interview routing and learning plans based on saved practice and job requirements. Final resume and match scores use published local rules. Resume extraction and interview evaluation can still use providers allowed in the account's privacy settings. The measured baseline evaluates the offline parser and rubric, not live LLM quality.
+Phase 4 provides inspectable assessment evidence, answer-driven interview routing and learning plans based on saved practice and job requirements. Final resume and match scores use versioned local rules. Resume extraction and interview feedback can use providers allowed by the account's privacy settings.
 
 ## Delivered tasks
 
@@ -9,8 +9,8 @@ Phase 4 adds inspectable assessment evidence, answer-driven interview routing an
 | Explicit rubrics | [Assessment rubric](docs/ASSESSMENT_RUBRICS.md) documents dimensions, weights, uncertainty, self-reported evidence and limitations. Resume assessments expose their version and limitations in the UI. |
 | JD requirements | Required skills, preferred skills, experience and constraints retain stable IDs and original source clauses. Unclassified text remains available for review. |
 | Requirement matching | Job workspaces show each requirement's status, supporting quotes and field paths, missing evidence, score weight and explanation. Missing evidence is not a finding of inability. |
-| Evaluation dataset | [40 synthetic examples](server/evaluation/README.md): 30 development and 10 separate holdout cases, balanced across graduates, experienced candidates, sparse resumes, formatting and misleading inputs. |
-| Quality measurement | [Published results](docs/PHASE4_EVALUATION_RESULTS.md) and [JSON](docs/PHASE4_EVALUATION_RESULTS.json) report extraction, unsupported supported-skill decisions, citation integrity, coverage, latency and offline cost. [Human-review import](docs/PHASE4_EVALUATION.md) supports independent scoring agreement once real reviewers supply annotations. |
+| Evaluation dataset | The initial 40 synthetic examples cover graduates, experienced candidates, sparse resumes, formatting and misleading inputs. Separate versioned holdouts extend that coverage. [Dataset guide](server/evaluation/README.md) |
+| Quality measurement | Published results cover extraction, supported decisions, citation integrity, evidence coverage, latency and cost. The independent review workflow accepts genuine reviewer scores. [Measurement guide](docs/PHASE4_EVALUATION.md) |
 | Adaptive interviews | [Routing policy](docs/ADAPTIVE_INTERVIEWS.md) chooses clarification, deeper or simpler diagnostic questions using the previous answer and feedback, within the requested session count. |
 | Competency profile | [Profile rules](docs/COMPETENCY_PROFILE.md) track strengths, developing topics and gaps across sessions with links to questions and historical attempts. Retries count once per question in averages. |
 | Learning plans | [Learning-plan rules](docs/LEARNING_PLANS.md) produce practice tasks, small project milestones, completion conditions and three-question reassessments. Job-only gaps remain unassessed; obsolete resume revisions cannot create new training tasks. |
@@ -25,28 +25,28 @@ Phase 4 adds inspectable assessment evidence, answer-driven interview routing an
 
 Adaptive sessions answer in order so future prompts cannot collect drafts before adaptation. The first topic can continue through the entire session; use separate focused sessions for broader coverage. A one-question session has no follow-up slot. Existing sessions retain their saved fixed/adaptive behavior.
 
-## Reproduce measurements
+## Validation status
 
-From the repository root:
+The frozen v5 engine's first pass on 30 new v4 cases achieved 78.14% skill F1, 116/164 correct requirement statuses and 37/60 exact contact fields. Ten of 89 labeled positive decisions were unsupported by the reference evidence. Third-party attribution accounted for eight of those ten decisions. [Fresh holdout results](docs/PHASE4_V5_HOLDOUT_RESULTS.md)
+
+Assessment v5 resolved the measured v3 failures across 24 public cases. The regression run recorded 117/117 skills, 136/136 requirement decisions, 48/48 contact fields and 0/100 unsupported supported decisions. [V5 regression results](docs/PHASE4_V3_REGRESSION_RESULTS.md)
+
+The live Groq GPT-OSS 120B benchmark accepted all 16 fictional cases. Resume skill F1 was 96.30%, all 20 labeled match decisions were correct, and all eight interview score bands and follow-up branches matched their references. The parser retained one contradicted skill, which the matcher marked uncertain. Groq reported 13,110 input tokens and 7,502 output tokens. The published-rate estimate was $0.0062565. [Live benchmark](docs/PHASE4_LIVE_VALIDATION.md)
+
+The broader offline suite matched 6/11 experience judgments and 5/8 constraint judgments. Interview technical bands and follow-up branches each matched 4/10 references. Three supported experience decisions lacked sufficient evidence. Practice history retained all six answer links, while competency statuses and learning recommendations showed semantic errors in the tested history. [Expanded validation](docs/PHASE4_EXPANDED_VALIDATION.md)
+
+Human scoring agreement is pending two independent ballots. Each reviewer scores the same 10 fictional cases from the published v1 holdout using the v5 rubric. The evaluator can calculate agreement once both reviewers return their scores. [Reviewer packet](docs/PHASE4_HUMAN_REVIEW_PACKET.md) · [Blank ballot](server/evaluation/human-review.v5-holdout.ballot.json)
+
+## Reproduce verification
+
+Run the development benchmark from the repository root. CI records its results as an artifact. Published holdouts can be rerun as regression checks using a separate output path. [Measurement guide](docs/PHASE4_EVALUATION.md)
 
 ```bash
-npm run evaluate:phase4
 npm run evaluate:phase4 -- --output .test-tmp/phase4-development-results.json
+npm run evaluate:phase4 -- --dataset-version v4 --holdout --output .test-tmp/phase4-v4-regression.json
 ```
 
-CI records development results as an artifact. Holdout execution is explicit and reserved for a frozen publication; do not tune this implementation against its published holdout results. The [measurement guide](docs/PHASE4_EVALUATION.md) includes the publication and independent-human-review commands.
-
-The published baseline has development skill F1 **95.05%**, requirement-status accuracy **94.94%**, and **0/39** unsupported supported-skill decisions. Holdout results are **100%** on the labeled skill/status metrics and **0/16** unsupported supported-skill decisions. Formatting remains weak: development skill recall is **71.43%** in that group. The small related holdout cannot establish general real-resume accuracy. Human scoring agreement and live-provider quality, usage and latency remain unmeasured; neither has been fabricated.
-
-The [formatting follow-up](docs/PHASE4_FORMATTING_RESULTS.md) fixes spaced headings, inline lists and combined name/email lines. On the same published cases, formatting skill recall improves from **71.43% to 100%**, and development skill F1 improves to **99.05%**. This is a regression rerun of known examples; the original baseline above remains historical evidence.
-
-The [contradictory-skill follow-up](docs/PHASE4_CONTRADICTION_RESULTS.md) withholds the remaining listed-but-denied React claim while preserving an uncertain match and both source statements. Development skill F1 is now **100%** on these known cases. Current validation passes 193 backend and 49 frontend tests; earlier reports and fixture labels remain unchanged.
-
-The [fresh v2 first-pass report](docs/PHASE4_FRESH_HOLDOUT_RESULTS.md) tests 24 new cases against the unchanged implementation, with independently agent-authored/reviewed references frozen before execution. It reveals **21.57% skill F1**, **34.41% requirement-status accuracy**, and **2/8 false-supported decisions**. No tuning or label edits followed the run. These results show that perfect known-case regressions did not establish generalization; v2 is now public and subsequent uses are regression-only.
-
-## Validation
-
-The verification commands are:
+The application verification commands cover the server, client, build and browser workflows.
 
 ```bash
 npm test
@@ -57,17 +57,14 @@ npm --prefix client run test:browser
 
 Tests use fictional data and isolated databases. Browser verification covers requirement citations, same-session diagnostics, delayed-feedback privacy, retry history, competency links, learning tasks and reassessment navigation, alongside existing workflows and automated accessibility audits. Local logs, screenshots and traces are saved under the ignored `.test-tmp` directory.
 
-Initial Phase 4 verification on 4 November 2026 (subsequent checks are recorded in the follow-up reports above):
+The 4 November 2026 v5 regression repair passed **283 server and 49 client tests**. Earlier browser verification covered 28 local workflows and 44 automated accessibility audits. [V5 test results](docs/PHASE4_V3_REGRESSION_RESULTS.md) · [Original evaluation](docs/PHASE4_EVALUATION_RESULTS.md)
+
+On 8 November, 50 focused Phase 4 tests passed across evaluation, matching, adaptive practice and the v3 regressions. The three structural holdout checks passed for v2, v3 and v4.
 
 | Check | Observed result |
 | --- | --- |
-| Backend regression suite | 158 tests passed, no failures or skips. |
-| Frontend regression suite | 47 tests passed, no failures or skips. |
 | ESLint | Passed with zero allowed warnings. |
-| Production build | Compiled and generated all 30 pages, including the new progress page; standalone bundle completed. |
+| Production build | Compiled and generated all 30 pages, including the progress page. The standalone bundle completed. |
 | Browser workflows | 28 checks passed against the local API and temporary MongoDB. |
 | Automated accessibility | 44 WCAG 2.0/2.1 A/AA audits, zero detected violations. |
 | Consecutive diagnostic follow-ups | 3 targeted adaptive policy tests passed after final review, including distinct checks tied to the previous answer, deterministic replay and delayed-feedback redaction. |
-| Development evaluation command | Reproduced the frozen development accuracy counts; implementation and dataset hashes remain unchanged. |
-
-These checks establish behavior in the tested local environment. They do not establish human scoring agreement, live-provider quality or population-level hiring accuracy. The frozen benchmark used Node.js 25.9.0 on Windows; the repository's deployment target remains Node.js 24.
