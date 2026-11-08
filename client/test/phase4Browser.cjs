@@ -28,7 +28,7 @@ module.exports = ({ page, screenshot, pass, audit }) => ({
     await page.goto('http://localhost:3030/interview/progress');
     if (hasMilestones) await page.getByRole('button', { name: /^Reassess / }).first().click();
     else await page.getByRole('link', { name: 'Start practice', exact: true }).click();
-    await page.waitForURL(/\/interview\/(?:session\/[^/]+|setup\?[^/]+)$/);
+    await page.waitForURL(/\/interview\/(?:session\/[^/?#]+|setup(?:\?[^#]*)?)$/);
     pass(hasMilestones
       ? 'Phase 4: gap-specific tasks, project milestones and reassessment navigation'
       : 'Phase 4: unassessed-only guidance routes to start practice');
