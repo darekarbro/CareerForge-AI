@@ -5,15 +5,16 @@ const { assessMatch } = require('../src/services/requirementMatching');
 const { validateResult } = require('../src/providers/validateResult');
 const { evaluateCase, validCitation } = require('../evaluation/metrics.cjs');
 const { reconcileSkillConflicts } = require('../src/providers/skillConflicts');
-const dataset = require('../evaluation/dataset/v3/holdout.json');
 const provider = new Provider();
 
 // These cases are public and used for regression, never presented as unseen evaluation.
-for (const fixture of dataset.cases) test('published v3 regression: ' + fixture.id, async () => {
+const published = ['v3', 'v4'].flatMap(version => require(`../evaluation/dataset/${version}/holdout.json`).cases);
+for (const fixture of published) test('published regression: ' + fixture.id, async () => {
   const parsed = await provider.parseResume(fixture.resumeText);
   const match = assessMatch({ resumeData: parsed, jobDescriptionText: fixture.jobDescriptionText });
   const measured = evaluateCase(fixture, parsed, match);
   assert.deepEqual(measured.failures, { unexpectedSkills: [], missingSkills: [], contacts: [], requirements: [] });
+  assert.equal(measured.requirementExtraction.falsePositive, 0);
   assert.equal(validateResult('parseResume', parsed, fixture.resumeText), parsed);
   assert.deepEqual(reconcileSkillConflicts(parsed), parsed, 'reassessment must preserve withheld claims and active denials');
   for (const row of match.requirementMatches) for (const citation of [...row.supportingEvidence, ...(row.conflictingEvidence || [])]) {
