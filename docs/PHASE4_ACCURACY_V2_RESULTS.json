@@ -1,0 +1,1293 @@
+{
+  "reportVersion": "phase4-evaluation-v3",
+  "generatedAt": "2026-11-04T17:04:05.228Z",
+  "datasetVersion": "phase4-synthetic-v2",
+  "rubricVersion": "careerforge-assessment-v4",
+  "runtime": {
+    "node": "v25.9.0",
+    "platform": "win32",
+    "architecture": "x64"
+  },
+  "implementationFiles": [
+    "../src/providers/deterministicProvider.js",
+    "../src/providers/resumeContact.js",
+    "../src/providers/resumeFacts.js",
+    "../src/providers/resumeClaims.js",
+    "../src/providers/resumeLayout.js",
+    "../src/providers/resumeEvidence.js",
+    "../src/providers/skillPolarity.js",
+    "../src/providers/skillConflicts.js",
+    "../src/services/jobRequirements.js",
+    "../src/services/requirementMatching.js",
+    "../src/services/assessmentRubrics.js"
+  ],
+  "implementationSha256": "d3d202609d1c6d1640ffee866a972cd2fcc6238f0f813913a9a9fc2de3381c89",
+  "metricsSha256": "a8231f12d7a3d47a60eb766eb28ad927ff7b08fab9af3b3f5e17b28ec08cd643",
+  "evaluatorSha256": "abb526e3fe4a9af1a6d72924a6caeb398730c81a42af56f09b728d17f046479e",
+  "datasetUsage": {
+    "holdout": "published-holdout-regression"
+  },
+  "method": "Published synthetic raw-text fixtures evaluated as regression evidence. Deterministic parser → local versioned requirement matcher; one timed pipeline sample per case after independent warmup.",
+  "limitations": [
+    "Synthetic reference labels were authored independently of application output, not provided by independent human reviewers.",
+    "Skill extraction and classification are measured; the initial gold set does not measure experience/constraint correctness, OCR, visual layout or actual job performance.",
+    "Holdout is separately stored but small and template-related to development; no population confidence interval or real hiring outcome is established.",
+    "This dataset and its initial holdout results are published. Reruns are regression checks, not fresh unseen holdout evidence.",
+    "Citation integrity checks the parsed data path and exact quote, while unsupported claims compare the matching decision with raw-input reference labels.",
+    "This run does not measure live LLM accuracy, latency, token consumption, queue/API latency or provider pricing."
+  ],
+  "splits": {
+    "holdout": {
+      "datasetSha256": "82af4e8009775d91f5872c2541214de52302c098d37fcce69d0141b7ec8895c4",
+      "annotationScope": "Independent semantic gold labels for candidate name, email, explicit positively asserted canonical skills, and required/preferred skill evidence. Contradicted candidate skills are withheld from positive extraction and marked uncertain for matching; denial-only or non-candidate evidence is missing. No human overall fit scores are assigned.",
+      "metrics": {
+        "cases": 24,
+        "extractionAccuracy": {
+          "contactExact": {
+            "correct": 47,
+            "total": 48,
+            "rate": 0.979167
+          },
+          "resumeSkills": {
+            "truePositive": 89,
+            "falsePositive": 0,
+            "falseNegative": 0,
+            "precision": 1,
+            "recall": 1,
+            "f1": 1
+          },
+          "jdSkills": {
+            "truePositive": 93,
+            "falsePositive": 0,
+            "falseNegative": 0,
+            "precision": 1,
+            "recall": 1,
+            "f1": 1
+          }
+        },
+        "requirementStatusAccuracy": {
+          "correct": 93,
+          "total": 93,
+          "rate": 1
+        },
+        "unsupportedClaimRate": {
+          "count": 0,
+          "total": 57,
+          "rate": 0
+        },
+        "citationIntegrity": {
+          "valid": 184,
+          "total": 184,
+          "rate": 1
+        },
+        "evidenceCoverage": {
+          "supportedWithValidEvidence": 57,
+          "supported": 57,
+          "totalRequirements": 93,
+          "supportedClaimCoverage": 1,
+          "allRequirementCoverage": 0.612903
+        },
+        "humanScoreAgreement": {
+          "status": "not-measured",
+          "reviewedCases": 0,
+          "reviews": 0,
+          "meanAbsoluteError": null,
+          "withinTenPointsRate": null,
+          "reason": "No independent human reviewer scores have been supplied; synthetic reference labels are not human score reviews."
+        },
+        "latencyMs": {
+          "scope": "Local raw-text parsing plus requirement matching; excludes upload, queue, database, network and UI.",
+          "samples": 24,
+          "p50": 19.947,
+          "p95": 28.5272,
+          "mean": 20.881225
+        },
+        "providerCost": {
+          "mode": "offline-rules",
+          "externalRequests": 0,
+          "billedTokens": 0,
+          "costUsd": 0,
+          "scope": "No external provider calls; infrastructure and engineering cost excluded."
+        }
+      },
+      "byGroup": {
+        "formatting": {
+          "cases": 12,
+          "extractionAccuracy": {
+            "contactExact": {
+              "correct": 23,
+              "total": 24,
+              "rate": 0.958333
+            },
+            "resumeSkills": {
+              "truePositive": 61,
+              "falsePositive": 0,
+              "falseNegative": 0,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1
+            },
+            "jdSkills": {
+              "truePositive": 50,
+              "falsePositive": 0,
+              "falseNegative": 0,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1
+            }
+          },
+          "requirementStatusAccuracy": {
+            "correct": 50,
+            "total": 50,
+            "rate": 1
+          },
+          "unsupportedClaimRate": {
+            "count": 0,
+            "total": 37,
+            "rate": 0
+          },
+          "citationIntegrity": {
+            "valid": 95,
+            "total": 95,
+            "rate": 1
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 37,
+            "supported": 37,
+            "totalRequirements": 50,
+            "supportedClaimCoverage": 1,
+            "allRequirementCoverage": 0.74
+          },
+          "humanScoreAgreement": {
+            "status": "not-measured",
+            "reviewedCases": 0,
+            "reviews": 0,
+            "meanAbsoluteError": null,
+            "withinTenPointsRate": null,
+            "reason": "No independent human reviewer scores have been supplied; synthetic reference labels are not human score reviews."
+          },
+          "latencyMs": {
+            "scope": "Local raw-text parsing plus requirement matching; excludes upload, queue, database, network and UI.",
+            "samples": 12,
+            "p50": 20.7444,
+            "p95": 37.4347,
+            "mean": 22.046883
+          },
+          "providerCost": {
+            "mode": "offline-rules",
+            "externalRequests": 0,
+            "billedTokens": 0,
+            "costUsd": 0,
+            "scope": "No external provider calls; infrastructure and engineering cost excluded."
+          }
+        },
+        "contradictory_skills": {
+          "cases": 12,
+          "extractionAccuracy": {
+            "contactExact": {
+              "correct": 24,
+              "total": 24,
+              "rate": 1
+            },
+            "resumeSkills": {
+              "truePositive": 28,
+              "falsePositive": 0,
+              "falseNegative": 0,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1
+            },
+            "jdSkills": {
+              "truePositive": 43,
+              "falsePositive": 0,
+              "falseNegative": 0,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1
+            }
+          },
+          "requirementStatusAccuracy": {
+            "correct": 43,
+            "total": 43,
+            "rate": 1
+          },
+          "unsupportedClaimRate": {
+            "count": 0,
+            "total": 20,
+            "rate": 0
+          },
+          "citationIntegrity": {
+            "valid": 89,
+            "total": 89,
+            "rate": 1
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 20,
+            "supported": 20,
+            "totalRequirements": 43,
+            "supportedClaimCoverage": 1,
+            "allRequirementCoverage": 0.465116
+          },
+          "humanScoreAgreement": {
+            "status": "not-measured",
+            "reviewedCases": 0,
+            "reviews": 0,
+            "meanAbsoluteError": null,
+            "withinTenPointsRate": null,
+            "reason": "No independent human reviewer scores have been supplied; synthetic reference labels are not human score reviews."
+          },
+          "latencyMs": {
+            "scope": "Local raw-text parsing plus requirement matching; excludes upload, queue, database, network and UI.",
+            "samples": 12,
+            "p50": 18.1266,
+            "p95": 24.6259,
+            "mean": 19.715567
+          },
+          "providerCost": {
+            "mode": "offline-rules",
+            "externalRequests": 0,
+            "billedTokens": 0,
+            "costUsd": 0,
+            "scope": "No external provider calls; infrastructure and engineering cost excluded."
+          }
+        }
+      },
+      "cases": [
+        {
+          "id": "fresh-format-01",
+          "group": "formatting",
+          "matchScore": 90,
+          "latencyMs": 37.43469999999999,
+          "resumeSkills": {
+            "truePositive": 5,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "contacts": {
+            "correct": 1,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 4,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 4,
+            "total": 4
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 3
+          },
+          "citationIntegrity": {
+            "valid": 9,
+            "total": 9
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 3,
+            "supported": 3,
+            "totalRequirements": 4
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [],
+            "contacts": [
+              "name"
+            ],
+            "requirements": []
+          }
+        },
+        {
+          "id": "fresh-format-02",
+          "group": "formatting",
+          "matchScore": 60,
+          "latencyMs": 22.76060000000001,
+          "resumeSkills": {
+            "truePositive": 4,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "contacts": {
+            "correct": 2,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 4,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 4,
+            "total": 4
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 2
+          },
+          "citationIntegrity": {
+            "valid": 4,
+            "total": 4
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 2,
+            "supported": 2,
+            "totalRequirements": 4
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [],
+            "contacts": [],
+            "requirements": []
+          }
+        },
+        {
+          "id": "fresh-format-03",
+          "group": "formatting",
+          "matchScore": 70,
+          "latencyMs": 23.6755,
+          "resumeSkills": {
+            "truePositive": 5,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "contacts": {
+            "correct": 2,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 4,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 4,
+            "total": 4
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 3
+          },
+          "citationIntegrity": {
+            "valid": 6,
+            "total": 6
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 3,
+            "supported": 3,
+            "totalRequirements": 4
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [],
+            "contacts": [],
+            "requirements": []
+          }
+        },
+        {
+          "id": "fresh-format-04",
+          "group": "formatting",
+          "matchScore": 90,
+          "latencyMs": 28.527199999999993,
+          "resumeSkills": {
+            "truePositive": 5,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "contacts": {
+            "correct": 2,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 4,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 4,
+            "total": 4
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 3
+          },
+          "citationIntegrity": {
+            "valid": 8,
+            "total": 8
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 3,
+            "supported": 3,
+            "totalRequirements": 4
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [],
+            "contacts": [],
+            "requirements": []
+          }
+        },
+        {
+          "id": "fresh-format-05",
+          "group": "formatting",
+          "matchScore": 90,
+          "latencyMs": 20.571200000000033,
+          "resumeSkills": {
+            "truePositive": 5,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "contacts": {
+            "correct": 2,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 4,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 4,
+            "total": 4
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 3
+          },
+          "citationIntegrity": {
+            "valid": 6,
+            "total": 6
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 3,
+            "supported": 3,
+            "totalRequirements": 4
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [],
+            "contacts": [],
+            "requirements": []
+          }
+        },
+        {
+          "id": "fresh-format-06",
+          "group": "formatting",
+          "matchScore": 91,
+          "latencyMs": 22.774299999999982,
+          "resumeSkills": {
+            "truePositive": 6,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "contacts": {
+            "correct": 2,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 5,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 5,
+            "total": 5
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 4
+          },
+          "citationIntegrity": {
+            "valid": 12,
+            "total": 12
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 4,
+            "supported": 4,
+            "totalRequirements": 5
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [],
+            "contacts": [],
+            "requirements": []
+          }
+        },
+        {
+          "id": "fresh-format-07",
+          "group": "formatting",
+          "matchScore": 90,
+          "latencyMs": 15.322400000000016,
+          "resumeSkills": {
+            "truePositive": 5,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "contacts": {
+            "correct": 2,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 4,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 4,
+            "total": 4
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 3
+          },
+          "citationIntegrity": {
+            "valid": 6,
+            "total": 6
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 3,
+            "supported": 3,
+            "totalRequirements": 4
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [],
+            "contacts": [],
+            "requirements": []
+          }
+        },
+        {
+          "id": "fresh-format-08",
+          "group": "formatting",
+          "matchScore": 88,
+          "latencyMs": 23.582899999999995,
+          "resumeSkills": {
+            "truePositive": 6,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "contacts": {
+            "correct": 2,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 4,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 4,
+            "total": 4
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 3
+          },
+          "citationIntegrity": {
+            "valid": 9,
+            "total": 9
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 3,
+            "supported": 3,
+            "totalRequirements": 4
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [],
+            "contacts": [],
+            "requirements": []
+          }
+        },
+        {
+          "id": "fresh-format-09",
+          "group": "formatting",
+          "matchScore": 86,
+          "latencyMs": 14.963800000000049,
+          "resumeSkills": {
+            "truePositive": 4,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "contacts": {
+            "correct": 2,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 3,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 3,
+            "total": 3
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 2
+          },
+          "citationIntegrity": {
+            "valid": 6,
+            "total": 6
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 2,
+            "supported": 2,
+            "totalRequirements": 3
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [],
+            "contacts": [],
+            "requirements": []
+          }
+        },
+        {
+          "id": "fresh-format-10",
+          "group": "formatting",
+          "matchScore": 90,
+          "latencyMs": 17.288700000000006,
+          "resumeSkills": {
+            "truePositive": 5,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "contacts": {
+            "correct": 2,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 4,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 4,
+            "total": 4
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 3
+          },
+          "citationIntegrity": {
+            "valid": 9,
+            "total": 9
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 3,
+            "supported": 3,
+            "totalRequirements": 4
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [],
+            "contacts": [],
+            "requirements": []
+          }
+        },
+        {
+          "id": "fresh-format-11",
+          "group": "formatting",
+          "matchScore": 91,
+          "latencyMs": 16.9169,
+          "resumeSkills": {
+            "truePositive": 6,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "contacts": {
+            "correct": 2,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 5,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 5,
+            "total": 5
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 4
+          },
+          "citationIntegrity": {
+            "valid": 8,
+            "total": 8
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 4,
+            "supported": 4,
+            "totalRequirements": 5
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [],
+            "contacts": [],
+            "requirements": []
+          }
+        },
+        {
+          "id": "fresh-format-12",
+          "group": "formatting",
+          "matchScore": 91,
+          "latencyMs": 20.744399999999985,
+          "resumeSkills": {
+            "truePositive": 5,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "contacts": {
+            "correct": 2,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 5,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 5,
+            "total": 5
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 4
+          },
+          "citationIntegrity": {
+            "valid": 12,
+            "total": 12
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 4,
+            "supported": 4,
+            "totalRequirements": 5
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [],
+            "contacts": [],
+            "requirements": []
+          }
+        },
+        {
+          "id": "fresh-conflict-01",
+          "group": "contradictory_skills",
+          "matchScore": 43,
+          "latencyMs": 18.01600000000002,
+          "resumeSkills": {
+            "truePositive": 2,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "contacts": {
+            "correct": 2,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 3,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 3,
+            "total": 3
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 1
+          },
+          "citationIntegrity": {
+            "valid": 6,
+            "total": 6
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 1,
+            "supported": 1,
+            "totalRequirements": 3
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [],
+            "contacts": [],
+            "requirements": []
+          }
+        },
+        {
+          "id": "fresh-conflict-02",
+          "group": "contradictory_skills",
+          "matchScore": 43,
+          "latencyMs": 16.45690000000002,
+          "resumeSkills": {
+            "truePositive": 2,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "contacts": {
+            "correct": 2,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 3,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 3,
+            "total": 3
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 1
+          },
+          "citationIntegrity": {
+            "valid": 5,
+            "total": 5
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 1,
+            "supported": 1,
+            "totalRequirements": 3
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [],
+            "contacts": [],
+            "requirements": []
+          }
+        },
+        {
+          "id": "fresh-conflict-03",
+          "group": "contradictory_skills",
+          "matchScore": 43,
+          "latencyMs": 18.055000000000007,
+          "resumeSkills": {
+            "truePositive": 2,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "contacts": {
+            "correct": 2,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 3,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 3,
+            "total": 3
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 1
+          },
+          "citationIntegrity": {
+            "valid": 6,
+            "total": 6
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 1,
+            "supported": 1,
+            "totalRequirements": 3
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [],
+            "contacts": [],
+            "requirements": []
+          }
+        },
+        {
+          "id": "fresh-conflict-04",
+          "group": "contradictory_skills",
+          "matchScore": 30,
+          "latencyMs": 23.17429999999996,
+          "resumeSkills": {
+            "truePositive": 2,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "contacts": {
+            "correct": 2,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 4,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 4,
+            "total": 4
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 1
+          },
+          "citationIntegrity": {
+            "valid": 7,
+            "total": 7
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 1,
+            "supported": 1,
+            "totalRequirements": 4
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [],
+            "contacts": [],
+            "requirements": []
+          }
+        },
+        {
+          "id": "fresh-conflict-05",
+          "group": "contradictory_skills",
+          "matchScore": 43,
+          "latencyMs": 19.155700000000024,
+          "resumeSkills": {
+            "truePositive": 2,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "contacts": {
+            "correct": 2,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 3,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 3,
+            "total": 3
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 1
+          },
+          "citationIntegrity": {
+            "valid": 7,
+            "total": 7
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 1,
+            "supported": 1,
+            "totalRequirements": 3
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [],
+            "contacts": [],
+            "requirements": []
+          }
+        },
+        {
+          "id": "fresh-conflict-06",
+          "group": "contradictory_skills",
+          "matchScore": 86,
+          "latencyMs": 19.947000000000003,
+          "resumeSkills": {
+            "truePositive": 2,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "contacts": {
+            "correct": 2,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 3,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 3,
+            "total": 3
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 2
+          },
+          "citationIntegrity": {
+            "valid": 7,
+            "total": 7
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 2,
+            "supported": 2,
+            "totalRequirements": 3
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [],
+            "contacts": [],
+            "requirements": []
+          }
+        },
+        {
+          "id": "fresh-conflict-07",
+          "group": "contradictory_skills",
+          "matchScore": 90,
+          "latencyMs": 18.126600000000053,
+          "resumeSkills": {
+            "truePositive": 3,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "contacts": {
+            "correct": 2,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 4,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 4,
+            "total": 4
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 3
+          },
+          "citationIntegrity": {
+            "valid": 9,
+            "total": 9
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 3,
+            "supported": 3,
+            "totalRequirements": 4
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [],
+            "contacts": [],
+            "requirements": []
+          }
+        },
+        {
+          "id": "fresh-conflict-08",
+          "group": "contradictory_skills",
+          "matchScore": 60,
+          "latencyMs": 22.31179999999995,
+          "resumeSkills": {
+            "truePositive": 3,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "contacts": {
+            "correct": 2,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 4,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 4,
+            "total": 4
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 2
+          },
+          "citationIntegrity": {
+            "valid": 9,
+            "total": 9
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 2,
+            "supported": 2,
+            "totalRequirements": 4
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [],
+            "contacts": [],
+            "requirements": []
+          }
+        },
+        {
+          "id": "fresh-conflict-09",
+          "group": "contradictory_skills",
+          "matchScore": 60,
+          "latencyMs": 15.683899999999994,
+          "resumeSkills": {
+            "truePositive": 2,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "contacts": {
+            "correct": 2,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 4,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 4,
+            "total": 4
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 2
+          },
+          "citationIntegrity": {
+            "valid": 7,
+            "total": 7
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 2,
+            "supported": 2,
+            "totalRequirements": 4
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [],
+            "contacts": [],
+            "requirements": []
+          }
+        },
+        {
+          "id": "fresh-conflict-10",
+          "group": "contradictory_skills",
+          "matchScore": 75,
+          "latencyMs": 17.73300000000006,
+          "resumeSkills": {
+            "truePositive": 3,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "contacts": {
+            "correct": 2,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 4,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 4,
+            "total": 4
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 2
+          },
+          "citationIntegrity": {
+            "valid": 8,
+            "total": 8
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 2,
+            "supported": 2,
+            "totalRequirements": 4
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [],
+            "contacts": [],
+            "requirements": []
+          }
+        },
+        {
+          "id": "fresh-conflict-11",
+          "group": "contradictory_skills",
+          "matchScore": 43,
+          "latencyMs": 24.6259,
+          "resumeSkills": {
+            "truePositive": 2,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "contacts": {
+            "correct": 2,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 3,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 3,
+            "total": 3
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 1
+          },
+          "citationIntegrity": {
+            "valid": 5,
+            "total": 5
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 1,
+            "supported": 1,
+            "totalRequirements": 3
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [],
+            "contacts": [],
+            "requirements": []
+          }
+        },
+        {
+          "id": "fresh-conflict-12",
+          "group": "contradictory_skills",
+          "matchScore": 64,
+          "latencyMs": 23.300700000000006,
+          "resumeSkills": {
+            "truePositive": 3,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "contacts": {
+            "correct": 2,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 5,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 5,
+            "total": 5
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 3
+          },
+          "citationIntegrity": {
+            "valid": 13,
+            "total": 13
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 3,
+            "supported": 3,
+            "totalRequirements": 5
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [],
+            "contacts": [],
+            "requirements": []
+          }
+        }
+      ]
+    }
+  }
+}

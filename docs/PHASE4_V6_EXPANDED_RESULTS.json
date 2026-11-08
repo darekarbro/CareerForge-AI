@@ -1,0 +1,1722 @@
+{
+  "reportVersion": "phase4-expanded-validation-v1",
+  "generatedAt": "2026-11-08T09:48:28.961Z",
+  "runtime": {
+    "node": "v25.9.0",
+    "platform": "win32",
+    "architecture": "x64"
+  },
+  "datasetVersion": "phase4-expanded-synthetic-v1",
+  "datasetSha256": "8b87f0ab6e1d975aae9fa85649605da60e81fe27d53b18030a21157ce5806785",
+  "annotationMethod": "agent-authored synthetic challenge cases labeled before scoring",
+  "sourceFiles": [
+    "server/src/providers/deterministicProvider.js",
+    "server/src/providers/offlineInterviewRubric.js",
+    "server/src/providers/validateResult.js",
+    "server/src/providers/resumeFacts.js",
+    "server/src/providers/resumeEvidence.js",
+    "server/src/providers/resumeClaims.js",
+    "server/src/providers/skillPolarity.js",
+    "server/src/providers/skillConflicts.js",
+    "server/src/services/jobRequirements.js",
+    "server/src/services/requirementMatching.js",
+    "server/src/services/assessmentRubrics.js",
+    "server/src/services/adaptiveInterview.js",
+    "server/src/services/competencyService.js",
+    "server/src/services/learningPlanService.js"
+  ],
+  "implementationSha256": "0318497b20dbabc84125d12751cc77c24bc50b82aba8b0422e16e94f4bc21326",
+  "evaluatorSha256": "d68d48c26b68c00dc055dc4e912ca8c490e28c7b127238c92d6a17ef46389f83",
+  "rubricVersion": "careerforge-assessment-v6",
+  "followUpPolicyVersion": "adaptive-interview-v3",
+  "competencyVersion": "competency-evidence-v2",
+  "learningPlanVersion": "learning-plan-v2",
+  "execution": {
+    "mode": "local deterministic functions",
+    "externalRequests": 0,
+    "billedTokens": 0,
+    "externalCostUsd": 0
+  },
+  "requirements": {
+    "metrics": {
+      "experience": {
+        "extraction": {
+          "truePositive": 11,
+          "falsePositive": 0,
+          "falseNegative": 0,
+          "precision": 1,
+          "recall": 1,
+          "f1": 1
+        },
+        "statusAccuracy": {
+          "correct": 11,
+          "total": 11,
+          "rate": 1
+        },
+        "numericMetadataAccuracy": {
+          "correct": 10,
+          "total": 10,
+          "rate": 1
+        },
+        "unsupportedSupported": {
+          "count": 0,
+          "total": 4
+        },
+        "citationIntegrity": {
+          "correct": 7,
+          "total": 7,
+          "rate": 1
+        }
+      },
+      "constraint": {
+        "extraction": {
+          "truePositive": 8,
+          "falsePositive": 0,
+          "falseNegative": 0,
+          "precision": 1,
+          "recall": 1,
+          "f1": 1
+        },
+        "statusAccuracy": {
+          "correct": 8,
+          "total": 8,
+          "rate": 1
+        },
+        "numericMetadataAccuracy": {
+          "correct": 0,
+          "total": 0,
+          "rate": null
+        },
+        "unsupportedSupported": {
+          "count": 0,
+          "total": 0
+        },
+        "citationIntegrity": {
+          "correct": 0,
+          "total": 0,
+          "rate": null
+        }
+      }
+    },
+    "cases": [
+      {
+        "id": "experience-explicit-duration",
+        "rationale": "The personal duration clearly meets the minimum for the named technology.",
+        "expected": [
+          {
+            "category": "experience",
+            "sourceText": "At least 3 years of experience with Python",
+            "status": "supported",
+            "minimumYears": 3,
+            "scopeSkills": [
+              "Python"
+            ],
+            "optional": false,
+            "extracted": true,
+            "observedStatus": "supported",
+            "metadataMatches": true
+          }
+        ],
+        "observed": [
+          {
+            "category": "experience",
+            "sourceText": "At least 3 years of experience with Python",
+            "status": "supported",
+            "minimumYears": 3,
+            "scopeSkills": [
+              "Python"
+            ],
+            "optional": false,
+            "referenceStatus": "supported",
+            "evidence": [
+              {
+                "path": "summary",
+                "quote": "I have 4.5 years of experience with Python developing batch reconciliation jobs.",
+                "valid": true
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "experience-two-durations",
+        "rationale": "Seven years belongs to Python. Only one year with PostgreSQL is attested, so the required duration lacks support.",
+        "expected": [
+          {
+            "category": "experience",
+            "sourceText": "Minimum 4 years with PostgreSQL",
+            "status": "uncertain",
+            "minimumYears": 4,
+            "scopeSkills": [
+              "PostgreSQL"
+            ],
+            "optional": false,
+            "extracted": true,
+            "observedStatus": "uncertain",
+            "metadataMatches": true
+          }
+        ],
+        "observed": [
+          {
+            "category": "experience",
+            "sourceText": "Minimum 4 years with PostgreSQL",
+            "status": "uncertain",
+            "minimumYears": 4,
+            "scopeSkills": [
+              "PostgreSQL"
+            ],
+            "optional": false,
+            "referenceStatus": "uncertain",
+            "evidence": []
+          }
+        ]
+      },
+      {
+        "id": "experience-third-party-duration",
+        "rationale": "The colleague's eight years do not establish the candidate's duration.",
+        "expected": [
+          {
+            "category": "experience",
+            "sourceText": "Minimum 4 years with AWS",
+            "status": "uncertain",
+            "minimumYears": 4,
+            "scopeSkills": [
+              "AWS"
+            ],
+            "optional": false,
+            "extracted": true,
+            "observedStatus": "uncertain",
+            "metadataMatches": true
+          }
+        ],
+        "observed": [
+          {
+            "category": "experience",
+            "sourceText": "Minimum 4 years with AWS",
+            "status": "uncertain",
+            "minimumYears": 4,
+            "scopeSkills": [
+              "AWS"
+            ],
+            "optional": false,
+            "referenceStatus": "uncertain",
+            "evidence": []
+          }
+        ]
+      },
+      {
+        "id": "experience-closed-intervals",
+        "rationale": "Two non-overlapping closed periods sum to over five years of general professional tenure.",
+        "expected": [
+          {
+            "category": "experience",
+            "sourceText": "At least 4 years of professional experience",
+            "status": "supported",
+            "minimumYears": 4,
+            "scopeSkills": [],
+            "optional": false,
+            "extracted": true,
+            "observedStatus": "supported",
+            "metadataMatches": true
+          }
+        ],
+        "observed": [
+          {
+            "category": "experience",
+            "sourceText": "At least 4 years of professional experience",
+            "status": "supported",
+            "minimumYears": 4,
+            "scopeSkills": [],
+            "optional": false,
+            "referenceStatus": "supported",
+            "evidence": [
+              {
+                "path": "workExperience[0].startDate",
+                "quote": "2016-01-01",
+                "valid": true
+              },
+              {
+                "path": "workExperience[0].endDate",
+                "quote": "2018-07-01",
+                "valid": true
+              },
+              {
+                "path": "workExperience[1].startDate",
+                "quote": "2019-01-01",
+                "valid": true
+              },
+              {
+                "path": "workExperience[1].endDate",
+                "quote": "2022-01-01",
+                "valid": true
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "experience-overlap",
+        "rationale": "The union spans six years. Counting overlapping years twice would falsely meet the requirement.",
+        "expected": [
+          {
+            "category": "experience",
+            "sourceText": "At least 7 years of professional experience",
+            "status": "uncertain",
+            "minimumYears": 7,
+            "scopeSkills": [],
+            "optional": false,
+            "extracted": true,
+            "observedStatus": "uncertain",
+            "metadataMatches": true
+          }
+        ],
+        "observed": [
+          {
+            "category": "experience",
+            "sourceText": "At least 7 years of professional experience",
+            "status": "uncertain",
+            "minimumYears": 7,
+            "scopeSkills": [],
+            "optional": false,
+            "referenceStatus": "uncertain",
+            "evidence": []
+          }
+        ]
+      },
+      {
+        "id": "experience-open-ended",
+        "rationale": "This rubric avoids inferring a current end date from a possibly stale resume.",
+        "expected": [
+          {
+            "category": "experience",
+            "sourceText": "At least 2 years of professional experience",
+            "status": "uncertain",
+            "minimumYears": 2,
+            "scopeSkills": [],
+            "optional": false,
+            "extracted": true,
+            "observedStatus": "uncertain",
+            "metadataMatches": true
+          }
+        ],
+        "observed": [
+          {
+            "category": "experience",
+            "sourceText": "At least 2 years of professional experience",
+            "status": "uncertain",
+            "minimumYears": 2,
+            "scopeSkills": [],
+            "optional": false,
+            "referenceStatus": "uncertain",
+            "evidence": []
+          }
+        ]
+      },
+      {
+        "id": "experience-month-unit",
+        "rationale": "Eighteen months is one and a half years. The attested React duration exceeds that minimum.",
+        "expected": [
+          {
+            "category": "experience",
+            "sourceText": "At least 18 months of experience with React",
+            "status": "supported",
+            "minimumYears": 1.5,
+            "scopeSkills": [
+              "React"
+            ],
+            "optional": false,
+            "extracted": true,
+            "observedStatus": "supported",
+            "metadataMatches": true
+          }
+        ],
+        "observed": [
+          {
+            "category": "experience",
+            "sourceText": "At least 18 months of experience with React",
+            "status": "supported",
+            "minimumYears": 1.5,
+            "scopeSkills": [
+              "React"
+            ],
+            "optional": false,
+            "referenceStatus": "supported",
+            "evidence": [
+              {
+                "path": "summary",
+                "quote": "I have 2 years of experience with React delivering internal dashboards.",
+                "valid": true
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "experience-preferred-range",
+        "rationale": "The preferred lower bound is two years and the attested duration falls within the range.",
+        "expected": [
+          {
+            "category": "experience",
+            "sourceText": "Preferred: 2–4 years with Kubernetes",
+            "status": "supported",
+            "minimumYears": 2,
+            "scopeSkills": [
+              "Kubernetes"
+            ],
+            "optional": true,
+            "extracted": true,
+            "observedStatus": "supported",
+            "metadataMatches": true
+          }
+        ],
+        "observed": [
+          {
+            "category": "experience",
+            "sourceText": "Preferred: 2–4 years with Kubernetes",
+            "status": "supported",
+            "minimumYears": 2,
+            "scopeSkills": [
+              "Kubernetes"
+            ],
+            "optional": true,
+            "referenceStatus": "supported",
+            "evidence": [
+              {
+                "path": "summary",
+                "quote": "I have 3 years of experience with Kubernetes managing deployment rollouts.",
+                "valid": true
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "experience-unrelated-domain",
+        "rationale": "Store operations do not establish time spent delivering software.",
+        "expected": [
+          {
+            "category": "experience",
+            "sourceText": "At least 4 years of software delivery experience",
+            "status": "uncertain",
+            "minimumYears": 4,
+            "scopeSkills": [],
+            "optional": false,
+            "extracted": true,
+            "observedStatus": "uncertain",
+            "metadataMatches": true
+          }
+        ],
+        "observed": [
+          {
+            "category": "experience",
+            "sourceText": "At least 4 years of software delivery experience",
+            "status": "uncertain",
+            "minimumYears": 4,
+            "scopeSkills": [],
+            "optional": false,
+            "referenceStatus": "uncertain",
+            "evidence": []
+          }
+        ]
+      },
+      {
+        "id": "experience-qualitative",
+        "rationale": "The posting asks for qualitative experience and pre-release testing alone does not establish incident ownership.",
+        "expected": [
+          {
+            "category": "experience",
+            "sourceText": "Experience managing on-call incident response is required",
+            "status": "uncertain",
+            "extracted": true,
+            "observedStatus": "uncertain",
+            "metadataMatches": true
+          }
+        ],
+        "observed": [
+          {
+            "category": "experience",
+            "sourceText": "Experience managing on-call incident response is required",
+            "status": "uncertain",
+            "referenceStatus": "uncertain",
+            "evidence": []
+          }
+        ]
+      },
+      {
+        "id": "experience-negated-minimum",
+        "rationale": "The apparent four-year mention is a denial. A short lab cannot replace that evidence.",
+        "expected": [
+          {
+            "category": "experience",
+            "sourceText": "Minimum 4 years with Linux",
+            "status": "uncertain",
+            "minimumYears": 4,
+            "scopeSkills": [
+              "Linux"
+            ],
+            "optional": false,
+            "extracted": true,
+            "observedStatus": "uncertain",
+            "metadataMatches": true
+          }
+        ],
+        "observed": [
+          {
+            "category": "experience",
+            "sourceText": "Minimum 4 years with Linux",
+            "status": "uncertain",
+            "minimumYears": 4,
+            "scopeSkills": [
+              "Linux"
+            ],
+            "optional": false,
+            "referenceStatus": "uncertain",
+            "evidence": []
+          }
+        ]
+      },
+      {
+        "id": "constraint-remote-country",
+        "rationale": "A contact city and prior remote work do not confirm current eligibility or availability.",
+        "expected": [
+          {
+            "category": "constraint",
+            "sourceText": "Remote work from within Canada only",
+            "status": "uncertain",
+            "extracted": true,
+            "observedStatus": "uncertain",
+            "metadataMatches": true
+          }
+        ],
+        "observed": [
+          {
+            "category": "constraint",
+            "sourceText": "Remote work from within Canada only",
+            "status": "uncertain",
+            "referenceStatus": "uncertain",
+            "evidence": []
+          }
+        ]
+      },
+      {
+        "id": "constraint-authorization-relocation",
+        "rationale": "Both practical constraints require direct confirmation for this specific job.",
+        "expected": [
+          {
+            "category": "constraint",
+            "sourceText": "Work authorization in the role's country is required",
+            "status": "uncertain",
+            "extracted": true,
+            "observedStatus": "uncertain",
+            "metadataMatches": true
+          },
+          {
+            "category": "constraint",
+            "sourceText": "Relocation to Mapleford within 60 days is required",
+            "status": "uncertain",
+            "extracted": true,
+            "observedStatus": "uncertain",
+            "metadataMatches": true
+          }
+        ],
+        "observed": [
+          {
+            "category": "constraint",
+            "sourceText": "Work authorization in the role's country is required",
+            "status": "uncertain",
+            "referenceStatus": "uncertain",
+            "evidence": []
+          },
+          {
+            "category": "constraint",
+            "sourceText": "Relocation to Mapleford within 60 days is required",
+            "status": "uncertain",
+            "referenceStatus": "uncertain",
+            "evidence": []
+          }
+        ]
+      },
+      {
+        "id": "constraint-utc-overlap",
+        "rationale": "The UTC notation specifies an availability constraint, even without the words time zone.",
+        "expected": [
+          {
+            "category": "constraint",
+            "sourceText": "A 3-hour overlap with UTC+2 is required every weekday",
+            "status": "uncertain",
+            "extracted": true,
+            "observedStatus": "uncertain",
+            "metadataMatches": true
+          }
+        ],
+        "observed": [
+          {
+            "category": "constraint",
+            "sourceText": "A 3-hour overlap with UTC+2 is required every weekday",
+            "status": "uncertain",
+            "referenceStatus": "uncertain",
+            "evidence": []
+          }
+        ]
+      },
+      {
+        "id": "constraint-driving-licence",
+        "rationale": "A required licence is a practical constraint. Arranging deliveries does not prove possession.",
+        "expected": [
+          {
+            "category": "constraint",
+            "sourceText": "A driving licence is mandatory for field visits",
+            "status": "uncertain",
+            "extracted": true,
+            "observedStatus": "uncertain",
+            "metadataMatches": true
+          }
+        ],
+        "observed": [
+          {
+            "category": "constraint",
+            "sourceText": "A driving licence is mandatory for field visits",
+            "status": "uncertain",
+            "referenceStatus": "uncertain",
+            "evidence": []
+          }
+        ]
+      },
+      {
+        "id": "constraint-benefit-control",
+        "rationale": "The on-site requirement is explicit. An optional conference benefit does not impose travel on the applicant.",
+        "expected": [
+          {
+            "category": "constraint",
+            "sourceText": "On-site work in Larkfield is required",
+            "status": "uncertain",
+            "extracted": true,
+            "observedStatus": "uncertain",
+            "metadataMatches": true
+          }
+        ],
+        "observed": [
+          {
+            "category": "constraint",
+            "sourceText": "On-site work in Larkfield is required",
+            "status": "uncertain",
+            "referenceStatus": "uncertain",
+            "evidence": []
+          }
+        ]
+      },
+      {
+        "id": "constraint-shifts-and-travel",
+        "rationale": "Scheduling and travel are distinct candidate-relevant constraints. Prior weekend work does not confirm either.",
+        "expected": [
+          {
+            "category": "constraint",
+            "sourceText": "Evening shifts are required on weekdays",
+            "status": "uncertain",
+            "extracted": true,
+            "observedStatus": "uncertain",
+            "metadataMatches": true
+          },
+          {
+            "category": "constraint",
+            "sourceText": "At least 20% travel is required",
+            "status": "uncertain",
+            "extracted": true,
+            "observedStatus": "uncertain",
+            "metadataMatches": true
+          }
+        ],
+        "observed": [
+          {
+            "category": "constraint",
+            "sourceText": "Evening shifts are required on weekdays",
+            "status": "uncertain",
+            "referenceStatus": "uncertain",
+            "evidence": []
+          },
+          {
+            "category": "constraint",
+            "sourceText": "At least 20% travel is required",
+            "status": "uncertain",
+            "referenceStatus": "uncertain",
+            "evidence": []
+          }
+        ]
+      }
+    ]
+  },
+  "interview": {
+    "answers": [
+      {
+        "id": "binary-sound-terms",
+        "questionId": "binary-search",
+        "rationale": "Correct prerequisite, discard invariant and concrete edge cases justify a more demanding follow-up.",
+        "expectedTechnical": "sound",
+        "expectedFollowUp": "deeper",
+        "technicalBand": "sound",
+        "feedback": {
+          "clarityScore": 83,
+          "relevanceScore": 95,
+          "structureScore": 78,
+          "technicalScore": 92,
+          "technicalAssessment": "rubric-checked",
+          "overallScore": 87,
+          "strengths": [
+            "The answer explains the required behavior and gives a concrete check."
+          ],
+          "improvements": [
+            "Add a concrete example, an observable check, or a failure case."
+          ],
+          "starAdherence": "Not applicable",
+          "comments": "Offline feedback checks specific concepts and common misconceptions for this question. Review the suggested answer for additional context."
+        },
+        "followUp": {
+          "questionText": "Building on your answer about Binary search, compare two approaches under a new constraint: a dependency fails or the workload doubles. Explain the trade-off, a test, and a recovery strategy.",
+          "topic": "Binary search",
+          "category": "technical",
+          "difficulty": "Hard",
+          "keyPoints": [
+            "Constraints",
+            "Alternatives and trade-offs",
+            "Validation",
+            "Failure recovery"
+          ],
+          "suggestedAnswer": "State the new constraint, compare two alternatives, justify a choice, then explain a test and recovery procedure.",
+          "adaptation": {
+            "policyVersion": "adaptive-interview-v3",
+            "kind": "deeper",
+            "parentQuestionId": "binary-sound-terms",
+            "sourceAnswerExcerpt": "I check that the input has sorted order using the same comparator as the search. Each midpoint comparison discards the half that cannot contain the key. A boundary test should cove",
+            "reason": "The previous answer covered the rubric concepts; test a more demanding application."
+          }
+        },
+        "latencyMs": 3.2133
+      },
+      {
+        "id": "binary-sound-paraphrase",
+        "questionId": "binary-search",
+        "rationale": "The answer gives the same prerequisite and checks in different words.",
+        "expectedTechnical": "sound",
+        "expectedFollowUp": "deeper",
+        "technicalBand": "sound",
+        "feedback": {
+          "clarityScore": 90,
+          "relevanceScore": 95,
+          "structureScore": 85,
+          "technicalScore": 92,
+          "technicalAssessment": "rubric-checked",
+          "overallScore": 91,
+          "strengths": [
+            "The answer explains the required behavior and gives a concrete check."
+          ],
+          "improvements": [
+            "Add a concrete example, an observable check, or a failure case."
+          ],
+          "starAdherence": "Not applicable",
+          "comments": "Offline feedback checks specific concepts and common misconceptions for this question. Review the suggested answer for additional context."
+        },
+        "followUp": {
+          "questionText": "Building on your answer about Binary search, compare two approaches under a new constraint: a dependency fails or the workload doubles. Explain the trade-off, a test, and a recovery strategy.",
+          "topic": "Binary search",
+          "category": "technical",
+          "difficulty": "Hard",
+          "keyPoints": [
+            "Constraints",
+            "Alternatives and trade-offs",
+            "Validation",
+            "Failure recovery"
+          ],
+          "suggestedAnswer": "State the new constraint, compare two alternatives, justify a choice, then explain a test and recovery procedure.",
+          "adaptation": {
+            "policyVersion": "adaptive-interview-v3",
+            "kind": "deeper",
+            "parentQuestionId": "binary-sound-paraphrase",
+            "sourceAnswerExcerpt": "Values must rise consistently from left to right under the same relation used for lookup. Looking at the central element tells me which side can still contain the desired value. I ",
+            "reason": "The previous answer covered the rubric concepts; test a more demanding application."
+          }
+        },
+        "latencyMs": 0.8037
+      },
+      {
+        "id": "binary-unsound-terms",
+        "questionId": "binary-search",
+        "rationale": "The stated invariant is false. An unsorted array can hide the target in a discarded half.",
+        "expectedTechnical": "unsound",
+        "expectedFollowUp": "diagnostic",
+        "technicalBand": "unsound",
+        "feedback": {
+          "clarityScore": 84,
+          "relevanceScore": 90,
+          "structureScore": 79,
+          "technicalScore": 25,
+          "technicalAssessment": "rubric-checked",
+          "overallScore": 39,
+          "strengths": [],
+          "improvements": [
+            "Ordinary binary search relies on a consistent ordering. The comparison determines which half can be discarded."
+          ],
+          "starAdherence": "Not applicable",
+          "comments": "Offline feedback checks specific concepts and common misconceptions for this question. Review the suggested answer for additional context."
+        },
+        "followUp": {
+          "questionText": "Let us take a smaller step on Binary search. Define one basic concept, give a simple example, and describe how you would check it works.",
+          "topic": "Binary search",
+          "category": "technical",
+          "difficulty": "Easy",
+          "keyPoints": [
+            "Basic definition",
+            "Concrete example",
+            "Validation"
+          ],
+          "suggestedAnswer": "Define the concept in plain language, walk through a small example, then describe a check and its expected result.",
+          "adaptation": {
+            "policyVersion": "adaptive-interview-v3",
+            "kind": "diagnostic",
+            "parentQuestionId": "binary-unsound-terms",
+            "sourceAnswerExcerpt": "Sorted order is unnecessary. A midpoint comparison can always discard the left half even when the entries are arbitrarily shuffled. My boundary test would check one central key onl",
+            "reason": "The previous answer needs a smaller check of the fundamentals."
+          }
+        },
+        "latencyMs": 0.4446
+      },
+      {
+        "id": "atomicity-sound-terms",
+        "questionId": "atomicity",
+        "rationale": "The answer explains the commit boundary and validates the state after an injected failure.",
+        "expectedTechnical": "sound",
+        "expectedFollowUp": "deeper",
+        "technicalBand": "sound",
+        "feedback": {
+          "clarityScore": 84,
+          "relevanceScore": 95,
+          "structureScore": 79,
+          "technicalScore": 92,
+          "technicalAssessment": "rubric-checked",
+          "overallScore": 88,
+          "strengths": [
+            "The answer explains the required behavior and gives a concrete check."
+          ],
+          "improvements": [
+            "Add a concrete example, an observable check, or a failure case."
+          ],
+          "starAdherence": "Not applicable",
+          "comments": "Offline feedback checks specific concepts and common misconceptions for this question. Review the suggested answer for additional context."
+        },
+        "followUp": {
+          "questionText": "Building on your answer about Transaction atomicity, compare two approaches under a new constraint: a dependency fails or the workload doubles. Explain the trade-off, a test, and a recovery strategy.",
+          "topic": "Transaction atomicity",
+          "category": "technical",
+          "difficulty": "Hard",
+          "keyPoints": [
+            "Constraints",
+            "Alternatives and trade-offs",
+            "Validation",
+            "Failure recovery"
+          ],
+          "suggestedAnswer": "State the new constraint, compare two alternatives, justify a choice, then explain a test and recovery procedure.",
+          "adaptation": {
+            "policyVersion": "adaptive-interview-v3",
+            "kind": "deeper",
+            "parentQuestionId": "atomicity-sound-terms",
+            "sourceAnswerExcerpt": "Transaction atomicity requires both writes in a single transaction. I commit only after both updates succeed and rollback on an error. For failure injection, I force the credit to ",
+            "reason": "The previous answer covered the rubric concepts; test a more demanding application."
+          }
+        },
+        "latencyMs": 1.4562
+      },
+      {
+        "id": "atomicity-sound-paraphrase",
+        "questionId": "atomicity",
+        "rationale": "The same all-or-nothing behavior and observable failure test are present without rubric phrases.",
+        "expectedTechnical": "sound",
+        "expectedFollowUp": "deeper",
+        "technicalBand": "sound",
+        "feedback": {
+          "clarityScore": 81,
+          "relevanceScore": 95,
+          "structureScore": 76,
+          "technicalScore": 92,
+          "technicalAssessment": "rubric-checked",
+          "overallScore": 86,
+          "strengths": [
+            "The answer explains the required behavior and gives a concrete check."
+          ],
+          "improvements": [
+            "Add a concrete example, an observable check, or a failure case."
+          ],
+          "starAdherence": "Not applicable",
+          "comments": "Offline feedback checks specific concepts and common misconceptions for this question. Review the suggested answer for additional context."
+        },
+        "followUp": {
+          "questionText": "Building on your answer about Transaction atomicity, compare two approaches under a new constraint: a dependency fails or the workload doubles. Explain the trade-off, a test, and a recovery strategy.",
+          "topic": "Transaction atomicity",
+          "category": "technical",
+          "difficulty": "Hard",
+          "keyPoints": [
+            "Constraints",
+            "Alternatives and trade-offs",
+            "Validation",
+            "Failure recovery"
+          ],
+          "suggestedAnswer": "State the new constraint, compare two alternatives, justify a choice, then explain a test and recovery procedure.",
+          "adaptation": {
+            "policyVersion": "adaptive-interview-v3",
+            "kind": "deeper",
+            "parentQuestionId": "atomicity-sound-paraphrase",
+            "sourceAnswerExcerpt": "Enclose the subtraction and addition in one all-or-nothing unit of work. Make the change durable only after both operations succeed. Deliberately throw after the subtraction and re",
+            "reason": "The previous answer covered the rubric concepts; test a more demanding application."
+          }
+        },
+        "latencyMs": 0.656
+      },
+      {
+        "id": "atomicity-unsound-separate-commit",
+        "questionId": "atomicity",
+        "rationale": "A later rollback cannot reverse a committed transaction. The proposed test misses a partial debit.",
+        "expectedTechnical": "unsound",
+        "expectedFollowUp": "diagnostic",
+        "technicalBand": "unsound",
+        "feedback": {
+          "clarityScore": 85,
+          "relevanceScore": 90,
+          "structureScore": 80,
+          "technicalScore": 25,
+          "technicalAssessment": "rubric-checked",
+          "overallScore": 39,
+          "strengths": [],
+          "improvements": [
+            "A rollback affects its own uncommitted transaction. Put both writes in one transaction and verify both balances after an injected failure."
+          ],
+          "starAdherence": "Not applicable",
+          "comments": "Offline feedback checks specific concepts and common misconceptions for this question. Review the suggested answer for additional context."
+        },
+        "followUp": {
+          "questionText": "Let us take a smaller step on Transaction atomicity. Define one basic concept, give a simple example, and describe how you would check it works.",
+          "topic": "Transaction atomicity",
+          "category": "technical",
+          "difficulty": "Easy",
+          "keyPoints": [
+            "Basic definition",
+            "Concrete example",
+            "Validation"
+          ],
+          "suggestedAnswer": "Define the concept in plain language, walk through a small example, then describe a check and its expected result.",
+          "adaptation": {
+            "policyVersion": "adaptive-interview-v3",
+            "kind": "diagnostic",
+            "parentQuestionId": "atomicity-unsound-separate-commit",
+            "sourceAnswerExcerpt": "For transaction atomicity I commit the debit before starting the credit. If failure injection makes the credit throw, its rollback automatically reverses the debit even though that",
+            "reason": "The previous answer needs a smaller check of the fundamentals."
+          }
+        },
+        "latencyMs": 0.2836
+      },
+      {
+        "id": "atomicity-unsound-two-connections",
+        "questionId": "atomicity",
+        "rationale": "Separate autocommit operations do not share a transaction and cannot be rolled back as a unit.",
+        "expectedTechnical": "unsound",
+        "expectedFollowUp": "diagnostic",
+        "technicalBand": "unsound",
+        "feedback": {
+          "clarityScore": 86,
+          "relevanceScore": 90,
+          "structureScore": 81,
+          "technicalScore": 25,
+          "technicalAssessment": "rubric-checked",
+          "overallScore": 39,
+          "strengths": [],
+          "improvements": [
+            "A rollback affects its own uncommitted transaction. Put both writes in one transaction and verify both balances after an injected failure."
+          ],
+          "starAdherence": "Not applicable",
+          "comments": "Offline feedback checks specific concepts and common misconceptions for this question. Review the suggested answer for additional context."
+        },
+        "followUp": {
+          "questionText": "Let us take a smaller step on Transaction atomicity. Define one basic concept, give a simple example, and describe how you would check it works.",
+          "topic": "Transaction atomicity",
+          "category": "technical",
+          "difficulty": "Easy",
+          "keyPoints": [
+            "Basic definition",
+            "Concrete example",
+            "Validation"
+          ],
+          "suggestedAnswer": "Define the concept in plain language, walk through a small example, then describe a check and its expected result.",
+          "adaptation": {
+            "policyVersion": "adaptive-interview-v3",
+            "kind": "diagnostic",
+            "parentQuestionId": "atomicity-unsound-two-connections",
+            "sourceAnswerExcerpt": "Transaction atomicity happens automatically when the two accounts are in one database. I run each write on a separate connection with autocommit enabled. After failure injection I ",
+            "reason": "The previous answer needs a smaller check of the fundamentals."
+          }
+        },
+        "latencyMs": 0.2095
+      },
+      {
+        "id": "atomicity-no-answer",
+        "questionId": "atomicity",
+        "rationale": "The answer provides no technical evidence. Start with a simpler diagnostic.",
+        "expectedTechnical": "unsound",
+        "expectedFollowUp": "diagnostic",
+        "technicalBand": "unsound",
+        "feedback": {
+          "clarityScore": 20,
+          "relevanceScore": 20,
+          "structureScore": 20,
+          "technicalScore": 20,
+          "technicalAssessment": "rubric-checked",
+          "overallScore": 20,
+          "strengths": [],
+          "improvements": [
+            "Place both writes in one transaction.",
+            "Commit only after both writes succeed.",
+            "Force a failure between writes and verify both original values."
+          ],
+          "starAdherence": "Not applicable",
+          "comments": "Offline feedback checks specific concepts and common misconceptions for this question. Review the suggested answer for additional context."
+        },
+        "followUp": {
+          "questionText": "Let us take a smaller step on Transaction atomicity. Define one basic concept, give a simple example, and describe how you would check it works.",
+          "topic": "Transaction atomicity",
+          "category": "technical",
+          "difficulty": "Easy",
+          "keyPoints": [
+            "Basic definition",
+            "Concrete example",
+            "Validation"
+          ],
+          "suggestedAnswer": "Define the concept in plain language, walk through a small example, then describe a check and its expected result.",
+          "adaptation": {
+            "policyVersion": "adaptive-interview-v3",
+            "kind": "diagnostic",
+            "parentQuestionId": "atomicity-no-answer",
+            "sourceAnswerExcerpt": "I don't know.",
+            "reason": "The previous answer needs a smaller check of the fundamentals."
+          }
+        },
+        "latencyMs": 0.1345
+      },
+      {
+        "id": "cache-sound-terms",
+        "questionId": "cache",
+        "rationale": "The response directive and distinction are correct and the verification observes a real cache behavior.",
+        "expectedTechnical": "sound",
+        "expectedFollowUp": "deeper",
+        "technicalBand": "sound",
+        "feedback": {
+          "clarityScore": 87,
+          "relevanceScore": 95,
+          "structureScore": 82,
+          "technicalScore": 92,
+          "technicalAssessment": "rubric-checked",
+          "overallScore": 89,
+          "strengths": [
+            "The answer explains the required behavior and gives a concrete check."
+          ],
+          "improvements": [
+            "Add a concrete example, an observable check, or a failure case."
+          ],
+          "starAdherence": "Not applicable",
+          "comments": "Offline feedback checks specific concepts and common misconceptions for this question. Review the suggested answer for additional context."
+        },
+        "followUp": {
+          "questionText": "Building on your answer about HTTP cache directives, compare two approaches under a new constraint: a dependency fails or the workload doubles. Explain the trade-off, a test, and a recovery strategy.",
+          "topic": "HTTP cache directives",
+          "category": "technical",
+          "difficulty": "Hard",
+          "keyPoints": [
+            "Constraints",
+            "Alternatives and trade-offs",
+            "Validation",
+            "Failure recovery"
+          ],
+          "suggestedAnswer": "State the new constraint, compare two alternatives, justify a choice, then explain a test and recovery procedure.",
+          "adaptation": {
+            "policyVersion": "adaptive-interview-v3",
+            "kind": "deeper",
+            "parentQuestionId": "cache-sound-terms",
+            "sourceAnswerExcerpt": "I use the no-store directive in Cache-Control so shared and private HTTP caches do not keep the payload. No-cache can still permit storage. I would repeat the request through an is",
+            "reason": "The previous answer covered the rubric concepts; test a more demanding application."
+          }
+        },
+        "latencyMs": 1.775
+      },
+      {
+        "id": "cache-partial",
+        "questionId": "cache",
+        "rationale": "The header and inspection method are relevant. The key directive and behavioral check need clarification.",
+        "expectedTechnical": "partial",
+        "expectedFollowUp": "clarification",
+        "technicalBand": "partial",
+        "feedback": {
+          "clarityScore": 72,
+          "relevanceScore": 55,
+          "structureScore": 67,
+          "technicalScore": 55,
+          "technicalAssessment": "rubric-checked",
+          "overallScore": 62,
+          "strengths": [],
+          "improvements": [
+            "Choose the no-store directive.",
+            "Verify storage behavior through a repeat request or a cache probe."
+          ],
+          "starAdherence": "Not applicable",
+          "comments": "Offline feedback checks specific concepts and common misconceptions for this question. Review the suggested answer for additional context."
+        },
+        "followUp": {
+          "questionText": "In your previous answer about HTTP cache directives, you said: “I would add a Cache-Control response header and inspect it with the browser's network tools. I have not picked a directive or a way to see whether a proxy reused the response.”. Clarify No-store directive: describe your own action and one concrete example or test.",
+          "topic": "HTTP cache directives",
+          "category": "technical",
+          "difficulty": "Medium",
+          "keyPoints": [
+            "No-store directive",
+            "Personal actions",
+            "Concrete example"
+          ],
+          "suggestedAnswer": "Explain No-store directive using your own concrete action and a verifiable example. State what is uncertain rather than inventing an outcome.",
+          "adaptation": {
+            "policyVersion": "adaptive-interview-v3",
+            "kind": "clarification",
+            "parentQuestionId": "cache-partial",
+            "sourceAnswerExcerpt": "I would add a Cache-Control response header and inspect it with the browser's network tools. I have not picked a directive or a way to see whether a proxy reused the response.",
+            "reason": "The previous answer needs a concrete explanation of an uncovered rubric point."
+          }
+        },
+        "latencyMs": 0.922
+      }
+    ],
+    "contrasts": [
+      {
+        "soundAnswerId": "binary-sound-terms",
+        "unsoundAnswerId": "binary-unsound-terms",
+        "soundScore": 92,
+        "unsoundScore": 25,
+        "ordering": "correct"
+      },
+      {
+        "soundAnswerId": "binary-sound-paraphrase",
+        "unsoundAnswerId": "binary-unsound-terms",
+        "soundScore": 92,
+        "unsoundScore": 25,
+        "ordering": "correct"
+      },
+      {
+        "soundAnswerId": "atomicity-sound-terms",
+        "unsoundAnswerId": "atomicity-unsound-separate-commit",
+        "soundScore": 92,
+        "unsoundScore": 25,
+        "ordering": "correct"
+      },
+      {
+        "soundAnswerId": "atomicity-sound-paraphrase",
+        "unsoundAnswerId": "atomicity-unsound-two-connections",
+        "soundScore": 92,
+        "unsoundScore": 25,
+        "ordering": "correct"
+      }
+    ],
+    "metrics": {
+      "technicalBandAgreement": {
+        "correct": 10,
+        "total": 10,
+        "rate": 1
+      },
+      "followUpAgreement": {
+        "correct": 10,
+        "total": 10,
+        "rate": 1
+      },
+      "soundAboveUnsound": {
+        "correct": 4,
+        "total": 4,
+        "rate": 1
+      },
+      "unsoundSentDeeper": {
+        "count": 0,
+        "total": 4
+      }
+    }
+  },
+  "progress": {
+    "competencyResults": [
+      {
+        "expected": {
+          "topic": "Binary search",
+          "status": "strength",
+          "sampleCount": 2,
+          "sessionCount": 2,
+          "attemptCount": 3,
+          "rationale": "Two latest technically sound answers across sessions. The corrected misconception stays linked as a previous attempt."
+        },
+        "observedStatus": "strength",
+        "countsMatch": true,
+        "averageScore": 89,
+        "evidence": [
+          {
+            "sessionId": "session-b",
+            "questionId": "q-binary-2",
+            "attemptIndex": 1,
+            "current": true,
+            "questionText": "What prerequisite makes ordinary binary search on an array valid, and how would you check the implementation?",
+            "answerExcerpt": "Values must rise consistently from left to right under the same relation used for lookup. Looking at the central element tells me which side can still contain the desired value. I would exercise an empty sequence and verify the first and final valid positions plus a key outside the sequence.",
+            "score": 91,
+            "technicalScore": 92,
+            "technicalAssessment": "rubric-checked",
+            "provider": "deterministic-fallback",
+            "answeredAt": "2025-01-03T00:00:00.000Z",
+            "href": "/interview/session/session-b?question=q-binary-2&attempt=1"
+          },
+          {
+            "sessionId": "session-b",
+            "questionId": "q-binary-2",
+            "attemptIndex": 0,
+            "current": false,
+            "questionText": "What prerequisite makes ordinary binary search on an array valid, and how would you check the implementation?",
+            "answerExcerpt": "Sorted order is unnecessary. A midpoint comparison can always discard the left half even when the entries are arbitrarily shuffled. My boundary test would check one central key only, because an absent key and the first position cannot expose a mistake in the search.",
+            "score": 39,
+            "technicalScore": 25,
+            "technicalAssessment": "rubric-checked",
+            "provider": "deterministic-fallback",
+            "answeredAt": "2025-01-02T00:00:00.000Z",
+            "href": "/interview/session/session-b?question=q-binary-2&attempt=0"
+          },
+          {
+            "sessionId": "session-a",
+            "questionId": "q-binary-1",
+            "attemptIndex": 0,
+            "current": true,
+            "questionText": "What prerequisite makes ordinary binary search on an array valid, and how would you check the implementation?",
+            "answerExcerpt": "I check that the input has sorted order using the same comparator as the search. Each midpoint comparison discards the half that cannot contain the key. A boundary test should cover the first and last elements, a missing key, and an empty array.",
+            "score": 87,
+            "technicalScore": 92,
+            "technicalAssessment": "rubric-checked",
+            "provider": "deterministic-fallback",
+            "answeredAt": "2025-01-02T00:00:00.000Z",
+            "href": "/interview/session/session-a?question=q-binary-1&attempt=0"
+          }
+        ]
+      },
+      {
+        "expected": {
+          "topic": "Transaction atomicity",
+          "status": "gap",
+          "sampleCount": 2,
+          "sessionCount": 2,
+          "attemptCount": 2,
+          "rationale": "Both current answers misunderstand the commit boundary."
+        },
+        "observedStatus": "gap",
+        "countsMatch": true,
+        "averageScore": 39,
+        "evidence": [
+          {
+            "sessionId": "session-b",
+            "questionId": "q-atomicity-2",
+            "attemptIndex": 0,
+            "current": true,
+            "questionText": "How would you make a two-write debit and credit atomic, and prove a failure between them does not leave a partial transfer?",
+            "answerExcerpt": "Transaction atomicity happens automatically when the two accounts are in one database. I run each write on a separate connection with autocommit enabled. After failure injection I call rollback on the credit connection, which will cancel the debit commit on the other connection without checking balances.",
+            "score": 39,
+            "technicalScore": 25,
+            "technicalAssessment": "rubric-checked",
+            "provider": "deterministic-fallback",
+            "answeredAt": "2025-01-05T00:00:00.000Z",
+            "href": "/interview/session/session-b?question=q-atomicity-2&attempt=0"
+          },
+          {
+            "sessionId": "session-a",
+            "questionId": "q-atomicity-1",
+            "attemptIndex": 0,
+            "current": true,
+            "questionText": "How would you make a two-write debit and credit atomic, and prove a failure between them does not leave a partial transfer?",
+            "answerExcerpt": "For transaction atomicity I commit the debit before starting the credit. If failure injection makes the credit throw, its rollback automatically reverses the debit even though that earlier transaction has already been committed. I therefore only need to assert that the credit reported an error.",
+            "score": 39,
+            "technicalScore": 25,
+            "technicalAssessment": "rubric-checked",
+            "provider": "deterministic-fallback",
+            "answeredAt": "2025-01-04T00:00:00.000Z",
+            "href": "/interview/session/session-a?question=q-atomicity-1&attempt=0"
+          }
+        ]
+      },
+      {
+        "expected": {
+          "topic": "HTTP cache directives",
+          "status": "developing",
+          "sampleCount": 1,
+          "sessionCount": 1,
+          "attemptCount": 1,
+          "rationale": "One partial answer identifies the header and needs a targeted clarification."
+        },
+        "observedStatus": "developing",
+        "countsMatch": true,
+        "averageScore": 62,
+        "evidence": [
+          {
+            "sessionId": "session-b",
+            "questionId": "q-cache-1",
+            "attemptIndex": 0,
+            "current": true,
+            "questionText": "Which HTTP response directive stops storage of a private account payload by browser and shared HTTP caches, and how would you verify it?",
+            "answerExcerpt": "I would add a Cache-Control response header and inspect it with the browser's network tools. I have not picked a directive or a way to see whether a proxy reused the response.",
+            "score": 62,
+            "technicalScore": 55,
+            "technicalAssessment": "rubric-checked",
+            "provider": "deterministic-fallback",
+            "answeredAt": "2025-01-06T00:00:00.000Z",
+            "href": "/interview/session/session-b?question=q-cache-1&attempt=0"
+          }
+        ]
+      }
+    ],
+    "expectedExcludedReports": {
+      "stale": 1,
+      "unversioned": 1,
+      "missingResume": 1
+    },
+    "excludedReports": {
+      "stale": 1,
+      "unversioned": 1,
+      "missingResume": 1
+    },
+    "currentReportIds": [
+      "report-current"
+    ],
+    "recommended": [
+      {
+        "expected": {
+          "topic": "Transaction atomicity",
+          "difficulty": "Easy",
+          "evidenceKind": "interview",
+          "rationale": "Practice the basic commit and rollback boundary after two incorrect explanations."
+        },
+        "observed": {
+          "topic": "Transaction atomicity",
+          "difficulty": "Easy",
+          "evidenceKind": "interview",
+          "linked": true,
+          "actionableStructure": true,
+          "sourceEvidence": [
+            {
+              "sessionId": "session-b",
+              "questionId": "q-atomicity-2",
+              "attemptIndex": 0,
+              "current": true,
+              "questionText": "How would you make a two-write debit and credit atomic, and prove a failure between them does not leave a partial transfer?",
+              "answerExcerpt": "Transaction atomicity happens automatically when the two accounts are in one database. I run each write on a separate connection with autocommit enabled. After failure injection I call rollback on the credit connection, which will cancel the debit commit on the other connection without checking balances.",
+              "score": 39,
+              "technicalScore": 25,
+              "technicalAssessment": "rubric-checked",
+              "provider": "deterministic-fallback",
+              "answeredAt": "2025-01-05T00:00:00.000Z",
+              "href": "/interview/session/session-b?question=q-atomicity-2&attempt=0"
+            },
+            {
+              "sessionId": "session-a",
+              "questionId": "q-atomicity-1",
+              "attemptIndex": 0,
+              "current": true,
+              "questionText": "How would you make a two-write debit and credit atomic, and prove a failure between them does not leave a partial transfer?",
+              "answerExcerpt": "For transaction atomicity I commit the debit before starting the credit. If failure injection makes the credit throw, its rollback automatically reverses the debit even though that earlier transaction has already been committed. I therefore only need to assert that the credit reported an error.",
+              "score": 39,
+              "technicalScore": 25,
+              "technicalAssessment": "rubric-checked",
+              "provider": "deterministic-fallback",
+              "answeredAt": "2025-01-04T00:00:00.000Z",
+              "href": "/interview/session/session-a?question=q-atomicity-1&attempt=0"
+            }
+          ],
+          "requirementSources": [],
+          "practiceTasks": [
+            {
+              "title": "Explain Transaction atomicity with one example",
+              "instructions": "Review the cited answer or job requirement for Transaction atomicity. Write a plain-language definition, one concrete example, and the assumption you are least certain about. If you already have evidence, identify the project and your own contribution.",
+              "doneWhen": "You can explain the concept without notes and point to a real or explicitly labelled practice example."
+            },
+            {
+              "title": "Compare two approaches to Transaction atomicity",
+              "instructions": "Choose a small scenario involving Transaction atomicity. Compare two approaches and describe one trade-off, a failure case and a test or observable check.",
+              "doneWhen": "Your notes include two alternatives, a justified choice, one failure case and the expected result of a check."
+            }
+          ],
+          "projectMilestones": [
+            {
+              "title": "Create a small Transaction atomicity demonstration",
+              "instructions": "Create the smallest useful artifact demonstrating Transaction atomicity: a runnable example, a design document, or a worked analysis. Document your goal, inputs, assumptions and personal contribution.",
+              "doneWhen": "Another person can reproduce or inspect the example using your instructions and see the expected result."
+            },
+            {
+              "title": "Test and improve the Transaction atomicity example",
+              "instructions": "Add one edge case and one failure scenario. Record the observed behavior, fix a weakness, and write a short explanation of the trade-off. Keep evidence of the before and after states.",
+              "doneWhen": "The artifact includes an observable validation result and a short explanation of what changed and what remains uncertain."
+            }
+          ],
+          "reassessment": {
+            "topicFocus": "Transaction atomicity",
+            "difficulty": "Easy",
+            "count": 3,
+            "successCriteria": [
+              "Answer three focused questions using your own example and reasoning.",
+              "Explain a trade-off, a failure case and a test without inventing results.",
+              "Compare new feedback to the cited attempts and ask a reviewer to check technical accuracy; a higher automated score alone is insufficient."
+            ]
+          }
+        }
+      },
+      {
+        "expected": {
+          "topic": "HTTP cache directives",
+          "difficulty": "Medium",
+          "evidenceKind": "interview",
+          "rationale": "Build on a partial understanding with a focused policy and verification exercise."
+        },
+        "observed": {
+          "topic": "HTTP cache directives",
+          "difficulty": "Medium",
+          "evidenceKind": "interview",
+          "linked": true,
+          "actionableStructure": true,
+          "sourceEvidence": [
+            {
+              "sessionId": "session-b",
+              "questionId": "q-cache-1",
+              "attemptIndex": 0,
+              "current": true,
+              "questionText": "Which HTTP response directive stops storage of a private account payload by browser and shared HTTP caches, and how would you verify it?",
+              "answerExcerpt": "I would add a Cache-Control response header and inspect it with the browser's network tools. I have not picked a directive or a way to see whether a proxy reused the response.",
+              "score": 62,
+              "technicalScore": 55,
+              "technicalAssessment": "rubric-checked",
+              "provider": "deterministic-fallback",
+              "answeredAt": "2025-01-06T00:00:00.000Z",
+              "href": "/interview/session/session-b?question=q-cache-1&attempt=0"
+            }
+          ],
+          "requirementSources": [],
+          "practiceTasks": [
+            {
+              "title": "Explain HTTP cache directives with one example",
+              "instructions": "Review the cited answer or job requirement for HTTP cache directives. Write a plain-language definition, one concrete example, and the assumption you are least certain about. If you already have evidence, identify the project and your own contribution.",
+              "doneWhen": "You can explain the concept without notes and point to a real or explicitly labelled practice example."
+            },
+            {
+              "title": "Compare two approaches to HTTP cache directives",
+              "instructions": "Choose a small scenario involving HTTP cache directives. Compare two approaches and describe one trade-off, a failure case and a test or observable check.",
+              "doneWhen": "Your notes include two alternatives, a justified choice, one failure case and the expected result of a check."
+            }
+          ],
+          "projectMilestones": [
+            {
+              "title": "Create a small HTTP cache directives demonstration",
+              "instructions": "Create the smallest useful artifact demonstrating HTTP cache directives: a runnable example, a design document, or a worked analysis. Document your goal, inputs, assumptions and personal contribution.",
+              "doneWhen": "Another person can reproduce or inspect the example using your instructions and see the expected result."
+            },
+            {
+              "title": "Test and improve the HTTP cache directives example",
+              "instructions": "Add one edge case and one failure scenario. Record the observed behavior, fix a weakness, and write a short explanation of the trade-off. Keep evidence of the before and after states.",
+              "doneWhen": "The artifact includes an observable validation result and a short explanation of what changed and what remains uncertain."
+            }
+          ],
+          "reassessment": {
+            "topicFocus": "HTTP cache directives",
+            "difficulty": "Medium",
+            "count": 3,
+            "successCriteria": [
+              "Answer three focused questions using your own example and reasoning.",
+              "Explain a trade-off, a failure case and a test without inventing results.",
+              "Compare new feedback to the cited attempts and ask a reviewer to check technical accuracy; a higher automated score alone is insufficient."
+            ]
+          }
+        }
+      },
+      {
+        "expected": {
+          "topic": "Docker",
+          "difficulty": "Easy",
+          "evidenceKind": "unassessed-job-gap",
+          "rationale": "Identify existing evidence or practice after verifying a Docker requirement from the current report. The resume does not establish a practice weakness."
+        },
+        "observed": {
+          "topic": "Docker",
+          "difficulty": "Easy",
+          "evidenceKind": "unassessed-job-gap",
+          "linked": true,
+          "actionableStructure": true,
+          "sourceEvidence": [],
+          "requirementSources": [
+            {
+              "analysisId": "report-current",
+              "resumeId": "resume-a",
+              "jobDescriptionId": "job-a",
+              "requirementId": "req-ad72d3eb15c0",
+              "category": "required_skill",
+              "status": "missing",
+              "sourceText": "Required: SQL, Docker",
+              "missingEvidence": "Add a truthful project, course or work example demonstrating Docker."
+            }
+          ],
+          "practiceTasks": [
+            {
+              "title": "Explain Docker with one example",
+              "instructions": "Review the cited answer or job requirement for Docker. Write a plain-language definition, one concrete example, and the assumption you are least certain about. If you already have evidence, identify the project and your own contribution.",
+              "doneWhen": "You can explain the concept without notes and point to a real or explicitly labelled practice example."
+            },
+            {
+              "title": "Compare two approaches to Docker",
+              "instructions": "Choose a small scenario involving Docker. Compare two approaches and describe one trade-off, a failure case and a test or observable check.",
+              "doneWhen": "Your notes include two alternatives, a justified choice, one failure case and the expected result of a check."
+            }
+          ],
+          "projectMilestones": [
+            {
+              "title": "Create a small Docker demonstration",
+              "instructions": "Create the smallest useful artifact demonstrating Docker: a runnable example, a design document, or a worked analysis. Document your goal, inputs, assumptions and personal contribution.",
+              "doneWhen": "Another person can reproduce or inspect the example using your instructions and see the expected result."
+            },
+            {
+              "title": "Test and improve the Docker example",
+              "instructions": "Add one edge case and one failure scenario. Record the observed behavior, fix a weakness, and write a short explanation of the trade-off. Keep evidence of the before and after states.",
+              "doneWhen": "The artifact includes an observable validation result and a short explanation of what changed and what remains uncertain."
+            }
+          ],
+          "reassessment": {
+            "topicFocus": "Docker",
+            "difficulty": "Easy",
+            "count": 3,
+            "successCriteria": [
+              "Answer three focused questions using your own example and reasoning.",
+              "Explain a trade-off, a failure case and a test without inventing results.",
+              "Compare new feedback to the cited attempts and ask a reviewer to check technical accuracy; a higher automated score alone is insufficient."
+            ]
+          }
+        }
+      }
+    ],
+    "observedRecommendations": [
+      {
+        "topic": "Transaction atomicity",
+        "difficulty": "Easy",
+        "evidenceKind": "interview",
+        "linked": true,
+        "actionableStructure": true,
+        "sourceEvidence": [
+          {
+            "sessionId": "session-b",
+            "questionId": "q-atomicity-2",
+            "attemptIndex": 0,
+            "current": true,
+            "questionText": "How would you make a two-write debit and credit atomic, and prove a failure between them does not leave a partial transfer?",
+            "answerExcerpt": "Transaction atomicity happens automatically when the two accounts are in one database. I run each write on a separate connection with autocommit enabled. After failure injection I call rollback on the credit connection, which will cancel the debit commit on the other connection without checking balances.",
+            "score": 39,
+            "technicalScore": 25,
+            "technicalAssessment": "rubric-checked",
+            "provider": "deterministic-fallback",
+            "answeredAt": "2025-01-05T00:00:00.000Z",
+            "href": "/interview/session/session-b?question=q-atomicity-2&attempt=0"
+          },
+          {
+            "sessionId": "session-a",
+            "questionId": "q-atomicity-1",
+            "attemptIndex": 0,
+            "current": true,
+            "questionText": "How would you make a two-write debit and credit atomic, and prove a failure between them does not leave a partial transfer?",
+            "answerExcerpt": "For transaction atomicity I commit the debit before starting the credit. If failure injection makes the credit throw, its rollback automatically reverses the debit even though that earlier transaction has already been committed. I therefore only need to assert that the credit reported an error.",
+            "score": 39,
+            "technicalScore": 25,
+            "technicalAssessment": "rubric-checked",
+            "provider": "deterministic-fallback",
+            "answeredAt": "2025-01-04T00:00:00.000Z",
+            "href": "/interview/session/session-a?question=q-atomicity-1&attempt=0"
+          }
+        ],
+        "requirementSources": [],
+        "practiceTasks": [
+          {
+            "title": "Explain Transaction atomicity with one example",
+            "instructions": "Review the cited answer or job requirement for Transaction atomicity. Write a plain-language definition, one concrete example, and the assumption you are least certain about. If you already have evidence, identify the project and your own contribution.",
+            "doneWhen": "You can explain the concept without notes and point to a real or explicitly labelled practice example."
+          },
+          {
+            "title": "Compare two approaches to Transaction atomicity",
+            "instructions": "Choose a small scenario involving Transaction atomicity. Compare two approaches and describe one trade-off, a failure case and a test or observable check.",
+            "doneWhen": "Your notes include two alternatives, a justified choice, one failure case and the expected result of a check."
+          }
+        ],
+        "projectMilestones": [
+          {
+            "title": "Create a small Transaction atomicity demonstration",
+            "instructions": "Create the smallest useful artifact demonstrating Transaction atomicity: a runnable example, a design document, or a worked analysis. Document your goal, inputs, assumptions and personal contribution.",
+            "doneWhen": "Another person can reproduce or inspect the example using your instructions and see the expected result."
+          },
+          {
+            "title": "Test and improve the Transaction atomicity example",
+            "instructions": "Add one edge case and one failure scenario. Record the observed behavior, fix a weakness, and write a short explanation of the trade-off. Keep evidence of the before and after states.",
+            "doneWhen": "The artifact includes an observable validation result and a short explanation of what changed and what remains uncertain."
+          }
+        ],
+        "reassessment": {
+          "topicFocus": "Transaction atomicity",
+          "difficulty": "Easy",
+          "count": 3,
+          "successCriteria": [
+            "Answer three focused questions using your own example and reasoning.",
+            "Explain a trade-off, a failure case and a test without inventing results.",
+            "Compare new feedback to the cited attempts and ask a reviewer to check technical accuracy; a higher automated score alone is insufficient."
+          ]
+        }
+      },
+      {
+        "topic": "HTTP cache directives",
+        "difficulty": "Medium",
+        "evidenceKind": "interview",
+        "linked": true,
+        "actionableStructure": true,
+        "sourceEvidence": [
+          {
+            "sessionId": "session-b",
+            "questionId": "q-cache-1",
+            "attemptIndex": 0,
+            "current": true,
+            "questionText": "Which HTTP response directive stops storage of a private account payload by browser and shared HTTP caches, and how would you verify it?",
+            "answerExcerpt": "I would add a Cache-Control response header and inspect it with the browser's network tools. I have not picked a directive or a way to see whether a proxy reused the response.",
+            "score": 62,
+            "technicalScore": 55,
+            "technicalAssessment": "rubric-checked",
+            "provider": "deterministic-fallback",
+            "answeredAt": "2025-01-06T00:00:00.000Z",
+            "href": "/interview/session/session-b?question=q-cache-1&attempt=0"
+          }
+        ],
+        "requirementSources": [],
+        "practiceTasks": [
+          {
+            "title": "Explain HTTP cache directives with one example",
+            "instructions": "Review the cited answer or job requirement for HTTP cache directives. Write a plain-language definition, one concrete example, and the assumption you are least certain about. If you already have evidence, identify the project and your own contribution.",
+            "doneWhen": "You can explain the concept without notes and point to a real or explicitly labelled practice example."
+          },
+          {
+            "title": "Compare two approaches to HTTP cache directives",
+            "instructions": "Choose a small scenario involving HTTP cache directives. Compare two approaches and describe one trade-off, a failure case and a test or observable check.",
+            "doneWhen": "Your notes include two alternatives, a justified choice, one failure case and the expected result of a check."
+          }
+        ],
+        "projectMilestones": [
+          {
+            "title": "Create a small HTTP cache directives demonstration",
+            "instructions": "Create the smallest useful artifact demonstrating HTTP cache directives: a runnable example, a design document, or a worked analysis. Document your goal, inputs, assumptions and personal contribution.",
+            "doneWhen": "Another person can reproduce or inspect the example using your instructions and see the expected result."
+          },
+          {
+            "title": "Test and improve the HTTP cache directives example",
+            "instructions": "Add one edge case and one failure scenario. Record the observed behavior, fix a weakness, and write a short explanation of the trade-off. Keep evidence of the before and after states.",
+            "doneWhen": "The artifact includes an observable validation result and a short explanation of what changed and what remains uncertain."
+          }
+        ],
+        "reassessment": {
+          "topicFocus": "HTTP cache directives",
+          "difficulty": "Medium",
+          "count": 3,
+          "successCriteria": [
+            "Answer three focused questions using your own example and reasoning.",
+            "Explain a trade-off, a failure case and a test without inventing results.",
+            "Compare new feedback to the cited attempts and ask a reviewer to check technical accuracy; a higher automated score alone is insufficient."
+          ]
+        }
+      },
+      {
+        "topic": "Docker",
+        "difficulty": "Easy",
+        "evidenceKind": "unassessed-job-gap",
+        "linked": true,
+        "actionableStructure": true,
+        "sourceEvidence": [],
+        "requirementSources": [
+          {
+            "analysisId": "report-current",
+            "resumeId": "resume-a",
+            "jobDescriptionId": "job-a",
+            "requirementId": "req-ad72d3eb15c0",
+            "category": "required_skill",
+            "status": "missing",
+            "sourceText": "Required: SQL, Docker",
+            "missingEvidence": "Add a truthful project, course or work example demonstrating Docker."
+          }
+        ],
+        "practiceTasks": [
+          {
+            "title": "Explain Docker with one example",
+            "instructions": "Review the cited answer or job requirement for Docker. Write a plain-language definition, one concrete example, and the assumption you are least certain about. If you already have evidence, identify the project and your own contribution.",
+            "doneWhen": "You can explain the concept without notes and point to a real or explicitly labelled practice example."
+          },
+          {
+            "title": "Compare two approaches to Docker",
+            "instructions": "Choose a small scenario involving Docker. Compare two approaches and describe one trade-off, a failure case and a test or observable check.",
+            "doneWhen": "Your notes include two alternatives, a justified choice, one failure case and the expected result of a check."
+          }
+        ],
+        "projectMilestones": [
+          {
+            "title": "Create a small Docker demonstration",
+            "instructions": "Create the smallest useful artifact demonstrating Docker: a runnable example, a design document, or a worked analysis. Document your goal, inputs, assumptions and personal contribution.",
+            "doneWhen": "Another person can reproduce or inspect the example using your instructions and see the expected result."
+          },
+          {
+            "title": "Test and improve the Docker example",
+            "instructions": "Add one edge case and one failure scenario. Record the observed behavior, fix a weakness, and write a short explanation of the trade-off. Keep evidence of the before and after states.",
+            "doneWhen": "The artifact includes an observable validation result and a short explanation of what changed and what remains uncertain."
+          }
+        ],
+        "reassessment": {
+          "topicFocus": "Docker",
+          "difficulty": "Easy",
+          "count": 3,
+          "successCriteria": [
+            "Answer three focused questions using your own example and reasoning.",
+            "Explain a trade-off, a failure case and a test without inventing results.",
+            "Compare new feedback to the cited attempts and ask a reviewer to check technical accuracy; a higher automated score alone is insufficient."
+          ]
+        }
+      }
+    ],
+    "unexpectedRecommendationTopics": [],
+    "metrics": {
+      "semanticCompetencyAgreement": {
+        "correct": 3,
+        "total": 3,
+        "rate": 1
+      },
+      "correctTopicHistoryCounts": {
+        "correct": 3,
+        "total": 3,
+        "rate": 1
+      },
+      "attemptLinkCoverage": {
+        "correct": 6,
+        "total": 6,
+        "rate": 1
+      },
+      "reportExclusionsMatch": true,
+      "expectedRecommendationTopicsFound": {
+        "correct": 3,
+        "total": 3,
+        "rate": 1
+      },
+      "alignedRecommendations": {
+        "correct": 3,
+        "total": 3,
+        "rate": 1
+      },
+      "recommendationsWithValidEvidenceLinks": {
+        "correct": 3,
+        "total": 3,
+        "rate": 1
+      },
+      "recommendationsWithActionableStructure": {
+        "correct": 3,
+        "total": 3,
+        "rate": 1
+      }
+    }
+  }
+}

@@ -27,9 +27,9 @@ function selection(value, resume) {
   return result;
 }
 function selectedContent(resume, choice) {
-  const content = withEntryIds(resume.parsedData), selected = selection(choice, resume);
+  const previous = withEntryIds(resume.parsedData), content = plain(previous), selected = selection(choice, resume);
   for (const key of ['workExperience', 'projects']) if (selected?.[key]) content[key] = content[key].filter((entry) => selected[key].includes(entry.entryId));
-  return content;
+  return require('../providers/skillConflicts').refreshSkillConflicts(content, previous);
 }
 function rewriteScope(value = 'all', content) {
   if (typeof value !== 'string' || value.length > 140) throw fail('Choose a supported rewrite scope');
@@ -39,7 +39,10 @@ function rewriteScope(value = 'all', content) {
   return section + ':' + id;
 }
 function scopedContent(content, scope = 'all') {
-  const source = withEntryIds(content); if (['all', 'summary'].includes(scope)) return source;
-  const [section, id] = scope.split(':'); return { ...source, summary: '', workExperience: [], projects: [], [section]: source[section].filter((entry) => entry.entryId === id) };
+  const source = withEntryIds(content);
+  if (['all', 'summary'].includes(scope)) return require('../providers/skillConflicts').refreshSkillConflicts(source, source);
+  const [section, id] = scope.split(':');
+  const scoped = { ...source, summary: '', workExperience: [], projects: [], [section]: source[section].filter((entry) => entry.entryId === id) };
+  return require('../providers/skillConflicts').refreshSkillConflicts(scoped, source);
 }
 module.exports = { sectionKeys, entrySections, withEntryIds, presentation, selection, selectedContent, rewriteScope, scopedContent };

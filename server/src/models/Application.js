@@ -4,6 +4,14 @@ const applicationSchema = new mongoose.Schema(
   {
     deadline: Date,
     followUpAt: Date,
+    interviewAt: Date,
+    notificationPreferences: {
+      inApp: { type: Boolean, default: true },
+      calendarAlarm: { type: Boolean, default: false },
+      leadMinutes: { type: Number, default: 60 },
+    },
+    recruiter: { name: String, email: String, phone: String, notes: String },
+    attachments: [{ name: String, mime: String, bytes: Number, uploadedAt: { type: Date, default: Date.now }, data: { type: Buffer, select: false } }],
     workspaceId: { type: mongoose.Schema.Types.ObjectId, ref: 'JobWorkspace' },
     resumeVersionId: { type: mongoose.Schema.Types.ObjectId, ref: 'TailoredResume' },
     resumeSnapshot: mongoose.Schema.Types.Mixed,

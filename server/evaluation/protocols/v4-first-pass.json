@@ -1,0 +1,68 @@
+{
+  "protocolVersion": "phase4-holdout-protocol-v1",
+  "runId": "holdout-v4-v5-initial-2026-11-08",
+  "registeredAt": "2026-11-08T06:17:50.196Z",
+  "datasetVersion": "phase4-synthetic-v4",
+  "datasetPath": "server/evaluation/dataset/v4/holdout.json",
+  "plannedCases": 30,
+  "plannedGroups": {
+    "graduate": 6,
+    "experienced": 6,
+    "sparse": 6,
+    "formatting": 6,
+    "misleading": 6
+  },
+  "frozenCommit": "652143efb3c0474659a8d3f408345f62f5f65e26",
+  "serverSourceTree": "25839c5afcb18321730e893919703e2702f48fec",
+  "clientSourceTree": "a844de0df3db6c1c778946bac3717d4baec60c66",
+  "rubricVersion": "careerforge-assessment-v5",
+  "implementationSha256": "8e1e1cce20886140c5a330b0a688b06e277c09042352ba2befcb0f59c23a377e",
+  "metricsSha256": "a8231f12d7a3d47a60eb766eb28ad927ff7b08fab9af3b3f5e17b28ec08cd643",
+  "implementationFiles": [
+    "../src/providers/deterministicProvider.js",
+    "../src/providers/resumeContact.js",
+    "../src/providers/resumeFacts.js",
+    "../src/providers/resumeClaims.js",
+    "../src/providers/resumeLayout.js",
+    "../src/providers/resumeEvidence.js",
+    "../src/providers/skillPolarity.js",
+    "../src/providers/skillConflicts.js",
+    "../src/services/jobRequirements.js",
+    "../src/services/requirementMatching.js",
+    "../src/services/assessmentRubrics.js"
+  ],
+  "authoring": {
+    "method": "separate-agent-without-implementation-or-prior-fixture-access",
+    "referenceLabels": "semantic-reading-before-any-evaluation-output",
+    "preExecutionReview": "separate-agent-review-of-reference-labels-without-implementation-or-predictions",
+    "humanReview": false,
+    "data": "synthetic-fictional-only"
+  },
+  "primaryMetrics": [
+    "resume-skill-micro-precision-recall-f1",
+    "requirement-status-accuracy",
+    "unsupported-supported-skill-decisions"
+  ],
+  "secondaryMetrics": [
+    "contact-exact-extraction",
+    "jd-skill-category-extraction",
+    "citation-integrity",
+    "evidence-coverage",
+    "local-pipeline-latency",
+    "offline-provider-cost"
+  ],
+  "executionPolicy": {
+    "freezeDatasetAndLabelsBeforeEvaluation": true,
+    "firstScoredRunOnly": true,
+    "noParserMatcherOrMetricTuning": true,
+    "publishAllCasesAndFailures": true,
+    "doNotRerunUntilPublication": true,
+    "laterExecutionsAreRegressionOnly": true,
+    "externalProviders": false
+  },
+  "limitations": [
+    "Independent agents author and review references. Human agreement requires separate human ratings.",
+    "The small fictional English raw-text set measures contact and skill extraction and skill matching. Broader requirement and interview coverage uses separate studies.",
+    "Publication exposes the holdout. Subsequent runs provide regression evidence."
+  ]
+}

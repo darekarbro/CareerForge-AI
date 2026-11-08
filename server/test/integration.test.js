@@ -198,7 +198,7 @@ test('13,20,27: an eight-question JD-aware interview completes after all eight a
   const account = await user(), resume = await ready(account.id);
   const jd = await Description.create({ owner: account.id, targetRole: 'Backend Engineer', rawText: 'Docker required' });
   const generated = await successfulJob(await request('POST', '/api/interview/sessions', { token: account.token,
-    body: { resumeId: String(resume._id), targetRole: 'Backend Engineer', count: 8, jobDescriptionId: String(jd._id) } }));
+    body: { resumeId: String(resume._id), targetRole: 'Backend Engineer', count: 8, jobDescriptionId: String(jd._id), adaptiveEnabled: false } }));
   assert.equal(generated.questions.length, 8); assert(generated.questions[0].questionText.includes('Docker'));
   // Submit independently queued answers concurrently to exercise atomic session aggregates.
   const responses = await Promise.all(generated.questions.map((question) => request('POST',
@@ -484,7 +484,7 @@ test('Resume exports preserve full long-form content across three layouts and ed
 test('Interview modes hide feedback until completion and retries replace scores without inflating counts', async () => {
   const a = await user(), resume = await ready(a.id);
   const output = await successfulJob(await request('POST', '/api/interview/sessions', { token: a.token, body: {
-    resumeId: String(resume._id), targetRole: 'Backend Engineer', count: 3, difficulty: 'Easy', timeLimitSeconds: 120, feedbackMode: 'end', topicFocus: 'API design',
+    resumeId: String(resume._id), targetRole: 'Backend Engineer', count: 3, difficulty: 'Easy', timeLimitSeconds: 120, feedbackMode: 'end', topicFocus: 'API design', adaptiveEnabled: false,
   } }));
   const session = output.session, questions = output.questions;
   assert(questions.every((item) => !item.suggestedAnswer && item.difficulty === 'Easy' && item.topic === 'API design'));
@@ -606,22 +606,26 @@ test('Phase 1: Google export requires fresh matching proof and rejected reauthen
     assert.equal(exported.status, 200); assert.equal(exported.data.subarray(0, 2).toString(), 'PK');
   } finally { auth.verifyFirebaseToken = verify; }
 });
-test('Phase 1: external providers require per-account consent and revocation changes assessment cache', async () => {
+test('Phase 4: external extraction requires consent while final rubric scores stay local', async () => {
   const a = await user(), factory = require('../src/providers/providerFactory'), context = require('../src/services/jobContext').context;
-  const available = factory.groq.isAvailable, calculate = factory.groq.scoreATS; let calls = 0;
+  const available = factory.groq.isAvailable, parse = factory.groq.parseResume; let calls = 0;
   factory.groq.isAvailable = () => true;
-  factory.groq.scoreATS = async (params) => { calls++; return factory.deterministic.scoreATS(params); };
+  factory.groq.parseResume = async () => { calls++; return factory.deterministic.parseResume('Synthetic Candidate\nSkills\nPython'); };
   const privacy = require('../src/services/privacyService'), settings = await privacy.get(a.id); settings.providers = { groq: false, openrouter: false, gemini: false };
   const params = { resumeData: facts, rawText: JSON.stringify(facts), userId: a.id };
   try {
     await privacy.save(a.id, settings);
-    const run = () => context.run({ owner: a.id }, () => require('../src/agents/analyzerAgent').scoreATS(params));
-    assert.equal((await run()).aiProvider, 'deterministic-fallback'); assert.equal(calls, 0);
+    const parseResume = () => context.run({ owner: a.id }, () => factory.execute('parseResume', 'Synthetic Candidate\nSkills\nPython'));
+    const score = () => context.run({ owner: a.id }, () => require('../src/agents/analyzerAgent').scoreATS(params));
+    assert.equal((await parseResume()).aiProvider, 'deterministic-fallback'); assert.equal(calls, 0);
+    const first = await score(); assert.equal(first.aiProvider, 'deterministic-fallback');
     await privacy.save(a.id, { ...settings, providers: { ...settings.providers, groq: true } });
-    assert.equal((await run()).aiProvider, 'groq'); assert.equal(calls, 1);
-    await privacy.save(a.id, settings); assert.equal((await run()).aiProvider, 'deterministic-fallback'); assert.equal(calls, 1);
+    assert.equal((await parseResume()).aiProvider, 'groq'); assert.equal(calls, 1);
+    const second = await score(); assert.equal(second.aiProvider, 'deterministic-fallback'); assert.equal(second.score, first.score);
+    assert.equal(second.assessmentMeta.model, 'assessment-rules-v6'); assert.equal(second.rubric.version, 'careerforge-assessment-v6');
+    await privacy.save(a.id, settings); assert.equal((await parseResume()).aiProvider, 'deterministic-fallback'); assert.equal(calls, 1);
     assert.equal((await request('PUT', '/api/privacy', { token: a.token, body: { ...settings, activityDays: 999 } })).status, 400);
-  } finally { factory.groq.isAvailable = available; factory.groq.scoreATS = calculate; }
+  } finally { factory.groq.isAvailable = available; factory.groq.parseResume = parse; }
 });
 test('Phase 1: shorter retention removes supporting records and retry inputs without deleting resume facts', async () => {
   const a = await user(), resume = await ready(a.id), old = new Date(Date.now() - 40 * 86400000);
@@ -661,6 +665,7 @@ require('./phase2Cases.cjs')({ test, assert, request, user, ready, facts, succes
 require('./phase3Cases.cjs')({ test, assert, request, user, ready, facts, successfulJob, Resume, Tailored });
 require('./mainAuditCases.cjs')({ test, assert, request, user, ready, facts, successfulJob, Resume });
 require('./phase3ReadinessCases.cjs')({ test, assert, request, user, ready, facts, successfulJob, Resume, Tailored });
+require('./phase4InterviewCases.cjs')({ test, assert, request, user, ready, successfulJob });
 
 test('43: an unavailable configured database falls back in development and fails closed in production', async () => {
   const env = require('../src/config/env');

@@ -1,0 +1,4 @@
+# Phase 4 checksums identify the published evaluation data and reports.
+/docs/PHASE4_*.json text eol=lf
+/server/evaluation/dataset/**/*.json text eol=lf
+/server/evaluation/protocols/*.json text eol=lf

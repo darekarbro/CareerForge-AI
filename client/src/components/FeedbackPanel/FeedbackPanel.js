@@ -1,14 +1,16 @@
 import React from 'react';
-import { Award, CheckCircle2, AlertTriangle, ShieldCheck, Sparkles } from 'lucide-react';
+import { Award, CheckCircle2, AlertTriangle, ShieldCheck } from 'lucide-react';
 
 export default function FeedbackPanel({ feedback }) {
   if (!feedback) return null;
 
+  const unassessed = feedback.technicalAssessment === 'unassessed'
+    || (!feedback.technicalAssessment && feedback.aiProvider === 'deterministic-fallback');
   const dimensions = [
     { label: 'Clarity', score: feedback.clarityScore || 0, color: 'bg-[#ffcc00]' },
     { label: 'Relevance', score: feedback.relevanceScore || 0, color: 'bg-[#0055ff]' },
     { label: 'Structure / STAR', score: feedback.structureScore || 0, color: 'bg-[#e63b2e]' },
-    { label: 'Technical Depth', score: feedback.technicalScore || 0, color: 'bg-[#1a1a1a]' },
+    { label: 'Technical Depth', score: unassessed ? null : feedback.technicalScore || 0, color: 'bg-[#1a1a1a]' },
   ];
 
   return (
@@ -33,7 +35,7 @@ export default function FeedbackPanel({ feedback }) {
 
         <div className="flex items-center gap-2">
           <span className="font-headline font-bold text-xs uppercase text-gray-600">
-            Overall Score:
+            {unassessed ? 'Provisional overall score' : 'Overall Score:'}
           </span>
           <span className="px-3 py-1 bg-[#1a1a1a] text-[#ffcc00] border-2 border-[#1a1a1a] font-headline font-black text-lg shadow-brutal">
             {feedback.overallScore}/100
@@ -47,14 +49,14 @@ export default function FeedbackPanel({ feedback }) {
           <div key={idx} className="p-3 border-2 border-[#1a1a1a] bg-white shadow-brutal">
             <div className="flex justify-between text-[11px] font-headline font-black uppercase mb-1">
               <span>{dim.label}</span>
-              <span>{dim.score}%</span>
+              <span>{dim.score === null ? 'Unassessed' : `${dim.score}%`}</span>
             </div>
-            <div className="w-full h-2.5 bg-gray-200 border border-[#1a1a1a]">
+            {dim.score === null ? <p className="text-xs text-gray-600">Technical correctness has not been checked.</p> : <div className="w-full h-2.5 bg-gray-200 border border-[#1a1a1a]">
               <div
                 className={`h-full ${dim.color}`}
                 style={{ width: `${Math.min(100, Math.max(0, dim.score))}%` }}
               />
-            </div>
+            </div>}
           </div>
         ))}
       </div>
@@ -64,7 +66,7 @@ export default function FeedbackPanel({ feedback }) {
         <div className="p-3 border-2 border-[#1a1a1a] bg-green-50">
           <h5 className="font-headline font-black text-xs uppercase text-green-900 flex items-center gap-1.5 mb-2">
             <CheckCircle2 className="w-4 h-4 text-green-700" />
-            <span>Demonstrated Strengths</span>
+            <span>{unassessed ? 'Response observations' : 'Demonstrated Strengths'}</span>
           </h5>
           <ul className="space-y-1">
             {(feedback.strengths || []).map((s, idx) => (

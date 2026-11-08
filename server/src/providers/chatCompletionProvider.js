@@ -4,6 +4,8 @@ const env = require('../config/env');
 const schemas = require('./responseSchemas');
 const { requestWithTimeout } = require('./requestWithTimeout');
 const { parsingInstructions, tailoringInstructions, groqResumeInput, preservesResumeDetail } = require('./resumeWriting');
+const DeterministicProvider = require('./deterministicProvider');
+const { preserveSourceSkillConflicts } = require('./skillConflicts');
 
 class ChatCompletionProvider extends BaseProvider {
   constructor({ name, apiKey, model, baseUrl, strictSchema = false, timeoutMs = env.AI_PROVIDER_TIMEOUT_MS, headers = {} }) {
@@ -65,7 +67,9 @@ class ChatCompletionProvider extends BaseProvider {
   "certifications": [ { "name": "", "issuer": "", "year": "" } ]
 }`;
     const source = this.name === 'groq' ? groqResumeInput(rawText) : rawText.slice(0, 8000);
-    return this._callChatCompletion(systemPrompt, `Extract structured data from this resume text:\n\n${source}`, "parseResume");
+    const result = await this._callChatCompletion(systemPrompt, `Extract structured data from this resume text:\n\n${source}`, 'parseResume');
+    const sourceData = await new DeterministicProvider().parseResume(rawText);
+    return preserveSourceSkillConflicts(result, sourceData);
   }
 
   async scoreATS({ resumeData, rawText }) {

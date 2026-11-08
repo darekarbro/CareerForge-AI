@@ -18,7 +18,7 @@ const schemas = {
   ExportSettings: object({ template: { type: 'string', enum: ['classic', 'modern', 'compact'] }, font: { type: 'string', enum: ['sans', 'serif'] }, fontSize: { type: 'number', minimum: 10, maximum: 12 }, margin: { type: 'number', minimum: 36, maximum: 64 }, spacing: { type: 'number', minimum: 1, maximum: 4 }, pageBreakBefore: array(str), keepEntriesTogether: { type: 'boolean' } }),
   ContentEdit: object({ revisionName: str, presentation: ref('Presentation'), revision: { type: 'integer', minimum: 1 }, title: str, content: ref('ResumeContent'), decisions: { type: 'object', additionalProperties: { enum: ['accepted', 'rejected', 'edited'], type: 'string' } } }, ['revision', 'content']),
   Restore: object({ revision: { type: 'integer', minimum: 1 }, restoreRevision: { type: 'integer', minimum: 1 } }, ['revision', 'restoreRevision']),
-  Interview: object({ resumeId: id, targetRole: str, jobDescriptionId: id, workspaceId: id, count: { type: 'integer', minimum: 1, maximum: 10 }, difficulty: { type: 'string', enum: ['Easy', 'Medium', 'Hard'] }, timeLimitSeconds: { type: 'integer', enum: [0, 60, 120, 180, 300] }, feedbackMode: { type: 'string', enum: ['instant', 'end'] }, topicFocus: str }, ['resumeId', 'targetRole']),
+  Interview: object({ resumeId: id, targetRole: str, jobDescriptionId: id, workspaceId: id, count: { type: 'integer', minimum: 1, maximum: 10 }, difficulty: { type: 'string', enum: ['Easy', 'Medium', 'Hard'] }, timeLimitSeconds: { type: 'integer', enum: [0, 60, 120, 180, 300] }, feedbackMode: { type: 'string', enum: ['instant', 'end'] }, topicFocus: str, adaptiveEnabled: { type: 'boolean', default: true, description: 'Answer in order. The next question adapts to the previous answer within the requested question count. Existing sessions retain their saved setting.' } }, ['resumeId', 'targetRole']),
   Workspace: object({ company: str, title: str, description: str, jobUrl: str, resumeId: { ...id, nullable: true }, resumeSelection: { type: 'object', nullable: true, properties: { workExperience: { ...array(str), nullable: true }, projects: { ...array(str), nullable: true } } }, revision: { type: 'integer', minimum: 1 }, notes: str }, ['company', 'title', 'description']),
   Application: object({ company: str, roleTitle: str, status: { type: 'string', enum: ['saved', 'applied', 'oa', 'interview', 'offer', 'rejected'] }, resumeVersionId: id, workspaceId: id, sourceUrl: str, appliedAt: str, deadline: str, followUpAt: str, notes: str }, ['company', 'roleTitle']),
   ProcessingJob: object({ _id: id, owner: id, jobType: str, status: { type: 'string', enum: ['PENDING', 'RUNNING', 'COMMITTING', 'COMPLETED', 'FAILED', 'RETRYING', 'CANCELLED'] }, output: {}, error: object({ code: str, message: str }), retryCount: { type: 'integer' }, usage: array({ type: 'object', additionalProperties: true }) }),
@@ -84,8 +84,25 @@ for (const [path, summary] of [['/interview/analytics', 'Interview progress anal
 add('POST', '/interview/sessions', 'Generate a contextual interview', { status: 202, body: 'Interview', data: ref('AcceptedJob') });
 add('POST', '/interview/sessions/{id}/follow-up', 'Start targeted follow-up practice', { status: 202, body: object({ topic: str }), data: ref('AcceptedJob') });
 add('POST', '/interview/sessions/{id}/questions/{qid}/answer', 'Evaluate an answer or replace its previous score', { status: 202, body: object({ userAnswer: { type: 'string', minLength: 1, maxLength: 12000 }, retry: { type: 'boolean' } }, ['userAnswer']), data: ref('AcceptedJob') });
+add('GET', '/interview/competencies', 'Get longitudinal competencies with answer and attempt evidence', { description: 'Derived from owned persisted answers. Latest attempts count once per question; earlier attempts remain linked. Incomplete delayed-feedback and cancelled sessions are excluded. Scores are estimates, not verified competence.' });
+add('GET', '/interview/learning-plan', 'Get practice tasks, project milestones and reassessment criteria', { description: 'Personalized to observed practice gaps and saved job requirement gaps. Returns source evidence and limitations; unassessed skills are not labeled as demonstrated weaknesses.' });
 add('GET', '/jobs/roles', 'List supported target roles'); add('POST', '/jobs/search-links', 'Save a job search and return search links', { body: object({ targetRole: str, location: str, resumeId: id }, ['targetRole']) });
 for (const [path, summary] of [['/applications', 'List and filter applications'], ['/applications/analytics', 'Application pipeline analytics'], ['/applications/resume-versions', 'List available resume versions'], ['/applications/{id}/resume', 'Get the exact resume snapshot submitted']]) add('GET', path, summary);
+add('GET', '/applications/reminders', 'List in-app application reminders', {
+  description: 'Returns reminders for active owned applications in event-date order, including overdue events and reminders due within seven days after applying their lead time.',
+  data: array(object({ applicationId: id, kind: { type: 'string', enum: ['deadline', 'interviewAt', 'followUpAt'] },
+    title: str, at: { type: 'string', format: 'date-time' }, leadMinutes: { type: 'integer' }, inApp: { type: 'boolean' },
+    calendarAlarm: { type: 'boolean' }, overdue: { type: 'boolean' },
+  }, ['applicationId', 'kind', 'title', 'at', 'leadMinutes', 'inApp', 'calendarAlarm', 'overdue'])),
+});
+add('GET', '/applications/calendar.ics', 'Download application dates as an iCalendar file', {
+  binary: 'text/calendar',
+  description: 'Exports the signed-in account’s active applications by default. An application ID selects a single owned application regardless of status.',
+  parameters: [{ name: 'id', in: 'query', schema: id, description: 'Application to export.' }],
+});
+paths['/applications/calendar.ics'].get.responses[200].headers = {
+  'Content-Disposition': { schema: str, example: 'attachment; filename="careerforge-applications.ics"' },
+};
 add('POST', '/applications', 'Track an application and freeze its resume snapshot', { status: 201, body: 'Application' }); add('PUT', '/applications/{id}', 'Edit application and progression history', { body: object(schemas.Application.properties) }); add('DELETE', '/applications/{id}', 'Delete an application');
 for (const [path, summary] of [['/processing-jobs', 'List recent owned processing jobs'], ['/processing-jobs/health/providers', 'Get configured AI providers'], ['/processing-jobs/usage', 'Aggregate AI usage without raw content'], ['/processing-jobs/{id}', 'Poll owned job status and result'], ['/processing-jobs/{id}/timeline', 'Get persisted agent events']]) add('GET', path, summary);
 add('POST', '/processing-jobs/{id}/cancel', 'Cancel a pending or running request', { description: 'COMMITTING requests return 409 because persistence has begun.' });

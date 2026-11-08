@@ -1,0 +1,50 @@
+{
+  "protocolVersion": "phase4-holdout-protocol-v1",
+  "runId": "holdout-v2-initial-2026-11-04",
+  "registeredAt": "2026-11-04T14:02:40.363Z",
+  "datasetVersion": "phase4-synthetic-v2",
+  "datasetPath": "server/evaluation/dataset/v2/holdout.json",
+  "plannedCases": 24,
+  "plannedGroups": { "formatting": 12, "contradictory_skills": 12 },
+  "frozenCommit": "85919c7487ee64b536ad3ca1f885c9aa79be9f1a",
+  "serverSourceTree": "f26bfa41136ab3d0122e36993a76148693cf9eae",
+  "clientSourceTree": "662f721217554563b8c8ccf8ecd060d37f87cd5f",
+  "rubricVersion": "careerforge-assessment-v3",
+  "implementationSha256": "302c2cc6e9d9d4495af6f29ccffb76f75d1a0b8b84ada60db3ee99228d6127f2",
+  "metricsSha256": "a8231f12d7a3d47a60eb766eb28ad927ff7b08fab9af3b3f5e17b28ec08cd643",
+  "implementationFiles": [
+    "../src/providers/deterministicProvider.js",
+    "../src/providers/resumeContact.js",
+    "../src/providers/resumeFacts.js",
+    "../src/providers/resumeEvidence.js",
+    "../src/providers/skillPolarity.js",
+    "../src/providers/skillConflicts.js",
+    "../src/services/jobRequirements.js",
+    "../src/services/requirementMatching.js",
+    "../src/services/assessmentRubrics.js"
+  ],
+  "authoring": {
+    "method": "separate-agent-without-implementation-or-prior-fixture-access",
+    "referenceLabels": "semantic-reading-before-any-evaluation-output",
+    "preExecutionReview": "separate-agent-review-of-reference-labels-without-implementation-or-predictions",
+    "humanReview": false,
+    "data": "synthetic-fictional-only"
+  },
+  "primaryMetrics": ["resume-skill-micro-precision-recall-f1", "requirement-status-accuracy", "unsupported-supported-skill-decisions"],
+  "secondaryMetrics": ["contact-exact-extraction", "jd-skill-category-extraction", "citation-integrity", "evidence-coverage", "local-pipeline-latency", "offline-provider-cost"],
+  "executionPolicy": {
+    "freezeDatasetAndLabelsBeforeEvaluation": true,
+    "firstScoredRunOnly": true,
+    "noParserMatcherOrMetricTuning": true,
+    "publishAllCasesAndFailures": true,
+    "doNotRerunUntilPublication": true,
+    "laterExecutionsAreRegressionOnly": true,
+    "externalProviders": false
+  },
+  "limitations": [
+    "Independent author/reviewer are agents, not independent human annotators.",
+    "The set is small, synthetic and English-dominant; it is not a representative or externally administered benchmark.",
+    "The first run evaluates new raw-text cases against an unchanged implementation, not live LLM quality, OCR/layout decoding or hiring suitability.",
+    "Publication exposes the holdout; later reruns cannot be represented as fresh unseen evidence."
+  ]
+}

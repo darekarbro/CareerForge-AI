@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import Link from 'next/link';
 import ProtectedRoute from '../components/ProtectedRoute/ProtectedRoute';
 import AppShell from '../components/AppShell/AppShell';
 import JobRoleCard from '../components/JobRoleCard/JobRoleCard';
@@ -84,6 +85,11 @@ export default function JobsPage() {
             <div className="p-3 bg-white border-2 border-[#1a1a1a] text-[#1a1a1a] shadow-brutal">
               <Compass className="w-6 h-6 text-[#0055ff]" />
             </div>
+          </div>
+
+          <div className="brutal-card p-5 flex flex-wrap items-center justify-between gap-3">
+            <p className="text-sm font-semibold">Found a promising role? Import its posting and keep preparation and application records together.</p>
+            <Link href="/workspaces" className="brutal-btn-primary px-4 py-3 text-sm">Import or save a job</Link>
           </div>
 
           {/* Resume Keyword Selector Toolbar */}

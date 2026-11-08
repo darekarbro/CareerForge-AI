@@ -62,6 +62,7 @@ async function start() {
 }
 async function run() {
   const phase2 = require('./phase2Browser.cjs')({ page, saved, screenshot, pass, audit });
+  const phase4 = require('./phase4Browser.cjs')({ page, screenshot, pass, audit });
   await page.goto('http://localhost:3030/register'); await audit('registration');
   await page.getByPlaceholder('e.g. Alex Morgan').fill('Browser Candidate');
   await page.getByPlaceholder('alex@example.com').fill('browser-candidate@example.test');
@@ -111,6 +112,7 @@ async function run() {
   const workspaceUrl = page.url(); await phase2.workspace();
   await page.getByRole('button', { name: 'Check job match', exact: true }).click();
   await page.getByRole('heading', { name: /^Job match:/ }).waitFor(); await screenshot('workspace');
+  await phase4.matching();
   await page.getByRole('button', { name: 'Tailor resume', exact: true }).click();
   await page.waitForURL(/\/resume\/[^/]+\/tailor\?version=/); await page.getByText('Resume ready for your review', { exact: true }).waitFor();
   const keep = page.getByRole('button', { name: 'Keep original', exact: true });
@@ -138,19 +140,23 @@ async function run() {
   await page.getByRole('combobox', { name: /^Difficulty/ }).selectOption('Hard'); await page.getByRole('combobox', { name: /^Questions/ }).selectOption('3');
   await page.getByRole('combobox', { name: /^Practice timer per question/ }).selectOption('60');
   await page.getByRole('combobox', { name: /^Feedback/ }).selectOption('end');
+  assert(await page.getByRole('checkbox', { name: /Adapt questions to my answers/ }).isChecked());
   await page.getByRole('button', { name: 'Start practice', exact: true }).click(); await page.waitForURL(/\/interview\/session\/[^/]+$/);
   await page.getByText('After completion', { exact: true }).waitFor(); await page.getByRole('timer').waitFor(); await audit('interview-session'); await screenshot('interview');
   for (let index = 1; index <= 3; index++) {
     await page.getByRole('button', { name: new RegExp('^Q' + index + '(?: |$)') }).click();
-    await page.getByRole('textbox').fill('I define requirements and constraints, compare alternatives and trade-offs, implement validation, and use tests to verify failure recovery. My course project used Python and React to show input errors before data import.');
+    await page.getByRole('textbox').fill(index === 1 ? 'I do not know.' : 'I define requirements and constraints, compare alternatives and trade-offs, implement validation, and use tests to verify failure recovery. My course project used Python and React to show input errors before data import.');
     await page.getByRole('button', { name: 'Submit answer', exact: true }).click(); await page.getByText('Your Submitted Answer:', { exact: true }).waitFor(); if (index < 3) await page.getByText('After completion', { exact: true }).waitFor();
   }
   await page.getByText('Answered: 3 of 3 questions completed', { exact: true }).waitFor();
+  await page.getByRole('button', { name: /^Q2/ }).click(); await page.getByText('Simpler diagnostic question', { exact: true }).waitFor();
+  pass('Phase 4: a sparse answer selects a simpler diagnostic question in the same session');
   await page.getByRole('button', { name: /^Q1/ }).click(); await page.getByRole('button', { name: 'Try this answer again', exact: true }).click();
   await page.getByRole('textbox').fill('I define the goal, requirements and constraints, compare alternatives and trade-offs, then implement and test the chosen contract. I validate malformed input, monitor failures and document recovery steps. In my project I used Python validation and React error messages.');
   await page.getByRole('button', { name: 'Submit improved answer', exact: true }).click();
   await page.getByText('Answered: 3 of 3 questions completed', { exact: true }).waitFor(); await page.getByText('Previous attempts (1)', { exact: true }).waitFor();
   pass('Job-specific difficulty, persistent timer, delayed feedback and answer retry');
+  await phase4.progress();
   await page.goto('http://localhost:3030/activity'); await page.getByRole('heading', { name: 'Usage in the last 24 hours', exact: true }).waitFor();
   await page.getByRole('link', { name: 'View progress', exact: true }).first().click(); await page.getByRole('link', { name: 'Open result', exact: true }).waitFor();
   pass('Activity, usage and reopening persisted results'); await audit('processing-details');

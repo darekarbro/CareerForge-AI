@@ -4,6 +4,7 @@ const GeminiProvider = require('./geminiProvider');
 const DeterministicProvider = require('./deterministicProvider');
 const { validateResult } = require('./validateResult');
 const { throwIfCancelled } = require('../services/jobContext');
+const { modelVersion } = require('../services/assessmentRubrics');
 
 class ProviderFactory {
   constructor() {
@@ -29,6 +30,20 @@ class ProviderFactory {
     return { ...result, aiProvider: provider };
   }
 
+  // Final assessment scores use a published rubric, never ungrounded provider prose.
+  async executeAssessment(action, params, onAttempt) {
+    if (!['scoreATS', 'analyzeGap'].includes(action)) throw new Error('Unsupported local assessment');
+    throwIfCancelled();
+    const start = Date.now();
+    if (onAttempt) await onAttempt(this.deterministic.name);
+    const result = await this.deterministic[action](params);
+    validateResult(action, result, params);
+    throwIfCancelled();
+    await this.recordUsage(require('../services/jobContext').context.getStore(), { action, provider: this.deterministic.name,
+      model: modelVersion, durationMs: Date.now() - start, status: 'success', inputTokens: 0, outputTokens: 0, costUsd: 0 });
+    return this.withProvider(result, this.deterministic.name);
+  }
+
   async execute(actionName, params = {}, onProviderAttempt = null) {
     throwIfCancelled();
     // UI record identities are not career facts and must not be sent to providers.
@@ -46,6 +61,8 @@ class ProviderFactory {
         const result = await provider[actionName](params);
         throwIfCancelled();
         validateResult(actionName, result, params);
+        // Only the local rubric can assign local technical evidence metadata.
+        if (actionName === 'evaluateAnswer' && provider !== this.deterministic) delete result.technicalAssessment;
         await this.recordUsage(scope, { action: actionName, provider: provider.name, model: provider.model || 'offline-rules-v1', durationMs: Date.now() - start, status: 'success', ...scope?.providerUsage });
         return this.withProvider(result, provider.name);
       } catch (error) {

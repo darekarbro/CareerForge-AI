@@ -1,0 +1,1143 @@
+{
+  "datasetVersion": "phase4-synthetic-v2",
+  "split": "holdout",
+  "annotationScope": "Independent semantic gold labels for candidate name, email, explicit positively asserted canonical skills, and required/preferred skill evidence. Contradicted candidate skills are withheld from positive extraction and marked uncertain for matching; denial-only or non-candidate evidence is missing. No human overall fit scores are assigned.",
+  "provenance": {
+    "authoringMethod": "independent-agent-authored-before-model-execution",
+    "implementationAccess": false,
+    "priorFixtureAccess": false,
+    "personalData": "fictional"
+  },
+  "cases": [
+    {
+      "id": "fresh-format-01",
+      "group": "formatting",
+      "provenance": {
+        "kind": "synthetic",
+        "consent": "not-applicable",
+        "author": "fresh holdout author",
+        "personalData": "fictional"
+      },
+      "resumeText": "MARIN VELL\nmarin.vell@example.test\n--------------------------------\nENGINEERING PRACTICE\nLarkspur Transit Lab | Software Engineer | 2023-2025\nBuilt a timetable checking service with Python and FastAPI. Stored the checked records in PostgreSQL.\n--------------------------------\nTOOLS I USE\nGit, Docker\n--------------------------------\nSTUDY\nDiploma in Computing, Vale Technical College",
+      "jobDescriptionText": "Software Engineer, service team. Required skills: Python, FastAPI, PostgreSQL. Preferred skill: AWS.",
+      "targetRole": "Software Engineer",
+      "expectedExtraction": {
+        "contactInfo": {
+          "name": "Marin Vell",
+          "email": "marin.vell@example.test"
+        },
+        "skills": [
+          "Python",
+          "FastAPI",
+          "PostgreSQL",
+          "Git",
+          "Docker"
+        ]
+      },
+      "expectedRequirements": [
+        {
+          "category": "requiredSkills",
+          "label": "Python",
+          "status": "supported"
+        },
+        {
+          "category": "requiredSkills",
+          "label": "FastAPI",
+          "status": "supported"
+        },
+        {
+          "category": "requiredSkills",
+          "label": "PostgreSQL",
+          "status": "supported"
+        },
+        {
+          "category": "preferredSkills",
+          "label": "AWS",
+          "status": "missing"
+        }
+      ],
+      "notes": "The upper-case identity and repeated separators are presentational. The project explicitly asserts three skills and the separate tools block adds two more; AWS has no candidate evidence."
+    },
+    {
+      "id": "fresh-format-02",
+      "group": "formatting",
+      "provenance": {
+        "kind": "synthetic",
+        "consent": "not-applicable",
+        "author": "fresh holdout author",
+        "personalData": "fictional"
+      },
+      "resumeText": "elodie.senn@example.test | Elodie Senn | Software Engineer\nPROFILE / Interactive catalog builder at Copper Finch Cooperative (2022-2025).\nWORK + SKILLS / I build catalog screens with TypeScript and React, and write the HTML and CSS for their layouts.\nEDUCATION / Certificate in Applied Computing, Northgate Learning House.",
+      "jobDescriptionText": "We need a Software Engineer for catalog screens. Required skills: React, TypeScript, Accessibility. Preferred skill: Jest.",
+      "targetRole": "Software Engineer",
+      "expectedExtraction": {
+        "contactInfo": {
+          "name": "Elodie Senn",
+          "email": "elodie.senn@example.test"
+        },
+        "skills": [
+          "TypeScript",
+          "React",
+          "HTML",
+          "CSS"
+        ]
+      },
+      "expectedRequirements": [
+        {
+          "category": "requiredSkills",
+          "label": "React",
+          "status": "supported"
+        },
+        {
+          "category": "requiredSkills",
+          "label": "TypeScript",
+          "status": "supported"
+        },
+        {
+          "category": "requiredSkills",
+          "label": "Accessibility",
+          "status": "missing"
+        },
+        {
+          "category": "preferredSkills",
+          "label": "Jest",
+          "status": "missing"
+        }
+      ],
+      "notes": "Contact items are combined in a reversed order, and the experience and skills labels share a line. The four named technologies are explicit; catalog work alone does not establish Accessibility or Jest."
+    },
+    {
+      "id": "fresh-format-03",
+      "group": "formatting",
+      "provenance": {
+        "kind": "synthetic",
+        "consent": "not-applicable",
+        "author": "fresh holdout author",
+        "personalData": "fictional"
+      },
+      "resumeText": "Tomas Ivero                          CONTACT\nSoftware Engineer                    tomas.ivero@example.test\n\nCAPABILITIES                         EMPLOYMENT\nJava                                 Hollow Reed Instruments\nSpring Boot                          2021 - 2025\nSQL                                  Developed a parts-tracking service.\nMySQL                                Maintained its data records.\nLinux                                Ran the release environment.\n\nACADEMIC RECORD\nTechnical diploma, Briar Coast Institute",
+      "jobDescriptionText": "Software Engineer opening. Java, Spring Boot, and PostgreSQL are required skills. Linux is a preferred skill.",
+      "targetRole": "Software Engineer",
+      "expectedExtraction": {
+        "contactInfo": {
+          "name": "Tomas Ivero",
+          "email": "tomas.ivero@example.test"
+        },
+        "skills": [
+          "Java",
+          "Spring Boot",
+          "SQL",
+          "MySQL",
+          "Linux"
+        ]
+      },
+      "expectedRequirements": [
+        {
+          "category": "requiredSkills",
+          "label": "Java",
+          "status": "supported"
+        },
+        {
+          "category": "requiredSkills",
+          "label": "Spring Boot",
+          "status": "supported"
+        },
+        {
+          "category": "requiredSkills",
+          "label": "PostgreSQL",
+          "status": "missing"
+        },
+        {
+          "category": "preferredSkills",
+          "label": "Linux",
+          "status": "supported"
+        }
+      ],
+      "notes": "Whitespace creates two text columns. The left capability column is a positive self-reported list; MySQL and SQL do not assert PostgreSQL."
+    },
+    {
+      "id": "fresh-format-04",
+      "group": "formatting",
+      "provenance": {
+        "kind": "synthetic",
+        "consent": "not-applicable",
+        "author": "fresh holdout author",
+        "personalData": "fictional"
+      },
+      "resumeText": "REACH ME\nEmail -> nuri.talven@example.test\nLocation -> Fern Quay\n\nNuri Talven\nSoftware Engineer\n\nWhat I have delivered:\n* At Pebble Lantern Logistics, I wrote dispatch services in Golang.\n* I implemented RESTful APIs and used Redis for short-lived dispatch records.\n* I package those services with Docker and operate them with Kubernetes.\n\nLearning record: Computing certificate, Seabank Workshop School.",
+      "jobDescriptionText": "Software Engineer for dispatch systems. Required skills: Go, Docker, Kubernetes. Preferred skill: Kafka.",
+      "targetRole": "Software Engineer",
+      "expectedExtraction": {
+        "contactInfo": {
+          "name": "Nuri Talven",
+          "email": "nuri.talven@example.test"
+        },
+        "skills": [
+          "Go",
+          "REST API",
+          "Redis",
+          "Docker",
+          "Kubernetes"
+        ]
+      },
+      "expectedRequirements": [
+        {
+          "category": "requiredSkills",
+          "label": "Go",
+          "status": "supported"
+        },
+        {
+          "category": "requiredSkills",
+          "label": "Docker",
+          "status": "supported"
+        },
+        {
+          "category": "requiredSkills",
+          "label": "Kubernetes",
+          "status": "supported"
+        },
+        {
+          "category": "preferredSkills",
+          "label": "Kafka",
+          "status": "missing"
+        }
+      ],
+      "notes": "The contact block precedes the identity. Golang and RESTful APIs normalize to Go and REST API, and all five skills are explicit candidate work claims."
+    },
+    {
+      "id": "fresh-format-05",
+      "group": "formatting",
+      "provenance": {
+        "kind": "synthetic",
+        "consent": "not-applicable",
+        "author": "fresh holdout author",
+        "personalData": "fictional"
+      },
+      "resumeText": "[ Candidate: Sera Odrin ]\n[ Mail: sera.odrin@example.test ]\n\ntechnical repertoire => C++; C#; .NET | Algorithms / Data Structures\n\nAppointments:\n2022--2025, Software Engineer, Kestrel Dialworks\nImplemented a desktop instrument configuration tool and repaired its collection routines.\n\nQualifications:\nDiploma in Computing, Linden Spur College",
+      "jobDescriptionText": "The Software Engineer must have C#, .NET, and Data Structures. Rust is preferred.",
+      "targetRole": "Software Engineer",
+      "expectedExtraction": {
+        "contactInfo": {
+          "name": "Sera Odrin",
+          "email": "sera.odrin@example.test"
+        },
+        "skills": [
+          "C++",
+          "C#",
+          ".NET",
+          "Algorithms",
+          "Data Structures"
+        ]
+      },
+      "expectedRequirements": [
+        {
+          "category": "requiredSkills",
+          "label": "C#",
+          "status": "supported"
+        },
+        {
+          "category": "requiredSkills",
+          "label": ".NET",
+          "status": "supported"
+        },
+        {
+          "category": "requiredSkills",
+          "label": "Data Structures",
+          "status": "supported"
+        },
+        {
+          "category": "preferredSkills",
+          "label": "Rust",
+          "status": "missing"
+        }
+      ],
+      "notes": "Brackets, arrows, semicolons, a vertical bar, and a slash separate the content. Punctuation is part of C++, C#, and .NET; all five listed competencies belong to the candidate."
+    },
+    {
+      "id": "fresh-format-06",
+      "group": "formatting",
+      "provenance": {
+        "kind": "synthetic",
+        "consent": "not-applicable",
+        "author": "fresh holdout author",
+        "personalData": "fictional"
+      },
+      "resumeText": "About / experience\nI am Olan Mirel, a Software Engineer at Juniper Parcel Studio. My work there since 2023 includes customer portals built with React.js and Next.js. I write their server code with Nodejs, query MongoDB through GraphQL, and test behavior with Jest.\n\nCorrespondence\nolan.mirel@example.test\n\nEducation and training\nApplied Computing diploma, West Fen College",
+      "jobDescriptionText": "Software Engineer for portals. Required: Node.js, MongoDB, GraphQL. Preferred: Next.js, AWS.",
+      "targetRole": "Software Engineer",
+      "expectedExtraction": {
+        "contactInfo": {
+          "name": "Olan Mirel",
+          "email": "olan.mirel@example.test"
+        },
+        "skills": [
+          "React",
+          "Next.js",
+          "Node.js",
+          "MongoDB",
+          "GraphQL",
+          "Jest"
+        ]
+      },
+      "expectedRequirements": [
+        {
+          "category": "requiredSkills",
+          "label": "Node.js",
+          "status": "supported"
+        },
+        {
+          "category": "requiredSkills",
+          "label": "MongoDB",
+          "status": "supported"
+        },
+        {
+          "category": "requiredSkills",
+          "label": "GraphQL",
+          "status": "supported"
+        },
+        {
+          "category": "preferredSkills",
+          "label": "Next.js",
+          "status": "supported"
+        },
+        {
+          "category": "preferredSkills",
+          "label": "AWS",
+          "status": "missing"
+        }
+      ],
+      "notes": "The identity is embedded in first-person prose and the email is in a later section. React.js and Nodejs normalize to React and Node.js. Jest remains gold even though the job does not request it."
+    },
+    {
+      "id": "fresh-format-07",
+      "group": "formatting",
+      "provenance": {
+        "kind": "synthetic",
+        "consent": "not-applicable",
+        "author": "fresh holdout author",
+        "personalData": "fictional"
+      },
+      "resumeText": "+-------------------------------------------+\n| Veda Corlen                               |\n| veda.corlen@example.test                  |\n+-------------------------------------------+\nWHO I AM\nSoftware Engineer, Morrow Kite Publishing, 2020 to 2025\n\nHOW I BUILD\nRuby :: Rails :: PostgreSQL\nI use each of the above in the subscription service I maintain.\n\nHOW I SHIP\nCI/CD :: Git\nThese are tools I use for that service's releases.\n\nSTUDY\nCertificate in Computing, Amber Field Academy",
+      "jobDescriptionText": "Software Engineer. Required skills are Ruby, Rails, and PostgreSQL. Docker is a preferred skill.",
+      "targetRole": "Software Engineer",
+      "expectedExtraction": {
+        "contactInfo": {
+          "name": "Veda Corlen",
+          "email": "veda.corlen@example.test"
+        },
+        "skills": [
+          "Ruby",
+          "Rails",
+          "PostgreSQL",
+          "CI/CD",
+          "Git"
+        ]
+      },
+      "expectedRequirements": [
+        {
+          "category": "requiredSkills",
+          "label": "Ruby",
+          "status": "supported"
+        },
+        {
+          "category": "requiredSkills",
+          "label": "Rails",
+          "status": "supported"
+        },
+        {
+          "category": "requiredSkills",
+          "label": "PostgreSQL",
+          "status": "supported"
+        },
+        {
+          "category": "preferredSkills",
+          "label": "Docker",
+          "status": "missing"
+        }
+      ],
+      "notes": "An ASCII contact box and unconventional section names contain clear candidate facts. Double colons separate five positively asserted skills."
+    },
+    {
+      "id": "fresh-format-08",
+      "group": "formatting",
+      "provenance": {
+        "kind": "synthetic",
+        "consent": "not-applicable",
+        "author": "fresh holdout author",
+        "personalData": "fictional"
+      },
+      "resumeText": "Name: Iona Pell Varo\nEmail: iona.pell.varo@example.test\n\nEXPERIENCE\nCedar Bell Archives\n  Software Engineer\n  2021\n  through 2025\n  - Implemented a donation ledger with PHP\n    and Laravel.\n  - Wrote SQL for reports against MySQL.\n  - Styled the public entry pages with Tailwind\n    and CSS.\n\nEDUCATION\nDiploma in Applied Computing\nRillbank Technical School",
+      "jobDescriptionText": "Software Engineer for an archive. Required skills: PHP, Laravel. Preferred skills: Tailwind, Kubernetes.",
+      "targetRole": "Software Engineer",
+      "expectedExtraction": {
+        "contactInfo": {
+          "name": "Iona Pell Varo",
+          "email": "iona.pell.varo@example.test"
+        },
+        "skills": [
+          "PHP",
+          "Laravel",
+          "SQL",
+          "MySQL",
+          "Tailwind",
+          "CSS"
+        ]
+      },
+      "expectedRequirements": [
+        {
+          "category": "requiredSkills",
+          "label": "PHP",
+          "status": "supported"
+        },
+        {
+          "category": "requiredSkills",
+          "label": "Laravel",
+          "status": "supported"
+        },
+        {
+          "category": "preferredSkills",
+          "label": "Tailwind",
+          "status": "supported"
+        },
+        {
+          "category": "preferredSkills",
+          "label": "Kubernetes",
+          "status": "missing"
+        }
+      ],
+      "notes": "Dates and project sentences wrap across lines. The six technology names are separate explicit claims; neither wrapping nor the three-part name changes the semantic facts."
+    },
+    {
+      "id": "fresh-format-09",
+      "group": "formatting",
+      "provenance": {
+        "kind": "synthetic",
+        "consent": "not-applicable",
+        "author": "fresh holdout author",
+        "personalData": "fictional"
+      },
+      "resumeText": "ines.dorren@example.test\nName - Ines Dorren\n\nSelected practice . . .\n(1) Software Engineer, Chalkwing Orchard Research, 2022-2025.\n(2) I use Python and Pandas to prepare harvest records.\n(3) My Machine Learning work uses Scikit-Learn to predict storage demand.\n\nNext learning goal . . .\nI hope to learn TensorFlow next year; I have not used or studied it yet.\n\nFormal study . . .\nComputing diploma, East Sedge Institute",
+      "jobDescriptionText": "Software Engineer, forecasting group. Required skills: Python, Machine Learning. Preferred skill: TensorFlow.",
+      "targetRole": "Software Engineer",
+      "expectedExtraction": {
+        "contactInfo": {
+          "name": "Ines Dorren",
+          "email": "ines.dorren@example.test"
+        },
+        "skills": [
+          "Python",
+          "Pandas",
+          "Machine Learning",
+          "Scikit-Learn"
+        ]
+      },
+      "expectedRequirements": [
+        {
+          "category": "requiredSkills",
+          "label": "Python",
+          "status": "supported"
+        },
+        {
+          "category": "requiredSkills",
+          "label": "Machine Learning",
+          "status": "supported"
+        },
+        {
+          "category": "preferredSkills",
+          "label": "TensorFlow",
+          "status": "missing"
+        }
+      ],
+      "notes": "Dot leaders and numbered paragraphs replace standard section bullets. TensorFlow is solely an explicit future goal with present absence, so it is not a positive extracted skill."
+    },
+    {
+      "id": "fresh-format-10",
+      "group": "formatting",
+      "provenance": {
+        "kind": "synthetic",
+        "consent": "not-applicable",
+        "author": "fresh holdout author",
+        "personalData": "fictional"
+      },
+      "resumeText": "WORK RECORD\n===========\n2024-2025 | Software Engineer | Willow Loom Exchange\nDeveloped order endpoints in JavaScript using Node.js and Express.\nImplemented a REST API backed by MongoDB.\n\nIDENTITY AND CONTACT\n====================\nLocation: Brindle Harbor\nName: Pavlo Nerin\nEmail: pavlo.nerin@example.test\n\nTRAINING\n========\nComputing certificate, South Wren School",
+      "jobDescriptionText": "Software Engineer for orders. Required skills: JavaScript, Express, REST API. Preferred skill: Redis.",
+      "targetRole": "Software Engineer",
+      "expectedExtraction": {
+        "contactInfo": {
+          "name": "Pavlo Nerin",
+          "email": "pavlo.nerin@example.test"
+        },
+        "skills": [
+          "JavaScript",
+          "Node.js",
+          "Express",
+          "REST API",
+          "MongoDB"
+        ]
+      },
+      "expectedRequirements": [
+        {
+          "category": "requiredSkills",
+          "label": "JavaScript",
+          "status": "supported"
+        },
+        {
+          "category": "requiredSkills",
+          "label": "Express",
+          "status": "supported"
+        },
+        {
+          "category": "requiredSkills",
+          "label": "REST API",
+          "status": "supported"
+        },
+        {
+          "category": "preferredSkills",
+          "label": "Redis",
+          "status": "missing"
+        }
+      ],
+      "notes": "Employment precedes identity and underlined headers divide the text. Node.js and MongoDB must also be extracted although the job does not request them."
+    },
+    {
+      "id": "fresh-format-11",
+      "group": "formatting",
+      "provenance": {
+        "kind": "synthetic",
+        "consent": "not-applicable",
+        "author": "fresh holdout author",
+        "personalData": "fictional"
+      },
+      "resumeText": "# Keira Mossen\nEmail / keira.mossen@example.test\n\n## Current role\nSoftware Engineer at Silver Acorn Learning, 2021-2025.\n\n## Skills and how I use them\n| Skill | My work |\n| HTML | Course page structure |\n| CSS | Page layout |\n| Sass | Stylesheet authoring |\n| Accessibility | Keyboard and screen-reader support |\n| Cypress | Browser checks |\n| Git | Source history |\n\n## Education\nApplied Computing certificate, Crestmere College",
+      "jobDescriptionText": "Software Engineer for learning pages. Required: HTML, CSS, Accessibility. Preferred: Cypress, React.",
+      "targetRole": "Software Engineer",
+      "expectedExtraction": {
+        "contactInfo": {
+          "name": "Keira Mossen",
+          "email": "keira.mossen@example.test"
+        },
+        "skills": [
+          "HTML",
+          "CSS",
+          "Sass",
+          "Accessibility",
+          "Cypress",
+          "Git"
+        ]
+      },
+      "expectedRequirements": [
+        {
+          "category": "requiredSkills",
+          "label": "HTML",
+          "status": "supported"
+        },
+        {
+          "category": "requiredSkills",
+          "label": "CSS",
+          "status": "supported"
+        },
+        {
+          "category": "requiredSkills",
+          "label": "Accessibility",
+          "status": "supported"
+        },
+        {
+          "category": "preferredSkills",
+          "label": "Cypress",
+          "status": "supported"
+        },
+        {
+          "category": "preferredSkills",
+          "label": "React",
+          "status": "missing"
+        }
+      ],
+      "notes": "Markdown-like headings and an unrendered text table express six self-reported competencies. Browser checks do not independently assert React."
+    },
+    {
+      "id": "fresh-format-12",
+      "group": "formatting",
+      "provenance": {
+        "kind": "synthetic",
+        "consent": "not-applicable",
+        "author": "fresh holdout author",
+        "personalData": "fictional"
+      },
+      "resumeText": "RESUME: Darian Solvek       EMAIL=darian.solvek@example.test\n\nwork  /  2022 to 2025\n    Software Engineer\n    Ember Ferry Meterworks\n\n    I use Rust for meter simulation tools. My deployment environment is Linux,\n    and I maintain its CI/CD process. I have Leadership experience from guiding\n    a four-person delivery team, and Communication skills from presenting\n    technical choices to the workshop owners.\n\nstudy  /  Computing diploma, Moorlight College",
+      "jobDescriptionText": "Software Engineer, simulation tools. Required skills: Rust, Linux, CI/CD. Preferred skills: Leadership, Kubernetes.",
+      "targetRole": "Software Engineer",
+      "expectedExtraction": {
+        "contactInfo": {
+          "name": "Darian Solvek",
+          "email": "darian.solvek@example.test"
+        },
+        "skills": [
+          "Rust",
+          "Linux",
+          "CI/CD",
+          "Leadership",
+          "Communication"
+        ]
+      },
+      "expectedRequirements": [
+        {
+          "category": "requiredSkills",
+          "label": "Rust",
+          "status": "supported"
+        },
+        {
+          "category": "requiredSkills",
+          "label": "Linux",
+          "status": "supported"
+        },
+        {
+          "category": "requiredSkills",
+          "label": "CI/CD",
+          "status": "supported"
+        },
+        {
+          "category": "preferredSkills",
+          "label": "Leadership",
+          "status": "supported"
+        },
+        {
+          "category": "preferredSkills",
+          "label": "Kubernetes",
+          "status": "missing"
+        }
+      ],
+      "notes": "Irregular indentation, lower-case section labels, and combined contact fields leave identifiable facts. Leadership and Communication are explicit candidate skill claims, not inferred from the job title."
+    },
+    {
+      "id": "fresh-conflict-01",
+      "group": "contradictory_skills",
+      "provenance": {
+        "kind": "synthetic",
+        "consent": "not-applicable",
+        "author": "fresh holdout author",
+        "personalData": "fictional"
+      },
+      "resumeText": "Alma Virett\nalma.virett@example.test\nSoftware Engineer, Blue Thistle Surveying\n\nMy skills: Python, SQL, Docker.\n\nCandidate declaration: I have no knowledge of Python and cannot use it.\nI use SQL to retrieve inspection records and Docker to package the record viewer.\n\nEducation: Computing certificate, Clifftop Learning Institute",
+      "jobDescriptionText": "Software Engineer for inspection records. Required skills: Python, SQL. Preferred skill: PostgreSQL.",
+      "targetRole": "Software Engineer",
+      "expectedExtraction": {
+        "contactInfo": {
+          "name": "Alma Virett",
+          "email": "alma.virett@example.test"
+        },
+        "skills": [
+          "SQL",
+          "Docker"
+        ]
+      },
+      "expectedRequirements": [
+        {
+          "category": "requiredSkills",
+          "label": "Python",
+          "status": "uncertain"
+        },
+        {
+          "category": "requiredSkills",
+          "label": "SQL",
+          "status": "supported"
+        },
+        {
+          "category": "preferredSkills",
+          "label": "PostgreSQL",
+          "status": "missing"
+        }
+      ],
+      "notes": "The positive Python list entry conflicts directly with the candidate's broad denial. Neither statement is assigned priority. SQL and Docker remain uncontradicted positive evidence."
+    },
+    {
+      "id": "fresh-conflict-02",
+      "group": "contradictory_skills",
+      "provenance": {
+        "kind": "synthetic",
+        "consent": "not-applicable",
+        "author": "fresh holdout author",
+        "personalData": "fictional"
+      },
+      "resumeText": "Candidate contact: joren.fenn@example.test / Joren Fenn\n\nSELF-ASSESSMENT\nI do not know React and cannot build anything with it.\n\nCOMPETENCIES\nReactJS | TypeScript | CSS\n\nWORK\nSoftware Engineer at Slate Moth Retail. I write TypeScript and CSS for product forms.\n\nSTUDY\nComputing diploma, Briar Landing School",
+      "jobDescriptionText": "Software Engineer for product forms. Required skills: React, TypeScript. Preferred skill: Jest.",
+      "targetRole": "Software Engineer",
+      "expectedExtraction": {
+        "contactInfo": {
+          "name": "Joren Fenn",
+          "email": "joren.fenn@example.test"
+        },
+        "skills": [
+          "TypeScript",
+          "CSS"
+        ]
+      },
+      "expectedRequirements": [
+        {
+          "category": "requiredSkills",
+          "label": "React",
+          "status": "uncertain"
+        },
+        {
+          "category": "requiredSkills",
+          "label": "TypeScript",
+          "status": "supported"
+        },
+        {
+          "category": "preferredSkills",
+          "label": "Jest",
+          "status": "missing"
+        }
+      ],
+      "notes": "The denial appears before the positive list. ReactJS is the same canonical skill as React, producing a contradiction regardless of order. TypeScript and CSS are explicitly positive."
+    },
+    {
+      "id": "fresh-conflict-03",
+      "group": "contradictory_skills",
+      "provenance": {
+        "kind": "synthetic",
+        "consent": "not-applicable",
+        "author": "fresh holdout author",
+        "personalData": "fictional"
+      },
+      "resumeText": "Nessa Torval\nnessa.torval@example.test\n\nAt Moonrail Ticketing I am a Software Engineer. I build Nodejs services, implement Express handlers, and maintain RESTful APIs.\n\nIn my own skill declaration: I have never learned Node.js and have no Node.js skills. I do have Express and RESTful APIs skills.\n\nStudy: Computing certificate, Longmere Academy",
+      "jobDescriptionText": "Software Engineer for ticket services. Required: Node.js, Express. Preferred: MongoDB.",
+      "targetRole": "Software Engineer",
+      "expectedExtraction": {
+        "contactInfo": {
+          "name": "Nessa Torval",
+          "email": "nessa.torval@example.test"
+        },
+        "skills": [
+          "Express",
+          "REST API"
+        ]
+      },
+      "expectedRequirements": [
+        {
+          "category": "requiredSkills",
+          "label": "Node.js",
+          "status": "uncertain"
+        },
+        {
+          "category": "requiredSkills",
+          "label": "Express",
+          "status": "supported"
+        },
+        {
+          "category": "preferredSkills",
+          "label": "MongoDB",
+          "status": "missing"
+        }
+      ],
+      "notes": "Nodejs in the project claim and Node.js in the denial name the same skill. Express and REST API are explicitly affirmed independently and are not canceled by the Node.js denial."
+    },
+    {
+      "id": "fresh-conflict-04",
+      "group": "contradictory_skills",
+      "provenance": {
+        "kind": "synthetic",
+        "consent": "not-applicable",
+        "author": "fresh holdout author",
+        "personalData": "fictional"
+      },
+      "resumeText": "Petra Ilven  <petra.ilven@example.test>\nSoftware Engineer / Bracken Compass Works\n\nSkills sheet:\n  Java\n  Spring Boot\n  Linux\n  Git\n\nSigned candidate note:\nI do not have Java skills. I also do not know Spring Boot.\nI use Linux and Git for my workbench tools.\n\nTraining: Diploma in Computing, North Rill College",
+      "jobDescriptionText": "Software Engineer. Required skills: Java, Spring Boot, Linux. Preferred skill: AWS.",
+      "targetRole": "Software Engineer",
+      "expectedExtraction": {
+        "contactInfo": {
+          "name": "Petra Ilven",
+          "email": "petra.ilven@example.test"
+        },
+        "skills": [
+          "Linux",
+          "Git"
+        ]
+      },
+      "expectedRequirements": [
+        {
+          "category": "requiredSkills",
+          "label": "Java",
+          "status": "uncertain"
+        },
+        {
+          "category": "requiredSkills",
+          "label": "Spring Boot",
+          "status": "uncertain"
+        },
+        {
+          "category": "requiredSkills",
+          "label": "Linux",
+          "status": "supported"
+        },
+        {
+          "category": "preferredSkills",
+          "label": "AWS",
+          "status": "missing"
+        }
+      ],
+      "notes": "Two separate positive list entries each have explicit candidate denials. Both become uncertain matching evidence and neither is positive extraction; Linux and Git remain supported."
+    },
+    {
+      "id": "fresh-conflict-05",
+      "group": "contradictory_skills",
+      "provenance": {
+        "kind": "synthetic",
+        "consent": "not-applicable",
+        "author": "fresh holdout author",
+        "personalData": "fictional"
+      },
+      "resumeText": "Solen Merrow\nemail=solen.merrow@example.test\n\nWORK / Software Engineer at Wicker Basin Maps\nI design the record store in PostgreSQL. I use Redis for the lookup cache and Docker for the service package.\n\nCANDIDATE DECLARATION / I do not know Postgres. I have no MySQL skills either.\n\nEDUCATION / Computing diploma, Wrenford Technical House",
+      "jobDescriptionText": "Software Engineer for map records. Required skills: PostgreSQL, Redis. Preferred skill: MySQL.",
+      "targetRole": "Software Engineer",
+      "expectedExtraction": {
+        "contactInfo": {
+          "name": "Solen Merrow",
+          "email": "solen.merrow@example.test"
+        },
+        "skills": [
+          "Redis",
+          "Docker"
+        ]
+      },
+      "expectedRequirements": [
+        {
+          "category": "requiredSkills",
+          "label": "PostgreSQL",
+          "status": "uncertain"
+        },
+        {
+          "category": "requiredSkills",
+          "label": "Redis",
+          "status": "supported"
+        },
+        {
+          "category": "preferredSkills",
+          "label": "MySQL",
+          "status": "missing"
+        }
+      ],
+      "notes": "Postgres aliases PostgreSQL, so its denial conflicts with the work claim. MySQL has denial-only evidence and is missing, while nearby Redis and Docker positives remain valid."
+    },
+    {
+      "id": "fresh-conflict-06",
+      "group": "contradictory_skills",
+      "provenance": {
+        "kind": "synthetic",
+        "consent": "not-applicable",
+        "author": "fresh holdout author",
+        "personalData": "fictional"
+      },
+      "resumeText": "Mira Kelset\nmira.kelset@example.test\nSoftware Engineer, Fern Sail Analytics\n\nMY WORK\nI prepare vessel records using Python and Pandas.\n\nCONTEXT FROM A TEAM INTERVIEW\nMy colleague Evin said, 'I build the forecasting models with TensorFlow.' That statement describes Evin's work, not mine.\n\nMY SKILL DECLARATION\nI do not know TensorFlow and have never used it.\n\nStudy: Computing certificate, Stillwater Learning Hall",
+      "jobDescriptionText": "Software Engineer for data preparation. Required skills: Python, Pandas. Preferred skill: TensorFlow.",
+      "targetRole": "Software Engineer",
+      "expectedExtraction": {
+        "contactInfo": {
+          "name": "Mira Kelset",
+          "email": "mira.kelset@example.test"
+        },
+        "skills": [
+          "Python",
+          "Pandas"
+        ]
+      },
+      "expectedRequirements": [
+        {
+          "category": "requiredSkills",
+          "label": "Python",
+          "status": "supported"
+        },
+        {
+          "category": "requiredSkills",
+          "label": "Pandas",
+          "status": "supported"
+        },
+        {
+          "category": "preferredSkills",
+          "label": "TensorFlow",
+          "status": "missing"
+        }
+      ],
+      "notes": "Pure negative control: the positive TensorFlow quotation belongs explicitly to a colleague. It is not a positive candidate assertion, so the candidate's denial yields missing rather than uncertain."
+    },
+    {
+      "id": "fresh-conflict-07",
+      "group": "contradictory_skills",
+      "provenance": {
+        "kind": "synthetic",
+        "consent": "not-applicable",
+        "author": "fresh holdout author",
+        "personalData": "fictional"
+      },
+      "resumeText": "Lior Avenk\nContact: lior.avenk@example.test\n\nEMPLOYMENT\nSoftware Engineer - Glasswing Dispatch\nI use Golang and Docker to deliver route calculators. I administer the tools on Linux.\nThere were no outage incidents during the pilot, and I did not manage the office catering.\n\nTRAINING\nApplied Computing diploma - Salt Meadow College",
+      "jobDescriptionText": "Software Engineer for route calculators. Required: Go, Docker, Linux. Preferred: Kubernetes.",
+      "targetRole": "Software Engineer",
+      "expectedExtraction": {
+        "contactInfo": {
+          "name": "Lior Avenk",
+          "email": "lior.avenk@example.test"
+        },
+        "skills": [
+          "Go",
+          "Docker",
+          "Linux"
+        ]
+      },
+      "expectedRequirements": [
+        {
+          "category": "requiredSkills",
+          "label": "Go",
+          "status": "supported"
+        },
+        {
+          "category": "requiredSkills",
+          "label": "Docker",
+          "status": "supported"
+        },
+        {
+          "category": "requiredSkills",
+          "label": "Linux",
+          "status": "supported"
+        },
+        {
+          "category": "preferredSkills",
+          "label": "Kubernetes",
+          "status": "missing"
+        }
+      ],
+      "notes": "Non-contradiction control: negation concerns outages and catering, not the candidate's skills. Golang normalizes to Go, and all three positive technology claims remain supported."
+    },
+    {
+      "id": "fresh-conflict-08",
+      "group": "contradictory_skills",
+      "provenance": {
+        "kind": "synthetic",
+        "consent": "not-applicable",
+        "author": "fresh holdout author",
+        "personalData": "fictional"
+      },
+      "resumeText": "[Oren Westral] [oren.westral@example.test]\n\nSoftware Engineer, Meadow Dial Systems\nCompetencies :: C++ / Rust / Algorithms / Data Structures\n\nPersonal statement :: I do not know Rust and have no Rust programming skill.\nI use C++ for instrument simulations, and I apply Algorithms and Data Structures in those implementations.\n\nEducation :: Computing diploma, Alder Vale Institute",
+      "jobDescriptionText": "Software Engineer for instrument simulations. Required skills: Rust, C++, Data Structures. Preferred skill: Go.",
+      "targetRole": "Software Engineer",
+      "expectedExtraction": {
+        "contactInfo": {
+          "name": "Oren Westral",
+          "email": "oren.westral@example.test"
+        },
+        "skills": [
+          "C++",
+          "Algorithms",
+          "Data Structures"
+        ]
+      },
+      "expectedRequirements": [
+        {
+          "category": "requiredSkills",
+          "label": "Rust",
+          "status": "uncertain"
+        },
+        {
+          "category": "requiredSkills",
+          "label": "C++",
+          "status": "supported"
+        },
+        {
+          "category": "requiredSkills",
+          "label": "Data Structures",
+          "status": "supported"
+        },
+        {
+          "category": "preferredSkills",
+          "label": "Go",
+          "status": "missing"
+        }
+      ],
+      "notes": "A compact punctuation-separated list claims Rust, followed by a direct skill denial. The separate, repeated claims for C++, Algorithms, and Data Structures remain positive."
+    },
+    {
+      "id": "fresh-conflict-09",
+      "group": "contradictory_skills",
+      "provenance": {
+        "kind": "synthetic",
+        "consent": "not-applicable",
+        "author": "fresh holdout author",
+        "personalData": "fictional"
+      },
+      "resumeText": "Email: tessa.vorren@example.test\nTessa Vorren\n\nMY DECLARATION\nI have never learned AWS; I cannot use AWS.\n\nMY TOOLS\nAWS\nTerraform\nCI/CD\n\nCAREER\nSoftware Engineer at Rook Lantern Utilities. I write Terraform configurations and maintain the CI/CD process for internal releases.\n\nSTUDY\nCertificate in Computing, Westmere School",
+      "jobDescriptionText": "Software Engineer for release infrastructure. Required skills: AWS, Terraform, CI/CD. Preferred skill: Azure.",
+      "targetRole": "Software Engineer",
+      "expectedExtraction": {
+        "contactInfo": {
+          "name": "Tessa Vorren",
+          "email": "tessa.vorren@example.test"
+        },
+        "skills": [
+          "Terraform",
+          "CI/CD"
+        ]
+      },
+      "expectedRequirements": [
+        {
+          "category": "requiredSkills",
+          "label": "AWS",
+          "status": "uncertain"
+        },
+        {
+          "category": "requiredSkills",
+          "label": "Terraform",
+          "status": "supported"
+        },
+        {
+          "category": "requiredSkills",
+          "label": "CI/CD",
+          "status": "supported"
+        },
+        {
+          "category": "preferredSkills",
+          "label": "Azure",
+          "status": "missing"
+        }
+      ],
+      "notes": "The explicit AWS denial comes before the positive tools list, with no correction or temporal resolution. Terraform and CI/CD are independently positive and Azure is absent."
+    },
+    {
+      "id": "fresh-conflict-10",
+      "group": "contradictory_skills",
+      "provenance": {
+        "kind": "synthetic",
+        "consent": "not-applicable",
+        "author": "fresh holdout author",
+        "personalData": "fictional"
+      },
+      "resumeText": "Celia Durnet | celia.durnet@example.test\nSoftware Engineer | Honeycomb Ledger House\n\nPROJECT ACCOUNT\nThe original assignment said, 'Use JavaScript and React for the demo.' This was a requested approach, not a description of my skills. I did not use or learn either JavaScript or React.\nI implemented the delivered service using Python and FastAPI, and I wrote its reporting queries in SQL.\n\nEDUCATION\nComputing diploma, Mistbank College",
+      "jobDescriptionText": "Software Engineer for reporting services. Required skills: Python, FastAPI. Preferred skills: React, JavaScript.",
+      "targetRole": "Software Engineer",
+      "expectedExtraction": {
+        "contactInfo": {
+          "name": "Celia Durnet",
+          "email": "celia.durnet@example.test"
+        },
+        "skills": [
+          "Python",
+          "FastAPI",
+          "SQL"
+        ]
+      },
+      "expectedRequirements": [
+        {
+          "category": "requiredSkills",
+          "label": "Python",
+          "status": "supported"
+        },
+        {
+          "category": "requiredSkills",
+          "label": "FastAPI",
+          "status": "supported"
+        },
+        {
+          "category": "preferredSkills",
+          "label": "React",
+          "status": "missing"
+        },
+        {
+          "category": "preferredSkills",
+          "label": "JavaScript",
+          "status": "missing"
+        }
+      ],
+      "notes": "Non-contradiction control with quoted instructions: a requested implementation is not a candidate-positive claim. React and JavaScript have explicit negative candidate evidence only; the delivered work positively establishes Python, FastAPI, and SQL."
+    },
+    {
+      "id": "fresh-conflict-11",
+      "group": "contradictory_skills",
+      "provenance": {
+        "kind": "synthetic",
+        "consent": "not-applicable",
+        "author": "fresh holdout author",
+        "personalData": "fictional"
+      },
+      "resumeText": "Amir Velkin\namir.velkin@example.test\n\nSKILL SUMMARY                 CAREER\nMachine Learning              Software Engineer\nPyTorch                       Starling Vale Research\nPandas                        2023-2025\n\nCandidate statement: I do not have Machine Learning skills.\nI do use PyTorch to execute prepared experiments and Pandas to inspect their input records.\n\nTraining: Computing certificate, Bracken Shore Academy",
+      "jobDescriptionText": "Software Engineer for experiments. Required skills: Machine Learning, PyTorch. Preferred skill: TensorFlow.",
+      "targetRole": "Software Engineer",
+      "expectedExtraction": {
+        "contactInfo": {
+          "name": "Amir Velkin",
+          "email": "amir.velkin@example.test"
+        },
+        "skills": [
+          "PyTorch",
+          "Pandas"
+        ]
+      },
+      "expectedRequirements": [
+        {
+          "category": "requiredSkills",
+          "label": "Machine Learning",
+          "status": "uncertain"
+        },
+        {
+          "category": "requiredSkills",
+          "label": "PyTorch",
+          "status": "supported"
+        },
+        {
+          "category": "preferredSkills",
+          "label": "TensorFlow",
+          "status": "missing"
+        }
+      ],
+      "notes": "The skill-summary entry and candidate denial directly conflict for Machine Learning. The explicit PyTorch and Pandas claims remain positive; no broader skill is inferred from using a named library."
+    },
+    {
+      "id": "fresh-conflict-12",
+      "group": "contradictory_skills",
+      "provenance": {
+        "kind": "synthetic",
+        "consent": "not-applicable",
+        "author": "fresh holdout author",
+        "personalData": "fictional"
+      },
+      "resumeText": "career/contact > Esme Halven > esme.halven@example.test\n\nSoftware Engineer - Marigold Quill Tools\nI build review panels with React.js and Redux. I use Jest for their checks and apply Accessibility skills to keyboard navigation.\n\nself declaration > I have no React skills and do not know React. I have no Redis skills either.\n\nadditional fact > I do not have a university degree.\nTraining completed: vocational computing certificate, Lowfen Workshop School.",
+      "jobDescriptionText": "Software Engineer for review panels. Required skills: React, Redux, Accessibility. Preferred skills: Jest, Redis.",
+      "targetRole": "Software Engineer",
+      "expectedExtraction": {
+        "contactInfo": {
+          "name": "Esme Halven",
+          "email": "esme.halven@example.test"
+        },
+        "skills": [
+          "Redux",
+          "Jest",
+          "Accessibility"
+        ]
+      },
+      "expectedRequirements": [
+        {
+          "category": "requiredSkills",
+          "label": "React",
+          "status": "uncertain"
+        },
+        {
+          "category": "requiredSkills",
+          "label": "Redux",
+          "status": "supported"
+        },
+        {
+          "category": "requiredSkills",
+          "label": "Accessibility",
+          "status": "supported"
+        },
+        {
+          "category": "preferredSkills",
+          "label": "Jest",
+          "status": "supported"
+        },
+        {
+          "category": "preferredSkills",
+          "label": "Redis",
+          "status": "missing"
+        }
+      ],
+      "notes": "React.js aliases React and conflicts with the candidate's explicit denial. Redis is denial-only, while Redux, Jest, and Accessibility are uncontradicted positives. The degree negation concerns education rather than skill evidence."
+    }
+  ]
+}

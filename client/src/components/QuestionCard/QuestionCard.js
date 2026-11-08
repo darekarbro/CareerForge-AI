@@ -13,6 +13,7 @@ export default function QuestionCard({
   timeLimitSeconds = 0,
   timerStartedAt,
   onTimerStart,
+  focusAttempt,
 }) {
   const userAnswer = draft ?? question.userAnswer ?? '';
   const [showSuggested, setShowSuggested] = useState(false);
@@ -36,7 +37,7 @@ export default function QuestionCard({
   };
 
   return (
-    <div className="brutal-card p-6 space-y-5">
+    <div className="brutal-card p-6 space-y-5" id={'question-' + question._id}>
       {/* Header Tags */}
       <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b-2 border-[#1a1a1a]">
         <div className="flex items-center gap-2">
@@ -64,6 +65,7 @@ export default function QuestionCard({
       <h3 className="font-headline font-black text-lg sm:text-xl text-[#1a1a1a] leading-snug">
         {question.questionText}
       </h3>
+      {question.adaptation && <div role="status" className="border-l-4 border-blue-700 bg-blue-50 p-3 text-sm space-y-2"><p className="font-semibold">{({ clarification: 'Clarification question', deeper: 'Deeper question', diagnostic: 'Simpler diagnostic question' })[question.adaptation.kind] || 'Adaptive follow-up'}</p><p>{question.adaptation.reason}</p>{question.adaptation.sourceAnswerExcerpt && <blockquote className="border-l-2 pl-3">{question.adaptation.sourceAnswerExcerpt}</blockquote>}</div>}
       {!!timeLimitSeconds && (!isEvaluated || retrying) && <p role="timer" aria-label="Practice time remaining" className="text-sm font-semibold">{remaining ? Math.floor(remaining / 60) + ':' + String(remaining % 60).padStart(2, '0') + ' remaining' : 'Time is up. Finish your answer and submit when ready.'}</p>}
 
       {/* Suggested Model Answer Toggle Accordion */}
@@ -154,7 +156,7 @@ export default function QuestionCard({
           {/* 4-Dimension Scorecard */}
           {question.feedback?.overallScore !== undefined ? <FeedbackPanel feedback={question.feedback} /> : <p className="text-sm">Your answer is saved. Feedback unlocks when the session is complete.</p>}
           <button type="button" disabled={isSubmitting || (question.attempts?.length || 0) >= 10} onClick={() => { onDraftChange?.(''); setRetrying(true); onTimerStart?.(Date.now()); }} className="brutal-btn-yellow px-4 py-2 text-sm">Try this answer again</button>
-          {!!question.attempts?.length && <details className="text-sm"><summary>Previous attempts ({question.attempts.length})</summary><ol className="space-y-3 mt-3">{question.attempts.map((item, index) => <li key={index}><p>{item.userAnswer}</p><strong>{item.feedback?.overallScore}%</strong></li>)}</ol></details>}
+          {!!question.attempts?.length && <details className="text-sm" open={Number.isInteger(focusAttempt) && focusAttempt >= 0 && focusAttempt < question.attempts.length ? true : undefined}><summary>Previous attempts ({question.attempts.length})</summary><ol className="space-y-3 mt-3">{question.attempts.map((item, index) => <li key={index} className={focusAttempt === index ? 'bg-yellow-100 p-3 border-2' : ''}><p>Attempt {index + 1}</p><p>{item.userAnswer}</p>{item.feedback?.overallScore !== undefined && <strong>{item.feedback.overallScore}%</strong>}</li>)}</ol></details>}
         </div>
       )}
     </div>

@@ -8,11 +8,12 @@ const { plain } = require('../providers/resumeFacts');
 const { publicSession, publicQuestion: visibleQuestion } = require('./interviewVisibility');
 const fail = (message, statusCode) => Object.assign(new Error(message), { statusCode });
 class InterviewService {
-  async startSession({ userId, targetRole, resumeId, jobDescriptionId, count = 5, workspaceId, workspaceRevision, resumeSelection, difficulty = 'Medium', timeLimitSeconds = 0, topicFocus = '', feedbackMode = 'instant' }) {
+  async startSession({ userId, targetRole, resumeId, jobDescriptionId, count = 5, workspaceId, workspaceRevision, resumeSelection, difficulty = 'Medium', timeLimitSeconds = 0, topicFocus = '', feedbackMode = 'instant', adaptiveEnabled = true }) {
     if (!Number.isInteger(count) || count < 1 || count > 10) throw fail('Choose 1 to 10 interview questions', 400);
     if (!['Easy', 'Medium', 'Hard'].includes(difficulty)) throw fail('Choose a valid interview difficulty', 400);
     if (![0, 60, 120, 180, 300].includes(timeLimitSeconds)) throw fail('Choose a supported practice timer', 400);
     if (!['instant', 'end'].includes(feedbackMode)) throw fail('Choose a supported feedback mode', 400);
+    if (typeof adaptiveEnabled !== 'boolean') throw fail('Adaptive mode must be true or false', 400);
     topicFocus = require('./resumeContent').text(topicFocus, 'Focus topic', 150);
     const resume = await require('./resumeService').getReadyResume(resumeId, userId);
     if (workspaceId) {
@@ -25,7 +26,7 @@ class InterviewService {
     }
     const job = await createJob({ userId, jobType: 'question_generation', inputRef: {
       resumeId: resume._id, workspaceId, workspaceRevision, jobDescriptionId: jobDescriptionId || undefined,
-      targetRole, rawInput: { count, difficulty, timeLimitSeconds, topicFocus, feedbackMode, sourceRevision: resume.contentRevision || 1, ...(workspaceId || resumeSelection ? { sourceSnapshot: require('./resumeStructure').selectedContent(resume, resumeSelection) } : {}) },
+      targetRole, rawInput: { count, difficulty, timeLimitSeconds, topicFocus, feedbackMode, adaptiveEnabled, sourceRevision: resume.contentRevision || 1, ...(workspaceId || resumeSelection ? { sourceSnapshot: require('./resumeStructure').selectedContent(resume, resumeSelection) } : {}) },
     } });
     return dispatchJob(job);
   }
@@ -50,6 +51,7 @@ class InterviewService {
         workspaceId: job.inputRef.workspaceId, workspaceRevision: job.inputRef.workspaceRevision || 1, sourceRevision: job.inputRef.rawInput.sourceRevision || resume.contentRevision || 1,
         difficulty: job.inputRef.rawInput.difficulty, timeLimitSeconds: job.inputRef.rawInput.timeLimitSeconds,
         topicFocus: job.inputRef.rawInput.topicFocus, feedbackMode: job.inputRef.rawInput.feedbackMode,
+        adaptiveEnabled: job.inputRef.rawInput.adaptiveEnabled === true,
         owner: job.owner, resumeId: resume._id, targetRole: job.inputRef.targetRole,
         jobDescriptionId: jd?._id, totalQuestions: generated.questions.length,
         aiProvider: generated.aiProvider, status: 'in_progress',
@@ -98,6 +100,10 @@ class InterviewService {
     }
     const question = await InterviewQuestion.findOne({ _id: questionId, sessionId });
     if (!question) throw fail('Question not found', 404);
+    if (session.adaptiveEnabled && !question.answeredAt) {
+      const previous = await InterviewQuestion.findOne({ sessionId, order: { $lt: question.order } }).sort({ order: -1 });
+      if (previous && (!previous.answeredAt || !previous.adaptationResolvedAt)) throw fail('Answer the previous question before continuing this adaptive session.', 409);
+    }
     if (question.answeredAt && !retry) throw fail('Choose retry to improve an answered question', 409);
     if (question.attempts.length >= 10) throw fail('Start another practice session after 10 retries', 409);
     const job = await createJob({ userId, jobType: 'answer_evaluation', inputRef: {
@@ -125,8 +131,9 @@ class InterviewService {
       sessionId: job.inputRef.sessionId, $or: [{ evaluationJobId: job._id }, { evaluatedByJobId: job._id }] });
     if (!session || !question) throw fail('Interview question is no longer available', 409);
     if (String(question.evaluatedByJobId) === String(job._id)) return commit(async () => {
+      const followUpQuestion = await require('./adaptiveInterview').resolveNext(session, question);
       const updated = await this.updateScores(session, question, job.owner);
-      return { question: visibleQuestion(question, updated), session: publicSession(updated), aiProvider: question.feedback.aiProvider };
+      return { question: visibleQuestion(question, updated), session: publicSession(updated), followUpQuestion: followUpQuestion ? visibleQuestion(followUpQuestion, updated) : null, aiProvider: question.feedback.aiProvider };
     });
     const { userAnswer } = job.inputRef.rawInput;
     const feedback = await evaluatorAgent.evaluateAnswer({ question: plain(question), userAnswer,
@@ -139,8 +146,9 @@ class InterviewService {
         $unset: { evaluationJobId: 1 },
       }, { new: true, runValidators: true });
       if (!updatedQuestion) throw fail('Answer was already evaluated', 409);
+      const followUpQuestion = await require('./adaptiveInterview').resolveNext(session, updatedQuestion);
       const updatedSession = await this.updateScores(session, updatedQuestion, job.owner);
-      return { question: visibleQuestion(updatedQuestion, updatedSession), session: publicSession(updatedSession), aiProvider: feedback.aiProvider };
+      return { question: visibleQuestion(updatedQuestion, updatedSession), session: publicSession(updatedSession), followUpQuestion: followUpQuestion ? visibleQuestion(followUpQuestion, updatedSession) : null, aiProvider: feedback.aiProvider };
     });
   }
   async updateScores(session, question, owner) {

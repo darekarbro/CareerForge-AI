@@ -38,7 +38,7 @@ export default function InterviewSessionPage() {
     setLoading(true);
     try {
       const res = await api.get(`/interview/sessions/${id}`, { signal });
-      if (signal?.aborted) return;
+      if (signal?.aborted || userId !== (useAuthStore.getState().user?.id || useAuthStore.getState().user?._id)) return;
       setSession(res.data.data.session);
       setSessionOwner(userId);
       setQuestions(res.data.data.questions || []);
@@ -56,6 +56,12 @@ export default function InterviewSessionPage() {
     fetchSession(controller.signal);
     return () => controller.abort();
   }, [fetchSession]);
+
+  useEffect(() => {
+    const index = questions.findIndex((item) => item._id === router.query.question);
+    const firstPending = questions.findIndex((item) => !item.answeredAt && item.feedback?.overallScore === undefined);
+    if (index >= 0) setCurrentIndex(session?.adaptiveEnabled && firstPending >= 0 ? Math.min(index, firstPending) : index);
+  }, [router.query.question, questions, session?.adaptiveEnabled]);
 
   const handleSubmitAnswer = async (questionId, userAnswer, retry = false) => {
     if (isSubmitting) return;
@@ -75,7 +81,7 @@ export default function InterviewSessionPage() {
         prev.map((q) => (q._id === questionId ? updatedQuestion : q))
       );
       setSession(updatedSession);
-      if (updatedSession.status === 'completed') await fetchSession();
+      if (updatedSession.adaptiveEnabled || updatedSession.status === 'completed') await fetchSession();
       return true;
     } catch (err) {
       setError(err.response?.data?.message || err.message || 'Unable to evaluate the answer. Your draft has been kept.');
@@ -118,6 +124,8 @@ export default function InterviewSessionPage() {
   const currentQ = questions[currentIndex];
   const answeredCount = questions.filter((q) => q.answeredAt || q.feedback?.overallScore !== undefined).length;
   const isAllAnswered = answeredCount === questions.length;
+  const firstUnanswered = questions.findIndex((q) => !q.answeredAt && q.feedback?.overallScore === undefined);
+  const canOpen = (index) => !session.adaptiveEnabled || firstUnanswered < 0 || index <= firstUnanswered;
 
   return (
     <ProtectedRoute>
@@ -156,6 +164,8 @@ export default function InterviewSessionPage() {
             </div>
           </div>
 
+          {session.adaptiveEnabled && <p role="status" className="text-sm">Adaptive practice is on. Answer in order so the next question can respond to your answer. Your session contains {questions.length} questions.</p>}
+
           {/* Question Stepper Navigation */}
           <div className="flex flex-wrap gap-2">
             {questions.map((q, idx) => {
@@ -165,8 +175,9 @@ export default function InterviewSessionPage() {
               return (
                 <button
                   key={q._id}
+                  disabled={!canOpen(idx) || isSubmitting}
                   onClick={() => setCurrentIndex(idx)}
-                  className={`px-3 py-1.5 border-2 font-headline font-black text-xs uppercase transition-all ${
+                  className={`px-3 py-1.5 border-2 font-headline font-black text-xs uppercase transition-all disabled:opacity-40 ${
                     isCurrent
                       ? 'bg-[#0055ff] text-white border-[#1a1a1a] shadow-brutal translate-x-0.5'
                       : isAnswered
@@ -185,6 +196,7 @@ export default function InterviewSessionPage() {
             <QuestionCard
               key={currentQ._id}
               question={currentQ}
+              focusAttempt={router.query.question === currentQ._id && router.query.attempt !== undefined ? Number(router.query.attempt) : undefined}
               index={currentIndex}
               total={questions.length}
               onSubmitAnswer={handleSubmitAnswer}
@@ -212,7 +224,8 @@ export default function InterviewSessionPage() {
             {currentIndex < questions.length - 1 ? (
               <button
                 onClick={() => setCurrentIndex((prev) => Math.min(questions.length - 1, prev + 1))}
-                className="brutal-btn-primary px-5 py-2 text-xs flex items-center gap-1.5"
+                disabled={!canOpen(currentIndex + 1) || isSubmitting}
+                className="brutal-btn-primary px-5 py-2 text-xs flex items-center gap-1.5 disabled:opacity-40"
               >
                 <span>Next Question</span>
                 <ArrowRight className="w-4 h-4" />

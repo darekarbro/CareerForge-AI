@@ -47,6 +47,11 @@ const resumeSchema = new mongoose.Schema(
       type: String,
     },
     parsedData: {
+      skillConflicts: { type: [{
+        _id: false, skill: String,
+        positiveEvidence: [{ _id: false, quote: String }],
+        negativeEvidence: [{ _id: false, path: String, quote: String }],
+      }], default: undefined },
       contactInfo: {
         name: { type: String, default: '' },
         email: { type: String, default: '' },
@@ -106,6 +111,7 @@ const resumeSchema = new mongoose.Schema(
       ],
     },
     atsScore: {
+      rubric: mongoose.Schema.Types.Mixed,
       score: { type: Number, default: 0 },
       formattingScore: { type: Number, default: 0 },
       structureScore: { type: Number, default: 0 },

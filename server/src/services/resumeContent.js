@@ -27,7 +27,9 @@ const contactKeys = ['name', 'email', 'phone', 'location', 'linkedin', 'github',
 const groupKeys = ['technical', 'frameworks', 'tools', 'soft', 'all'];
 function cleanResumeContent(value) {
   const input = object(value, 'Resume content');
-  const allowed = new Set(['contactInfo', 'summary', 'skills', 'workExperience', 'projects', 'education', 'certifications', '_id']);
+  // Conflict metadata is server-owned. Ignore an incoming copy (including historical snapshots)
+  // and let the editing service reconstruct it from trusted saved content.
+  const allowed = new Set(['contactInfo', 'summary', 'skills', 'workExperience', 'projects', 'education', 'certifications', 'skillConflicts', '_id']);
   if (Object.keys(input).some((key) => !allowed.has(key))) throw fail('Unsupported resume field');
   const contact = input.contactInfo === undefined ? {} : object(input.contactInfo, 'Contact details');
   if (Object.keys(contact).some((key) => !contactKeys.includes(key) && key !== '_id')) throw fail('Unsupported contact field');

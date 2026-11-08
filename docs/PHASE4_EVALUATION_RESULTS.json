@@ -1,0 +1,2630 @@
+{
+  "reportVersion": "phase4-evaluation-v1",
+  "generatedAt": "2026-11-03T19:55:55.108Z",
+  "datasetVersion": "phase4-synthetic-v1",
+  "rubricVersion": "careerforge-assessment-v2",
+  "runtime": {
+    "node": "v25.9.0",
+    "platform": "win32",
+    "architecture": "x64"
+  },
+  "implementationSha256": "43842cdf99c450844d212a3fdd874faaed95358d92f3ebfd20db913b062af6e7",
+  "method": "Frozen synthetic raw-text fixtures → deterministic parser → local versioned requirement matcher. One timed pipeline sample per case after independent warmup.",
+  "limitations": [
+    "Synthetic reference labels were authored independently of application output, not provided by independent human reviewers.",
+    "Skill extraction and classification are measured; the initial gold set does not measure experience/constraint correctness, OCR, visual layout or actual job performance.",
+    "Holdout is separately stored but small and template-related to development; no population confidence interval or real hiring outcome is established.",
+    "Citation integrity checks the parsed data path and exact quote, while unsupported claims compare the matching decision with raw-input reference labels.",
+    "This run does not measure live LLM accuracy, latency, token consumption, queue/API latency or provider pricing."
+  ],
+  "splits": {
+    "development": {
+      "datasetSha256": "36b2e52efb88178fd654d315db000e99d31d78cc59efc7459cdd03c4776b6ab5",
+      "annotationScope": "Contact name/email, explicit positively asserted dictionary skills, and labeled JD skill requirements; no human overall-score annotations.",
+      "metrics": {
+        "cases": 30,
+        "extractionAccuracy": {
+          "contactExact": {
+            "correct": 59,
+            "total": 60,
+            "rate": 0.983333
+          },
+          "resumeSkills": {
+            "truePositive": 48,
+            "falsePositive": 1,
+            "falseNegative": 4,
+            "precision": 0.979592,
+            "recall": 0.923077,
+            "f1": 0.950495
+          },
+          "jdSkills": {
+            "truePositive": 79,
+            "falsePositive": 0,
+            "falseNegative": 0,
+            "precision": 1,
+            "recall": 1,
+            "f1": 1
+          }
+        },
+        "requirementStatusAccuracy": {
+          "correct": 75,
+          "total": 79,
+          "rate": 0.949367
+        },
+        "unsupportedClaimRate": {
+          "count": 0,
+          "total": 39,
+          "rate": 0
+        },
+        "citationIntegrity": {
+          "valid": 96,
+          "total": 96,
+          "rate": 1
+        },
+        "evidenceCoverage": {
+          "supportedWithValidEvidence": 40,
+          "supported": 40,
+          "totalRequirements": 82,
+          "supportedClaimCoverage": 1,
+          "allRequirementCoverage": 0.487805
+        },
+        "humanScoreAgreement": {
+          "status": "not-measured",
+          "reviewedCases": 0,
+          "reviews": 0,
+          "meanAbsoluteError": null,
+          "withinTenPointsRate": null,
+          "reason": "No independent human reviewer scores have been supplied; synthetic reference labels are not human score reviews."
+        },
+        "latencyMs": {
+          "scope": "Local raw-text parsing plus requirement matching; excludes upload, queue, database, network and UI.",
+          "samples": 30,
+          "p50": 0.6581,
+          "p95": 2.2756,
+          "mean": 0.723613
+        },
+        "providerCost": {
+          "mode": "offline-rules",
+          "externalRequests": 0,
+          "billedTokens": 0,
+          "costUsd": 0,
+          "scope": "No external provider calls; infrastructure and engineering cost excluded."
+        }
+      },
+      "byGroup": {
+        "graduate": {
+          "cases": 6,
+          "extractionAccuracy": {
+            "contactExact": {
+              "correct": 12,
+              "total": 12,
+              "rate": 1
+            },
+            "resumeSkills": {
+              "truePositive": 12,
+              "falsePositive": 0,
+              "falseNegative": 0,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1
+            },
+            "jdSkills": {
+              "truePositive": 18,
+              "falsePositive": 0,
+              "falseNegative": 0,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1
+            }
+          },
+          "requirementStatusAccuracy": {
+            "correct": 18,
+            "total": 18,
+            "rate": 1
+          },
+          "unsupportedClaimRate": {
+            "count": 0,
+            "total": 10,
+            "rate": 0
+          },
+          "citationIntegrity": {
+            "valid": 26,
+            "total": 26,
+            "rate": 1
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 10,
+            "supported": 10,
+            "totalRequirements": 18,
+            "supportedClaimCoverage": 1,
+            "allRequirementCoverage": 0.555556
+          },
+          "humanScoreAgreement": {
+            "status": "not-measured",
+            "reviewedCases": 0,
+            "reviews": 0,
+            "meanAbsoluteError": null,
+            "withinTenPointsRate": null,
+            "reason": "No independent human reviewer scores have been supplied; synthetic reference labels are not human score reviews."
+          },
+          "latencyMs": {
+            "scope": "Local raw-text parsing plus requirement matching; excludes upload, queue, database, network and UI.",
+            "samples": 6,
+            "p50": 0.8426,
+            "p95": 2.2809,
+            "mean": 1.094167
+          },
+          "providerCost": {
+            "mode": "offline-rules",
+            "externalRequests": 0,
+            "billedTokens": 0,
+            "costUsd": 0,
+            "scope": "No external provider calls; infrastructure and engineering cost excluded."
+          }
+        },
+        "experienced": {
+          "cases": 6,
+          "extractionAccuracy": {
+            "contactExact": {
+              "correct": 12,
+              "total": 12,
+              "rate": 1
+            },
+            "resumeSkills": {
+              "truePositive": 20,
+              "falsePositive": 0,
+              "falseNegative": 0,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1
+            },
+            "jdSkills": {
+              "truePositive": 21,
+              "falsePositive": 0,
+              "falseNegative": 0,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1
+            }
+          },
+          "requirementStatusAccuracy": {
+            "correct": 21,
+            "total": 21,
+            "rate": 1
+          },
+          "unsupportedClaimRate": {
+            "count": 0,
+            "total": 14,
+            "rate": 0
+          },
+          "citationIntegrity": {
+            "valid": 37,
+            "total": 37,
+            "rate": 1
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 15,
+            "supported": 15,
+            "totalRequirements": 23,
+            "supportedClaimCoverage": 1,
+            "allRequirementCoverage": 0.652174
+          },
+          "humanScoreAgreement": {
+            "status": "not-measured",
+            "reviewedCases": 0,
+            "reviews": 0,
+            "meanAbsoluteError": null,
+            "withinTenPointsRate": null,
+            "reason": "No independent human reviewer scores have been supplied; synthetic reference labels are not human score reviews."
+          },
+          "latencyMs": {
+            "scope": "Local raw-text parsing plus requirement matching; excludes upload, queue, database, network and UI.",
+            "samples": 6,
+            "p50": 0.6581,
+            "p95": 1.5582,
+            "mean": 0.77005
+          },
+          "providerCost": {
+            "mode": "offline-rules",
+            "externalRequests": 0,
+            "billedTokens": 0,
+            "costUsd": 0,
+            "scope": "No external provider calls; infrastructure and engineering cost excluded."
+          }
+        },
+        "sparse": {
+          "cases": 6,
+          "extractionAccuracy": {
+            "contactExact": {
+              "correct": 12,
+              "total": 12,
+              "rate": 1
+            },
+            "resumeSkills": {
+              "truePositive": 2,
+              "falsePositive": 0,
+              "falseNegative": 0,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1
+            },
+            "jdSkills": {
+              "truePositive": 10,
+              "falsePositive": 0,
+              "falseNegative": 0,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1
+            }
+          },
+          "requirementStatusAccuracy": {
+            "correct": 10,
+            "total": 10,
+            "rate": 1
+          },
+          "unsupportedClaimRate": {
+            "count": 0,
+            "total": 2,
+            "rate": 0
+          },
+          "citationIntegrity": {
+            "valid": 4,
+            "total": 4,
+            "rate": 1
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 2,
+            "supported": 2,
+            "totalRequirements": 11,
+            "supportedClaimCoverage": 1,
+            "allRequirementCoverage": 0.181818
+          },
+          "humanScoreAgreement": {
+            "status": "not-measured",
+            "reviewedCases": 0,
+            "reviews": 0,
+            "meanAbsoluteError": null,
+            "withinTenPointsRate": null,
+            "reason": "No independent human reviewer scores have been supplied; synthetic reference labels are not human score reviews."
+          },
+          "latencyMs": {
+            "scope": "Local raw-text parsing plus requirement matching; excludes upload, queue, database, network and UI.",
+            "samples": 6,
+            "p50": 0.3473,
+            "p95": 0.5038,
+            "mean": 0.360233
+          },
+          "providerCost": {
+            "mode": "offline-rules",
+            "externalRequests": 0,
+            "billedTokens": 0,
+            "costUsd": 0,
+            "scope": "No external provider calls; infrastructure and engineering cost excluded."
+          }
+        },
+        "formatting": {
+          "cases": 6,
+          "extractionAccuracy": {
+            "contactExact": {
+              "correct": 11,
+              "total": 12,
+              "rate": 0.916667
+            },
+            "resumeSkills": {
+              "truePositive": 10,
+              "falsePositive": 0,
+              "falseNegative": 4,
+              "precision": 1,
+              "recall": 0.714286,
+              "f1": 0.833333
+            },
+            "jdSkills": {
+              "truePositive": 17,
+              "falsePositive": 0,
+              "falseNegative": 0,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1
+            }
+          },
+          "requirementStatusAccuracy": {
+            "correct": 13,
+            "total": 17,
+            "rate": 0.764706
+          },
+          "unsupportedClaimRate": {
+            "count": 0,
+            "total": 9,
+            "rate": 0
+          },
+          "citationIntegrity": {
+            "valid": 19,
+            "total": 19,
+            "rate": 1
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 9,
+            "supported": 9,
+            "totalRequirements": 17,
+            "supportedClaimCoverage": 1,
+            "allRequirementCoverage": 0.529412
+          },
+          "humanScoreAgreement": {
+            "status": "not-measured",
+            "reviewedCases": 0,
+            "reviews": 0,
+            "meanAbsoluteError": null,
+            "withinTenPointsRate": null,
+            "reason": "No independent human reviewer scores have been supplied; synthetic reference labels are not human score reviews."
+          },
+          "latencyMs": {
+            "scope": "Local raw-text parsing plus requirement matching; excludes upload, queue, database, network and UI.",
+            "samples": 6,
+            "p50": 0.7779,
+            "p95": 2.2756,
+            "mean": 1.014783
+          },
+          "providerCost": {
+            "mode": "offline-rules",
+            "externalRequests": 0,
+            "billedTokens": 0,
+            "costUsd": 0,
+            "scope": "No external provider calls; infrastructure and engineering cost excluded."
+          }
+        },
+        "misleading": {
+          "cases": 6,
+          "extractionAccuracy": {
+            "contactExact": {
+              "correct": 12,
+              "total": 12,
+              "rate": 1
+            },
+            "resumeSkills": {
+              "truePositive": 4,
+              "falsePositive": 1,
+              "falseNegative": 0,
+              "precision": 0.8,
+              "recall": 1,
+              "f1": 0.888889
+            },
+            "jdSkills": {
+              "truePositive": 13,
+              "falsePositive": 0,
+              "falseNegative": 0,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1
+            }
+          },
+          "requirementStatusAccuracy": {
+            "correct": 13,
+            "total": 13,
+            "rate": 1
+          },
+          "unsupportedClaimRate": {
+            "count": 0,
+            "total": 4,
+            "rate": 0
+          },
+          "citationIntegrity": {
+            "valid": 10,
+            "total": 10,
+            "rate": 1
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 4,
+            "supported": 4,
+            "totalRequirements": 13,
+            "supportedClaimCoverage": 1,
+            "allRequirementCoverage": 0.307692
+          },
+          "humanScoreAgreement": {
+            "status": "not-measured",
+            "reviewedCases": 0,
+            "reviews": 0,
+            "meanAbsoluteError": null,
+            "withinTenPointsRate": null,
+            "reason": "No independent human reviewer scores have been supplied; synthetic reference labels are not human score reviews."
+          },
+          "latencyMs": {
+            "scope": "Local raw-text parsing plus requirement matching; excludes upload, queue, database, network and UI.",
+            "samples": 6,
+            "p50": 0.3823,
+            "p95": 0.4764,
+            "mean": 0.378833
+          },
+          "providerCost": {
+            "mode": "offline-rules",
+            "externalRequests": 0,
+            "billedTokens": 0,
+            "costUsd": 0,
+            "scope": "No external provider calls; infrastructure and engineering cost excluded."
+          }
+        }
+      },
+      "cases": [
+        {
+          "id": "graduate-01",
+          "group": "graduate",
+          "matchScore": 86,
+          "latencyMs": 2.2809000000000026,
+          "resumeSkills": {
+            "truePositive": 2,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "contacts": {
+            "correct": 2,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 3,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 3,
+            "total": 3
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 2
+          },
+          "citationIntegrity": {
+            "valid": 6,
+            "total": 6
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 2,
+            "supported": 2,
+            "totalRequirements": 3
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [],
+            "contacts": [],
+            "requirements": []
+          }
+        },
+        {
+          "id": "graduate-02",
+          "group": "graduate",
+          "matchScore": 43,
+          "latencyMs": 0.992200000000004,
+          "resumeSkills": {
+            "truePositive": 2,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "contacts": {
+            "correct": 2,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 3,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 3,
+            "total": 3
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 1
+          },
+          "citationIntegrity": {
+            "valid": 3,
+            "total": 3
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 1,
+            "supported": 1,
+            "totalRequirements": 3
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [],
+            "contacts": [],
+            "requirements": []
+          }
+        },
+        {
+          "id": "graduate-03",
+          "group": "graduate",
+          "matchScore": 86,
+          "latencyMs": 0.8426000000000045,
+          "resumeSkills": {
+            "truePositive": 2,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "contacts": {
+            "correct": 2,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 3,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 3,
+            "total": 3
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 2
+          },
+          "citationIntegrity": {
+            "valid": 6,
+            "total": 6
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 2,
+            "supported": 2,
+            "totalRequirements": 3
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [],
+            "contacts": [],
+            "requirements": []
+          }
+        },
+        {
+          "id": "graduate-04",
+          "group": "graduate",
+          "matchScore": 90,
+          "latencyMs": 0.8606000000000051,
+          "resumeSkills": {
+            "truePositive": 3,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "contacts": {
+            "correct": 2,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 4,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 4,
+            "total": 4
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 3
+          },
+          "citationIntegrity": {
+            "valid": 6,
+            "total": 6
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 3,
+            "supported": 3,
+            "totalRequirements": 4
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [],
+            "contacts": [],
+            "requirements": []
+          }
+        },
+        {
+          "id": "graduate-05",
+          "group": "graduate",
+          "matchScore": 86,
+          "latencyMs": 0.8222000000000023,
+          "resumeSkills": {
+            "truePositive": 3,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "contacts": {
+            "correct": 2,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 3,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 3,
+            "total": 3
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 2
+          },
+          "citationIntegrity": {
+            "valid": 5,
+            "total": 5
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 2,
+            "supported": 2,
+            "totalRequirements": 3
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [],
+            "contacts": [],
+            "requirements": []
+          }
+        },
+        {
+          "id": "graduate-06",
+          "group": "graduate",
+          "matchScore": 0,
+          "latencyMs": 0.7665000000000006,
+          "resumeSkills": {
+            "truePositive": 0,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "contacts": {
+            "correct": 2,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 2,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 2,
+            "total": 2
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 0
+          },
+          "citationIntegrity": {
+            "valid": 0,
+            "total": 0
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 0,
+            "supported": 0,
+            "totalRequirements": 2
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [],
+            "contacts": [],
+            "requirements": []
+          }
+        },
+        {
+          "id": "experienced-01",
+          "group": "experienced",
+          "matchScore": 73,
+          "latencyMs": 1.5581999999999994,
+          "resumeSkills": {
+            "truePositive": 4,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "contacts": {
+            "correct": 2,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 3,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 3,
+            "total": 3
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 2
+          },
+          "citationIntegrity": {
+            "valid": 6,
+            "total": 6
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 3,
+            "supported": 3,
+            "totalRequirements": 5
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [],
+            "contacts": [],
+            "requirements": []
+          }
+        },
+        {
+          "id": "experienced-02",
+          "group": "experienced",
+          "matchScore": 90,
+          "latencyMs": 0.6581000000000046,
+          "resumeSkills": {
+            "truePositive": 3,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "contacts": {
+            "correct": 2,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 4,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 4,
+            "total": 4
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 3
+          },
+          "citationIntegrity": {
+            "valid": 8,
+            "total": 8
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 3,
+            "supported": 3,
+            "totalRequirements": 4
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [],
+            "contacts": [],
+            "requirements": []
+          }
+        },
+        {
+          "id": "experienced-03",
+          "group": "experienced",
+          "matchScore": 75,
+          "latencyMs": 0.6932000000000045,
+          "resumeSkills": {
+            "truePositive": 4,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "contacts": {
+            "correct": 2,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 4,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 4,
+            "total": 4
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 2
+          },
+          "citationIntegrity": {
+            "valid": 6,
+            "total": 6
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 2,
+            "supported": 2,
+            "totalRequirements": 4
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [],
+            "contacts": [],
+            "requirements": []
+          }
+        },
+        {
+          "id": "experienced-04",
+          "group": "experienced",
+          "matchScore": 88,
+          "latencyMs": 0.7314000000000007,
+          "resumeSkills": {
+            "truePositive": 3,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "contacts": {
+            "correct": 2,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 4,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 4,
+            "total": 4
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 3
+          },
+          "citationIntegrity": {
+            "valid": 7,
+            "total": 7
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 3,
+            "supported": 3,
+            "totalRequirements": 4
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [],
+            "contacts": [],
+            "requirements": []
+          }
+        },
+        {
+          "id": "experienced-05",
+          "group": "experienced",
+          "matchScore": 86,
+          "latencyMs": 0.47639999999999816,
+          "resumeSkills": {
+            "truePositive": 3,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "contacts": {
+            "correct": 2,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 3,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 3,
+            "total": 3
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 2
+          },
+          "citationIntegrity": {
+            "valid": 5,
+            "total": 5
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 2,
+            "supported": 2,
+            "totalRequirements": 3
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [],
+            "contacts": [],
+            "requirements": []
+          }
+        },
+        {
+          "id": "experienced-06",
+          "group": "experienced",
+          "matchScore": 57,
+          "latencyMs": 0.5030000000000001,
+          "resumeSkills": {
+            "truePositive": 3,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "contacts": {
+            "correct": 2,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 3,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 3,
+            "total": 3
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 2
+          },
+          "citationIntegrity": {
+            "valid": 5,
+            "total": 5
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 2,
+            "supported": 2,
+            "totalRequirements": 3
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [],
+            "contacts": [],
+            "requirements": []
+          }
+        },
+        {
+          "id": "sparse-01",
+          "group": "sparse",
+          "matchScore": 0,
+          "latencyMs": 0.3832000000000022,
+          "resumeSkills": {
+            "truePositive": 0,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "contacts": {
+            "correct": 2,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 2,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 2,
+            "total": 2
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 0
+          },
+          "citationIntegrity": {
+            "valid": 0,
+            "total": 0
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 0,
+            "supported": 0,
+            "totalRequirements": 2
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [],
+            "contacts": [],
+            "requirements": []
+          }
+        },
+        {
+          "id": "sparse-02",
+          "group": "sparse",
+          "matchScore": 50,
+          "latencyMs": 0.2780999999999949,
+          "resumeSkills": {
+            "truePositive": 1,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "contacts": {
+            "correct": 2,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 2,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 2,
+            "total": 2
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 1
+          },
+          "citationIntegrity": {
+            "valid": 2,
+            "total": 2
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 1,
+            "supported": 1,
+            "totalRequirements": 2
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [],
+            "contacts": [],
+            "requirements": []
+          }
+        },
+        {
+          "id": "sparse-03",
+          "group": "sparse",
+          "matchScore": 0,
+          "latencyMs": 0.2518999999999991,
+          "resumeSkills": {
+            "truePositive": 0,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "contacts": {
+            "correct": 2,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 1,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 1,
+            "total": 1
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 0
+          },
+          "citationIntegrity": {
+            "valid": 0,
+            "total": 0
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 0,
+            "supported": 0,
+            "totalRequirements": 1
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [],
+            "contacts": [],
+            "requirements": []
+          }
+        },
+        {
+          "id": "sparse-04",
+          "group": "sparse",
+          "matchScore": 0,
+          "latencyMs": 0.5037999999999982,
+          "resumeSkills": {
+            "truePositive": 0,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "contacts": {
+            "correct": 2,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 1,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 1,
+            "total": 1
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 0
+          },
+          "citationIntegrity": {
+            "valid": 0,
+            "total": 0
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 0,
+            "supported": 0,
+            "totalRequirements": 2
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [],
+            "contacts": [],
+            "requirements": []
+          }
+        },
+        {
+          "id": "sparse-05",
+          "group": "sparse",
+          "matchScore": 50,
+          "latencyMs": 0.34730000000000416,
+          "resumeSkills": {
+            "truePositive": 1,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "contacts": {
+            "correct": 2,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 2,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 2,
+            "total": 2
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 1
+          },
+          "citationIntegrity": {
+            "valid": 2,
+            "total": 2
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 1,
+            "supported": 1,
+            "totalRequirements": 2
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [],
+            "contacts": [],
+            "requirements": []
+          }
+        },
+        {
+          "id": "sparse-06",
+          "group": "sparse",
+          "matchScore": 0,
+          "latencyMs": 0.3970999999999947,
+          "resumeSkills": {
+            "truePositive": 0,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "contacts": {
+            "correct": 2,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 2,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 2,
+            "total": 2
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 0
+          },
+          "citationIntegrity": {
+            "valid": 0,
+            "total": 0
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 0,
+            "supported": 0,
+            "totalRequirements": 2
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [],
+            "contacts": [],
+            "requirements": []
+          }
+        },
+        {
+          "id": "formatting-01",
+          "group": "formatting",
+          "matchScore": 86,
+          "latencyMs": 2.275599999999997,
+          "resumeSkills": {
+            "truePositive": 2,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "contacts": {
+            "correct": 2,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 3,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 3,
+            "total": 3
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 2
+          },
+          "citationIntegrity": {
+            "valid": 4,
+            "total": 4
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 2,
+            "supported": 2,
+            "totalRequirements": 3
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [],
+            "contacts": [],
+            "requirements": []
+          }
+        },
+        {
+          "id": "formatting-02",
+          "group": "formatting",
+          "matchScore": 100,
+          "latencyMs": 0.7778999999999883,
+          "resumeSkills": {
+            "truePositive": 3,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "contacts": {
+            "correct": 2,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 3,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 3,
+            "total": 3
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 3
+          },
+          "citationIntegrity": {
+            "valid": 6,
+            "total": 6
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 3,
+            "supported": 3,
+            "totalRequirements": 3
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [],
+            "contacts": [],
+            "requirements": []
+          }
+        },
+        {
+          "id": "formatting-03",
+          "group": "formatting",
+          "matchScore": 86,
+          "latencyMs": 0.672300000000007,
+          "resumeSkills": {
+            "truePositive": 2,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "contacts": {
+            "correct": 2,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 3,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 3,
+            "total": 3
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 2
+          },
+          "citationIntegrity": {
+            "valid": 5,
+            "total": 5
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 2,
+            "supported": 2,
+            "totalRequirements": 3
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [],
+            "contacts": [],
+            "requirements": []
+          }
+        },
+        {
+          "id": "formatting-04",
+          "group": "formatting",
+          "matchScore": 0,
+          "latencyMs": 0.7312999999999903,
+          "resumeSkills": {
+            "truePositive": 0,
+            "falsePositive": 0,
+            "falseNegative": 2
+          },
+          "contacts": {
+            "correct": 2,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 2,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 0,
+            "total": 2
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 0
+          },
+          "citationIntegrity": {
+            "valid": 0,
+            "total": 0
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 0,
+            "supported": 0,
+            "totalRequirements": 2
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [
+              "Java",
+              "SQL"
+            ],
+            "contacts": [],
+            "requirements": [
+              {
+                "requirement": "requiredSkills:java",
+                "expected": "supported",
+                "actual": "missing"
+              },
+              {
+                "requirement": "preferredSkills:sql",
+                "expected": "supported",
+                "actual": "missing"
+              }
+            ]
+          }
+        },
+        {
+          "id": "formatting-05",
+          "group": "formatting",
+          "matchScore": 86,
+          "latencyMs": 0.8286000000000087,
+          "resumeSkills": {
+            "truePositive": 3,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "contacts": {
+            "correct": 2,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 3,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 3,
+            "total": 3
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 2
+          },
+          "citationIntegrity": {
+            "valid": 4,
+            "total": 4
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 2,
+            "supported": 2,
+            "totalRequirements": 3
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [],
+            "contacts": [],
+            "requirements": []
+          }
+        },
+        {
+          "id": "formatting-06",
+          "group": "formatting",
+          "matchScore": 0,
+          "latencyMs": 0.8029999999999973,
+          "resumeSkills": {
+            "truePositive": 0,
+            "falsePositive": 0,
+            "falseNegative": 2
+          },
+          "contacts": {
+            "correct": 1,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 3,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 1,
+            "total": 3
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 0
+          },
+          "citationIntegrity": {
+            "valid": 0,
+            "total": 0
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 0,
+            "supported": 0,
+            "totalRequirements": 3
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [
+              "Python",
+              "SQL"
+            ],
+            "contacts": [
+              "name"
+            ],
+            "requirements": [
+              {
+                "requirement": "requiredSkills:python",
+                "expected": "supported",
+                "actual": "missing"
+              },
+              {
+                "requirement": "requiredSkills:sql",
+                "expected": "supported",
+                "actual": "missing"
+              }
+            ]
+          }
+        },
+        {
+          "id": "misleading-01",
+          "group": "misleading",
+          "matchScore": 25,
+          "latencyMs": 0.47639999999999816,
+          "resumeSkills": {
+            "truePositive": 1,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "contacts": {
+            "correct": 2,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 2,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 2,
+            "total": 2
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 1
+          },
+          "citationIntegrity": {
+            "valid": 2,
+            "total": 2
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 1,
+            "supported": 1,
+            "totalRequirements": 2
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [],
+            "contacts": [],
+            "requirements": []
+          }
+        },
+        {
+          "id": "misleading-02",
+          "group": "misleading",
+          "matchScore": 0,
+          "latencyMs": 0.43720000000000425,
+          "resumeSkills": {
+            "truePositive": 0,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "contacts": {
+            "correct": 2,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 2,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 2,
+            "total": 2
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 0
+          },
+          "citationIntegrity": {
+            "valid": 0,
+            "total": 0
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 0,
+            "supported": 0,
+            "totalRequirements": 2
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [],
+            "contacts": [],
+            "requirements": []
+          }
+        },
+        {
+          "id": "misleading-03",
+          "group": "misleading",
+          "matchScore": 14,
+          "latencyMs": 0.41329999999999245,
+          "resumeSkills": {
+            "truePositive": 1,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "contacts": {
+            "correct": 2,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 3,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 3,
+            "total": 3
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 1
+          },
+          "citationIntegrity": {
+            "valid": 2,
+            "total": 2
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 1,
+            "supported": 1,
+            "totalRequirements": 3
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [],
+            "contacts": [],
+            "requirements": []
+          }
+        },
+        {
+          "id": "misleading-04",
+          "group": "misleading",
+          "matchScore": 50,
+          "latencyMs": 0.2869000000000028,
+          "resumeSkills": {
+            "truePositive": 1,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "contacts": {
+            "correct": 2,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 2,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 2,
+            "total": 2
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 1
+          },
+          "citationIntegrity": {
+            "valid": 2,
+            "total": 2
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 1,
+            "supported": 1,
+            "totalRequirements": 2
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [],
+            "contacts": [],
+            "requirements": []
+          }
+        },
+        {
+          "id": "misleading-05",
+          "group": "misleading",
+          "matchScore": 43,
+          "latencyMs": 0.38230000000000075,
+          "resumeSkills": {
+            "truePositive": 1,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "contacts": {
+            "correct": 2,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 3,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 3,
+            "total": 3
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 1
+          },
+          "citationIntegrity": {
+            "valid": 2,
+            "total": 2
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 1,
+            "supported": 1,
+            "totalRequirements": 3
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [],
+            "contacts": [],
+            "requirements": []
+          }
+        },
+        {
+          "id": "misleading-06",
+          "group": "misleading",
+          "matchScore": 0,
+          "latencyMs": 0.2768999999999977,
+          "resumeSkills": {
+            "truePositive": 0,
+            "falsePositive": 1,
+            "falseNegative": 0
+          },
+          "contacts": {
+            "correct": 2,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 1,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 1,
+            "total": 1
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 0
+          },
+          "citationIntegrity": {
+            "valid": 2,
+            "total": 2
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 0,
+            "supported": 0,
+            "totalRequirements": 1
+          },
+          "failures": {
+            "unexpectedSkills": [
+              "React"
+            ],
+            "missingSkills": [],
+            "contacts": [],
+            "requirements": []
+          }
+        }
+      ]
+    },
+    "holdout": {
+      "datasetSha256": "5312b468688c0f7d0cc8a4aa3cf5ba3c98504d46ff014ba8200bf0c618d4c287",
+      "annotationScope": "Contact name/email, explicit positively asserted dictionary skills, and labeled JD skill requirements; no human overall-score annotations.",
+      "metrics": {
+        "cases": 10,
+        "extractionAccuracy": {
+          "contactExact": {
+            "correct": 20,
+            "total": 20,
+            "rate": 1
+          },
+          "resumeSkills": {
+            "truePositive": 19,
+            "falsePositive": 0,
+            "falseNegative": 0,
+            "precision": 1,
+            "recall": 1,
+            "f1": 1
+          },
+          "jdSkills": {
+            "truePositive": 25,
+            "falsePositive": 0,
+            "falseNegative": 0,
+            "precision": 1,
+            "recall": 1,
+            "f1": 1
+          }
+        },
+        "requirementStatusAccuracy": {
+          "correct": 25,
+          "total": 25,
+          "rate": 1
+        },
+        "unsupportedClaimRate": {
+          "count": 0,
+          "total": 16,
+          "rate": 0
+        },
+        "citationIntegrity": {
+          "valid": 42,
+          "total": 42,
+          "rate": 1
+        },
+        "evidenceCoverage": {
+          "supportedWithValidEvidence": 16,
+          "supported": 16,
+          "totalRequirements": 25,
+          "supportedClaimCoverage": 1,
+          "allRequirementCoverage": 0.64
+        },
+        "humanScoreAgreement": {
+          "status": "not-measured",
+          "reviewedCases": 0,
+          "reviews": 0,
+          "meanAbsoluteError": null,
+          "withinTenPointsRate": null,
+          "reason": "No independent human reviewer scores have been supplied; synthetic reference labels are not human score reviews."
+        },
+        "latencyMs": {
+          "scope": "Local raw-text parsing plus requirement matching; excludes upload, queue, database, network and UI.",
+          "samples": 10,
+          "p50": 0.661,
+          "p95": 1.0424,
+          "mean": 0.63343
+        },
+        "providerCost": {
+          "mode": "offline-rules",
+          "externalRequests": 0,
+          "billedTokens": 0,
+          "costUsd": 0,
+          "scope": "No external provider calls; infrastructure and engineering cost excluded."
+        }
+      },
+      "byGroup": {
+        "graduate": {
+          "cases": 2,
+          "extractionAccuracy": {
+            "contactExact": {
+              "correct": 4,
+              "total": 4,
+              "rate": 1
+            },
+            "resumeSkills": {
+              "truePositive": 4,
+              "falsePositive": 0,
+              "falseNegative": 0,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1
+            },
+            "jdSkills": {
+              "truePositive": 6,
+              "falsePositive": 0,
+              "falseNegative": 0,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1
+            }
+          },
+          "requirementStatusAccuracy": {
+            "correct": 6,
+            "total": 6,
+            "rate": 1
+          },
+          "unsupportedClaimRate": {
+            "count": 0,
+            "total": 4,
+            "rate": 0
+          },
+          "citationIntegrity": {
+            "valid": 12,
+            "total": 12,
+            "rate": 1
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 4,
+            "supported": 4,
+            "totalRequirements": 6,
+            "supportedClaimCoverage": 1,
+            "allRequirementCoverage": 0.666667
+          },
+          "humanScoreAgreement": {
+            "status": "not-measured",
+            "reviewedCases": 0,
+            "reviews": 0,
+            "meanAbsoluteError": null,
+            "withinTenPointsRate": null,
+            "reason": "No independent human reviewer scores have been supplied; synthetic reference labels are not human score reviews."
+          },
+          "latencyMs": {
+            "scope": "Local raw-text parsing plus requirement matching; excludes upload, queue, database, network and UI.",
+            "samples": 2,
+            "p50": 0.7384,
+            "p95": 0.7511,
+            "mean": 0.74475
+          },
+          "providerCost": {
+            "mode": "offline-rules",
+            "externalRequests": 0,
+            "billedTokens": 0,
+            "costUsd": 0,
+            "scope": "No external provider calls; infrastructure and engineering cost excluded."
+          }
+        },
+        "experienced": {
+          "cases": 2,
+          "extractionAccuracy": {
+            "contactExact": {
+              "correct": 4,
+              "total": 4,
+              "rate": 1
+            },
+            "resumeSkills": {
+              "truePositive": 6,
+              "falsePositive": 0,
+              "falseNegative": 0,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1
+            },
+            "jdSkills": {
+              "truePositive": 6,
+              "falsePositive": 0,
+              "falseNegative": 0,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1
+            }
+          },
+          "requirementStatusAccuracy": {
+            "correct": 6,
+            "total": 6,
+            "rate": 1
+          },
+          "unsupportedClaimRate": {
+            "count": 0,
+            "total": 4,
+            "rate": 0
+          },
+          "citationIntegrity": {
+            "valid": 10,
+            "total": 10,
+            "rate": 1
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 4,
+            "supported": 4,
+            "totalRequirements": 6,
+            "supportedClaimCoverage": 1,
+            "allRequirementCoverage": 0.666667
+          },
+          "humanScoreAgreement": {
+            "status": "not-measured",
+            "reviewedCases": 0,
+            "reviews": 0,
+            "meanAbsoluteError": null,
+            "withinTenPointsRate": null,
+            "reason": "No independent human reviewer scores have been supplied; synthetic reference labels are not human score reviews."
+          },
+          "latencyMs": {
+            "scope": "Local raw-text parsing plus requirement matching; excludes upload, queue, database, network and UI.",
+            "samples": 2,
+            "p50": 0.4896,
+            "p95": 0.6713,
+            "mean": 0.58045
+          },
+          "providerCost": {
+            "mode": "offline-rules",
+            "externalRequests": 0,
+            "billedTokens": 0,
+            "costUsd": 0,
+            "scope": "No external provider calls; infrastructure and engineering cost excluded."
+          }
+        },
+        "sparse": {
+          "cases": 2,
+          "extractionAccuracy": {
+            "contactExact": {
+              "correct": 4,
+              "total": 4,
+              "rate": 1
+            },
+            "resumeSkills": {
+              "truePositive": 2,
+              "falsePositive": 0,
+              "falseNegative": 0,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1
+            },
+            "jdSkills": {
+              "truePositive": 3,
+              "falsePositive": 0,
+              "falseNegative": 0,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1
+            }
+          },
+          "requirementStatusAccuracy": {
+            "correct": 3,
+            "total": 3,
+            "rate": 1
+          },
+          "unsupportedClaimRate": {
+            "count": 0,
+            "total": 2,
+            "rate": 0
+          },
+          "citationIntegrity": {
+            "valid": 5,
+            "total": 5,
+            "rate": 1
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 2,
+            "supported": 2,
+            "totalRequirements": 3,
+            "supportedClaimCoverage": 1,
+            "allRequirementCoverage": 0.666667
+          },
+          "humanScoreAgreement": {
+            "status": "not-measured",
+            "reviewedCases": 0,
+            "reviews": 0,
+            "meanAbsoluteError": null,
+            "withinTenPointsRate": null,
+            "reason": "No independent human reviewer scores have been supplied; synthetic reference labels are not human score reviews."
+          },
+          "latencyMs": {
+            "scope": "Local raw-text parsing plus requirement matching; excludes upload, queue, database, network and UI.",
+            "samples": 2,
+            "p50": 0.4202,
+            "p95": 0.4206,
+            "mean": 0.4204
+          },
+          "providerCost": {
+            "mode": "offline-rules",
+            "externalRequests": 0,
+            "billedTokens": 0,
+            "costUsd": 0,
+            "scope": "No external provider calls; infrastructure and engineering cost excluded."
+          }
+        },
+        "formatting": {
+          "cases": 2,
+          "extractionAccuracy": {
+            "contactExact": {
+              "correct": 4,
+              "total": 4,
+              "rate": 1
+            },
+            "resumeSkills": {
+              "truePositive": 5,
+              "falsePositive": 0,
+              "falseNegative": 0,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1
+            },
+            "jdSkills": {
+              "truePositive": 5,
+              "falsePositive": 0,
+              "falseNegative": 0,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1
+            }
+          },
+          "requirementStatusAccuracy": {
+            "correct": 5,
+            "total": 5,
+            "rate": 1
+          },
+          "unsupportedClaimRate": {
+            "count": 0,
+            "total": 5,
+            "rate": 0
+          },
+          "citationIntegrity": {
+            "valid": 13,
+            "total": 13,
+            "rate": 1
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 5,
+            "supported": 5,
+            "totalRequirements": 5,
+            "supportedClaimCoverage": 1,
+            "allRequirementCoverage": 1
+          },
+          "humanScoreAgreement": {
+            "status": "not-measured",
+            "reviewedCases": 0,
+            "reviews": 0,
+            "meanAbsoluteError": null,
+            "withinTenPointsRate": null,
+            "reason": "No independent human reviewer scores have been supplied; synthetic reference labels are not human score reviews."
+          },
+          "latencyMs": {
+            "scope": "Local raw-text parsing plus requirement matching; excludes upload, queue, database, network and UI.",
+            "samples": 2,
+            "p50": 0.661,
+            "p95": 1.0424,
+            "mean": 0.8517
+          },
+          "providerCost": {
+            "mode": "offline-rules",
+            "externalRequests": 0,
+            "billedTokens": 0,
+            "costUsd": 0,
+            "scope": "No external provider calls; infrastructure and engineering cost excluded."
+          }
+        },
+        "misleading": {
+          "cases": 2,
+          "extractionAccuracy": {
+            "contactExact": {
+              "correct": 4,
+              "total": 4,
+              "rate": 1
+            },
+            "resumeSkills": {
+              "truePositive": 2,
+              "falsePositive": 0,
+              "falseNegative": 0,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1
+            },
+            "jdSkills": {
+              "truePositive": 5,
+              "falsePositive": 0,
+              "falseNegative": 0,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1
+            }
+          },
+          "requirementStatusAccuracy": {
+            "correct": 5,
+            "total": 5,
+            "rate": 1
+          },
+          "unsupportedClaimRate": {
+            "count": 0,
+            "total": 1,
+            "rate": 0
+          },
+          "citationIntegrity": {
+            "valid": 2,
+            "total": 2,
+            "rate": 1
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 1,
+            "supported": 1,
+            "totalRequirements": 5,
+            "supportedClaimCoverage": 1,
+            "allRequirementCoverage": 0.2
+          },
+          "humanScoreAgreement": {
+            "status": "not-measured",
+            "reviewedCases": 0,
+            "reviews": 0,
+            "meanAbsoluteError": null,
+            "withinTenPointsRate": null,
+            "reason": "No independent human reviewer scores have been supplied; synthetic reference labels are not human score reviews."
+          },
+          "latencyMs": {
+            "scope": "Local raw-text parsing plus requirement matching; excludes upload, queue, database, network and UI.",
+            "samples": 2,
+            "p50": 0.4141,
+            "p95": 0.7256,
+            "mean": 0.56985
+          },
+          "providerCost": {
+            "mode": "offline-rules",
+            "externalRequests": 0,
+            "billedTokens": 0,
+            "costUsd": 0,
+            "scope": "No external provider calls; infrastructure and engineering cost excluded."
+          }
+        }
+      },
+      "cases": [
+        {
+          "id": "graduate-07",
+          "group": "graduate",
+          "matchScore": 57,
+          "latencyMs": 0.7511000000000081,
+          "resumeSkills": {
+            "truePositive": 2,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "contacts": {
+            "correct": 2,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 3,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 3,
+            "total": 3
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 2
+          },
+          "citationIntegrity": {
+            "valid": 6,
+            "total": 6
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 2,
+            "supported": 2,
+            "totalRequirements": 3
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [],
+            "contacts": [],
+            "requirements": []
+          }
+        },
+        {
+          "id": "graduate-08",
+          "group": "graduate",
+          "matchScore": 86,
+          "latencyMs": 0.7383999999999986,
+          "resumeSkills": {
+            "truePositive": 2,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "contacts": {
+            "correct": 2,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 3,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 3,
+            "total": 3
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 2
+          },
+          "citationIntegrity": {
+            "valid": 6,
+            "total": 6
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 2,
+            "supported": 2,
+            "totalRequirements": 3
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [],
+            "contacts": [],
+            "requirements": []
+          }
+        },
+        {
+          "id": "experienced-07",
+          "group": "experienced",
+          "matchScore": 86,
+          "latencyMs": 0.6713000000000022,
+          "resumeSkills": {
+            "truePositive": 3,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "contacts": {
+            "correct": 2,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 3,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 3,
+            "total": 3
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 2
+          },
+          "citationIntegrity": {
+            "valid": 5,
+            "total": 5
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 2,
+            "supported": 2,
+            "totalRequirements": 3
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [],
+            "contacts": [],
+            "requirements": []
+          }
+        },
+        {
+          "id": "experienced-08",
+          "group": "experienced",
+          "matchScore": 86,
+          "latencyMs": 0.4895999999999958,
+          "resumeSkills": {
+            "truePositive": 3,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "contacts": {
+            "correct": 2,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 3,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 3,
+            "total": 3
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 2
+          },
+          "citationIntegrity": {
+            "valid": 5,
+            "total": 5
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 2,
+            "supported": 2,
+            "totalRequirements": 3
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [],
+            "contacts": [],
+            "requirements": []
+          }
+        },
+        {
+          "id": "sparse-07",
+          "group": "sparse",
+          "matchScore": 50,
+          "latencyMs": 0.42019999999999413,
+          "resumeSkills": {
+            "truePositive": 1,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "contacts": {
+            "correct": 2,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 2,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 2,
+            "total": 2
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 1
+          },
+          "citationIntegrity": {
+            "valid": 3,
+            "total": 3
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 1,
+            "supported": 1,
+            "totalRequirements": 2
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [],
+            "contacts": [],
+            "requirements": []
+          }
+        },
+        {
+          "id": "sparse-08",
+          "group": "sparse",
+          "matchScore": 100,
+          "latencyMs": 0.4205999999999932,
+          "resumeSkills": {
+            "truePositive": 1,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "contacts": {
+            "correct": 2,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 1,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 1,
+            "total": 1
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 1
+          },
+          "citationIntegrity": {
+            "valid": 2,
+            "total": 2
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 1,
+            "supported": 1,
+            "totalRequirements": 1
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [],
+            "contacts": [],
+            "requirements": []
+          }
+        },
+        {
+          "id": "formatting-07",
+          "group": "formatting",
+          "matchScore": 100,
+          "latencyMs": 1.0424000000000007,
+          "resumeSkills": {
+            "truePositive": 2,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "contacts": {
+            "correct": 2,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 2,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 2,
+            "total": 2
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 2
+          },
+          "citationIntegrity": {
+            "valid": 5,
+            "total": 5
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 2,
+            "supported": 2,
+            "totalRequirements": 2
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [],
+            "contacts": [],
+            "requirements": []
+          }
+        },
+        {
+          "id": "formatting-08",
+          "group": "formatting",
+          "matchScore": 100,
+          "latencyMs": 0.6610000000000014,
+          "resumeSkills": {
+            "truePositive": 3,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "contacts": {
+            "correct": 2,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 3,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 3,
+            "total": 3
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 3
+          },
+          "citationIntegrity": {
+            "valid": 8,
+            "total": 8
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 3,
+            "supported": 3,
+            "totalRequirements": 3
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [],
+            "contacts": [],
+            "requirements": []
+          }
+        },
+        {
+          "id": "misleading-07",
+          "group": "misleading",
+          "matchScore": 0,
+          "latencyMs": 0.7256,
+          "resumeSkills": {
+            "truePositive": 1,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "contacts": {
+            "correct": 2,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 2,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 2,
+            "total": 2
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 0
+          },
+          "citationIntegrity": {
+            "valid": 0,
+            "total": 0
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 0,
+            "supported": 0,
+            "totalRequirements": 2
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [],
+            "contacts": [],
+            "requirements": []
+          }
+        },
+        {
+          "id": "misleading-08",
+          "group": "misleading",
+          "matchScore": 14,
+          "latencyMs": 0.4141000000000048,
+          "resumeSkills": {
+            "truePositive": 1,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "contacts": {
+            "correct": 2,
+            "total": 2
+          },
+          "requirementExtraction": {
+            "truePositive": 3,
+            "falsePositive": 0,
+            "falseNegative": 0
+          },
+          "requirementStatus": {
+            "correct": 3,
+            "total": 3
+          },
+          "unsupportedClaims": {
+            "count": 0,
+            "total": 1
+          },
+          "citationIntegrity": {
+            "valid": 2,
+            "total": 2
+          },
+          "evidenceCoverage": {
+            "supportedWithValidEvidence": 1,
+            "supported": 1,
+            "totalRequirements": 3
+          },
+          "failures": {
+            "unexpectedSkills": [],
+            "missingSkills": [],
+            "contacts": [],
+            "requirements": []
+          }
+        }
+      ]
+    }
+  }
+}

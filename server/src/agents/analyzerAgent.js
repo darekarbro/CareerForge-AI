@@ -18,7 +18,7 @@ class AnalyzerAgent {
       step: 'ats_evaluation_start',
     });
 
-    const atsResult = await require('../services/assessmentService').cached({ owner: userId, action: 'scoreATS', params: { resumeData, rawText } }, () => providerFactory.execute(
+    const atsResult = await require('../services/assessmentService').cached({ owner: userId, action: 'scoreATS', params: { resumeData, rawText } }, () => providerFactory.executeAssessment(
       'scoreATS',
       { resumeData, rawText },
       (providerName) => {
@@ -62,7 +62,7 @@ class AnalyzerAgent {
       step: 'gap_analysis_start',
     });
 
-    const gapResult = await require('../services/assessmentService').cached({ owner: userId, action: 'analyzeGap', params: { resumeData, jobDescriptionText, targetRole } }, () => providerFactory.execute(
+    const gapResult = await require('../services/assessmentService').cached({ owner: userId, action: 'analyzeGap', params: { resumeData, jobDescriptionText, targetRole } }, () => providerFactory.executeAssessment(
       'analyzeGap',
       { resumeData, jobDescriptionText, targetRole },
       (providerName) => {
