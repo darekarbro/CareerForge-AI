@@ -1,6 +1,6 @@
 const { test } = require('node:test'), assert = require('node:assert/strict');
 const spec = require('../src/openapi');
-const routes = { evidence: 'evidence', health: 'health', auth: 'auth', profile: 'profile', privacy: 'privacy', workspaces: 'workspace', resumes: 'resume', interview: 'interview', jobs: 'job', applications: 'application', 'processing-jobs': 'processing', notifications: 'notification' };
+const routes = { evidence: 'evidence', health: 'health', auth: 'auth', profile: 'profile', privacy: 'privacy', workspaces: 'workspace', 'workspaces/{id}/pack': 'applicationPack', resumes: 'resume', interview: 'interview', jobs: 'job', applications: 'application', 'processing-jobs': 'processing', notifications: 'notification' };
 test('Phase 1: OpenAPI validates and documents every mounted API operation', async () => {
   await require('@apidevtools/swagger-parser').validate(structuredClone(spec));
   const actual = [];
