@@ -1,11 +1,13 @@
 const { getProfile } = require('./competencyService');
 const Gap = require('../models/GapAnalysis');
 
-const rubricVersion = 'learning-plan-v1';
+const rubricVersion = 'learning-plan-v2';
 function buildLearningPlan(profile, gaps = []) {
-  const topics = new Map(profile.competencies.filter((item) => item.status !== 'strength').map((item) => [item.topic.toLowerCase(), {
-    topic: item.topic, reason: `${item.topic} has a latest-attempt practice average of ${item.averageScore}/100 across ${item.sampleCount} question(s). Review the cited answers to choose what to practise.`,
-    confidence: item.confidence, sourceEvidence: item.evidence.slice(0, 3), requirementSources: [], difficulty: item.status === 'gap' ? 'Easy' : 'Medium',
+  const assessedTopics = profile.competencies.filter(item => item.status !== 'strength' && item.assessmentBasis !== 'unassessed');
+  const topics = new Map(assessedTopics.map((item) => [item.topic.toLowerCase(), {
+    topic: item.topic, reason: `${item.topic} has a latest-attempt ${item.assessmentBasis === 'technical' ? 'technical' : 'practice'} average of ${item.assessmentScore ?? item.averageScore}/100 across ${item.assessedSampleCount ?? item.sampleCount} question(s). Review the cited answers to choose what to practise.`,
+    confidence: item.confidence, sourceEvidence: item.evidence.filter(evidence => evidence.technicalAssessment !== 'unassessed').slice(0, 3),
+    requirementSources: [], difficulty: item.status === 'gap' ? 'Easy' : 'Medium',
   }]));
   // Use only the latest report per resume/JD pair; earlier reports may refer to content the user has since improved.
   const seenReports = new Set();

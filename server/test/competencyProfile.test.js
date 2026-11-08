@@ -1,6 +1,7 @@
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const { buildProfile } = require('../src/services/competencyService');
+const { buildLearningPlan } = require('../src/services/learningPlanService');
 
 test('Phase 4: longitudinal competencies link every attempt without counting retries as independent demonstrations', () => {
   const profile = buildProfile([
@@ -24,4 +25,23 @@ test('Phase 4: longitudinal competencies link every attempt without counting ret
 test('Phase 4: a single high score is developing evidence rather than a claimed strength', () => {
   assert.equal(buildProfile([{ _id: 'q', sessionId: 's', topic: 'Python', userAnswer: 'Answer', answeredAt: new Date(), feedback: { overallScore: 95 } }]).competencies[0].status, 'developing');
   assert.deepEqual(buildProfile([]).competencies, []);
+});
+
+test('checked technical scores drive practice gaps and unassessed answers only retain history', () => {
+  const answer = (id, topic, technicalAssessment, technicalScore, overallScore) => ({
+    _id: id, sessionId: id, topic, userAnswer: 'A saved answer', answeredAt: new Date(),
+    feedback: { technicalAssessment, technicalScore, overallScore },
+  });
+  const profile = buildProfile([
+    answer('q1', 'HTTP caching', 'rubric-checked', 55, 62),
+    answer('q2', 'Unverified topic', 'unassessed', 50, 20),
+  ]);
+  const unassessed = profile.competencies.find(item => item.topic === 'Unverified topic');
+  assert.equal(unassessed.assessmentBasis, 'unassessed');
+  assert.equal(unassessed.assessedSampleCount, 0);
+  assert.equal(unassessed.evidence[0].href, '/interview/session/q2?question=q2&attempt=0');
+  const plan = buildLearningPlan(profile);
+  assert.deepEqual(plan.items.map(item => item.topic), ['HTTP caching']);
+  assert.equal(plan.items[0].reassessment.difficulty, 'Medium');
+  assert.match(plan.items[0].reason, /technical average of 55\/100/);
 });
