@@ -1,13 +1,17 @@
 const Question = require('../models/InterviewQuestion');
 
-const policyVersion = 'adaptive-interview-v2';
+const policyVersion = 'adaptive-interview-v3';
 function selectFollowUp(question) {
   const answer = question.userAnswer.trim();
   const words = answer.split(/\s+/).filter(Boolean).length;
   const topic = question.topic || 'this topic';
   const focus = (question.keyPoints || []).find((point) => !answer.toLowerCase().includes(point.toLowerCase())) || 'validation and failure handling';
-  const diagnostic = words < 8 || /\b(?:don['’]?t know|not sure|no idea|cannot explain)\b/i.test(answer) || question.feedback?.technicalScore < 40;
-  const deeper = !diagnostic && words >= 30 && question.feedback?.technicalScore >= 75 && question.feedback?.relevanceScore >= 70;
+  const assessment = question.feedback?.technicalAssessment;
+  const checked = assessment === 'rubric-checked';
+  const diagnostic = question.feedback?.technicalScore < 40 || !checked &&
+    (words < 8 || /\b(?:don['’]?t know|not sure|no idea|cannot explain)\b/i.test(answer));
+  const deeper = !diagnostic && assessment !== 'unassessed' && (checked || words >= 30) &&
+    question.feedback?.technicalScore >= 75 && question.feedback?.relevanceScore >= 70;
   const kind = diagnostic ? 'diagnostic' : deeper ? 'deeper' : 'clarification';
   const repeatedDiagnostic = diagnostic && question.adaptation?.kind === 'diagnostic';
   const reason = repeatedDiagnostic ? 'Try a smaller concrete check using your previous answer.'

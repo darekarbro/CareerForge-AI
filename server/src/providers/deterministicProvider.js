@@ -6,6 +6,7 @@ const { splitResumeSections, claimParagraphs } = require('./resumeLayout');
 const { analyzeSkillClaims } = require('./resumeClaims');
 const { resumeText } = require('./resumeFacts');
 const { splitClaimClauses } = require('./skillPolarity');
+const { assessTechnicalAnswer } = require('./offlineInterviewRubric');
 
 const cleanBullet = (line) => line.trim().replace(/^[•*\-]\s*/, '');
 const blocks = (lines = []) => lines.join('\n').trim().split(/\n\s*\n/).map((block) => block.split('\n').map((line) => line.trim()).filter(Boolean)).filter((block) => block.length);
@@ -145,19 +146,25 @@ class DeterministicProvider extends BaseProvider {
   async evaluateAnswer({ question = {}, userAnswer = '' }) {
     const text = userAnswer.trim(), words = text.split(/\s+/).filter(Boolean).length;
     const terms = [...new Set((question.keyPoints || []).join(' ').toLowerCase().split(/\W+/).filter((term) => term.length > 3))];
-    const overlap = terms.filter((term) => text.toLowerCase().includes(term)).length / Math.max(1, terms.length);
+    const answerTerms = new Set(text.toLowerCase().split(/\W+/));
+    const overlap = terms.filter((term) => answerTerms.has(term)).length / Math.max(1, terms.length);
     const star = [/situation|context|project/i, /task|goal|needed/i, /action|implemented|built|developed/i, /result|outcome|improved|learned/i].filter((pattern) => pattern.test(text)).length;
-    const clarityScore = words < 5 ? 20 : Math.min(90, 40 + words);
-    const relevanceScore = words < 5 ? 20 : Math.round(30 + overlap * 60);
-    const structureScore = words < 5 ? 20 : question.category === 'behavioral' ? 20 + star * 18 : Math.min(90, 35 + words);
-    const technicalScore = words < 5 ? 20 : Math.round(25 + overlap * 60);
+    const technical = assessTechnicalAnswer(question, text);
+    const checked = technical.technicalAssessment === 'rubric-checked';
+    const clarityScore = technical.noAnswer ? 20 : Math.min(90, 40 + words);
+    const relevanceScore = technical.noAnswer ? 20 : checked ? Math.max(Math.round(30 + overlap * 60), 35 + technical.covered * 20) : Math.round(30 + overlap * 60);
+    const structureScore = technical.noAnswer ? 20 : question.category === 'behavioral' ? 20 + star * 18 : Math.min(90, 35 + words);
+    const { technicalScore, technicalAssessment } = technical;
+    const overallScore = Math.round((clarityScore + relevanceScore + structureScore + technicalScore) / 4);
     return {
-      clarityScore, relevanceScore, structureScore, technicalScore,
-      overallScore: Math.round((clarityScore + relevanceScore + structureScore + technicalScore) / 4),
-      strengths: overlap >= .4 ? ['The answer includes several rubric concepts.'] : [],
-      improvements: words < 40 ? ['Add specific reasoning, alternatives, and evidence.'] : ['Check technical accuracy and address failure cases.'],
+      clarityScore, relevanceScore, structureScore, technicalScore, technicalAssessment,
+      overallScore: technical.misconception ? Math.min(overallScore, 39) : overallScore,
+      strengths: checked && technicalScore >= 75 ? ['The answer explains the required behavior and gives a concrete check.']
+        : !checked && overlap >= .4 ? ['The answer addresses several rubric concepts.'] : [],
+      improvements: technical.feedback?.length ? technical.feedback : ['Add a concrete example, an observable check, or a failure case.'],
       starAdherence: question.category === 'behavioral' ? star + '/4 STAR elements recognized' : 'Not applicable',
-      comments: 'Offline feedback measures length, rubric terms and structure. It cannot verify technical correctness; review against the model answer.',
+      comments: checked ? 'Offline feedback checks specific concepts and common misconceptions for this question. Review the suggested answer for additional context.'
+        : 'Technical correctness is unassessed for this question. Offline feedback reflects relevance and structure. Compare your reasoning with the suggested answer.',
     };
   }
 }

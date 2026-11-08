@@ -14,7 +14,7 @@ const { sha256 } = require('../evaluation/holdoutProtocol.cjs');
 
 const fixturePath = path.resolve(__dirname, '../evaluation/dataset/expanded-v1.json');
 const sourceFiles = [
-  'providers/deterministicProvider.js', 'providers/validateResult.js', 'providers/resumeFacts.js',
+  'providers/deterministicProvider.js', 'providers/offlineInterviewRubric.js', 'providers/validateResult.js', 'providers/resumeFacts.js',
   'providers/resumeEvidence.js', 'providers/resumeClaims.js', 'providers/skillPolarity.js',
   'providers/skillConflicts.js', 'services/jobRequirements.js', 'services/requirementMatching.js',
   'services/assessmentRubrics.js', 'services/adaptiveInterview.js', 'services/competencyService.js',

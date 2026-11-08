@@ -61,6 +61,8 @@ class ProviderFactory {
         const result = await provider[actionName](params);
         throwIfCancelled();
         validateResult(actionName, result, params);
+        // Only the local rubric can assign local technical evidence metadata.
+        if (actionName === 'evaluateAnswer' && provider !== this.deterministic) delete result.technicalAssessment;
         await this.recordUsage(scope, { action: actionName, provider: provider.name, model: provider.model || 'offline-rules-v1', durationMs: Date.now() - start, status: 'success', ...scope?.providerUsage });
         return this.withProvider(result, provider.name);
       } catch (error) {

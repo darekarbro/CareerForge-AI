@@ -55,6 +55,7 @@ const interviewQuestionSchema = new mongoose.Schema(
       relevanceScore: { type: Number, min: 0, max: 100 },
       structureScore: { type: Number, min: 0, max: 100 },
       technicalScore: { type: Number, min: 0, max: 100 },
+      technicalAssessment: { type: String, enum: ['rubric-checked', 'unassessed'] },
       overallScore: { type: Number, min: 0, max: 100 },
       strengths: [String],
       improvements: [String],
