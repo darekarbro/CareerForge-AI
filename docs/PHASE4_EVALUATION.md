@@ -38,6 +38,12 @@ npm run evaluate:phase4 -- --dataset-version v3 --holdout --output .test-tmp/pha
 
 The JSON output contains separate split summaries, group summaries, case-level errors, timestamps, dataset hashes, an implementation hash and runtime information. Preserve those details with published results. Latency is measured from the actual run, so it varies by machine and background activity. A single independent warmup precedes one timed parse-and-match sample per case. This is a small local benchmark, not a load or service latency test.
 
+## V5 validation reports
+
+The frozen v5 engine's first run on dataset v4 is recorded with its dataset lock and single completed receipt. The 30 new cases yielded 78.14% skill F1 and 116/164 correct skill requirement statuses. Use `--dataset-version v4 --holdout` with a separate output path for later regression runs. [V5 first-pass results](PHASE4_V5_HOLDOUT_RESULTS.md)
+
+Separate reports cover non-skill requirement and practice quality on synthetic challenges, and actual Groq extraction and interview responses with usage and timing. [Expanded evaluation](PHASE4_EXPANDED_VALIDATION.md) · [Live evaluation](PHASE4_LIVE_VALIDATION.md)
+
 ## Metric definitions
 
 | Metric | Definition and scope |
