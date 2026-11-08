@@ -1,13 +1,14 @@
 #!/usr/bin/env node
 const fs = require('node:fs');
 const path = require('node:path');
-const { createHash } = require('node:crypto');
+const { createHash, randomUUID } = require('node:crypto');
 const { performance } = require('node:perf_hooks');
 const { setTimeout: delay } = require('node:timers/promises');
 const { cases: interviewCases, referenceProvenance } = require('../evaluation/liveInterviewCases.cjs');
 
 const endpoint = 'https://api.groq.com/openai/v1/chat/completions';
 const maxRequests = 20;
+const retryableCheckpointErrors = new Set(['UNKNOWN', 'EBUSY', 'EACCES', 'EPERM']);
 const resumeIds = ['graduate-01', 'experienced-01', 'sparse-05', 'formatting-04', 'formatting-06', 'misleading-03', 'misleading-05', 'misleading-06'];
 const prices = {
   'openai/gpt-oss-120b': { input: 0.15, cachedInput: 0.075, output: 0.60,
@@ -48,6 +49,24 @@ function failureKind(error) {
   if (error.message?.startsWith('Empty response')) return 'empty-response';
   if (/timed out/i.test(error.message || '')) return 'timeout';
   return error.code && /^[A-Z0-9_]{1,40}$/.test(error.code) ? error.code : 'request-or-evaluation-error';
+}
+
+async function saveCheckpoint(output, report) {
+  for (let attempt = 0; ; attempt++) {
+    const temporary = `${output}.${randomUUID()}.tmp`;
+    try {
+      await fs.promises.writeFile(temporary, JSON.stringify(report, null, 2) + '\n', { flag: 'wx' });
+      await fs.promises.rename(temporary, output);
+      return;
+    } catch (error) {
+      if (error.code !== 'EEXIST') await fs.promises.rm(temporary, { force: true }).catch(() => {});
+      if (attempt === 2 || !retryableCheckpointErrors.has(error.code)) {
+        throw Object.assign(new Error('Live benchmark report checkpoint failed.', { cause: error }), { code: 'BENCHMARK_CHECKPOINT' });
+      }
+      report.checkpointRetries++;
+      await delay(25 * (attempt + 1));
+    }
+  }
 }
 
 function summarizeRun(report, summarize) {
@@ -106,7 +125,7 @@ async function run(output) {
   const provider = new GroqProvider();
   const safeModel = value => typeof value === 'string' && /^[A-Za-z0-9._/-]{1,100}$/.test(value) && !value.includes(provider.apiKey || '\0') ? value : null;
   const report = {
-    reportVersion: 'phase4-live-validation-v1', startedAt: new Date().toISOString(), state: 'started',
+    reportVersion: 'phase4-live-validation-v2', startedAt: new Date().toISOString(), state: 'started',
     provider: provider.name, configuredModel: safeModel(provider.model), timeoutMs: provider.timeoutMs,
     rubricVersion, policyVersion, dataScope: 'Fictional text only', datasetVersion: development.datasetVersion,
     runnerSha256: digest(__filename),
@@ -116,16 +135,16 @@ async function run(output) {
     interviewReferenceProvenance: referenceProvenance, plannedCases: resumeCases.length + interviewCases.length,
     requestCap: maxRequests, priceBasisUsdPerMillionTokens: prices,
     runtime: { node: process.version, platform: process.platform, arch: process.arch },
-    cases: [], requests: [],
+    cases: [], requests: [], checkpointRetries: 0,
   };
   fs.mkdirSync(path.dirname(output), { recursive: true });
   fs.writeFileSync(output, JSON.stringify(report, null, 2) + '\n', { flag: 'wx' });
-  const save = () => fs.writeFileSync(output, JSON.stringify(report, null, 2) + '\n');
+  const save = () => saveCheckpoint(output, report);
   if (!provider.isAvailable()) {
     report.state = 'blocked';
     report.stopReason = 'Groq credential unavailable';
     report.summary = summarizeRun(report, summarize);
-    save();
+    await save();
     return report;
   }
 
@@ -163,7 +182,6 @@ async function run(output) {
       call.latencyMs = duration(started);
       call.estimatedUsd = estimatedCost(call);
       report.requests.push(call);
-      save();
     }
   };
 
@@ -211,18 +229,28 @@ async function run(output) {
       if (waitUntil > Date.now()) await delay(waitUntil - Date.now());
       current = { id: fixture.id, action };
       const started = performance.now();
+      const firstRequest = report.requests.length;
+      let failureStage = 'provider-action';
       let result;
       try {
-        const response = validateResult(action, await provider[action](params), params);
+        const response = await provider[action](params);
+        failureStage = 'validation';
+        const validated = validateResult(action, response, params);
         const latencyMs = duration(started);
-        const measured = action === 'parseResume' ? measureResume(fixture, response, latencyMs) : measureInterview(fixture, response);
+        failureStage = 'measurement';
+        const measured = action === 'parseResume' ? measureResume(fixture, validated, latencyMs) : measureInterview(fixture, validated);
         result = { ...current, status: 'accepted', latencyMs, ...measured };
       } catch (error) {
-        result = { ...current, status: 'failed', latencyMs: duration(started), failure: failureKind(error) };
+        if (failureStage === 'provider-action' && report.requests.length > firstRequest) {
+          const { httpStatus } = report.requests.at(-1);
+          failureStage = httpStatus >= 200 && httpStatus < 300 ? 'provider-response' : 'request';
+        }
+        result = { ...current, status: 'failed', latencyMs: duration(started), failure: failureKind(error), failureStage };
       }
       report.cases.push(result);
-      save();
-      console.log(JSON.stringify({ caseId: result.id, status: result.status, latencyMs: result.latencyMs, failure: result.failure }));
+      await save();
+      console.log(JSON.stringify({ caseId: result.id, status: result.status, latencyMs: result.latencyMs,
+        failure: result.failure, failureStage: result.failureStage }));
     }
   } finally {
     axios.post = originalPost;
@@ -231,7 +259,7 @@ async function run(output) {
   report.stopReason = stopReason || (report.cases.length < report.plannedCases ? 'request-cap' : null);
   report.completedAt = new Date().toISOString();
   report.summary = summarizeRun(report, summarize);
-  save();
+  await save();
   return report;
 }
 
@@ -247,6 +275,8 @@ async function main(argv) {
 if (require.main === module) main(process.argv.slice(2)).catch(error => {
   // Report safe categories only. Request errors can hold authorization headers.
   console.error(error.code === 'EEXIST' ? 'Output already exists. Choose a new report path.'
+    : error.code === 'BENCHMARK_CHECKPOINT' ? `Live benchmark stopped while saving the report (${failureKind(error.cause)}).`
     : error.message?.startsWith('Usage:') ? error.message : `Live benchmark stopped: ${failureKind(error)}`);
   process.exitCode = 1;
 });
+module.exports = { run };
