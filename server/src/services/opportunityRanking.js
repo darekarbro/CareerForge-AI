@@ -7,6 +7,16 @@ const { refreshSkillConflicts } = require('../providers/skillConflicts');
 const defaults = { roles: [], locations: [], workModes: [], avoidCompanies: [], revision: 0 };
 const normalize = (value) => String(value || '').normalize('NFKC').toLowerCase().replace(/\s+/g, ' ').trim();
 const contains = (text, term) => (' ' + normalize(text).replace(/[^\p{L}\p{N}+#]+/gu, ' ') + ' ').includes(' ' + normalize(term).replace(/[^\p{L}\p{N}+#]+/gu, ' ') + ' ');
+function preferenceMatch(source, value) {
+  if (!contains(source, value)) return false;
+  const term = normalize(value).replace(/[^\p{L}\p{N}+#]+/gu, ' ').trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/ +/g, '\\s+');
+  const clauses = normalize(source).split(/[.!?;\n]+/);
+  // A plain mention is only provisional support. Explicit denial or conflicting
+  // wording withholds credit rather than turning a negated preference into a match.
+  const before = new RegExp('\\b(?:no|not|never|without|excluding|except)\\b(?:\\s+[\\p{L}-]+){0,4}\\s+' + term + '(?![\\p{L}\\p{N}+#])', 'u');
+  const after = new RegExp('(?:^|[^\\p{L}\\p{N}+#])' + term + '\\s+(?:(?:work|working|roles?|options?)\\s+)?(?:(?:is|are)\\s+)?(?:not\\s+(?:available|offered|supported|permitted)|unavailable|excluded|prohibited)\\b', 'u');
+  return !clauses.some((clause) => before.test(clause) || after.test(clause));
+}
 async function get(owner) { return await Preferences.findOne({ owner }).lean() || { ...defaults }; }
 async function save(owner, input) {
   if (!input || typeof input !== 'object' || Object.keys(input).some((key) => !['roles', 'locations', 'workModes', 'avoidCompanies', 'revision'].includes(key))) throw fail('Unsupported opportunity preference');
@@ -43,7 +53,7 @@ function rank(workspace, preferences, resume, facts = []) {
     content = plain(content);
     content.workExperience = [...(content.workExperience || []), ...usable.map((item, index) => {
       citations.push({ path: 'workExperience[' + ((content.workExperience || []).length + index) + '].highlights[0]', evidenceId: String(item._id), title: item.title, quote: item.statement, verification: 'confirmed' });
-      return { role: item.title, highlights: [item.statement] };
+      return { highlights: [item.statement] };
     })];
     content = refreshSkillConflicts(content, content);
   }
@@ -58,7 +68,7 @@ function rank(workspace, preferences, resume, facts = []) {
   else if (!resume.verifiedAt) concerns.push('Selected resume is self-reported and has not been verified by you.');
   const criteria = (values, label, points, source) => {
     if (!values?.length) return;
-    possible += points; const matches = values.filter((value) => contains(source, value));
+    possible += points; const matches = values.filter((value) => preferenceMatch(source, value));
     if (matches.length) { earned += points; reasons.push({ label: label + ': ' + matches.join(', '), points, possible: points }); }
     else { reasons.push({ label: label + ': no explicit match in the saved job text', points: 0, possible: points }); concerns.push('Confirm ' + label.toLowerCase() + ' with the employer.'); }
   };

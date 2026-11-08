@@ -26,3 +26,18 @@ test('contradictory evidence earns no supported skill credit, and unknown criter
   const unknown = rank({ ...workspace, description: 'Help our customers.' }, { roles: [], locations: [], workModes: [] }, null);
   assert.equal(unknown.score, null); assert(unknown.concerns.length);
 });
+test('negated work arrangements and locations never earn preference credit', () => {
+  for (const description of ['Python required. No remote work; not in Pune.', 'Python required. Remote work is not available. Location excludes Pune.']) {
+    const result = rank({ ...workspace, description }, preferences, resume);
+    assert.equal(result.reasons.find((reason) => reason.label.startsWith('Preferred work arrangement')).points, 0);
+  }
+  const location = rank({ ...workspace, description: 'Python required. Work is not in Pune.' }, preferences, resume);
+  assert.equal(location.reasons.find((reason) => reason.label.startsWith('Preferred location')).points, 0);
+  const conflict = rank({ ...workspace, description: 'Python required. Remote team. Remote work is not offered.' }, preferences, resume);
+  assert.equal(conflict.reasons.find((reason) => reason.label.startsWith('Preferred work arrangement')).points, 0);
+});
+test('evidence record titles do not establish candidate skills absent from the fact statement', () => {
+  const result = rank(workspace, preferences, resume, [{ _id: 'fact', title: 'Rust service proposal', statement: 'Created the customer survey.', verification: 'confirmed', source: { kind: 'manual' } }]);
+  assert.equal(result.score, 85);
+  assert(!result.evidence.some((row) => row.skill === 'Rust'));
+});
