@@ -16,6 +16,22 @@ test('Phase 1: OpenAPI validates and documents every mounted API operation', asy
   assert.equal(spec.paths['/privacy/deletion-status'].post.security.length, 0);
   assert.equal(spec.paths['/privacy/export'].post.responses[200].content['application/zip'].schema.format, 'binary');
 });
+test('OpenAPI describes private application reminders and the calendar download', () => {
+  const reminders = spec.paths['/applications/reminders'].get;
+  const calendar = spec.paths['/applications/calendar.ics'].get;
+  assert.deepEqual(reminders.security, [{ bearerAuth: [] }]);
+  assert.deepEqual(calendar.security, [{ bearerAuth: [] }]);
+  const events = reminders.responses[200].content['application/json'].schema.properties.data;
+  assert.equal(events.type, 'array');
+  assert.deepEqual(events.items.properties.kind.enum, ['deadline', 'interviewAt', 'followUpAt']);
+  assert.equal(events.items.properties.at.format, 'date-time');
+  assert.equal(events.items.properties.overdue.type, 'boolean');
+  assert.equal(calendar.parameters[0].name, 'id');
+  assert.equal(calendar.parameters[0].in, 'query');
+  assert.notEqual(calendar.parameters[0].required, true);
+  assert.equal(calendar.responses[200].content['text/calendar'].schema.format, 'binary');
+  assert.match(calendar.responses[200].headers['Content-Disposition'].example, /attachment.*\.ics/);
+});
 test('Phase 1: Compose separates producer and worker with persistent private storage', () => {
   const fs = require('node:fs'), path = require('node:path');
   const config = require('yaml').parse(fs.readFileSync(path.resolve(__dirname, '../../compose.yaml'), 'utf8'));

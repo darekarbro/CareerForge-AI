@@ -88,6 +88,21 @@ add('GET', '/interview/competencies', 'Get longitudinal competencies with answer
 add('GET', '/interview/learning-plan', 'Get practice tasks, project milestones and reassessment criteria', { description: 'Personalized to observed practice gaps and saved job requirement gaps. Returns source evidence and limitations; unassessed skills are not labeled as demonstrated weaknesses.' });
 add('GET', '/jobs/roles', 'List supported target roles'); add('POST', '/jobs/search-links', 'Save a job search and return search links', { body: object({ targetRole: str, location: str, resumeId: id }, ['targetRole']) });
 for (const [path, summary] of [['/applications', 'List and filter applications'], ['/applications/analytics', 'Application pipeline analytics'], ['/applications/resume-versions', 'List available resume versions'], ['/applications/{id}/resume', 'Get the exact resume snapshot submitted']]) add('GET', path, summary);
+add('GET', '/applications/reminders', 'List in-app application reminders', {
+  description: 'Returns reminders for active owned applications in event-date order, including overdue events and reminders due within seven days after applying their lead time.',
+  data: array(object({ applicationId: id, kind: { type: 'string', enum: ['deadline', 'interviewAt', 'followUpAt'] },
+    title: str, at: { type: 'string', format: 'date-time' }, leadMinutes: { type: 'integer' }, inApp: { type: 'boolean' },
+    calendarAlarm: { type: 'boolean' }, overdue: { type: 'boolean' },
+  }, ['applicationId', 'kind', 'title', 'at', 'leadMinutes', 'inApp', 'calendarAlarm', 'overdue'])),
+});
+add('GET', '/applications/calendar.ics', 'Download application dates as an iCalendar file', {
+  binary: 'text/calendar',
+  description: 'Exports the signed-in account’s active applications by default. An application ID selects a single owned application regardless of status.',
+  parameters: [{ name: 'id', in: 'query', schema: id, description: 'Application to export.' }],
+});
+paths['/applications/calendar.ics'].get.responses[200].headers = {
+  'Content-Disposition': { schema: str, example: 'attachment; filename="careerforge-applications.ics"' },
+};
 add('POST', '/applications', 'Track an application and freeze its resume snapshot', { status: 201, body: 'Application' }); add('PUT', '/applications/{id}', 'Edit application and progression history', { body: object(schemas.Application.properties) }); add('DELETE', '/applications/{id}', 'Delete an application');
 for (const [path, summary] of [['/processing-jobs', 'List recent owned processing jobs'], ['/processing-jobs/health/providers', 'Get configured AI providers'], ['/processing-jobs/usage', 'Aggregate AI usage without raw content'], ['/processing-jobs/{id}', 'Poll owned job status and result'], ['/processing-jobs/{id}/timeline', 'Get persisted agent events']]) add('GET', path, summary);
 add('POST', '/processing-jobs/{id}/cancel', 'Cancel a pending or running request', { description: 'COMMITTING requests return 409 because persistence has begun.' });
