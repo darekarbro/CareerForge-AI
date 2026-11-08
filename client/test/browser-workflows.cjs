@@ -136,6 +136,7 @@ async function run() {
   await page.getByRole('button', { name: 'Edit Backend Engineer at Browser Target Co', exact: true }).click();
   await page.getByText(/Saved resume: version/).waitFor(); await dialog.getByRole('button', { name: 'Cancel', exact: true }).click();
   pass('Application search, deadlines, notes and exact saved resume revision');
+  await require('./phase5Browser.cjs')({ page, saved, screenshot, pass, audit, resumeId, workspaceUrl });
   await page.goto(workspaceUrl); await page.getByRole('link', { name: 'Practice for this job', exact: true }).click();
   await page.getByRole('combobox', { name: /^Difficulty/ }).selectOption('Hard'); await page.getByRole('combobox', { name: /^Questions/ }).selectOption('3');
   await page.getByRole('combobox', { name: /^Practice timer per question/ }).selectOption('60');
