@@ -29,7 +29,15 @@ Offline practice checks selected binary search, transaction atomicity and HTTP s
 
 ## Validation status
 
-Assessment v6 passed all 30 public v4 regression cases with 60/60 exact contact fields, 120/120 skills, 164/164 correct requirement decisions and 0/115 unsupported positive decisions. The expanded rerun matched all 11 experience judgments, all eight practical constraints and all 10 offline technical bands and follow-up branches. The live rerun accepted 15/16 cases, with 100% resume skill F1 and 7/8 end-to-end interview cases matching both the expected band and branch. One interview case failed after HTTP success. These reruns measure the published inputs. [V6 regression and live results](docs/PHASE4_V6_REGRESSION_RESULTS.md)
+Assessment v6 passed all 30 public v4 regression cases with 60/60 exact contact fields, 120/120 skills, 164/164 correct requirement decisions and 0/115 unsupported positive decisions. The expanded rerun matched all 11 experience judgments, all eight practical constraints and all 10 offline technical bands and follow-up branches. These reruns measure the published inputs. [V6 regression results](docs/PHASE4_V6_REGRESSION_RESULTS.md)
+
+### Live Groq investigation
+
+The first v6 live run accepted 15/16 cases. `live-payment-unsafe` received HTTP 200 and reported token usage, then failed with `UNKNOWN`. Injecting that error into the original runner’s report write reproduced the same outcome with a mocked successful response. The original record contains only the error code, so the cause remains unconfirmed. The runner now saves reports at case boundaries, retries transient file errors without another provider call and records the stage of provider, validation and measurement failures. [Original v6 live result](docs/PHASE4_V6_LIVE_RESULTS.json) · [Runner regression tests](server/test/phase4LiveEvaluation.test.js)
+
+The Node 24 rerun used the same Groq GPT-OSS 120B adapter and fictional cases. All 16 requests succeeded and all 16 results were accepted, with zero checkpoint retries. The resume results reached 100% skill F1, 16/16 exact contact fields and 20/20 correct requirement statuses, with 0/11 unsupported positive decisions. All eight interviews matched both the expected technical band and follow-up branch. The previously failed payment answer scored 20/100 and triggered a diagnostic follow-up. The feedback explained the duplicate-charge risk and also included irrelevant STAR-format advice. [Raw live rerun](docs/PHASE4_V6_LIVE_RERUN_RESULTS.json)
+
+Resume extraction measured 1.43 s p50 and 2.13 s p95. Interview feedback measured 1.28 s p50 and 1.88 s p95. Groq reported 13,110 input tokens, including 2,816 cached tokens, and 8,280 output tokens. The published-rate cost estimate was $0.0067233. These timings come from one run on eight cases per action. [Live timing and usage](docs/PHASE4_V6_LIVE_RERUN_RESULTS.json) · [Groq pricing](https://console.groq.com/docs/model/openai/gpt-oss-120b)
 
 ### Frozen v5 results
 
@@ -68,6 +76,8 @@ Tests use fictional data and isolated databases. Browser verification covers req
 The 4 November 2026 v5 regression repair passed **283 server and 49 client tests**. Earlier browser verification covered 28 local workflows and 44 automated accessibility audits. [V5 test results](docs/PHASE4_V3_REGRESSION_RESULTS.md) · [Original evaluation](docs/PHASE4_EVALUATION_RESULTS.md)
 
 On 8 November, 50 focused Phase 4 tests passed across evaluation, matching, adaptive practice and the v3 regressions. The three structural holdout checks passed for v2, v3 and v4.
+
+The calendar and reminders OpenAPI update and live runner repair passed all **347 server tests and 51 client tests** in a committed Node 24 snapshot. The server run verified the full route inventory and exercised transient and permanent checkpoint failures with mocked provider responses. [OpenAPI contract tests](server/test/contracts.test.js) · [Runner regression tests](server/test/phase4LiveEvaluation.test.js)
 
 | Check | Observed result |
 | --- | --- |
