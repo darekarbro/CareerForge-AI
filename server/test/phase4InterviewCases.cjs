@@ -27,13 +27,22 @@ module.exports = ({ test, assert, request, user, ready, successfulJob }) => {
     const detail = (await request('GET', url, { token: a.token })).data.data;
     assert.equal(detail.questions[1].adaptation.kind, 'diagnostic');
     const profile = (await request('GET', '/api/interview/competencies', { token: a.token })).data.data;
-    assert.equal(profile.competencies.length, 1); assert.equal(profile.competencies[0].sampleCount, 3);
-    assert.equal(profile.competencies[0].attemptCount, 4); assert(profile.competencies[0].evidence.every((item) => item.href.includes('?question=') && item.href.includes('&attempt=')));
+    assert.equal(profile.competencies.length, 1);
+    const [competency] = profile.competencies;
+    assert.equal(competency.sampleCount, 3);
+    assert.equal(competency.attemptCount, 4);
+    assert.equal(competency.assessmentBasis, 'unassessed');
+    assert.equal(competency.assessedSampleCount, 0);
+    assert.equal(competency.evidence.length, 4);
+    for (const item of competency.evidence) {
+      assert.equal(item.technicalAssessment, 'unassessed');
+      assert.equal(item.sessionId, String(output.session._id));
+      assert.equal(item.href, `/interview/session/${item.sessionId}?question=${item.questionId}&attempt=${item.attemptIndex}`);
+    }
     assert.deepEqual((await request('GET', '/api/interview/competencies', { token: b.token })).data.data.competencies, []);
     assert.equal((await request('GET', '/api/interview/competencies')).status, 401);
     const plan = (await request('GET', '/api/interview/learning-plan', { token: a.token })).data.data;
-    assert.equal(plan.items.length, 1); assert.equal(plan.items[0].sourceEvidence[0].sessionId, String(output.session._id));
-    assert.equal(plan.items[0].reassessment.count, 3);
+    assert.deepEqual(plan.items, []);
     assert.deepEqual((await request('GET', '/api/interview/learning-plan', { token: b.token })).data.data.items, []);
     // A recovered commit cannot adapt the next question again.
     const source = await Question.findById(output.questions[0]._id);
