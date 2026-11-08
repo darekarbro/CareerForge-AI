@@ -5,13 +5,14 @@ const { SKILLS } = require('../src/providers/resumeFacts');
 const normalize = value => value.normalize('NFKC').toLowerCase().replace(/\s+/g, ' ').trim();
 
 // Structural/reference validation only. This test never calls a parser, matcher or scoring function.
-for (const version of ['v2', 'v3']) test(version + ' holdout is disjoint, synthetic and structurally valid without executing predictions', () => {
+const holdouts = ['v2', 'v3', 'v4'];
+for (const [index, version] of holdouts.entries()) test(version + ' holdout is disjoint, synthetic and structurally valid without executing predictions', () => {
   const dataset = require('../evaluation/dataset/' + version + '/holdout.json');
   const protocol = require('../evaluation/protocols/' + version + '-first-pass.json');
   assert.equal(dataset.datasetVersion, protocol.datasetVersion); assert.equal(dataset.split, 'holdout');
   assert.equal(dataset.cases.length, protocol.plannedCases);
   assert.equal(dataset.provenance.implementationAccess, false); assert.equal(dataset.provenance.priorFixtureAccess, false);
-  const earlier = version === 'v3' ? [...previous, ...require('../evaluation/dataset/v2/holdout.json').cases] : previous;
+  const earlier = [...previous, ...holdouts.slice(0, index).flatMap(earlierVersion => require('../evaluation/dataset/' + earlierVersion + '/holdout.json').cases)];
   const ids = new Set(earlier.map(item => item.id)), texts = new Set(earlier.map(item => normalize(item.resumeText)));
   for (const [group, count] of Object.entries(protocol.plannedGroups)) assert.equal(dataset.cases.filter(item => item.group === group).length, count);
   for (const item of dataset.cases) {

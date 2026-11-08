@@ -1,0 +1,541 @@
+{
+  "datasetVersion": "phase4-synthetic-v4",
+  "split": "holdout",
+  "annotationScope": {
+    "extraction": ["contactInfo.name", "contactInfo.email", "skills"],
+    "requirements": ["requiredSkills", "preferredSkills"],
+    "evidencePolicy": "Use explicit candidate evidence from the resume and explicit skill categories from the job description. An unresolved first-person contradiction makes the requirement uncertain and keeps the skill out of expected extraction."
+  },
+  "provenance": {
+    "authoringMethod": "independent-agent-authored-before-model-execution",
+    "implementationAccess": false,
+    "priorFixtureAccess": false,
+    "personalData": "fictional"
+  },
+  "cases": [
+    {
+      "id": "v4-graduate-civic-maps",
+      "group": "graduate",
+      "provenance": {"kind": "synthetic", "consent": "not-applicable", "author": "independent v4 author", "personalData": "fictional"},
+      "resumeText": "Bea Linden\nbea.linden@example.com\nRecent graduate, visual computing\n\nFor my final studio I built a public drinking-fountain map in HTML, CSS and JavaScript. I owned accessibility testing and repaired keyboard focus on the map controls. I used Git to review changes with the teaching assistant. My teammate supplied the Figma mockups. I worked from the exported screenshots.",
+      "jobDescriptionText": "Junior Civic Web Developer\nHelp the town's small web team build pages for parks and public facilities.\nRequired skills: HTML, CSS, JavaScript, Accessibility.\nPreferred skills: Git and Figma.",
+      "targetRole": "Junior Civic Web Developer",
+      "expectedExtraction": {"contactInfo": {"name": "Bea Linden", "email": "bea.linden@example.com"}, "skills": ["HTML", "CSS", "JavaScript", "Accessibility", "Git"]},
+      "expectedRequirements": [
+        {"category": "requiredSkills", "label": "HTML", "status": "supported"},
+        {"category": "requiredSkills", "label": "CSS", "status": "supported"},
+        {"category": "requiredSkills", "label": "JavaScript", "status": "supported"},
+        {"category": "requiredSkills", "label": "Accessibility", "status": "supported"},
+        {"category": "preferredSkills", "label": "Git", "status": "supported"},
+        {"category": "preferredSkills", "label": "Figma", "status": "missing"}
+      ],
+      "notes": "The applicant built the map, performed accessibility testing, and used Git. The teammate authored the Figma mockups, and the applicant only used screenshots."
+    },
+    {
+      "id": "v4-graduate-marsh-survey",
+      "group": "graduate",
+      "provenance": {"kind": "synthetic", "consent": "not-applicable", "author": "independent v4 author", "personalData": "fictional"},
+      "resumeText": "Ellis Corven <ellis.corven@example.net>\nEcology BSc | Capstone on reed bed recovery\n\nI wrote Python and pandas scripts for a one-time cleanup of four seasons of survey data. Separately, my scikit-learn classifier flagged records for a second field visit. I queried local survey records with SQL. The survey coordinator maintained Postgres and sent me the CSV exports I worked from.",
+      "jobDescriptionText": "Graduate Environmental Data Analyst\nTurn incoming wetland observations into reports for field staff.\nRequired skills\n- Python\n- Pandas\n- SQL\n\nPreferred skills\n- Scikit-Learn\n- PostgreSQL\n- Data Pipelines",
+      "targetRole": "Graduate Environmental Data Analyst",
+      "expectedExtraction": {"contactInfo": {"name": "Ellis Corven", "email": "ellis.corven@example.net"}, "skills": ["Python", "Pandas", "Scikit-Learn", "SQL"]},
+      "expectedRequirements": [
+        {"category": "requiredSkills", "label": "Python", "status": "supported"},
+        {"category": "requiredSkills", "label": "Pandas", "status": "supported"},
+        {"category": "requiredSkills", "label": "SQL", "status": "supported"},
+        {"category": "preferredSkills", "label": "Scikit-Learn", "status": "supported"},
+        {"category": "preferredSkills", "label": "PostgreSQL", "status": "missing"},
+        {"category": "preferredSkills", "label": "Data Pipelines", "status": "missing"}
+      ],
+      "notes": "The applicant names three tools and SQL in their own work. Postgres belongs to the survey coordinator. The one-off analysis scripts do not establish explicit data pipeline experience."
+    },
+    {
+      "id": "v4-graduate-library-loans",
+      "group": "graduate",
+      "provenance": {"kind": "synthetic", "consent": "not-applicable", "author": "independent v4 author", "personalData": "fictional"},
+      "resumeText": "Applicant: Dario Keswick\nEmail: dario.keswick@example.org\n\nDiploma in software development. My assessed project tracked loans of portable recorders. I wrote the Java service with Spring Boot, exposed a RESTful API and added a MySQL store. I packaged the service with Docker. The department technician alone handled the Linux host. I submitted a container image and a user guide.",
+      "jobDescriptionText": "Associate Library Systems Developer\nBuild and maintain small services for the equipment lending desk.\nRequired skills are Java, Spring Boot, REST API and MySQL.\nPreferred skills are Docker and Linux.",
+      "targetRole": "Associate Library Systems Developer",
+      "expectedExtraction": {"contactInfo": {"name": "Dario Keswick", "email": "dario.keswick@example.org"}, "skills": ["Java", "Spring Boot", "REST API", "MySQL", "Docker"]},
+      "expectedRequirements": [
+        {"category": "requiredSkills", "label": "Java", "status": "supported"},
+        {"category": "requiredSkills", "label": "Spring Boot", "status": "supported"},
+        {"category": "requiredSkills", "label": "REST API", "status": "supported"},
+        {"category": "requiredSkills", "label": "MySQL", "status": "supported"},
+        {"category": "preferredSkills", "label": "Docker", "status": "supported"},
+        {"category": "preferredSkills", "label": "Linux", "status": "missing"}
+      ],
+      "notes": "The RESTful API is the applicant's work and maps to REST API. The technician exclusively managed the Linux host."
+    },
+    {
+      "id": "v4-graduate-museum-membership",
+      "group": "graduate",
+      "provenance": {"kind": "synthetic", "consent": "not-applicable", "author": "independent v4 author", "personalData": "fictional"},
+      "resumeText": "Mina Bellmere | mina.bellmere@example.com\nMuseum studies graduate\n\nVolunteer placement with a print museum. I conducted user research with eleven first-time members. I built the renewal screens in Figma and ran A/B testing on two versions of the invitation email. The museum board owned product strategy and roadmapping throughout the placement, and neither was part of my assignment.",
+      "jobDescriptionText": "Associate Membership Product Analyst\nImprove the first year of the museum membership experience.\nRequired skills: User Research, A/B Testing.\nPreferred skills: Figma, Product Strategy, Roadmapping.",
+      "targetRole": "Associate Membership Product Analyst",
+      "expectedExtraction": {"contactInfo": {"name": "Mina Bellmere", "email": "mina.bellmere@example.com"}, "skills": ["User Research", "Figma", "A/B Testing"]},
+      "expectedRequirements": [
+        {"category": "requiredSkills", "label": "User Research", "status": "supported"},
+        {"category": "requiredSkills", "label": "A/B Testing", "status": "supported"},
+        {"category": "preferredSkills", "label": "Figma", "status": "supported"},
+        {"category": "preferredSkills", "label": "Product Strategy", "status": "missing"},
+        {"category": "preferredSkills", "label": "Roadmapping", "status": "missing"}
+      ],
+      "notes": "The applicant names and performs the research, prototyping, and testing. The board owned the two planning skills, which the applicant expressly excludes from their assignment."
+    },
+    {
+      "id": "v4-graduate-greenhouse-robot",
+      "group": "graduate",
+      "provenance": {"kind": "synthetic", "consent": "not-applicable", "author": "independent v4 author", "personalData": "fictional"},
+      "resumeText": "Applicant for controls roles\nOwen Quist\nowen.quist@example.org\n\nIn my mechatronics capstone, I programmed a greenhouse cart in C++. I implemented pathfinding algorithms and designed the data structures for obstacle storage. I kept my controller code in Git. Our technician ran his own Python logger for the demonstrations. I never used the logger or wrote Python for the project.",
+      "jobDescriptionText": "Graduate Robotics Programmer\nWrite controller code for carts moving through narrow planting rows.\nRequired: C++, Algorithms, Data Structures.\nPreferred: Python, Git, Linux.",
+      "targetRole": "Graduate Robotics Programmer",
+      "expectedExtraction": {"contactInfo": {"name": "Owen Quist", "email": "owen.quist@example.org"}, "skills": ["C++", "Algorithms", "Data Structures", "Git"]},
+      "expectedRequirements": [
+        {"category": "requiredSkills", "label": "C++", "status": "supported"},
+        {"category": "requiredSkills", "label": "Algorithms", "status": "supported"},
+        {"category": "requiredSkills", "label": "Data Structures", "status": "supported"},
+        {"category": "preferredSkills", "label": "Python", "status": "missing"},
+        {"category": "preferredSkills", "label": "Git", "status": "supported"},
+        {"category": "preferredSkills", "label": "Linux", "status": "missing"}
+      ],
+      "notes": "The applicant programmed the controller and names their algorithm, data structure, and version-control work. Python appears only in third-party evidence and a denial. Linux is absent."
+    },
+    {
+      "id": "v4-graduate-ticketing-tests",
+      "group": "graduate",
+      "provenance": {"kind": "synthetic", "consent": "not-applicable", "author": "independent v4 author", "personalData": "fictional"},
+      "resumeText": "Test placement handover, submitted by Rhea Dunvale (rhea.dunvale@example.net)\n\nOn a theatre ticketing placement I wrote TypeScript assertions in Jest and browser checks in Cypress. I added the suites to the CI/CD workflow and opened changes through Git. For one browser suite I also wrote HTML fixtures for blank checkout states. My placement finished in June.",
+      "jobDescriptionText": "Junior Test Automation Engineer\nAdd regression coverage to ticket reservations and refunds.\nRequired skills: TypeScript, Cypress, CI/CD.\nPreferred skills: Jest, Git, Docker.",
+      "targetRole": "Junior Test Automation Engineer",
+      "expectedExtraction": {"contactInfo": {"name": "Rhea Dunvale", "email": "rhea.dunvale@example.net"}, "skills": ["TypeScript", "Jest", "Cypress", "CI/CD", "Git", "HTML"]},
+      "expectedRequirements": [
+        {"category": "requiredSkills", "label": "TypeScript", "status": "supported"},
+        {"category": "requiredSkills", "label": "Cypress", "status": "supported"},
+        {"category": "requiredSkills", "label": "CI/CD", "status": "supported"},
+        {"category": "preferredSkills", "label": "Jest", "status": "supported"},
+        {"category": "preferredSkills", "label": "Git", "status": "supported"},
+        {"category": "preferredSkills", "label": "Docker", "status": "missing"}
+      ],
+      "notes": "The handover identifies its submitter. The applicant explicitly authored HTML fixtures in addition to using the testing stack. Docker has no evidence."
+    },
+    {
+      "id": "v4-experienced-freight-routing",
+      "group": "experienced",
+      "provenance": {"kind": "synthetic", "consent": "not-applicable", "author": "independent v4 author", "personalData": "fictional"},
+      "resumeText": "Niko Tern — niko.tern@example.org\nBackend Engineer, regional freight dispatch (2018–2025)\n\nI wrote Golang microservices that sequenced trailer arrivals. I owned system design for the reassignment service, including its Kafka consumers, Postgres writes and Redis leases. I maintained the RESTful APIs used by dispatchers. A separate infrastructure team worked in Kubernetes. I read the application logs they exported to a dashboard and never used Kubernetes.",
+      "jobDescriptionText": "Senior Freight Platform Engineer\nOwn dispatch services and their event processing.\nRequired skills: Go, Kafka, PostgreSQL, System Design, Microservices.\nPreferred skills: Kubernetes, Redis, Terraform.",
+      "targetRole": "Senior Freight Platform Engineer",
+      "expectedExtraction": {"contactInfo": {"name": "Niko Tern", "email": "niko.tern@example.org"}, "skills": ["Go", "Microservices", "System Design", "Kafka", "PostgreSQL", "Redis", "REST API"]},
+      "expectedRequirements": [
+        {"category": "requiredSkills", "label": "Go", "status": "supported"},
+        {"category": "requiredSkills", "label": "Kafka", "status": "supported"},
+        {"category": "requiredSkills", "label": "PostgreSQL", "status": "supported"},
+        {"category": "requiredSkills", "label": "System Design", "status": "supported"},
+        {"category": "requiredSkills", "label": "Microservices", "status": "supported"},
+        {"category": "preferredSkills", "label": "Kubernetes", "status": "missing"},
+        {"category": "preferredSkills", "label": "Redis", "status": "supported"},
+        {"category": "preferredSkills", "label": "Terraform", "status": "missing"}
+      ],
+      "notes": "Golang, Postgres and RESTful APIs normalize to canonical skill labels. The applicant consumed exported logs and explicitly denies using Kubernetes."
+    },
+    {
+      "id": "v4-experienced-permit-office",
+      "group": "experienced",
+      "provenance": {"kind": "synthetic", "consent": "not-applicable", "author": "independent v4 author", "personalData": "fictional"},
+      "resumeText": "Solene Greywick\nsolene.greywick@example.com\nApplications Engineer | Municipal Permitting\n\n2016–2024. I maintained a C# and .NET system for permit renewals and wrote SQL to reconcile payment records. I set up its Azure deployment and CI/CD. I also implemented a REST API for checking application status. The legacy renewal service stayed on the same stack through my departure.",
+      "jobDescriptionText": "Senior Municipal Applications Engineer\nMaintain the permit renewal and payment services.\nRequired skills are C#, .NET, SQL and Azure.\nPreferred skills are REST API, CI/CD and Docker.",
+      "targetRole": "Senior Municipal Applications Engineer",
+      "expectedExtraction": {"contactInfo": {"name": "Solene Greywick", "email": "solene.greywick@example.com"}, "skills": ["C#", ".NET", "SQL", "Azure", "CI/CD", "REST API"]},
+      "expectedRequirements": [
+        {"category": "requiredSkills", "label": "C#", "status": "supported"},
+        {"category": "requiredSkills", "label": ".NET", "status": "supported"},
+        {"category": "requiredSkills", "label": "SQL", "status": "supported"},
+        {"category": "requiredSkills", "label": "Azure", "status": "supported"},
+        {"category": "preferredSkills", "label": "REST API", "status": "supported"},
+        {"category": "preferredSkills", "label": "CI/CD", "status": "supported"},
+        {"category": "preferredSkills", "label": "Docker", "status": "missing"}
+      ],
+      "notes": "The applicant describes direct ownership of the application, queries, deployment and API. There is no Docker evidence."
+    },
+    {
+      "id": "v4-experienced-instrument-shop",
+      "group": "experienced",
+      "provenance": {"kind": "synthetic", "consent": "not-applicable", "author": "independent v4 author", "personalData": "fictional"},
+      "resumeText": "Inez Starling / inez.starling@example.net\n2017–2025, online instrument shop\n\nRewrote the stock reservation flow in PHP and Laravel. Tuned MySQL queries and maintained the Redis cache. I rebuilt the Elasticsearch index for used instruments and ran the maintenance scripts on Linux. I managed changes with Git. The hosting vendor handled AWS. My account did not have access to their AWS resources.",
+      "jobDescriptionText": "Senior Catalog Engineer\nMaintain inventory, stock reservations and search for the instrument catalog.\nRequired skills\n* PHP\n* Laravel\n* MySQL\n* Elasticsearch\nPreferred skills\n* AWS\n* Redis\n* Linux",
+      "targetRole": "Senior Catalog Engineer",
+      "expectedExtraction": {"contactInfo": {"name": "Inez Starling", "email": "inez.starling@example.net"}, "skills": ["PHP", "Laravel", "MySQL", "Redis", "Elasticsearch", "Linux", "Git"]},
+      "expectedRequirements": [
+        {"category": "requiredSkills", "label": "PHP", "status": "supported"},
+        {"category": "requiredSkills", "label": "Laravel", "status": "supported"},
+        {"category": "requiredSkills", "label": "MySQL", "status": "supported"},
+        {"category": "requiredSkills", "label": "Elasticsearch", "status": "supported"},
+        {"category": "preferredSkills", "label": "AWS", "status": "missing"},
+        {"category": "preferredSkills", "label": "Redis", "status": "supported"},
+        {"category": "preferredSkills", "label": "Linux", "status": "supported"}
+      ],
+      "notes": "The applicant used the catalog and maintenance tools, including Git. AWS access and use belonged to the vendor."
+    },
+    {
+      "id": "v4-experienced-crop-images",
+      "group": "experienced",
+      "provenance": {"kind": "synthetic", "consent": "not-applicable", "author": "independent v4 author", "personalData": "fictional"},
+      "resumeText": "Cal Rooksen\nContact: cal.rooksen@example.org\nApplied scientist, crop image inspection, 2019–2025\n\nI built machine learning models in Python and PyTorch to identify leaf damage. I maintained the data pipelines for field imagery and used Pandas to audit the sample counts. I packaged inference with Docker and ran training on AWS. I have never used TensorFlow.",
+      "jobDescriptionText": "Computer Vision Scientist\nBuild image models and maintain the datasets that feed them.\nRequired skills: Python, Machine Learning, PyTorch, Data Pipelines.\nPreferred skills: TensorFlow, AWS, Docker.",
+      "targetRole": "Computer Vision Scientist",
+      "expectedExtraction": {"contactInfo": {"name": "Cal Rooksen", "email": "cal.rooksen@example.org"}, "skills": ["Machine Learning", "Python", "PyTorch", "Data Pipelines", "Pandas", "Docker", "AWS"]},
+      "expectedRequirements": [
+        {"category": "requiredSkills", "label": "Python", "status": "supported"},
+        {"category": "requiredSkills", "label": "Machine Learning", "status": "supported"},
+        {"category": "requiredSkills", "label": "PyTorch", "status": "supported"},
+        {"category": "requiredSkills", "label": "Data Pipelines", "status": "supported"},
+        {"category": "preferredSkills", "label": "TensorFlow", "status": "missing"},
+        {"category": "preferredSkills", "label": "AWS", "status": "supported"},
+        {"category": "preferredSkills", "label": "Docker", "status": "supported"}
+      ],
+      "notes": "The work history explicitly names the domain skills and tools the applicant used. TensorFlow is a denial with no positive evidence."
+    },
+    {
+      "id": "v4-experienced-reading-room",
+      "group": "experienced",
+      "provenance": {"kind": "synthetic", "consent": "not-applicable", "author": "independent v4 author", "personalData": "fictional"},
+      "resumeText": "Frontend portfolio excerpt\nAda Penlow, ada.penlow@example.com\n\nAt a scholarly archive from 2019 to 2025 I replaced the reading room site with ReactJS, Next.js and TypeScript. I maintained the CSS and fixed accessibility issues for readers using screen readers. I wrote Jest tests for page navigation. Our designers used Figma and provided PNG exports. I did not use Figma.",
+      "jobDescriptionText": "Senior Archive Frontend Engineer\nDevelop interfaces for reading and navigating scanned material.\nRequired skills: React, Next.js, TypeScript, Accessibility.\nPreferred skills: Figma, Jest, Redux.",
+      "targetRole": "Senior Archive Frontend Engineer",
+      "expectedExtraction": {"contactInfo": {"name": "Ada Penlow", "email": "ada.penlow@example.com"}, "skills": ["React", "Next.js", "TypeScript", "CSS", "Accessibility", "Jest"]},
+      "expectedRequirements": [
+        {"category": "requiredSkills", "label": "React", "status": "supported"},
+        {"category": "requiredSkills", "label": "Next.js", "status": "supported"},
+        {"category": "requiredSkills", "label": "TypeScript", "status": "supported"},
+        {"category": "requiredSkills", "label": "Accessibility", "status": "supported"},
+        {"category": "preferredSkills", "label": "Figma", "status": "missing"},
+        {"category": "preferredSkills", "label": "Jest", "status": "supported"},
+        {"category": "preferredSkills", "label": "Redux", "status": "missing"}
+      ],
+      "notes": "ReactJS maps to React. The applicant authored the frontend and tests. Figma belongs to designers, and Redux is absent."
+    },
+    {
+      "id": "v4-experienced-ferry-product",
+      "group": "experienced",
+      "provenance": {"kind": "synthetic", "consent": "not-applicable", "author": "independent v4 author", "personalData": "fictional"},
+      "resumeText": "Jules Merren • jules.merren@example.net\nProduct director for an island ferry operator, 2018–2025\n\nMy remit was product strategy and roadmapping for passenger reservations. I ran user research on missed sailings and A/B testing on fare explanations. My leadership work included coaching three product managers. I was responsible for stakeholder communication with terminal supervisors during launches. Our operations group used Scrum without my involvement.",
+      "jobDescriptionText": "Passenger Experience Product Lead\nSet the direction for self-service reservations and disruption notices.\nRequired skills include Product Strategy, Roadmapping and Leadership.\nPreferred skills include A/B Testing, User Research, Communication and Scrum.",
+      "targetRole": "Passenger Experience Product Lead",
+      "expectedExtraction": {"contactInfo": {"name": "Jules Merren", "email": "jules.merren@example.net"}, "skills": ["Product Strategy", "Roadmapping", "User Research", "A/B Testing", "Leadership", "Communication"]},
+      "expectedRequirements": [
+        {"category": "requiredSkills", "label": "Product Strategy", "status": "supported"},
+        {"category": "requiredSkills", "label": "Roadmapping", "status": "supported"},
+        {"category": "requiredSkills", "label": "Leadership", "status": "supported"},
+        {"category": "preferredSkills", "label": "A/B Testing", "status": "supported"},
+        {"category": "preferredSkills", "label": "User Research", "status": "supported"},
+        {"category": "preferredSkills", "label": "Communication", "status": "supported"},
+        {"category": "preferredSkills", "label": "Scrum", "status": "missing"}
+      ],
+      "notes": "The applicant explicitly identifies leadership and communication responsibilities as well as planning, testing and research. Scrum was used by a separate group."
+    },
+    {
+      "id": "v4-sparse-market-counts",
+      "group": "sparse",
+      "provenance": {"kind": "synthetic", "consent": "not-applicable", "author": "independent v4 author", "personalData": "fictional"},
+      "resumeText": "Tamsin Vale\nI use SQL and Python to reconcile market stall bookings.",
+      "jobDescriptionText": "Market Reporting Assistant\nRequired skills: SQL and Python.\nPreferred skill: Pandas.",
+      "targetRole": "Market Reporting Assistant",
+      "expectedExtraction": {"contactInfo": {"name": "Tamsin Vale", "email": ""}, "skills": ["SQL", "Python"]},
+      "expectedRequirements": [
+        {"category": "requiredSkills", "label": "SQL", "status": "supported"},
+        {"category": "requiredSkills", "label": "Python", "status": "supported"},
+        {"category": "preferredSkills", "label": "Pandas", "status": "missing"}
+      ],
+      "notes": "Only the name is present in the contact fields. Two skills are explicit and Pandas is absent."
+    },
+    {
+      "id": "v4-sparse-choir-page",
+      "group": "sparse",
+      "provenance": {"kind": "synthetic", "consent": "not-applicable", "author": "independent v4 author", "personalData": "fictional"},
+      "resumeText": "Contact email: page-editor@example.net\nI wrote the HTML and CSS for a community choir's rehearsal page.",
+      "jobDescriptionText": "Community Web Editor\nRequired: HTML, CSS.\nPreferred: Accessibility, JavaScript.",
+      "targetRole": "Community Web Editor",
+      "expectedExtraction": {"contactInfo": {"name": "", "email": "page-editor@example.net"}, "skills": ["HTML", "CSS"]},
+      "expectedRequirements": [
+        {"category": "requiredSkills", "label": "HTML", "status": "supported"},
+        {"category": "requiredSkills", "label": "CSS", "status": "supported"},
+        {"category": "preferredSkills", "label": "Accessibility", "status": "missing"},
+        {"category": "preferredSkills", "label": "JavaScript", "status": "missing"}
+      ],
+      "notes": "The email is the sole candidate contact. Page creation alone does not establish the preferred skills."
+    },
+    {
+      "id": "v4-sparse-radio-station",
+      "group": "sparse",
+      "provenance": {"kind": "synthetic", "consent": "not-applicable", "author": "independent v4 author", "personalData": "fictional"},
+      "resumeText": "Volunteer at a campus radio station. I maintained the logging machine on Linux and versioned its setup scripts with Git.",
+      "jobDescriptionText": "Broadcast Systems Assistant\nRequired skills: Linux, Git.\nPreferred skill: Docker.",
+      "targetRole": "Broadcast Systems Assistant",
+      "expectedExtraction": {"contactInfo": {"name": "", "email": ""}, "skills": ["Linux", "Git"]},
+      "expectedRequirements": [
+        {"category": "requiredSkills", "label": "Linux", "status": "supported"},
+        {"category": "requiredSkills", "label": "Git", "status": "supported"},
+        {"category": "preferredSkills", "label": "Docker", "status": "missing"}
+      ],
+      "notes": "This anonymized resume excerpt contains direct Linux and Git evidence. No name, email or container work appears."
+    },
+    {
+      "id": "v4-sparse-print-dispatch",
+      "group": "sparse",
+      "provenance": {"kind": "synthetic", "consent": "not-applicable", "author": "independent v4 author", "personalData": "fictional"},
+      "resumeText": "Vera Birchill\nvera.birchill@example.com\nPacked print orders and scheduled collection at a neighborhood print shop.",
+      "jobDescriptionText": "Print Orders Web Developer\nRequired skills: JavaScript and Node.js.\nPreferred skill: MongoDB.",
+      "targetRole": "Print Orders Web Developer",
+      "expectedExtraction": {"contactInfo": {"name": "Vera Birchill", "email": "vera.birchill@example.com"}, "skills": []},
+      "expectedRequirements": [
+        {"category": "requiredSkills", "label": "JavaScript", "status": "missing"},
+        {"category": "requiredSkills", "label": "Node.js", "status": "missing"},
+        {"category": "preferredSkills", "label": "MongoDB", "status": "missing"}
+      ],
+      "notes": "The supplied work duties contain no vocabulary skills. The job description is the only source of the three named technologies."
+    },
+    {
+      "id": "v4-sparse-zine-workshop",
+      "group": "sparse",
+      "provenance": {"kind": "synthetic", "consent": "not-applicable", "author": "independent v4 author", "personalData": "fictional"},
+      "resumeText": "Yara Fenwick (yara.fenwick@example.org)\nI prototyped a zine workshop registration form in Figma. I hope to try user research on a later project.",
+      "jobDescriptionText": "Workshop UX Assistant\nRequired skills: Figma and User Research.\nPreferred skill: Accessibility.",
+      "targetRole": "Workshop UX Assistant",
+      "expectedExtraction": {"contactInfo": {"name": "Yara Fenwick", "email": "yara.fenwick@example.org"}, "skills": ["Figma"]},
+      "expectedRequirements": [
+        {"category": "requiredSkills", "label": "Figma", "status": "supported"},
+        {"category": "requiredSkills", "label": "User Research", "status": "missing"},
+        {"category": "preferredSkills", "label": "Accessibility", "status": "missing"}
+      ],
+      "notes": "The applicant made the Figma prototype. User research is an aspiration, and accessibility has no mention."
+    },
+    {
+      "id": "v4-sparse-ceramic-ledger",
+      "group": "sparse",
+      "provenance": {"kind": "synthetic", "consent": "not-applicable", "author": "independent v4 author", "personalData": "fictional"},
+      "resumeText": "Perry Mossvale | perry.mossvale@example.net\nI wrote SQL queries for the MySQL stock ledger at a ceramics studio.",
+      "jobDescriptionText": "Stock Data Technician\nRequired skills — SQL, MySQL\nPreferred skills — REST API, PostgreSQL",
+      "targetRole": "Stock Data Technician",
+      "expectedExtraction": {"contactInfo": {"name": "Perry Mossvale", "email": "perry.mossvale@example.net"}, "skills": ["SQL", "MySQL"]},
+      "expectedRequirements": [
+        {"category": "requiredSkills", "label": "SQL", "status": "supported"},
+        {"category": "requiredSkills", "label": "MySQL", "status": "supported"},
+        {"category": "preferredSkills", "label": "REST API", "status": "missing"},
+        {"category": "preferredSkills", "label": "PostgreSQL", "status": "missing"}
+      ],
+      "notes": "Both SQL and MySQL are named in the work evidence. The short resume provides no evidence of an API or PostgreSQL."
+    },
+    {
+      "id": "v4-formatting-costume-catalog",
+      "group": "formatting",
+      "provenance": {"kind": "synthetic", "consent": "not-applicable", "author": "independent v4 author", "personalData": "fictional"},
+      "resumeText": "# Portfolio card\n| Field | Applicant entry |\n| --- | --- |\n| Name | **Luz Asterby** |\n| Email | <luz.asterby@example.net> |\n| Work sample | Costume catalog I built in HTML, CSS and JavaScript |\n| Stylesheet tooling I used | Sass |\n| Search tags copied from this site's example vacancy, never used by me | React, TypeScript |",
+      "jobDescriptionText": "**Costume Catalog Web Developer**\n\n| Skill category | List |\n| --- | --- |\n| Required skills | HTML, CSS, JavaScript |\n| Preferred skills | React, TypeScript, Sass |",
+      "targetRole": "Costume Catalog Web Developer",
+      "expectedExtraction": {"contactInfo": {"name": "Luz Asterby", "email": "luz.asterby@example.net"}, "skills": ["HTML", "CSS", "JavaScript", "Sass"]},
+      "expectedRequirements": [
+        {"category": "requiredSkills", "label": "HTML", "status": "supported"},
+        {"category": "requiredSkills", "label": "CSS", "status": "supported"},
+        {"category": "requiredSkills", "label": "JavaScript", "status": "supported"},
+        {"category": "preferredSkills", "label": "React", "status": "missing"},
+        {"category": "preferredSkills", "label": "TypeScript", "status": "missing"},
+        {"category": "preferredSkills", "label": "Sass", "status": "supported"}
+      ],
+      "notes": "Markdown delimiters surround contact values and skills. The final resume row explicitly marks React and TypeScript as example vacancy tags."
+    },
+    {
+      "id": "v4-formatting-heating-meter",
+      "group": "formatting",
+      "provenance": {"kind": "synthetic", "consent": "not-applicable", "author": "independent v4 author", "personalData": "fictional"},
+      "resumeText": "Name\tMarek Pond\nEmail\tmarek.pond@example.org\nProject\tDistrict heating meter reconciliation\n\nTOOLS I USED\tTOOLS A SEPARATE BILLING TEAM USED\nPython\tMongoDB\nPostgres\tRedis\nKafka\t\n\nI wrote our meter ingestion code. My work was confined to the left column.",
+      "jobDescriptionText": "Meter Data Integrations Engineer\n\nREQUIRED SKILLS\n  Python | PostgreSQL | Kafka\nPREFERRED SKILLS\n  MongoDB | Redis",
+      "targetRole": "Meter Data Integrations Engineer",
+      "expectedExtraction": {"contactInfo": {"name": "Marek Pond", "email": "marek.pond@example.org"}, "skills": ["Python", "PostgreSQL", "Kafka"]},
+      "expectedRequirements": [
+        {"category": "requiredSkills", "label": "Python", "status": "supported"},
+        {"category": "requiredSkills", "label": "PostgreSQL", "status": "supported"},
+        {"category": "requiredSkills", "label": "Kafka", "status": "supported"},
+        {"category": "preferredSkills", "label": "MongoDB", "status": "missing"},
+        {"category": "preferredSkills", "label": "Redis", "status": "missing"}
+      ],
+      "notes": "Tabs align the applicant's technologies separately from the billing team's. Postgres is an alias for PostgreSQL."
+    },
+    {
+      "id": "v4-formatting-archive-checksums",
+      "group": "formatting",
+      "provenance": {"kind": "synthetic", "consent": "not-applicable", "author": "independent v4 author", "personalData": "fictional"},
+      "resumeText": "[applicant]\nname=Edda Crane\nemail=edda.crane@example.com\n\n[work_sample]\nname=Archive checksum utility\nlanguage_I_used=Rust\nplatform_I_used=Linux\ntools_I_used=Git, Docker\n\n[training_I_plan_to_take]\nsubject=Terraform",
+      "jobDescriptionText": "Digital Preservation Tools Engineer\nrequired_skills = [Rust, Linux, Git]\npreferred_skills = [Docker, Terraform]",
+      "targetRole": "Digital Preservation Tools Engineer",
+      "expectedExtraction": {"contactInfo": {"name": "Edda Crane", "email": "edda.crane@example.com"}, "skills": ["Rust", "Linux", "Git", "Docker"]},
+      "expectedRequirements": [
+        {"category": "requiredSkills", "label": "Rust", "status": "supported"},
+        {"category": "requiredSkills", "label": "Linux", "status": "supported"},
+        {"category": "requiredSkills", "label": "Git", "status": "supported"},
+        {"category": "preferredSkills", "label": "Docker", "status": "supported"},
+        {"category": "preferredSkills", "label": "Terraform", "status": "missing"}
+      ],
+      "notes": "The bracketed sections distinguish the applicant and completed work from planned study. Terraform appears only in the latter section."
+    },
+    {
+      "id": "v4-formatting-harbor-simulation",
+      "group": "formatting",
+      "provenance": {"kind": "synthetic", "consent": "not-applicable", "author": "independent v4 author", "personalData": "fictional"},
+      "resumeText": "FORM EXPORT / APPLICANT DETAILS\nFull name ........ Renée Hartwell\nEmail ............ renee.hartwell@example.net\n\nFORM EXPORT / PROJECT DETAILS\nHarbor berth simulation, spring term\nLanguages I used .. C++; Python\nWhat I built ...... Queueing algorithms and the data structures for vessel arrivals\nCourse catalog item I did not take ... Java Programming",
+      "jobDescriptionText": "Simulation Software Associate\n\n[REQUIRED SKILLS]\nC++ / Algorithms / Data Structures\n\n[PREFERRED SKILLS]\nPython / Java",
+      "targetRole": "Simulation Software Associate",
+      "expectedExtraction": {"contactInfo": {"name": "Renée Hartwell", "email": "renee.hartwell@example.net"}, "skills": ["C++", "Python", "Algorithms", "Data Structures"]},
+      "expectedRequirements": [
+        {"category": "requiredSkills", "label": "C++", "status": "supported"},
+        {"category": "requiredSkills", "label": "Algorithms", "status": "supported"},
+        {"category": "requiredSkills", "label": "Data Structures", "status": "supported"},
+        {"category": "preferredSkills", "label": "Python", "status": "supported"},
+        {"category": "preferredSkills", "label": "Java", "status": "missing"}
+      ],
+      "notes": "The contact spelling follows the form export. Punctuation separates fields. The Java catalog listing describes a course the applicant did not take."
+    },
+    {
+      "id": "v4-formatting-form-workshop",
+      "group": "formatting",
+      "provenance": {"kind": "synthetic", "consent": "not-applicable", "author": "independent v4 author", "personalData": "fictional"},
+      "resumeText": "Applicant statement transcribed from a portfolio workshop\n\nINTERVIEWER: I'm Kellan Moore. Send transcript corrections to kellan.moore@example.com. What should go on your resume?\nAPPLICANT: My name is Sana Farrow. My email is sana.farrow@example.org.\nINTERVIEWER: Our own workshop team runs Agile projects. What did you personally do on your form project?\nAPPLICANT: I planned and conducted user research. I made a prototype in Figma and performed an accessibility review of the field labels.",
+      "jobDescriptionText": "Public Forms Designer\n\nREQUIRED SKILLS — Figma, User Research\nPREFERRED SKILLS — Accessibility, Agile",
+      "targetRole": "Public Forms Designer",
+      "expectedExtraction": {"contactInfo": {"name": "Sana Farrow", "email": "sana.farrow@example.org"}, "skills": ["User Research", "Figma", "Accessibility"]},
+      "expectedRequirements": [
+        {"category": "requiredSkills", "label": "Figma", "status": "supported"},
+        {"category": "requiredSkills", "label": "User Research", "status": "supported"},
+        {"category": "preferredSkills", "label": "Accessibility", "status": "supported"},
+        {"category": "preferredSkills", "label": "Agile", "status": "missing"}
+      ],
+      "notes": "Speaker labels separate the applicant's contact and design skills from the interviewer's contact and workshop process."
+    },
+    {
+      "id": "v4-formatting-trail-status",
+      "group": "formatting",
+      "provenance": {"kind": "synthetic", "consent": "not-applicable", "author": "independent v4 author", "personalData": "fictional"},
+      "resumeText": "PORTFOLIO › ARUN VALEWOOD › arun.valewood@example.org\n\nTRAIL CLOSURE FEED\n ├─ Server I built  →  Nodejs + Express\n ├─ Query API I wrote  →  GraphQL\n ├─ Store I configured  →  MongoDB\n └─ Test suite I wrote  →  Jest\n",
+      "jobDescriptionText": "Trail Data API Developer\n\n• Required skills → Node.js · Express · GraphQL\n• Preferred skills → MongoDB · REST API · Jest",
+      "targetRole": "Trail Data API Developer",
+      "expectedExtraction": {"contactInfo": {"name": "ARUN VALEWOOD", "email": "arun.valewood@example.org"}, "skills": ["Node.js", "Express", "GraphQL", "MongoDB", "Jest"]},
+      "expectedRequirements": [
+        {"category": "requiredSkills", "label": "Node.js", "status": "supported"},
+        {"category": "requiredSkills", "label": "Express", "status": "supported"},
+        {"category": "requiredSkills", "label": "GraphQL", "status": "supported"},
+        {"category": "preferredSkills", "label": "MongoDB", "status": "supported"},
+        {"category": "preferredSkills", "label": "REST API", "status": "missing"},
+        {"category": "preferredSkills", "label": "Jest", "status": "supported"}
+      ],
+      "notes": "The heading preserves the applicant's uppercase name as written. The tree marks ownership of each skill. The explicitly GraphQL endpoint does not establish REST API experience."
+    },
+    {
+      "id": "v4-misleading-studio-cloud",
+      "group": "misleading",
+      "provenance": {"kind": "synthetic", "consent": "not-applicable", "author": "independent v4 author", "personalData": "fictional"},
+      "resumeText": "Darcy Whitfen\ndarcy.whitfen@example.com\nBuild engineer for animation previews\n\nI ran our AWS build hosts on Linux, wrote the Docker configuration for previews and maintained CI/CD for the build job.\n\nBackground on the company: A separate platform team advertised its Kubernetes and Terraform work internally. I never used either tool. Our production artists used Figma for review boards, which was outside my role.",
+      "jobDescriptionText": "Render Farm Infrastructure Engineer\nMaintain build jobs for animation previews.\nRequired skills: AWS, Linux, Docker, Kubernetes.\nPreferred skills: Terraform, CI/CD.",
+      "targetRole": "Render Farm Infrastructure Engineer",
+      "expectedExtraction": {"contactInfo": {"name": "Darcy Whitfen", "email": "darcy.whitfen@example.com"}, "skills": ["AWS", "Linux", "Docker", "CI/CD"]},
+      "expectedRequirements": [
+        {"category": "requiredSkills", "label": "AWS", "status": "supported"},
+        {"category": "requiredSkills", "label": "Linux", "status": "supported"},
+        {"category": "requiredSkills", "label": "Docker", "status": "supported"},
+        {"category": "requiredSkills", "label": "Kubernetes", "status": "missing"},
+        {"category": "preferredSkills", "label": "Terraform", "status": "missing"},
+        {"category": "preferredSkills", "label": "CI/CD", "status": "supported"}
+      ],
+      "notes": "The applicant names four directly owned technologies. Kubernetes, Terraform and Figma occur in separate teams' work. The first two also have explicit denials."
+    },
+    {
+      "id": "v4-misleading-warranty-migration",
+      "group": "misleading",
+      "provenance": {"kind": "synthetic", "consent": "not-applicable", "author": "independent v4 author", "personalData": "fictional"},
+      "resumeText": "Remy Wrenford <remy.wrenford@example.net>\n\nCompleted work: I wrote a Java and Spring Boot service for warranty claims, including the REST API for status lookups.\n\nLearning plan for next year: I intend to learn Rust and Golang. I have yet to start either. A possible migration plan from a vendor lists Kafka, which I have never used. The migration was deferred before it began.",
+      "jobDescriptionText": "Warranty Service Migration Engineer\nMaintain claim processing and assist with the planned migration.\nRequired skills: Java, Spring Boot, REST API, Kafka.\nPreferred skills: Rust and Go.",
+      "targetRole": "Warranty Service Migration Engineer",
+      "expectedExtraction": {"contactInfo": {"name": "Remy Wrenford", "email": "remy.wrenford@example.net"}, "skills": ["Java", "Spring Boot", "REST API"]},
+      "expectedRequirements": [
+        {"category": "requiredSkills", "label": "Java", "status": "supported"},
+        {"category": "requiredSkills", "label": "Spring Boot", "status": "supported"},
+        {"category": "requiredSkills", "label": "REST API", "status": "supported"},
+        {"category": "requiredSkills", "label": "Kafka", "status": "missing"},
+        {"category": "preferredSkills", "label": "Rust", "status": "missing"},
+        {"category": "preferredSkills", "label": "Go", "status": "missing"}
+      ],
+      "notes": "The warranty service is the completed work. Rust and Golang are future plans. Kafka appears only in a vendor proposal and a personal denial."
+    },
+    {
+      "id": "v4-misleading-water-quality",
+      "group": "misleading",
+      "provenance": {"kind": "synthetic", "consent": "not-applicable", "author": "independent v4 author", "personalData": "fictional"},
+      "resumeText": "Hale Merritt | hale.merritt@example.org\nWater testing lab automation\n\nSkills declaration: I have never used Docker in any setting. I use Linux to operate the lab scripts. I have never used Kubernetes.\n\nProject portfolio: I wrote Python and Pandas scripts for sample checks, maintained them with Git and personally packaged the same checks in Docker.\n\nBoth entries are supplied as my own statements about my work.",
+      "jobDescriptionText": "Lab Automation Engineer\nMaintain scripts and delivery workflows for lab checks.\nRequired skills: Python, Pandas, Linux.\nPreferred skills: Docker, Kubernetes, Git.",
+      "targetRole": "Lab Automation Engineer",
+      "expectedExtraction": {"contactInfo": {"name": "Hale Merritt", "email": "hale.merritt@example.org"}, "skills": ["Linux", "Python", "Pandas", "Git"]},
+      "expectedRequirements": [
+        {"category": "requiredSkills", "label": "Python", "status": "supported"},
+        {"category": "requiredSkills", "label": "Pandas", "status": "supported"},
+        {"category": "requiredSkills", "label": "Linux", "status": "supported"},
+        {"category": "preferredSkills", "label": "Docker", "status": "uncertain"},
+        {"category": "preferredSkills", "label": "Kubernetes", "status": "missing"},
+        {"category": "preferredSkills", "label": "Git", "status": "supported"}
+      ],
+      "notes": "The applicant both claims direct Docker use and denies any use. Both statements refer to the same person and neither retracts the other. Kubernetes has only a denial."
+    },
+    {
+      "id": "v4-misleading-gallery-refresh",
+      "group": "misleading",
+      "provenance": {"kind": "synthetic", "consent": "not-applicable", "author": "independent v4 author", "personalData": "fictional"},
+      "resumeText": "Exhibition website developer\nMarin Oakmere / marin.oakmere@example.com\n\nPortfolio: I coded the gallery pages in HTML, CSS and Sass. I wrote the JavaScript for the exhibition filter myself. Another freelancer built the unrelated React exhibit kiosk.\n\nCandidate screening response: I have never written or used JavaScript for any project. I have never used React.\n\nI submitted the portfolio and screening response together as my own account.",
+      "jobDescriptionText": "Gallery Frontend Developer\nBuild and maintain the gallery's public event pages.\nRequired skills: HTML, CSS, JavaScript.\nPreferred skills: React and Sass.",
+      "targetRole": "Gallery Frontend Developer",
+      "expectedExtraction": {"contactInfo": {"name": "Marin Oakmere", "email": "marin.oakmere@example.com"}, "skills": ["HTML", "CSS", "Sass"]},
+      "expectedRequirements": [
+        {"category": "requiredSkills", "label": "HTML", "status": "supported"},
+        {"category": "requiredSkills", "label": "CSS", "status": "supported"},
+        {"category": "requiredSkills", "label": "JavaScript", "status": "uncertain"},
+        {"category": "preferredSkills", "label": "React", "status": "missing"},
+        {"category": "preferredSkills", "label": "Sass", "status": "supported"}
+      ],
+      "notes": "JavaScript has unreconciled, directly conflicting statements by the applicant. The React kiosk belongs to a freelancer and the applicant denies using React."
+    },
+    {
+      "id": "v4-misleading-plaque-inspections",
+      "group": "misleading",
+      "provenance": {"kind": "synthetic", "consent": "not-applicable", "author": "independent v4 author", "personalData": "fictional"},
+      "resumeText": "FORWARDING SLIP\nCoordinator: Elin Turner <elin.turner@example.net>\nI am forwarding the applicant's own resume below. Questions about this slip come to me.\n\nAPPLICANT RESUME\nFrankie Ashdown\nfrankie.ashdown@example.org\nI developed a portal for inspections of historical plaques in Python and Django, created its PostgreSQL schema and wrote a REST API for field reports. In another office my colleague wrote a FastAPI service. My work did not involve that service or its MongoDB store.",
+      "jobDescriptionText": "Heritage Records Backend Developer\nMaintain services for the historic marker register and field inspections.\nRequired skills: Python, Django, PostgreSQL, REST API.\nPreferred skills: FastAPI and MongoDB.",
+      "targetRole": "Heritage Records Backend Developer",
+      "expectedExtraction": {"contactInfo": {"name": "Frankie Ashdown", "email": "frankie.ashdown@example.org"}, "skills": ["Python", "Django", "PostgreSQL", "REST API"]},
+      "expectedRequirements": [
+        {"category": "requiredSkills", "label": "Python", "status": "supported"},
+        {"category": "requiredSkills", "label": "Django", "status": "supported"},
+        {"category": "requiredSkills", "label": "PostgreSQL", "status": "supported"},
+        {"category": "requiredSkills", "label": "REST API", "status": "supported"},
+        {"category": "preferredSkills", "label": "FastAPI", "status": "missing"},
+        {"category": "preferredSkills", "label": "MongoDB", "status": "missing"}
+      ],
+      "notes": "The forwarding slip identifies a coordinator. The section headed applicant resume supplies the candidate's contact and skills, and excludes the colleague's service and store."
+    },
+    {
+      "id": "v4-misleading-transit-display",
+      "group": "misleading",
+      "provenance": {"kind": "synthetic", "consent": "not-applicable", "author": "independent v4 author", "personalData": "fictional"},
+      "resumeText": "Ivo Saltwick — ivo.saltwick@example.org\nTransit display contractor\n\nI built a React screen in JavaScript and wrote its CSS. The inherited work ticket said 'TypeScript display' but that was a proposal. I delivered plain JavaScript and have never worked in TypeScript. I used a data feed maintained by another contractor who wrote it in Java. I did not work on the feed. I wrote the screen's Jest tests.",
+      "jobDescriptionText": "Transit Display Engineer\nMaintain the passenger screen and its visual layout.\nRequired skills: JavaScript, React, TypeScript.\nPreferred skills: Java, CSS, Jest.",
+      "targetRole": "Transit Display Engineer",
+      "expectedExtraction": {"contactInfo": {"name": "Ivo Saltwick", "email": "ivo.saltwick@example.org"}, "skills": ["React", "JavaScript", "CSS", "Jest"]},
+      "expectedRequirements": [
+        {"category": "requiredSkills", "label": "JavaScript", "status": "supported"},
+        {"category": "requiredSkills", "label": "React", "status": "supported"},
+        {"category": "requiredSkills", "label": "TypeScript", "status": "missing"},
+        {"category": "preferredSkills", "label": "Java", "status": "missing"},
+        {"category": "preferredSkills", "label": "CSS", "status": "supported"},
+        {"category": "preferredSkills", "label": "Jest", "status": "supported"}
+      ],
+      "notes": "The proposed TypeScript label does not claim implementation. Java belongs to the independent feed contractor and is distinct from JavaScript."
+    }
+  ]
+}
