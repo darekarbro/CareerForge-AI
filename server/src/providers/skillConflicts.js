@@ -76,4 +76,23 @@ function conflictWarnings(content, warnings = []) {
     ...activeSkillConflicts(content).map((conflict) => conflict.skill + warningSuffix)];
 }
 
-module.exports = { reconcileSkillConflicts, activeSkillConflicts, refreshSkillConflicts, conflictWarnings };
+function preserveSourceSkillConflicts(content, sourceData) {
+  const sourceConflicts = activeSkillConflicts(sourceData);
+  if (!sourceConflicts.length || !Array.isArray(content?.skills?.all) || typeof content.summary !== 'string') return content;
+  const data = plain(content);
+  const present = new Set(narrative(data).map(item => item.quote));
+  const missing = new Set(sourceConflicts.flatMap(conflict => conflict.negativeEvidence.map(item => item.quote))
+    .filter(quote => !present.has(quote)));
+  if (missing.size) data.summary = [data.summary, ...missing].filter(Boolean).join('\n\n');
+
+  const statements = narrative(data);
+  const conflicts = sourceConflicts.map(conflict => ({ ...conflict, negativeEvidence: uniqueEvidence(statements.filter(item =>
+    conflict.negativeEvidence.some(denial => denial.quote === item.quote))) })).filter(conflict => conflict.negativeEvidence.length);
+  const replaced = new Set(conflicts.map(item => normalizeSkill(item.skill)));
+  const existing = activeSkillConflicts(data).filter(item => !replaced.has(normalizeSkill(item.skill)));
+  const result = suppress(data, [...conflicts, ...existing]);
+  result.warnings = conflictWarnings(result, Array.isArray(data.warnings) ? data.warnings : []);
+  return result;
+}
+
+module.exports = { reconcileSkillConflicts, activeSkillConflicts, refreshSkillConflicts, conflictWarnings, preserveSourceSkillConflicts };
