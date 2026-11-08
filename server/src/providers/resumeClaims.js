@@ -1,11 +1,22 @@
 const { SKILLS, extractSkills, normalizeSkill, hasSkill } = require('./resumeFacts');
 const { instruction } = require('../services/jobRequirements');
-const { explicitlyDeniesSkill, splitClaimClauses, nonCandidateClause } = require('./skillPolarity');
+const { explicitlyDeniesSkill, splitClaimClauses, nonCandidateClause, proposalOwner } = require('./skillPolarity');
 
 const declaration = /^(?:(?:my|our|technical|core|key|current|practical)\s+)*(?:skills?(?:\s+sheet)?|competencies|capabilities|technologies|tools?(?:\s+I\s+use)?|technical repertoire)\s*(?::+|=>|->|[|>])\s*/i;
-const actions = /\b(?:use|used|using|build|built|write|wrote|implement|implemented|maintain|maintained|develop|developed|create|created|design|designed|deliver|delivered|prepare|prepared|administer|administered|operate|operated|package|packaged|query|queried|test|tested|apply|applied|style|styled|store|stored|run|ran|review|reviewed|train|trained|know|knowledge|skills?|experience|work)\b/i;
-const headlessAction = /^(?:[-*•]\s*|\(\d+\)\s*|\d+[.)]\s*)?(?:Built|Implemented|Wrote|Developed|Created|Maintained|Designed|Delivered|Prepared|Administered|Operated|Packaged|Queried|Tested|Applied|Styled|Stored|Ran|Reviewed|Trained|Used|Using|Experience|Skilled|Proficient|Familiar)\b/i;
-const possessivePredicate = /\b(?:my|our)\s+(?:deployment\s+environment|technical\s+background|tech(?:nical)?\s+stack|stack|work|skills?|experience|projects?|foundations|fundamentals)\b.{0,70}\b(?:is|are|includes?|consists?\s+of)\b/i;
+const workVerbs = [
+  'use[ds]?|using|build|built|rebuild|rebuilt|write|wrote|written|rewrote|rewrite',
+  'implement(?:ed)?|maintain(?:ed)?|develop(?:ed)?|creat(?:e|ed)|design(?:ed)?|deliver(?:ed)?',
+  'prepar(?:e|ed)|administer(?:ed)?|operat(?:e|ed)|packag(?:e|ed)|quer(?:y|ied)|test(?:ed)?',
+  'appl(?:y|ied)|styl(?:e|ed)|stor(?:e|ed)|run|ran|review(?:ed)?|train(?:ed)?|learn(?:ed|ing)?',
+  'cod(?:e|ed)|program(?:med)?|manag(?:e|ed)|tun(?:e|ed)|prototyp(?:e|ed)|conduct(?:ed)?',
+  'replac(?:e|ed)|perform(?:ed)?|open(?:ed)?|add(?:ed)?|own(?:ed)?|keep|kept|set\\s+up',
+  'configur(?:e|ed)|fix(?:ed)?|repair(?:ed)?|deploy(?:ed)?|make|made|know|work(?:ed)?',
+].join('|');
+const headlessAction = /^(?:[-*•]\s*|\(\d+\)\s*|\d+[.)]\s*)?(?:Built|Rebuilt|Implemented|Wrote|Rewrote|Developed|Created|Maintained|Designed|Delivered|Prepared|Administered|Operated|Packaged|Queried|Tested|Applied|Styled|Stored|Ran|Reviewed|Trained|Used|Using|Coded|Programmed|Managed|Tuned|Prototyped|Conducted|Replaced|Performed|Opened|Added|Owned|Kept|Configured|Fixed|Repaired|Deployed|Set up|Experience|Skilled|Proficient|Familiar)\b/i;
+const personalAction = new RegExp('\\b(?:I|we)\\s+(?:(?:also|personally|then|previously|have|had|do|did|not|never|am|are)\\s+)*(?:planned\\s+and\\s+)?(?:' + workVerbs + ')\\b', 'i');
+const personalQualification = /\b(?:I|we)\s+(?:(?:do|did|also|currently)\s+)*(?:(?:have|had|possess)\s+[^.!?]{1,80}\b(?:skills?|experience|knowledge|proficiency)\b|(?:am|are|was|were)\s+(?:responsible\s+for|familiar\s+with|proficient\s+in|skilled\s+in))\b/i;
+const possessivePredicate = /\b(?:my|our)\s+(?:deployment\s+environment|technical\s+background|tech(?:nical)?\s+stack|stack|(?:[a-z-]+\s+){0,3}work|skills?|experience|projects?|foundations|fundamentals|remit|responsibilities)\b.{0,70}\b(?:is|are|was|were|includes?|included|consists?\s+of|uses?|used)\b/i;
+const ownedArtifact = /\b(?:my|our)\s+[^,;!?\n]{1,45}\s+(?:classifier|model|service|script|pipeline|tool|query|prototype|workflow|module)\s+(?:flags?|flagged|process(?:es|ed)?|calculat(?:es|ed)|validat(?:es|ed)|query|queries|queried|generat(?:es|ed)|builds?|built|returns?|returned|runs?|ran|handles?|handled)\b/i;
 const canonical = new Map(SKILLS.map(skill => [normalizeSkill(skill), skill]));
 
 function bareSkillList(text) {
@@ -42,6 +53,14 @@ function excludedMention(text, skill, listed) {
   for (const match of text.matchAll(/\b(?:to\s+replace|replacing|replacement\s+for)\s+([^.;!?]+?)\s+(?:written|built|developed|implemented|trained)\s+by\s+(?!me\b|us\b)/gi)) {
     if (hasSkill(match[1], skill)) return true;
   }
+  // A skill appearing only in the attribution of a dependency belongs to its owner.
+  for (const match of text.matchAll(/\b(?:written|built|developed|implemented|trained|maintained|designed|managed|created|supplied)\s+by\s+(?!me\b|us\b)/gi)) {
+    const earlier = text.slice(0, match.index);
+    const attributed = text.slice(match.index + match[0].length).split(nextAssertion)[0];
+    if (!hasSkill(earlier, skill) && hasSkill(attributed, skill)) return true;
+  }
+  const proposal = proposalOwner.exec(text);
+  if (proposal && !hasSkill(text.slice(0, proposal.index), skill) && hasSkill(text.slice(proposal.index).split(nextAssertion)[0], skill)) return true;
   for (const match of text.matchAll(/\b(?:without|rather than|instead of)\s+/gi)) if (hasSkill(text.slice(match.index + match[0].length), skill)) return true;
   if (skill === 'Go' && !listed && !/\bGolang\b|\bGo\b/.test(text) && !/\b(?:use|using|in|with|language)\s+go\b/i.test(text)) return true;
   if (skill === 'Express' && /\bI\s+express\b/i.test(text) && !/\bExpress\b|express\s+(?:framework|handlers?|server|middleware)/.test(text)) return true;
@@ -78,8 +97,8 @@ function analyzeSkillClaims(text, { context = 'unknown' } = {}) {
       || /^(?:[A-Z][\w.+#-]*\s+)*(?:Services|Solutions|Labs|Company|Works|Consulting|Technologies|Factory)\s*$/u.test(raw);
     const supportedNounClaim = /^\s*(?:and\s+)?(.+?)\s+(?:experience|skills?|proficiency)\s+(?:from|through)\b/i.exec(raw);
     const projectContribution = raw.replace(/^(?:(?:my|selected|personal|academic|recent)\s+)?project(?:\s+(?:work|contribution))?\s*[:—–-]\s*/i, '');
-    const candidateAssertion = /\b(?:I|we|my|our)\b/i.test(raw) && actions.test(raw) || headlessAction.test(projectContribution)
-      || possessivePredicate.test(raw) || supportedNounClaim && bareSkillList(supportedNounClaim[1]);
+    const candidateAssertion = personalAction.test(raw) || personalQualification.test(raw) || headlessAction.test(projectContribution)
+      || possessivePredicate.test(raw) || ownedArtifact.test(raw) || supportedNounClaim && bareSkillList(supportedNounClaim[1]);
     const listed = declared || context === 'skills' && !identityOrEmployer || bareSkillList(stripped);
     const copiedRequirement = /\b(?:required|preferred|must[ -]have)\b/i.test(raw) && !candidateAssertion;
     const canAssert = !contact && !copiedRequirement && (candidateAssertion || listed || continuation && /^(?:also|use|build|write|implement|maintain|work|operate|run|know)\b/i.test(raw));

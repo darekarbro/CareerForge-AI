@@ -1,17 +1,33 @@
-const { hasSkill, normalizeSkill } = require('./resumeFacts');
+const { SKILLS, hasSkill, normalizeSkill } = require('./resumeFacts');
 const { instruction } = require('../services/jobRequirements');
 const action = 'know|use|understand|learn|study|operate|program|build';
-const coordinatedAction = action + '|used|understood|learned|learnt|studied|operated|programmed|worked\\s+with';
-const otherRole = '(?:colleague|teammate|team|manager|lead|supervisor|mentor|client|customer|student|applicant|recruiter|partner|friend)';
-const otherAction = '(?:uses?|used|builds?|built|writes?|wrote|knows?|works?|worked|said|says|does\\s+not|doesn[\'’]t|cannot|can[\'’]t|has|have)';
-const namedOwner = '(?!I\\b|We\\b|My\\b|Our\\b|No\\b|Not\\b|This\\b|The\\b|A\\b|An\\b|Candidate\\b)(?:[A-Z][a-z]+|[A-Z]{2,})(?:\\s+(?:[A-Z][a-z]+|[A-Z]{2,}))?\\s+' + otherAction + '\\b';
-const isNamedOwner = value => !/^(?:I|we|my|our|no|not|this|the|a|an|candidate)\b/i.test(value) && new RegExp('^' + namedOwner).test(value);
+const pastAction = 'used|understood|learned|learnt|studied|operated|programmed(?:\\s+in)?|wrote|written|coded(?:\\s+in)?|built(?:\\s+with)?|worked\\s+(?:with|on|in)';
+const coordinatedAction = action + '|' + pastAction;
+const otherRole = '(?:colleague|teammate|team|manager|lead|supervisor|mentor|client|customer|student|applicant|recruiter|partner|friend|coordinator|technician|designer|artist|contractor|freelancer|vendor|board|group)s?';
+const otherAction = '(?:uses?|used|builds?|built|writes?|wrote|knows?|works?|worked|said|says|does\\s+not|doesn[\'’]t|cannot|can[\'’]t|has|have|ran|runs?|maintains?|maintained|suppl(?:ied|ies)|provid(?:ed|es)|own(?:ed|s)|handl(?:ed|es)|advertis(?:ed|es))';
+const otherSubject = '(?:my|our|the|an?|another|separate)\\s+(?:[\\p{L}-]+\\s+){0,4}?' + otherRole + '\\b';
+const otherSubjectAction = new RegExp('\\b' + otherSubject + '\\s+' + otherAction + '\\b', 'iu');
+const ownerName = '(?:[A-Z][a-z]+|[A-Z]{2,})(?:\\s+(?:[A-Z][a-z]+|[A-Z]{2,}))?';
+const namedOwner = '(?!I\\b|We\\b|My\\b|Our\\b|No\\b|Not\\b|This\\b|The\\b|A\\b|An\\b|Candidate\\b)' + ownerName + '\\s+' + otherAction + '\\b';
+const namedOwnerStart = new RegExp('^(' + ownerName + ')\\s+(' + otherAction + ')\\b(?!\\s*:)', 'u');
+const skillKeys = new Set(SKILLS.map(normalizeSkill));
+const isNamedOwner = value => {
+  if (/^(?:I|we|my|our|no|not|this|the|a|an|candidate)\b/i.test(value)) return false;
+  const owner = namedOwnerStart.exec(value);
+  if (!owner) return false;
+  const tail = value.slice(owner[0].length);
+  const nounList = /^(?:writes|builds|runs|works)$/i.test(owner[2]) && /^(?:\s+(?:and|or)\b|\s*[,.;!?]|\s*$)/i.test(tail);
+  return !(skillKeys.has(normalizeSkill(owner[1])) && nounList);
+};
+
+const proposalOwner = /\b(?:vendor|supplier|third[- ]party)\b.{0,30}\b(?:proposal|plan|brief)\b|\b(?:proposal|plan|brief)\s+(?:from|by)\s+(?:an?\s+|the\s+)?(?:vendor|supplier|contractor)\b/i;
+const candidateWork = /\b(?:I|we)\s+(?:(?:have|had|also|then|personally)\s+)*(?:built|wrote|developed|implemented|used|created|trained|maintained|deployed|replaced|designed|reviewed)\b/i;
 
 const denialPrefixes = [
   new RegExp("\\b(?:(?:do|does|did)\\s+not|(?:don|doesn|didn)['’]t)\\s+(?:" + action + ')(?:\\s+or\\s+(?:' + action + '))*\\s+', 'gi'),
   /\b(?:(?:do|does|did)\s+not|(?:don|doesn|didn)['’]t)\s+(?:have|possess)\s+(?:any\s+)?(?:(?:experience|knowledge|proficiency)\s+(?:with|in|of)\s+)?/gi,
   /\b(?:cannot|can['’]t|could\s+not|couldn['’]t)\s+(?:use|understand|operate|program(?:\s+in)?|work\s+(?:with|in)|build(?:\s+anything)?(?:\s+(?:with|using))?)(?:\s+(?:or|nor)\s+(?:use|understand|operate|program(?:\s+in)?|work\s+(?:with|in)|build(?:\s+anything)?(?:\s+(?:with|using))?))*\s+/gi,
-  /\b(?:never|have\s+not|haven['’]t|had\s+not|hadn['’]t)\s+(?:used|learned|learnt|studied|worked\s+(?:with|on|in))\s+/gi,
+  new RegExp("\\b(?:never|have\\s+not|haven['’]t|had\\s+not|hadn['’]t)\\s+(?:" + pastAction + ')(?:\\s+(?:or|nor)\\s+(?:' + pastAction + '))*\\s+', 'gi'),
   /\b(?:lack|lacking)\s+(?:(?:experience|knowledge|proficiency)\s+(?:with|in|of)\s+)?/gi,
   /\b(?:(?:do|does|did)\s+not|(?:don|doesn|didn)['’]t)\s+(?:know|use|understand)\s+/gi,
   /\b(?:(?:do|does|did)\s+not|(?:don|doesn|didn)['’]t)\s+have\s+(?:any\s+)?(?:experience|knowledge|proficiency)\s+(?:with|in|of)\s+/gi,
@@ -38,7 +54,7 @@ function splitClaimClauses(text) {
     if (instruction.test(line)) protectedAt.fill(2, lineStart, lineStart + line.length);
     lineStart += line.length + (source.slice(lineStart + line.length, lineStart + line.length + 2) === '\r\n' ? 2 : 1);
   }
-  const separator = new RegExp('\\r?\\n|(?<=[.!?;])\\s+|(?<=[.!?][\'"’”])\\s+|\\b(?:but|however|whereas|although|while)\\b|(?=\\b(?:and\\s+)?(?:(?:I|we)\\b|(?:my|our|the|a)\\s+' + otherRole + '\\b|(?:he|she|they)\\s+' + otherAction + '|' + namedOwner + '))', 'gi');
+  const separator = new RegExp('\\r?\\n|(?<=[.!?;])\\s+|(?<=[.!?][\'"’”])\\s+|\\b(?:but|however|whereas|although|while)\\b|(?=\\b(?:and\\s+)?(?:(?:I|we)\\b|' + otherSubject + '|(?:he|she|they)\\s+' + otherAction + '|' + namedOwner + '))', 'giu');
   const clauses = [];
   let start = 0;
   const append = end => {
@@ -50,6 +66,7 @@ function splitClaimClauses(text) {
     if (!match[0]) {
       const subject = source.slice(match.index).replace(/^and\s+/i, '');
       const knownSubject = /^(?:I|we|he|she|they)\b/i.test(subject)
+        || otherSubjectAction.exec(subject)?.index === 0
         || new RegExp('^(?:my|our|the|a)\\s+' + otherRole + '\\b', 'i').test(subject)
         || isNamedOwner(subject);
       if (!knownSubject) continue;
@@ -77,12 +94,16 @@ function nonCandidateClause(value) {
   if (new RegExp('^(?:(?:my|our|the|a|another)\\s+)?' + otherRole + '\\b', 'i').test(clause)) return true;
   if (/^(?:he|she|they|his|her|their)\b/i.test(clause)) return true;
   if (isNamedOwner(clause)) return true;
+  const other = otherSubjectAction.exec(clause);
+  if (other && !/\b(?:I|we)\b/i.test(clause.slice(0, other.index))) return true;
+  const proposal = proposalOwner.exec(clause);
+  if (proposal && !candidateWork.test(clause.slice(0, proposal.index))) return true;
   if (/\b(?:colleague|teammate|manager|client|customer)\b.{0,45}\b(?:said|says|stated|reported|explained)\b/i.test(clause)) return true;
   if (/\b(?:assignment|brief|specification|job description|instructions?|requested approach)\b/i.test(clause)
     && /\b(?:said|says|requires?|asked|requested|wanted|expected|suggested|stated|specified|approach)\b/i.test(clause)
     && !/\bI\s+(?:implemented|built|wrote|used|delivered)\b/i.test(clause)) return true;
-  const passiveOwner = /\b(?:built|written|developed|implemented|trained)\s+by\s+(?!me\b|us\b)/i.exec(clause);
-  if (passiveOwner && !/\b(?:I|we)\s+(?:(?:have|had|also|then)\s+)*(?:built|wrote|developed|implemented|used|created|trained)\b/i.test(clause.slice(0, passiveOwner.index))) return true;
+  const passiveOwner = /\b(?:built|written|developed|implemented|trained|maintained|designed|managed|created|supplied)\s+by\s+(?!me\b|us\b)/i.exec(clause);
+  if (passiveOwner && !candidateWork.test(clause.slice(0, passiveOwner.index))) return true;
   return false;
 }
 
@@ -140,4 +161,4 @@ function explicitlyDeniesSkill(text, skill) {
   return false;
 }
 
-module.exports = { explicitlyDeniesSkill, splitClaimClauses, nonCandidateClause, skillPrefixLength };
+module.exports = { explicitlyDeniesSkill, splitClaimClauses, nonCandidateClause, skillPrefixLength, proposalOwner };
