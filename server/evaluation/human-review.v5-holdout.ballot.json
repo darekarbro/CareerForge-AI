@@ -1,0 +1,67 @@
+{
+  "datasetVersion": "phase4-synthetic-v1",
+  "rubricVersion": "careerforge-assessment-v5",
+  "annotationMethod": "independent-human-review",
+  "reviews": [
+    {
+      "caseId": "graduate-07",
+      "reviewerId": "",
+      "reviewedAt": "",
+      "matchScore": null
+    },
+    {
+      "caseId": "graduate-08",
+      "reviewerId": "",
+      "reviewedAt": "",
+      "matchScore": null
+    },
+    {
+      "caseId": "experienced-07",
+      "reviewerId": "",
+      "reviewedAt": "",
+      "matchScore": null
+    },
+    {
+      "caseId": "experienced-08",
+      "reviewerId": "",
+      "reviewedAt": "",
+      "matchScore": null
+    },
+    {
+      "caseId": "sparse-07",
+      "reviewerId": "",
+      "reviewedAt": "",
+      "matchScore": null
+    },
+    {
+      "caseId": "sparse-08",
+      "reviewerId": "",
+      "reviewedAt": "",
+      "matchScore": null
+    },
+    {
+      "caseId": "formatting-07",
+      "reviewerId": "",
+      "reviewedAt": "",
+      "matchScore": null
+    },
+    {
+      "caseId": "formatting-08",
+      "reviewerId": "",
+      "reviewedAt": "",
+      "matchScore": null
+    },
+    {
+      "caseId": "misleading-07",
+      "reviewerId": "",
+      "reviewedAt": "",
+      "matchScore": null
+    },
+    {
+      "caseId": "misleading-08",
+      "reviewerId": "",
+      "reviewedAt": "",
+      "matchScore": null
+    }
+  ]
+}

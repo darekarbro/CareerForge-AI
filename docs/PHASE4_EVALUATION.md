@@ -58,6 +58,14 @@ Zero-denominator rates are `null`, not fabricated perfect scores. F1 uses the st
 
 ## Collect independent human reviews
 
+The [v5 reviewer packet](PHASE4_HUMAN_REVIEW_PACKET.md) contains all 10 v1 holdout inputs and the scoring instructions. Give the packet and one copy of the [blank ballot](../server/evaluation/human-review.v5-holdout.ballot.json) to each of two reviewers. Keep their ratings independent. Once both ballots are complete, combine their `reviews` arrays into a copy of the same JSON document and save it as `.test-tmp/phase4-human-reviews.json`. Verify that both reviewers scored every case and that the combined document contains 20 scores. The holdout-only command below evaluates those ratings with the current rubric and writes a separate agreement report.
+
+```bash
+node server/scripts/evaluatePhase4.cjs --dataset-version v1 --holdout --human .test-tmp/phase4-human-reviews.json --output docs/PHASE4_HUMAN_REVIEW_RESULTS.json
+```
+
+As of 8 November 2026, both reviewer ballots are pending. Agreement remains unmeasured until their scores are supplied. The released packet contains the inputs and scoring rules so reviewers can work independently of the predictions.
+
 Copy [the empty template](../server/evaluation/human-review.template.json). Give reviewers the original resume text, job description and [assessment rubric](ASSESSMENT_RUBRICS.md), with system predictions hidden. Ask for the same weighted requirement-evidence match score, and preserve review identity and time. Prefer at least two independent reviewers and adjudicate disagreements before treating results as a release gate. Reviewers must provide their own judgments; fixture annotations, AI output and deterministic predictions are not human reviews.
 
 Each entry in `reviews` has this format (the score shown here is only a schema illustration, never included in published metrics):
