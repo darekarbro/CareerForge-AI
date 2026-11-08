@@ -109,7 +109,8 @@ module.exports = async ({ page, saved, screenshot, pass, audit, resumeId, worksp
   const outreachText = await draftText.inputValue();
   await page.getByRole('button', { name: 'Copy reviewed draft', exact: true }).click();
   await page.getByText('Reviewed draft copied. Paste it into your chosen messaging app when you are ready.', { exact: true }).waitFor();
-  assert.equal(await page.evaluate(() => navigator.clipboard.readText()), outreachText);
+  // Native Windows clipboards use CRLF; browsers expose textarea values as LF.
+  assert.equal((await page.evaluate(() => navigator.clipboard.readText())).replace(/\r\n/g, '\n'), outreachText.replace(/\r\n/g, '\n'));
   assert.equal(await page.getByRole('button', { name: /^Send/ }).count(), 0);
   await audit('phase5-preparation-and-reviewed-outreach'); await screenshot('phase5-preparation-pack');
   pass('Selected resume, cited projects, interview topics and checklist assemble into an editable reviewed pack; outreach remains under user control');
