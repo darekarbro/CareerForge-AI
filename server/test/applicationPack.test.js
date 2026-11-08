@@ -68,3 +68,17 @@ test('unverified selected resume facts appear in the pack but are withheld from 
   assert(!result.pack.drafts.recruiter.includes('Built Python services'));
   await assert.rejects(pack.save(workspace._id, owner, { revision: result.pack.revision, kind: 'coverLetter', body: result.pack.drafts.coverLetter, reviewed: true, confirmed: true }), /placeholders/);
 });
+
+test('pack topics withhold negative skill claims and project examples prioritize job relevance', () => {
+  const evidence = [{ kind: 'skill', statement: 'Python' }, { kind: 'project', statement: 'No SQL experience.' }];
+  const topics = pack.topics('Python and SQL required.', evidence);
+  assert.equal(topics.find((topic) => topic.title === 'Python').supported, true);
+  assert.equal(topics.find((topic) => topic.title === 'SQL').supported, false);
+  const conflicted = pack.topics('Python required.', evidence, { summary: 'No Python experience.' });
+  assert.equal(conflicted.find((topic) => topic.title === 'Python').supported, false);
+  const examples = pack.projectExamples([
+    { entryId: 'first', title: 'Art study', description: 'Painted a portrait.' },
+    { entryId: 'second', title: 'Validator', description: 'Built Python validation.', technologies: ['Python'] },
+  ], [], 'Python validation required.');
+  assert.deepEqual(examples.map((project) => project.entryId), ['second', 'first']);
+});

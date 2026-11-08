@@ -29,8 +29,8 @@ async function context(id, owner) {
   const data = { workspaceId: String(workspace._id), company: workspace.company, title: workspace.title, description: workspace.description,
     workspaceRevision: workspace.preparationRevision || 1, resumeId: String(resume._id), resumeTitle: resume.title,
     resumeRevision: resume.contentRevision || 1, resumeVerified: Boolean(resume.verifiedAt), selectedResume: selected,
-    evidence: relevant, projects: selected.projects.map((project) => ({ ...project, citations: relevant.filter((item) => item.context?.section === 'projects' && item.context.entryId === project.entryId) })),
-    topics: topics(workspace.description, relevant), latestVersionId: workspace.latestVersionId ? String(workspace.latestVersionId) : null };
+    evidence: relevant, projects: projectExamples(selected.projects, relevant, workspace.description),
+    topics: topics(workspace.description, relevant, selected), latestVersionId: workspace.latestVersionId ? String(workspace.latestVersionId) : null };
   return { workspace, data, sourceFingerprint: fingerprint(data) };
 }
 function rankEvidence(evidence, description) {
@@ -39,10 +39,20 @@ function rankEvidence(evidence, description) {
     return { ...item, relevance: matched.length, reason: matched.length ? 'Job terms in this fact: ' + matched.slice(0, 6).join(', ') : 'Confirmed fact from a selected resume entry' };
   }).sort((a, b) => b.relevance - a.relevance || a.id.localeCompare(b.id));
 }
-function topics(description, evidence) {
+function projectExamples(projects, evidence, description) {
+  const words = new Set(library.tokens(description));
+  return projects.map((project) => ({ ...project,
+    relevance: library.tokens([project.title, project.description, ...(project.technologies || []), ...(project.highlights || [])].join(' ')).filter((word) => words.has(word)).length,
+    citations: evidence.filter((item) => item.context?.section === 'projects' && item.context.entryId === project.entryId),
+  })).sort((a, b) => b.relevance - a.relevance || a.entryId.localeCompare(b.entryId));
+}
+function topics(description, evidence, selected = {}) {
+  const { usablePositive, resumeEvidence } = require('../providers/resumeEvidence');
+  const { explicitlyDeniesSkill } = require('../providers/skillPolarity');
+  const narrative = [...resumeEvidence(selected), ...evidence.map((item) => ({ path: 'workExperience[0].highlights[0]', quote: item.statement }))];
   return extractSkills(description).slice(0, 10).map((skill) => ({ title: skill,
     prompt: 'Explain an example involving ' + skill + ', your contribution, decisions and limitations.',
-    supported: evidence.some((item) => require('../providers/resumeFacts').hasSkill(item.statement + ' ' + (item.technologies || []).join(' '), skill)),
+    supported: !narrative.some((item) => explicitlyDeniesSkill(item.quote, skill)) && evidence.some((item) => usablePositive({ path: item.kind === 'skill' ? 'skills.all[0]' : 'workExperience[0].highlights[0]', quote: item.statement }, skill)),
   })).concat([{ title: 'Role and company', prompt: 'Why does this role interest you? Prepare questions about the team and expectations.', supported: false }]);
 }
 function drafts(data) {
@@ -128,4 +138,4 @@ async function reviewedDraft(id, owner, kind) {
   if (!state.pack.reviewed.includes(kind)) throw fail('Review and save this draft before copying it.', 409);
   return { kind, body: state.pack.drafts[kind], revision: state.pack.revision };
 }
-module.exports = { view, generate, save, download, reviewedDraft, drafts, topics, rankEvidence, checks, kinds, labels };
+module.exports = { view, generate, save, download, reviewedDraft, drafts, topics, projectExamples, rankEvidence, checks, kinds, labels };
