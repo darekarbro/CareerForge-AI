@@ -1,8 +1,8 @@
 const { extractSkills, resumeText, normalizeSkill, plain } = require('../providers/resumeFacts');
 const { refreshSkillConflicts } = require('../providers/skillConflicts');
 
-const rubricVersion = 'careerforge-assessment-v5';
-const modelVersion = 'assessment-rules-v5';
+const rubricVersion = 'careerforge-assessment-v6';
+const modelVersion = 'assessment-rules-v6';
 const commonLimitations = [
   'Scores describe evidence in the supplied resume, not verified competence, hiring probability or an employer ATS result.',
   'Extraction errors, missing context and a limited English skill dictionary can change the result. Review the original documents.',

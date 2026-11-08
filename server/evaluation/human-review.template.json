@@ -1,6 +1,6 @@
 {
   "datasetVersion": "phase4-synthetic-v1",
-  "rubricVersion": "careerforge-assessment-v5",
+  "rubricVersion": "careerforge-assessment-v6",
   "annotationMethod": "independent-human-review",
   "reviews": []
 }

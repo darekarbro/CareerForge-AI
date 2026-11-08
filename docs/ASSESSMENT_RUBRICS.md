@@ -1,8 +1,8 @@
-# Assessment rubrics (careerforge-assessment-v5)
+# Assessment rubrics (careerforge-assessment-v6)
 
 Resume extraction can use an allowed AI provider. Final resume quality and job matching are repeatable **local rules**, with no external scoring request or token charge. Neither score predicts hiring success or reproduces a commercial ATS. Results disclose the rubric version, input fingerprint, timestamp and provider in `assessmentMeta`; changing this version invalidates earlier cache entries.
 
-Version 5 preserves the earlier weights and score formula. The engine `assessment-rules-v5` extends compact skill declarations and category/value tables, contact labels, bounded skill denials and third-party attribution. Inline job requirement headings carry their category across subsequent list clauses. It retains eligible unmapped source statements verbatim for review and evaluates each skill's assertion separately. Explicit contradictions still withhold the skill and earn no positive match credit. The new version invalidates cached assessments; all historical reports retain their original versions and measurements.
+The `assessment-rules-v6` engine keeps the established weights and score formula. It recognizes more candidate contact layouts, follows ownership across resume columns and transcript turns, and preserves source contradictions during local and live extraction. Experience requirements bind a duration to its own skill or field. The v6 version invalidates cached assessments so the new evidence rules apply on reevaluation.
 
 ## Resume quality
 
@@ -16,7 +16,7 @@ Job descriptions are split into source clauses and retain original source text. 
 
 Every requirement has a stable ID, category, weight, source clause and explanation. Matching inspects career content only (summary, skills, experience highlights, projects and education), recording exact JSON field paths and verbatim text excerpts. Skill mentions are self-reported evidence, not proof of proficiency. Explicit negation and instructional text are excluded; contradictory positive and negative evidence is uncertain. Company names, contact fields, metadata and warnings are not skill evidence. A skill appearing only in a copied job description is not a verified skill; source review remains necessary.
 
-`supported` means usable evidence appears in the supplied text. `missing` means no usable supporting evidence was found, including explicit negative evidence. `uncertain` means the requirement needs confirmation, for example an ambiguous date range, skill-specific years, alternative qualification or location/work-authorization constraint. Missing and uncertain states both carry a concrete request for evidence; neither asserts that the candidate is unqualified.
+`supported` means usable evidence appears in the supplied text. `missing` identifies a requirement without usable positive evidence, including explicit denials. `uncertain` signals a requirement that needs confirmation, such as an ambiguous duration, an alternative qualification or a practical constraint. For experience, a personal duration must describe the required skill or domain. General tenure uses relevant closed roles and conservative date bounds, with overlaps counted once. Qualitative requirements and practical constraints remain available for direct confirmation.
 
 Conflict detection uses bounded, skill-specific English denials such as “I do not know React,” “never used React” or “no experience with React.” Aliases and source order do not change the result. Unrelated negation and learning intentions do not cancel an explicit listed skill. Original claims and current denial quotes are stored outside positive resume content; they do not add keywords or appear in generated resume text. Unrelated edits preserve active conflicts; correcting or removing the referenced denial clears the old flag. Complex temporal statements, indirect or multilingual denials still require human review.
 

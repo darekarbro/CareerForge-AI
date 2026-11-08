@@ -622,7 +622,7 @@ test('Phase 4: external extraction requires consent while final rubric scores st
     await privacy.save(a.id, { ...settings, providers: { ...settings.providers, groq: true } });
     assert.equal((await parseResume()).aiProvider, 'groq'); assert.equal(calls, 1);
     const second = await score(); assert.equal(second.aiProvider, 'deterministic-fallback'); assert.equal(second.score, first.score);
-    assert.equal(second.assessmentMeta.model, 'assessment-rules-v5'); assert.equal(second.rubric.version, 'careerforge-assessment-v5');
+    assert.equal(second.assessmentMeta.model, 'assessment-rules-v6'); assert.equal(second.rubric.version, 'careerforge-assessment-v6');
     await privacy.save(a.id, settings); assert.equal((await parseResume()).aiProvider, 'deterministic-fallback'); assert.equal(calls, 1);
     assert.equal((await request('PUT', '/api/privacy', { token: a.token, body: { ...settings, activityDays: 999 } })).status, 400);
   } finally { factory.groq.isAvailable = available; factory.groq.parseResume = parse; }
