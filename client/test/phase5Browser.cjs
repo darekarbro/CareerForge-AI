@@ -146,7 +146,7 @@ module.exports = async ({ page, saved, screenshot, pass, audit, resumeId, worksp
   await dialog.getByRole('checkbox', { name: 'Include calendar alerts in export', exact: true }).check();
   await dialog.getByLabel('Reminder lead time', { exact: true }).selectOption('15');
   await dialog.getByRole('button', { name: 'Save Application', exact: true }).click(); await dialog.waitFor({ state: 'hidden' });
-  await page.reload(); await page.getByRole('button', { name: 'Edit ' + importedTitle, exact: true }).click();
+  await page.goto(origin + '/applications'); await page.getByRole('button', { name: 'Edit ' + importedTitle, exact: true }).click();
   assert.equal(await dialog.getByLabel('Recruiter email', { exact: true }).inputValue(), 'recruiter@example.test');
   assert.equal(await dialog.getByLabel('Interview time (your local timezone)', { exact: true }).inputValue(), interview);
   await dialog.getByText('Recruiter confirmed a technical interview.', { exact: true }).waitFor();
@@ -159,7 +159,7 @@ module.exports = async ({ page, saved, screenshot, pass, audit, resumeId, worksp
   // a subsequent ordinary save does not fail or overwrite the attachment.
   await dialog.getByLabel('Contact notes', { exact: true }).fill('Agenda received; bring project examples.');
   await dialog.getByRole('button', { name: 'Save Application', exact: true }).click(); await dialog.waitFor({ state: 'hidden' });
-  await page.reload(); await page.getByRole('button', { name: 'Edit ' + importedTitle, exact: true }).click();
+  await page.goto(origin + '/applications'); await page.getByRole('button', { name: 'Edit ' + importedTitle, exact: true }).click();
   await attachmentButton.waitFor(); assert.equal(await dialog.getByLabel('Contact notes', { exact: true }).inputValue(), 'Agenda received; bring project examples.');
   await audit('phase5-application-record'); await screenshot('phase5-application-record');
   await dialog.getByRole('button', { name: 'Cancel', exact: true }).click();
