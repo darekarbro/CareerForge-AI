@@ -157,6 +157,11 @@ async function run() {
   await page.getByRole('button', { name: 'Submit improved answer', exact: true }).click();
   await page.getByText('Answered: 3 of 3 questions completed', { exact: true }).waitFor(); await page.getByText('Previous attempts (1)', { exact: true }).waitFor();
   pass('Job-specific difficulty, persistent timer, delayed feedback and answer retry');
+  // Profile/import edits above invalidate old requirement reports. A current
+  // assessment supplies real job gaps without treating provisional feedback as ability.
+  await page.goto(workspaceUrl);
+  await page.getByRole('button', { name: 'Check job match', exact: true }).click();
+  await page.getByRole('button', { name: 'Check job match', exact: true }).waitFor();
   await phase4.progress();
   await page.goto('http://localhost:3030/activity'); await page.getByRole('heading', { name: 'Usage in the last 24 hours', exact: true }).waitFor();
   await page.getByRole('link', { name: 'View progress', exact: true }).first().click(); await page.getByRole('link', { name: 'Open result', exact: true }).waitFor();
