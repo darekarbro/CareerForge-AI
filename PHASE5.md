@@ -48,6 +48,8 @@ The preparation draft selector includes recruiter introductions, referral reques
 
 ## Verification
 
+The [Phase 5 validation report](docs/PHASE5_VALIDATION.md) records the completed checks and their test-data boundary.
+
 Run from the repository root:
 
 ```powershell
