@@ -62,6 +62,7 @@ class ResumeService {
       await TailoredResume.deleteMany({ resumeId, owner: userId });
       await require('../models/CareerEvidence').deleteMany({ owner: userId, 'source.resumeId': resumeId });
       await require('../models/CopilotRun').deleteMany({ resumeId, owner: userId });
+      await require('../models/ApplicationPack').deleteMany({ owner: userId, 'snapshot.resumeId': String(resumeId) });
       await GapAnalysis.deleteMany({ resumeId, owner: userId });
       await ProcessingLog.deleteMany({ jobId: { $in: jobIds }, owner: userId });
       await Notification.deleteMany({ jobId: { $in: jobIds }, owner: userId });
@@ -152,7 +153,7 @@ class ResumeService {
       profileCompleted: Boolean(profile?.onboardingCompleted),
       nextResume: ready.find((item) => !item.verifiedAt)?._id || ready[0]?._id,
       nextWorkspace: workspaces[0]?._id,
-      dueApplications: applications.filter((item) => !['offer', 'rejected'].includes(item.status) && [item.deadline, item.followUpAt].some((date) => date && new Date(date) <= new Date(Date.now() + 3 * 86400000))).slice(0, 5),
+      dueApplications: applications.filter((item) => !['offer', 'rejected'].includes(item.status) && [item.deadline, item.followUpAt, item.interviewAt].some((date) => date && new Date(date) <= new Date(Date.now() + 3 * 86400000))).slice(0, 5),
       totalResumes: resumes.length, totalTailored: tailoredCount,
       avgAtsScore: average(ready.filter((item) => !item.atsScoreStale && item.assessmentMeta), (resume) => resume.atsScore?.score || 0),
       avgInterviewScore: average(sessions, (session) => session.overallScore || 0),

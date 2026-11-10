@@ -31,12 +31,18 @@ class ChatCompletionProvider extends BaseProvider {
       ...(this.name === 'groq' ? { max_completion_tokens: 16384,
         ...(/^openai\/gpt-oss-/.test(this.model) ? { reasoning_effort: 'medium' } : {}) } : {}),
       };
+      const controls = require('../services/operationalControls');
+      const policy = controls.policyFor(this.name, this.model);
+      if (policy) {
+        delete body.max_tokens;
+        body.max_completion_tokens = policy.maxOutputTokens;
+      }
       for (let attempt = 0; attempt < 2; attempt++) {
         try {
-          return await axios.post(this.baseUrl, body, {
-            headers: { Authorization: 'Bearer ' + this.apiKey, 'Content-Type': 'application/json', ...this.headers },
+          return await controls.networkCall({ provider: this.name, model: this.model, body, timeoutMs: this.timeoutMs }, () => axios.post(this.baseUrl, body, {
+            headers: { Authorization: 'Bearer ' + this.apiKey, 'Content-Type': 'application/json', ...this.headers, ...require('../services/telemetry').carrier() },
             signal, timeout: this.timeoutMs,
-          });
+          }));
         } catch (error) {
           const apiError = error.response?.data?.error;
           const schemaFailure = error.response?.status === 400 &&
@@ -88,7 +94,7 @@ class ChatCompletionProvider extends BaseProvider {
   }
 
   async tailorResume({ resumeData, targetRole, jobDescriptionText }) {
-    const systemPrompt = `${tailoringInstructions}\nTailor the resume for target role "${targetRole}". Return JSON:
+    const systemPrompt = `${tailoringInstructions}\nTailor the resume for the target role supplied in the user data. Return JSON:
 {
   "summary": "tailored summary",
   "skills": { "technical": [], "soft": [], "tools": [], "frameworks": [], "all": [] },
@@ -116,7 +122,7 @@ class ChatCompletionProvider extends BaseProvider {
   }
 
   async analyzeGap({ resumeData, jobDescriptionText, targetRole }) {
-    const systemPrompt = `You are a recruitment gap analysis agent. Compare resume against JD for "${targetRole}". Return JSON:
+    const systemPrompt = `You are a recruitment gap analysis agent. Compare the resume against the job description and target role supplied in the user data. Return JSON:
 {
   "matchScore": 0-100,
   "matchedSkills": [ { "skill": "", "category": "", "supportingResumeLines": [] } ],
@@ -124,11 +130,12 @@ class ChatCompletionProvider extends BaseProvider {
   "niceToHaveMissing": [ { "skill": "", "importance": "medium", "recommendation": "" } ],
   "summaryRecommendations": []
 }`;
-    return this._callChatCompletion(systemPrompt, `Job Description:\n${jobDescriptionText.slice(0, 4000)}\n\nResume Data:\n${JSON.stringify(resumeData).slice(0, 4000)}`, "analyzeGap");
+    return this._callChatCompletion(systemPrompt, `Target role: ${targetRole}\nJob Description:\n${jobDescriptionText.slice(0, 4000)}\n\nResume Data:\n${JSON.stringify(resumeData).slice(0, 4000)}`, "analyzeGap");
   }
 
   async generateQuestions({ resumeData, targetRole, jobDescriptionText, count = 5, difficulty = 'Medium', topicFocus = '' }) {
-    const systemPrompt = `You are a Principal Hiring Manager. Generate ${count} ${difficulty} difficulty interview questions for "${targetRole}". Set every difficulty to ${difficulty}. ${topicFocus ? 'Focus on this practice topic: ' + topicFocus + '. Ask probing follow-ups that test reasoning, examples and failure cases.' : ''} Return JSON:
+    const safeCount = Math.max(1, Math.min(20, Number(count) || 5)), safeDifficulty = ['Easy', 'Medium', 'Hard'].includes(difficulty) ? difficulty : 'Medium';
+    const systemPrompt = `You are a Principal Hiring Manager. Generate ${safeCount} ${safeDifficulty} difficulty interview questions for the target role and optional practice topic supplied in the user data. Set every difficulty to ${safeDifficulty}. Ask probing follow-ups that test reasoning, examples and failure cases. Return JSON:
 {
   "questions": [
     {
@@ -142,7 +149,7 @@ class ChatCompletionProvider extends BaseProvider {
     }
   ]
 }`;
-    const result = await this._callChatCompletion(systemPrompt, `Target Role: ${targetRole}\nResume: ${JSON.stringify(resumeData).slice(0, 12000)}\nJD: ${jobDescriptionText || 'Standard requirements'}`, "generateQuestions");
+    const result = await this._callChatCompletion(systemPrompt, `Target Role: ${targetRole}\nPractice topic: ${topicFocus}\nResume: ${JSON.stringify(resumeData).slice(0, 12000)}\nJD: ${jobDescriptionText || 'Standard requirements'}`, "generateQuestions");
     return result.questions || [];
   }
 

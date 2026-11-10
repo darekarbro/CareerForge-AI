@@ -17,7 +17,7 @@ async function startServer() {
     server.listen(env.PORT, () => { server.off('error', reject); resolve(); });
   });
   console.log('CareerForge API listening on port ' + server.address().port);
-  const shutdown = createShutdown({ server, closeSockets: closeSocket, closeWorkers: async () => { if (env.QUEUE_MODE !== 'producer') await require('./services/backgroundServices').stop(); await closeQueue(); }, disconnectDatabase: disconnectDB });
+  const shutdown = createShutdown({ server, closeSockets: closeSocket, closeWorkers: async () => { if (env.QUEUE_MODE !== 'producer') await require('./services/backgroundServices').stop(); await closeQueue(); await require('./services/telemetry').shutdown(); }, disconnectDatabase: disconnectDB });
   const onSignal = () => shutdown().then(() => process.exit(0)).catch((error) => {
     console.error(error.message); process.exit(1);
   });

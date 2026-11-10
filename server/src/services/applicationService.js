@@ -127,3 +127,4 @@ class ApplicationService {
 }
 module.exports = new ApplicationService();
 module.exports.weekStart = weekStart;
+module.exports.parseDate = parseDate;

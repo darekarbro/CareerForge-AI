@@ -15,13 +15,14 @@ async function cached({ owner, action, params }, calculate) {
   const user = await require('../models/User').findOne({ _id: owner, deleting: { $ne: true } });
   if (!user) throw fail('Account unavailable', 401);
   const local = ['scoreATS', 'analyzeGap'].includes(action);
-  const provider = local ? 'deterministic-fallback' : ['groq', 'openrouter', 'gemini'].find((name) => user.emailVerifiedAt && user.privacy?.providers?.[name] && status[name]?.configured) || 'deterministic-fallback';
+  const provider = local ? 'deterministic-fallback' : ['groq', 'openrouter', 'gemini'].find((name) => user.emailVerifiedAt && user.privacy?.providers?.[name] && status[name]?.configured && status[name]?.approved) || 'deterministic-fallback';
   const model = local ? modelVersion : status[provider]?.model || 'offline-rules-v1';
   const fingerprint = crypto.createHash('sha256').update(JSON.stringify({ action, rubricVersion, provider, model, params: canonical(params) })).digest('hex');
   const key = owner + ':' + fingerprint;
   const stored = await Cache.findOne({ owner, fingerprint, expiresAt: { $gt: new Date() } });
-  if (stored) return { ...stored.result, assessmentMeta: { ...stored.result.assessmentMeta, cached: true } };
-  if (pending.has(key)) return pending.get(key);
+  if (stored) { require('./telemetry').measure('careerforge.cache', 1, { action, result: 'hit' }); return { ...stored.result, assessmentMeta: { ...stored.result.assessmentMeta, cached: true } }; }
+  if (pending.has(key)) { require('./telemetry').measure('careerforge.cache', 1, { action, result: 'coalesced' }); return pending.get(key); }
+  require('./telemetry').measure('careerforge.cache', 1, { action, result: 'miss' });
   const promise = (async () => {
     const result = await calculate();
     const actualModel = local ? model : result.aiProvider === 'deterministic-fallback' ? 'offline-rules-v1' : status[result.aiProvider]?.model || model;

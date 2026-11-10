@@ -11,6 +11,7 @@ import { submitProcessingRequest } from '../../services/processing';
 import api from '../../services/api';
 import EntrySelection from '../../components/ResumeEditor/EntrySelection';
 import RequirementMatchPanel from '../../components/ResumeEditor/RequirementMatchPanel';
+import PreparationPack from '../../components/PreparationPack/PreparationPack';
 const decode = (record) => { const item = record.workspace || record; return { revision: item.revision, value: { ...Object.fromEntries(['company', 'title', 'jobUrl', 'description', 'notes', 'resumeId'].map((key) => [key, item[key] || ''])), resumeSelection: item.resumeSelection || null } }; };
 export default function WorkspacePage() {
   const router = useRouter(), id = router.query.id, resource = useOwnedResource(id ? '/workspaces/' + id : null), resumes = useOwnedResource('/resumes');
@@ -45,7 +46,7 @@ export default function WorkspacePage() {
       <fieldset disabled={archived || draft.conflict}><legend className="sr-only">Job workspace details</legend>
       <div className="brutal-card p-5 grid sm:grid-cols-2 gap-4">{['company', 'title', 'jobUrl'].map((key) => <label key={key} className="font-semibold text-sm">{key === 'title' ? 'Role title' : key === 'jobUrl' ? 'Job link' : 'Company'}<input className="brutal-input w-full block mt-1" value={draft.value[key]} onChange={(event) => sync.change({ ...draft.value, [key]: event.target.value })} /></label>)}
         <label className="text-sm font-semibold">Resume<select className="brutal-input w-full block mt-1" value={draft.value.resumeId} onChange={(event) => sync.change({ ...draft.value, resumeId: event.target.value, resumeSelection: null })}><option value="">Choose a resume</option>{(resumes.data || []).filter((item) => item.processingStatus === 'COMPLETED').map((item) => <option key={item._id} value={item._id}>{item.title}</option>)}</select></label>
-        <label className="sm:col-span-2 text-sm font-semibold">Job description<textarea rows={7} maxLength={24000} className="brutal-input w-full block mt-1" value={draft.value.description} onChange={(event) => sync.change({ ...draft.value, description: event.target.value })} /></label>
+        <label className="sm:col-span-2 text-sm font-semibold">Job description<textarea aria-label="Job description" rows={7} maxLength={24000} className="brutal-input w-full block mt-1" value={draft.value.description} onChange={(event) => sync.change({ ...draft.value, description: event.target.value })} /></label>
         <label className="sm:col-span-2 text-sm font-semibold">Job notes<textarea rows={3} maxLength={10000} className="brutal-input w-full block mt-1" value={draft.value.notes} onChange={(event) => sync.change({ ...draft.value, notes: event.target.value })} /></label>
       </div>
       </fieldset>
@@ -56,6 +57,7 @@ export default function WorkspacePage() {
         <Link href={'/applications?workspace=' + id} className="brutal-btn-yellow px-4 py-3 text-sm">Track application</Link></>}
       </div>
       <RequirementMatchPanel report={data?.gap} />
+      <PreparationPack key={resource.userId + ':' + id} workspaceId={id} disabled={archived || draft.dirty || draft.conflict || sync.saving || Boolean(working)} refreshKey={server?.revision} />
       <section className="brutal-card p-5"><h2 className="text-xl font-bold mb-3">Resume versions for this job</h2>{!data?.versions.length ? <p className="text-sm">Tailor your resume to create the first version.</p> : <ul className="space-y-2">{data.versions.map((version) => <li key={version._id}><Link href={'/resume/' + version.resumeId + '/tailor?version=' + version._id} className="underline text-blue-700 text-sm">Version {version.version} · {new Date(version.createdAt).toLocaleDateString()} · Review and export</Link></li>)}</ul>}</section>
       <section className="brutal-card p-5"><h2 className="text-xl font-bold mb-3">Interview practice</h2>{!data?.interviews.length ? <p className="text-sm">Start a practice session using this job description.</p> : <ul className="space-y-2">{data.interviews.map((item) => <li key={item._id}><Link href={'/interview/session/' + item._id} className="text-blue-700 underline text-sm">{new Date(item.createdAt).toLocaleDateString()} · {item.answeredCount}/{item.totalQuestions} answered</Link></li>)}</ul>}</section>
     </>}

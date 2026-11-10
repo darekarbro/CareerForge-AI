@@ -2,6 +2,8 @@ const mongoose = require('mongoose');
 
 const processingLogSchema = new mongoose.Schema(
   {
+    traceId: String,
+    spanId: String,
     jobId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'ProcessingJob',

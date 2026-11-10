@@ -4,6 +4,7 @@ const run = (fn) => async (req, res, next) => { try { res.setHeader('Cache-Contr
 router.get('/', run((req) => service.view(req.params.id, req.user._id)));
 router.post('/', run((req) => service.generate(req.params.id, req.user._id, req.body)));
 router.put('/', run((req) => service.save(req.params.id, req.user._id, req.body)));
+router.get('/drafts/:kind', run((req) => service.reviewedDraft(req.params.id, req.user._id, req.params.kind)));
 router.get('/download', async (req, res, next) => { try {
   const output = await service.download(req.params.id, req.user._id);
   res.setHeader('Cache-Control', 'private, no-store'); res.type('text/plain'); res.attachment('application-preparation.txt'); res.send(output);

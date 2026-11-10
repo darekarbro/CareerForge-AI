@@ -73,7 +73,8 @@ input, select, textarea { max-width: 100%; }
   text-transform: uppercase;
   letter-spacing: 0.05em;
   box-shadow: 4px 4px 0px #ffcc00;
-  transition: all 0.15s ease-in-out;
+  /* Switching the foreground and background together preserves contrast. */
+  transition: box-shadow 0.15s ease-in-out, transform 0.15s ease-in-out;
 }
 
 .brutal-btn-primary:hover {
@@ -103,7 +104,7 @@ input, select, textarea { max-width: 100%; }
   font-weight: 700;
   text-transform: uppercase;
   box-shadow: 4px 4px 0px #1a1a1a;
-  transition: all 0.15s ease-in-out;
+  transition: box-shadow 0.15s ease-in-out, transform 0.15s ease-in-out;
 }
 
 .brutal-btn-yellow:hover {

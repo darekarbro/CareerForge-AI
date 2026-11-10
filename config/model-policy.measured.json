@@ -1,0 +1,26 @@
+[
+  {
+    "provider": "groq",
+    "model": "openai/gpt-oss-20b",
+    "inputUsdPerMillion": 0.075,
+    "outputUsdPerMillion": 0.3,
+    "maxInputBytes": 4431,
+    "maxOutputTokens": 4096,
+    "benchmarkId": "docs/PHASE6_LIVE_MODEL_RESULTS.json#openai/gpt-oss-20b",
+    "samples": 16,
+    "qualityScore": 1,
+    "p95Ms": 2573.542
+  },
+  {
+    "provider": "groq",
+    "model": "openai/gpt-oss-120b",
+    "inputUsdPerMillion": 0.15,
+    "outputUsdPerMillion": 0.6,
+    "maxInputBytes": 4432,
+    "maxOutputTokens": 4096,
+    "benchmarkId": "docs/PHASE6_LIVE_MODEL_RESULTS.json#openai/gpt-oss-120b",
+    "samples": 16,
+    "qualityScore": 1,
+    "p95Ms": 2287.189
+  }
+]

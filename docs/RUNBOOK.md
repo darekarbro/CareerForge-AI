@@ -42,6 +42,8 @@ SIGTERM/SIGINT stops timers, drains workers and closes database/socket connectio
 
 ## Validation commands
 
+Phase 6 adds `npm run evidence:phase6` and `npm run test:phase6:containers`; see [their scope and reproduction steps](../PHASE6.md). The local restore drill verifies indexes/original checksums, rejects tampering, invalidates sessions and replays a restricted erasure ledger. Its bounded logical archive helper requires quiesced writers and empty restore targets; production backups should use tested snapshots/tooling. After JWT rotation, verify old sessions fail and new sign-in succeeds. Keep payload encryption independent; replacing its secret intentionally invalidates old retry/mail ciphertext. Use the same measured model policy, provider gate settings and encryption secrets in API/worker processes.
+
 ```bash
 npm test
 npm run lint

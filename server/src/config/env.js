@@ -49,8 +49,20 @@ const env = {
   REDIS_URL: trimEnv(process.env.REDIS_URL) || '',
   AUTH_RATE_LIMIT_MAX: parseInt(process.env.AUTH_RATE_LIMIT_MAX || '100', 10),
   AI_RATE_LIMIT_MAX: parseInt(process.env.AI_RATE_LIMIT_MAX || '30', 10),
+  MAX_ACTIVE_JOBS_PER_USER: Number(process.env.MAX_ACTIVE_JOBS_PER_USER || 5),
+  WORKER_CONCURRENCY: Number(process.env.WORKER_CONCURRENCY || 5),
+  PROVIDER_CONCURRENCY: Number(process.env.PROVIDER_CONCURRENCY || 2),
+  PROVIDER_COOLDOWN_MS: Number(process.env.PROVIDER_COOLDOWN_MS || 30000),
+  USER_DAILY_BUDGET_MICROUSD: Number(process.env.USER_DAILY_BUDGET_MICROUSD || 1000000),
+  AI_MODEL_POLICY_PATH: trimEnv(process.env.AI_MODEL_POLICY_PATH) || '',
+  AI_MIN_QUALITY_SCORE: Number(process.env.AI_MIN_QUALITY_SCORE || 0.9),
   TRUST_PROXY: trimEnv(process.env.TRUST_PROXY) || '',
 };
+
+for (const name of ['MAX_ACTIVE_JOBS_PER_USER', 'WORKER_CONCURRENCY', 'PROVIDER_CONCURRENCY', 'PROVIDER_COOLDOWN_MS', 'USER_DAILY_BUDGET_MICROUSD']) {
+  if (!Number.isSafeInteger(env[name]) || env[name] < (name === 'USER_DAILY_BUDGET_MICROUSD' ? 0 : 1)) throw new Error('Invalid operational setting: ' + name);
+}
+if (!Number.isFinite(env.AI_MIN_QUALITY_SCORE) || env.AI_MIN_QUALITY_SCORE < 0 || env.AI_MIN_QUALITY_SCORE > 1) throw new Error('Invalid AI_MIN_QUALITY_SCORE');
 
 if (!['combined', 'producer', 'worker'].includes(env.QUEUE_MODE)) throw new Error('QUEUE_MODE must be combined, producer or worker');
 if (env.QUEUE_MODE !== 'combined' && !env.REDIS_URL) throw new Error('Separate API/worker processes require REDIS_URL');

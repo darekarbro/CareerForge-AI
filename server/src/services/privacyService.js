@@ -4,7 +4,7 @@ const Deletion = require('../models/AccountDeletion');
 const { digest, emailHash } = require('./privatePayload');
 const { fail } = require('./resumeContent');
 const ownedCollections = ['CareerProfile', 'CareerEvidence', 'EvidenceSource', 'CopilotRun', 'Resume', 'TailoredResume', 'JobWorkspace', 'JobDescription', 'GapAnalysis', 'InterviewSession',
-  'Application', 'JobSearchQuery', 'ProcessingJob', 'ProcessingLog', 'Notification', 'AssessmentCache', 'ProductEvent', 'JobPayload', 'AuthSession'];
+  'Application', 'ApplicationPack', 'OpportunityPreferences', 'JobSearchQuery', 'ProcessingJob', 'ProcessingLog', 'Notification', 'AssessmentCache', 'ProductEvent', 'JobPayload', 'AuthSession', 'JobAdmission', 'UsageBudget'];
 const model = (name) => require('../models/' + name);
 function preferences(user) {
   const privacy = user.privacy || {};
@@ -56,6 +56,14 @@ async function exportData(user, input) {
   const zip = new (require('jszip'))(), manifest = { originalFilesIncluded: input.includeOriginals !== false, files: [] };
   let bytes = 0;
   if (input.includeOriginals !== false) {
+    const applications = await model('Application').find({ owner }).select('+attachments.data');
+    for (const application of applications) for (const attachment of application.attachments || []) {
+      if (!attachment.data) continue;
+      bytes += attachment.data.length;
+      if (bytes > 50 * 1024 * 1024) throw fail('Original files exceed the 50 MB export limit. Export records without originals and download attachments separately.', 413);
+      const filename = 'attachments/' + application._id + '/' + attachment._id + '-' + attachment.name;
+      zip.file(filename, attachment.data); manifest.files.push({ applicationId: application._id, attachmentId: attachment._id, filename, bytes: attachment.data.length });
+    }
     const resumes = await model('Resume').find({ owner });
     for (const [index, resume] of resumes.entries()) {
       if (!resume.originalFileStorage?.provider && !resume.originalFileName) continue;
@@ -112,6 +120,7 @@ async function applyRetention(user) {
   await model('ProcessingJob').deleteMany({ owner, _id: { $in: ids } });
   await model('Notification').deleteMany({ owner, createdAt: { $lt: cutoff } });
   await model('ProductEvent').deleteMany({ owner, createdAt: { $lt: cutoff } });
+  await model('UsageBudget').deleteMany({ owner, createdAt: { $lt: cutoff } });
   await model('AssessmentCache').deleteMany({ owner, $or: [{ createdAt: { $lt: new Date(Date.now() - settings.cacheDays * 86400000) } }, { expiresAt: { $lte: new Date() } }] });
 }
 async function finishDeletion(record) {

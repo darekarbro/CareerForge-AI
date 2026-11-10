@@ -98,6 +98,12 @@ async function socketFor(token) {
   await new Promise((resolve, reject) => { socket.once('connect', resolve); socket.once('connect_error', reject); });
   return socket;
 }
+test('Phase 6: startup builds shared admission and budget uniqueness before accepting requests', async () => {
+  const admission = await require('../src/models/JobAdmission').collection.indexes();
+  const budget = await require('../src/models/UsageBudget').collection.indexes();
+  assert(admission.some((index) => index.unique === true && index.key.owner === 1));
+  assert(budget.some((index) => index.unique === true && index.key.owner === 1 && index.key.day === 1));
+});
 test('01: multiple independent local users can register with the real unique index', async () => {
   for (let index = 0; index < 3; index++) {
     const response = await request('POST', '/api/auth/register', { body: {
@@ -194,7 +200,11 @@ test('13,22,23,24,47: queued tailoring preserves sections, exports a complete PD
   const index = (await Tailored.collection.indexes()).find((item) => item.name === 'resumeId_1_version_1');
   assert.equal(index.unique, true);
 });
-test('13,20,27: an eight-question JD-aware interview completes after all eight answers', async () => {
+test('13,20,27: an eight-question JD-aware interview completes after all eight answers', async (t) => {
+  // This aggregation race deliberately uses eight simultaneous answers. The
+  // Phase 6 admission tests separately enforce the lower production default.
+  const env = require('../src/config/env'), previousLimit = env.MAX_ACTIVE_JOBS_PER_USER;
+  env.MAX_ACTIVE_JOBS_PER_USER = 10; t.after(() => { env.MAX_ACTIVE_JOBS_PER_USER = previousLimit; });
   const account = await user(), resume = await ready(account.id);
   const jd = await Description.create({ owner: account.id, targetRole: 'Backend Engineer', rawText: 'Docker required' });
   const generated = await successfulJob(await request('POST', '/api/interview/sessions', { token: account.token,
@@ -666,6 +676,9 @@ require('./phase3Cases.cjs')({ test, assert, request, user, ready, facts, succes
 require('./mainAuditCases.cjs')({ test, assert, request, user, ready, facts, successfulJob, Resume });
 require('./phase3ReadinessCases.cjs')({ test, assert, request, user, ready, facts, successfulJob, Resume, Tailored });
 require('./phase4InterviewCases.cjs')({ test, assert, request, user, ready, successfulJob });
+require('./phase5RankingCases.cjs')({ test, assert, request, user, ready });
+require('./phase5PrivacyCases.cjs')({ test, assert, request, user, ready });
+require('./phase5ApplicationCases.cjs')({ test, assert, request, user });
 
 test('43: an unavailable configured database falls back in development and fails closed in production', async () => {
   const env = require('../src/config/env');

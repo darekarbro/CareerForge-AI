@@ -18,6 +18,7 @@ export default function ApplicationBoard({
   onDeleteApplication,
   initialDraft,
   onInitialDraftHandled,
+  onRecordChanged,
 }) {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedApp, setSelectedApp] = useState(null);
@@ -125,6 +126,9 @@ export default function ApplicationBoard({
                       </p>
                       {app.deadline && <p className="text-sm">Deadline {new Date(app.deadline).toLocaleDateString()}</p>}
                       {app.followUpAt && <p className="text-sm">Follow up {new Date(app.followUpAt).toLocaleDateString()}</p>}
+                      {app.interviewAt && <p className="text-sm">Interview {new Date(app.interviewAt).toLocaleString()}</p>}
+                      {app.recruiter?.name && <p className="text-xs mt-1">Recruiter: {app.recruiter.name}</p>}
+                      {!!app.attachments?.length && <p className="text-xs">{app.attachments.length} attachment(s)</p>}
                       {app.resumeSnapshot && <p className="text-sm">Resume v{app.resumeSnapshot.version} · revision {app.resumeSnapshot.contentRevision}</p>}
 
                       <div className="flex flex-wrap items-center justify-between gap-1 pt-2 border-t border-gray-100 text-[10px] text-gray-500 font-medium">
@@ -150,6 +154,7 @@ export default function ApplicationBoard({
         initialData={selectedApp}
         isSaving={isSaving}
         error={saveError}
+        onRecordChanged={(record) => { setSelectedApp(record); onRecordChanged?.(); }}
       />
     </div>
   );

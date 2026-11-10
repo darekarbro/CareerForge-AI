@@ -78,3 +78,27 @@ test('A workspace-prefilled application editor stays closed after saving and fil
   await screen.findByRole('button', { name: 'Edit Engineer at Workspace Co', exact: true });
   assert(!screen.queryByRole('dialog'));
 });
+
+test('Attachment refresh keeps the application editor, unsaved notes and returned revision', async () => {
+  session('A'); router.query = {}; router.pathname = '/applications';
+  const Page = load('pages/applications.js').default;
+  let stored = { _id: 'a1', company: 'Attachment Co', roleTitle: 'Engineer', status: 'saved', revision: 1, attachments: [], timeline: [] };
+  let reads = 0, release, submitted;
+  api.get = async (url) => {
+    if (url.startsWith('/applications?')) { if (++reads > 1) return new Promise((resolve) => { release = () => resolve(respond([stored])); }); return respond([stored]); }
+    if (url === '/applications/analytics') return respond({ totalApplications: 1, stages: { interview: 0, offer: 0 }, weeklyVolume: [] });
+    return respond([]);
+  };
+  api.post = async () => { stored = { ...stored, revision: 2, attachments: [{ _id: 'f1', name: 'example.txt', bytes: 12 }] }; return respond(stored); };
+  api.put = async (_url, body) => { submitted = body; return respond({ ...stored, ...body, revision: 3 }); };
+  render(element(Page)); fireEvent.click(await screen.findByRole('button', { name: 'Edit Engineer at Attachment Co', exact: true }));
+  fireEvent.change(await screen.findByLabelText('Personal Notes / Interview Timeline'), { target: { value: 'Unsaved contribution notes' } });
+  fireEvent.change(screen.getByLabelText('Upload attachment'), { target: { files: [new File(['Private text'], 'example.txt', { type: 'text/plain' })] } });
+  await waitFor(() => assert(release));
+  assert(screen.getByRole('dialog')); assert.equal(screen.getByLabelText('Personal Notes / Interview Timeline').value, 'Unsaved contribution notes');
+  await act(async () => release());
+  await screen.findByRole('button', { name: 'example.txt (1 KB)', exact: true });
+  fireEvent.click(screen.getByRole('button', { name: 'Save Application', exact: true }));
+  await waitFor(() => assert(submitted)); assert.equal(submitted.revision, 2); assert.equal(submitted.notes, 'Unsaved contribution notes');
+  await act(async () => release());
+});

@@ -34,10 +34,12 @@ test('preparation pack uses selected confirmed evidence, persists reviewed draft
   assert.equal(state.pack.snapshot.topics.find((topic) => topic.title === 'SQL').supported, false);
   await assert.rejects(pack.view(workspace._id, other), { statusCode: 404 });
   await assert.rejects(pack.download(workspace._id, owner), { statusCode: 409 });
+  await assert.rejects(pack.reviewedDraft(workspace._id, owner, 'recruiter'), { statusCode: 409 });
   await assert.rejects(pack.save(workspace._id, owner, { revision: state.pack.revision, kind: 'coverLetter', body: state.pack.drafts.coverLetter, reviewed: true }), /Confirm/);
   await assert.rejects(pack.save(workspace._id, owner, { revision: state.pack.revision, kind: 'coverLetter', body: 'I led 700 engineers.', reviewed: true, confirmed: true }), /unsupported/);
   const oldRevision = state.pack.revision;
   state = await pack.save(workspace._id, owner, { revision: oldRevision, kind: 'coverLetter', body: state.pack.drafts.coverLetter, reviewed: true, confirmed: true });
+  assert.equal((await pack.reviewedDraft(workspace._id, owner, 'coverLetter')).body, state.pack.drafts.coverLetter);
   await assert.rejects(pack.save(workspace._id, owner, { revision: oldRevision, kind: 'coverLetter', body: state.pack.drafts.coverLetter, reviewed: false }), { statusCode: 409 });
   const exported = await pack.download(workspace._id, owner);
   assert(exported.includes('Selected resume: Selected resume'));
@@ -49,6 +51,7 @@ test('preparation pack uses selected confirmed evidence, persists reviewed draft
   const evidence = await require('../src/models/CareerEvidence').findOne({ owner, kind: 'project', 'context.entryId': 'include' });
   await require('../src/models/CareerEvidence').updateOne({ _id: evidence._id }, { $set: { verification: 'rejected' }, $inc: { revision: 1 } });
   assert.equal((await pack.view(workspace._id, owner)).stale, true);
+  await assert.rejects(pack.reviewedDraft(workspace._id, owner, 'coverLetter'), { statusCode: 409 });
   await assert.rejects(pack.download(workspace._id, owner), { statusCode: 409 });
   state = await pack.generate(workspace._id, owner, { revision: state.pack.revision });
   assert(!state.pack.drafts.coverLetter.includes('12 users'));
@@ -64,4 +67,18 @@ test('unverified selected resume facts appear in the pack but are withheld from 
   assert.equal(result.pack.snapshot.evidence.length, 0);
   assert(!result.pack.drafts.recruiter.includes('Built Python services'));
   await assert.rejects(pack.save(workspace._id, owner, { revision: result.pack.revision, kind: 'coverLetter', body: result.pack.drafts.coverLetter, reviewed: true, confirmed: true }), /placeholders/);
+});
+
+test('pack topics withhold negative skill claims and project examples prioritize job relevance', () => {
+  const evidence = [{ kind: 'skill', statement: 'Python' }, { kind: 'project', statement: 'No SQL experience.' }];
+  const topics = pack.topics('Python and SQL required.', evidence);
+  assert.equal(topics.find((topic) => topic.title === 'Python').supported, true);
+  assert.equal(topics.find((topic) => topic.title === 'SQL').supported, false);
+  const conflicted = pack.topics('Python required.', evidence, { summary: 'No Python experience.' });
+  assert.equal(conflicted.find((topic) => topic.title === 'Python').supported, false);
+  const examples = pack.projectExamples([
+    { entryId: 'first', title: 'Art study', description: 'Painted a portrait.' },
+    { entryId: 'second', title: 'Validator', description: 'Built Python validation.', technologies: ['Python'] },
+  ], [], 'Python validation required.');
+  assert.deepEqual(examples.map((project) => project.entryId), ['second', 'first']);
 });

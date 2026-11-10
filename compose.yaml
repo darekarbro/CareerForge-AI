@@ -21,6 +21,14 @@ x-backend: &backend
     GROQ_MODEL: ${GROQ_MODEL:-openai/gpt-oss-120b}
     OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
     GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+    AI_MODEL_POLICY_PATH: ${AI_MODEL_POLICY_PATH:-}
+    AI_MIN_QUALITY_SCORE: ${AI_MIN_QUALITY_SCORE:-0.9}
+    MAX_ACTIVE_JOBS_PER_USER: ${MAX_ACTIVE_JOBS_PER_USER:-5}
+    WORKER_CONCURRENCY: ${WORKER_CONCURRENCY:-5}
+    PROVIDER_CONCURRENCY: ${PROVIDER_CONCURRENCY:-2}
+    PROVIDER_COOLDOWN_MS: ${PROVIDER_COOLDOWN_MS:-30000}
+    USER_DAILY_BUDGET_MICROUSD: ${USER_DAILY_BUDGET_MICROUSD:-1000000}
+    OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
     FIREBASE_PROJECT_ID: ${FIREBASE_PROJECT_ID:-}
     FIREBASE_CLIENT_EMAIL: ${FIREBASE_CLIENT_EMAIL:-}
     FIREBASE_PRIVATE_KEY: ${FIREBASE_PRIVATE_KEY:-}
@@ -71,6 +79,7 @@ services:
     environment:
       <<: *backend-env
       QUEUE_MODE: worker
+      OTEL_SERVICE_NAME: careerforge-worker
     healthcheck:
       test: [CMD, node, scripts/workerHealth.js]
       interval: 10s
@@ -81,6 +90,7 @@ services:
     environment:
       <<: *backend-env
       QUEUE_MODE: producer
+      OTEL_SERVICE_NAME: careerforge-api
     ports: [127.0.0.1:5000:5000]
     healthcheck:
       test: [CMD, node, -e, "fetch('http://127.0.0.1:5000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
