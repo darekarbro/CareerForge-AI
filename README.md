@@ -74,7 +74,7 @@ This fragmentation makes the process slow, inconsistent, and difficult to optimi
 
 The [Phase 5 guide](PHASE5.md) describes the application assistant: import several opportunities, compare them using saved preferences, prepare grounded drafts and manage records, reminders and follow-ups from linked workspaces.
 
-The [Phase 6 engineering package](PHASE6.md) adds trace correlation, atomic job/spending controls and reproducible load, failure and privacy drills. See the [measured results and remaining gates](docs/PHASE6_RESULTS.md), [technical decisions](docs/PHASE6_DECISIONS.md), and [pilot kit](docs/PHASE6_PILOT.md). External model calls now also require a reviewed model policy; credentials and account consent alone do not enable them. Phase 6 and the project are not presented as complete while the pilot and external operational evidence remain pending.
+The [Phase 6 engineering package](PHASE6.md) adds trace correlation, atomic job/spending controls and reproducible load, failure and privacy drills. Real Redis/database container faults and a 32-request [live-model comparison](docs/PHASE6_LIVE_MODELS.md) now have passing evidence. See the [results and remaining pilot gate](docs/PHASE6_RESULTS.md), [technical decisions](docs/PHASE6_DECISIONS.md), and [pilot kit](docs/PHASE6_PILOT.md). External calls require a reviewed model policy, verified email and account consent. The real user pilot remains pending, so Phase 6 and the project are not presented as complete.
 
 The [Phase 3 workflow guide](docs/PHASE3_WORKFLOWS.md) explains evidence collection, controlled imports, copilot review and factual-check limitations. See [Phase 3 validation](PHASE3.md) for test results.
 

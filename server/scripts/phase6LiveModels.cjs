@@ -22,27 +22,37 @@ const report = { version: 1, startedAt: new Date().toISOString(), runtime: proce
     selectionMetric: 'minimum of extraction field accuracy and joint interview band/branch accuracy; failed cases count against acceptance; quality >= 0.90',
     automaticProductionApproval: false }, models: [] };
 let directory;
+let account;
 const save = () => { fs.mkdirSync(path.dirname(output), { recursive: true }); fs.writeFileSync(output, JSON.stringify(report, null, 2)); };
 (async () => {
   if (!process.version.startsWith('v24.')) throw new Error('Use supported Node 24');
   if (!key || /^(your_|replace_|placeholder)/i.test(key)) throw new Error('Groq credential unavailable');
+  fs.mkdirSync(path.join(root, '.test-tmp'), { recursive: true });
   directory = fs.mkdtempSync(path.join(root, '.test-tmp/phase6-calibration-'));
   const binaryPath = path.join(root, 'server/node_modules/.cache/mongodb-memory-server/mongod-x64-win32-7.0.24.exe');
   await require('../src/config/db').connectDB({ memoryOptions: { binary: fs.existsSync(binaryPath) ? { systemBinary: binaryPath } : {}, instance: { dbPath: directory } } });
-  const account = await require('../src/models/User').create({ name: 'Fictional calibration account', email: 'phase6-calibration@example.test', password: crypto.randomBytes(24).toString('hex'), emailVerifiedAt: new Date(), privacy: { providers: { groq: true } } });
+  account = await require('../src/models/User').create({ name: 'Fictional calibration account', email: 'phase6-calibration@example.test', password: crypto.randomBytes(24).toString('hex'), emailVerifiedAt: new Date(), privacy: { providers: { groq: true } } });
+  const metrics = require('../evaluation/phase6ModelMetrics.cjs');
+  const reuseFile = process.argv.find((arg) => arg.startsWith('--reuse='))?.slice(8);
+  let reusedAttempts = 0;
+  if (reuseFile) {
+    const savedPath = path.resolve(root, reuseFile);
+    if (!savedPath.startsWith(path.join(root, '.test-tmp') + path.sep)) throw new Error('Reuse must refer to the local private evidence directory');
+    const run = JSON.parse(fs.readFileSync(savedPath, 'utf8')), candidate = candidates.find((item) => item.model === run.configuredModel);
+    if (!candidate) throw new Error('Saved model is outside this frozen protocol');
+    const reconstruction = await metrics.reconstructReservations(run, candidate);
+    await require('../src/models/UsageBudget').create({ owner: account._id, day: new Date().toISOString().slice(0, 10), reservedMicrousd: reconstruction.reservedMicrousd, attempts: reconstruction.attempts });
+    reusedAttempts = reconstruction.attempts;
+    report.models.push({ model: candidate.model, reportFile: path.basename(savedPath), report: run, reused: true, reservationReconstruction: reconstruction, ...metrics.summarizeModel(run, candidate) });
+  }
   save();
-  await require('../src/services/operationalControls').withCalibration({ owner: account._id, candidates, requestLimit: 40 }, async () => {
+  await require('../src/services/operationalControls').withCalibration({ owner: account._id, candidates, requestLimit: 40 - reusedAttempts }, async () => {
     for (const candidate of candidates) {
+      if (report.models.some((row) => row.model === candidate.model)) continue;
       env.GROQ_MODEL = candidate.model;
       const filename = 'phase6-live-' + candidate.model.split('/')[1] + '-' + Date.now() + '.json';
       const run = await require('./evaluatePhase4Live.cjs').run(path.join(root, '.test-tmp', filename));
-      const extraction = run.summary.extractionAccuracy;
-      const interview = run.summary.interview;
-      const extractionScore = Math.min(extraction.contactExact.rate ?? 0, extraction.resumeSkills.f1 ?? 0);
-      const plannedInterviews = run.plannedCases - 8;
-      const qualityScore = Math.min(extractionScore, interview.jointCorrect / plannedInterviews) * (run.summary.acceptedCases / run.plannedCases);
-      report.models.push({ model: candidate.model, reportFile: filename, report: run, qualityScore,
-        passesQualityGate: run.state === 'completed' && qualityScore >= report.protocol.qualityGate });
+      report.models.push({ model: candidate.model, reportFile: filename, report: run, ...metrics.summarizeModel(run, candidate) });
       save();
     }
   });
@@ -52,6 +62,10 @@ const save = () => { fs.mkdirSync(path.dirname(output), { recursive: true }); fs
   report.state = report.models.every((row) => row.report.state === 'completed') ? 'completed' : 'partial';
   report.completedAt = new Date().toISOString();
 })().catch((error) => { report.state = 'failed'; report.failure = typeof error.code === 'string' ? error.code : 'CALIBRATION_FAILURE'; report.reason = String(error.message).replaceAll(key || 'NO_CREDENTIAL', '[REDACTED]').slice(0, 300); console.error(report.failure, report.reason); process.exitCode = 1; }).finally(async () => {
+  if (account && mongoose.connection.readyState === 1) {
+    const ledger = await require('../src/models/UsageBudget').findOne({ owner: account._id }).lean();
+    report.reservedUsd = (ledger?.reservedMicrousd || 0) / 1000000; report.debitedAttempts = ledger?.attempts || 0;
+  }
   await require('../src/config/db').disconnectDB(); await require('../src/services/telemetry').shutdown();
   save(); if (directory && path.resolve(directory).startsWith(path.join(root, '.test-tmp') + path.sep)) fs.rmSync(directory, { recursive: true, force: true });
   console.log(JSON.stringify({ state: report.state, models: report.models.map((row) => ({ model: row.model, qualityScore: row.qualityScore, passed: row.passesQualityGate })), reservedUsd: report.reservedUsd, output }));

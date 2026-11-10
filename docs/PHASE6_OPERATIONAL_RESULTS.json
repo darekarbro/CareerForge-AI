@@ -220,10 +220,7 @@
     }
   ],
   "pending": [
-    "real Redis outage/container drill",
-    "live paid-model quality/cost benchmark",
-    "consenting user pilot",
-    "public publication"
+    "consenting user pilot; recruitment pending by user direction"
   ],
   "sourceSha256": "7ab5d8db1aeef5787ff87b2b6a71abbeb29e5ce293fd3abfbc88d8ffd0616d3d",
   "commit": "ba31d6746277f9216f7602c156cc3979b945a4f7",
@@ -277,6 +274,51 @@
     "dependencyAudit": {
       "vulnerabilities": 0,
       "boundary": "server installed locked dependency tree"
+    }
+  },
+  "pendingAtOriginalMeasurement": [
+    "real Redis outage/container drill",
+    "live paid-model quality/cost benchmark",
+    "consenting user pilot",
+    "public publication"
+  ],
+  "followUp": {
+    "recordedAt": "2026-11-10T11:16:50.180Z",
+    "sourceDigest": "95151f91f2c7565654fe958f85b2b0f61367d6077ababcae188d80f14b66d828",
+    "sourceDigestScope": "working-tree bytes of sorted server source, scripts, evaluation files and dependency manifests",
+    "server": {
+      "tests": 372,
+      "passed": 372,
+      "failed": 0
+    },
+    "client": {
+      "tests": 52,
+      "passed": 52,
+      "failed": 0
+    },
+    "build": "passed",
+    "lint": "passed",
+    "browser": {
+      "passed": true,
+      "checks": 36,
+      "accessibilityAudits": 53
+    },
+    "containerReport": "PHASE6_CONTAINER_RESULTS.json",
+    "containerPassed": true,
+    "liveModelReport": "PHASE6_LIVE_MODEL_RESULTS.json",
+    "liveModelState": "completed",
+    "physicalRequests": 32,
+    "reservedUsd": 0.074594,
+    "selectedModel": "openai/gpt-oss-20b",
+    "publication": {
+      "branch": "codex/phase6-engineering-evidence",
+      "url": "https://github.com/darekarbro/CareerForge-AI/tree/codex/phase6-engineering-evidence",
+      "state": "prepared-for-push"
+    },
+    "pilot": {
+      "state": "recruitment-pending",
+      "humanParticipants": 0,
+      "fabricatedResults": false
     }
   }
 }

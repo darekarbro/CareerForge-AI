@@ -8,6 +8,7 @@
 | Admission reservations have timestamps | An old failure cannot prune a newly reserved retry | Orphan reclamation is intentionally conservative |
 | Reserve conservative cost before every physical provider request | Repair attempts and uncertain failures cannot silently exceed the configured reservation ledger | No refunds; USD rates must be maintained; this is not an invoice or a vendor-enforced hard cap |
 | Only measured, priced model policies can send data externally | Model choice has an explicit evidence and quality gate | Empty policy means deterministic fallback; credentials and account consent alone do not enable paid calls |
+| Scoped test-only calibration capability | New models can be measured without inventing a passing production policy | Requires disposable verified/consenting account, bounded attempts and the same reservation/concurrency controls; never accepted from HTTP input |
 | Shared provider slots and cooldown | Workers share concurrency and avoid retry storms | Fast fallback can reduce remote response availability during transient failures |
 | Manual OpenTelemetry instrumentation | Stable bounded attributes, trace propagation across queue boundaries, no automatic prompt/header capture | MongoDB and Redis internals are not automatically traced; collector/export configuration remains an operator responsibility |
 | Separate public evidence and private pilot data | Reproduction can use fictional inputs | Automated accounts do not establish real-user usability |

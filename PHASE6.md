@@ -1,6 +1,6 @@
 # Phase 6 — Engineering evidence
 
-**Completion is gated.** Local measurements, real Redis drills, live-model quality/cost comparison, consenting pilot and public publication have separate evidence requirements. See the [result ledger](docs/PHASE6_RESULTS.md).
+**The consenting pilot is still pending.** Local measurements, real Redis/database container drills, and a bounded live-model comparison have passing evidence. The engineering package is prepared for the public publication branch. See the [result ledger](docs/PHASE6_RESULTS.md).
 
 ## Reproduce
 
@@ -34,7 +34,9 @@ Every physical network attempt, including repairs, reserves integer microdollars
 
 External calls require credentials, verified email, account opt-in and `AI_MODEL_POLICY_PATH`. Start with [an empty array](config/model-policy.example.json). Actual entries require `provider`, exact `model`, reviewed `benchmarkId`, `samples`, `qualityScore`, `p95Ms`, `maxInputBytes`, `maxOutputTokens`, `inputUsdPerMillion` and `outputUsdPerMillion`. Fill these from real frozen evaluations and current vendor rates; zero rates are only for genuinely free service. Quality must meet `AI_MIN_QUALITY_SCORE` (default 0.9). Selection orders passing candidates by combined input/output unit rates, then measured p95. Evidence is operator-reviewed, not attested by the app. Mount the same policy file in API/worker containers and use its in-container path.
 
-An empty policy allows deterministic processing only. Legacy direct-provider benchmark scripts now require a scoped, budgeted account invocation under the transport gate; credentials alone no longer enable them. Historical Phase 4 reports cover their named versions. A new live comparison remains pending: freeze dataset/evaluator/source, authorize bounded spending, use identical cases, count all failures/retries/tokens, and review quality before enabling policies.
+An empty policy allows deterministic processing only. The [live comparison](docs/PHASE6_LIVE_MODELS.md) measured both Groq GPT-OSS models against the same 16 fictional fixtures each. Both passed the fixture quality gate; 20B was selected by the lower unit rates. The [measured prototype policy](config/model-policy.measured.json) keeps requests within the observed input envelope and does not enable external traffic automatically. Historical Phase 4 reports remain scoped to their named versions.
+
+Reproduce live calibration with `node server/scripts/phase6LiveModels.cjs --live` using the private Groq key in server/.env. It authorizes at most 40 attempts and $0.20 in reservations, creates a disposable verified/consenting account, preserves provider concurrency/cooldown/accounting, and never fabricates a production quality approval to bootstrap measurement. The calibration capability works only inside an isolated test process and expires when its scope exits. A completed single-attempt report can be reused under matching source/fixture hashes with `--reuse=<path inside .test-tmp>`; reservations are reconstructed offline and carried forward. This avoids rebilling successful cases after a reporting failure.
 
 ## Failure and privacy boundaries
 
@@ -44,4 +46,4 @@ Malicious resume/JD instructions, foreign-owner retrieval and direct mutation fi
 
 Backup tests capture quiesced fictional documents/indexes/local originals in checksum-verified BSON Extended JSON. Restore requires empty targets, verifies before writing, invalidates sessions and replays a restricted erasure ledger before reopening traffic. Tests reject tampering, rotate JWT/payload secrets and verify all owned collections/original bytes are erased. This helper is a bounded maintenance demonstration, not a streaming/transaction-consistent production backup. Use managed snapshots/MongoDB tooling and consistent shared/cloud file backups for production. Preserve the erasure ledger through backup retention; anonymous seven-day receipts cannot reconstruct it. See [operations](docs/RUNBOOK.md) and [decisions](docs/PHASE6_DECISIONS.md).
 
-The [pilot kit](docs/PHASE6_PILOT.md) provides consent, fixed tasks, first-export timing and decision denominators. Recruitment is pending. `PHASE6_DEMO=1` with `client/test/browser-workflows.cjs` records fictional preloaded facts, real review/API/PDF export and deterministic processing. Automated demonstrations are not pilot participants. Public publication and pilot results remain completion gates.
+The [pilot kit](docs/PHASE6_PILOT.md) provides consent, fixed tasks, first-export timing and decision denominators. Recruitment remains pending by user direction. `PHASE6_DEMO=1` with `client/test/browser-workflows.cjs` records fictional preloaded facts, real review/API/PDF export and deterministic processing. Automated demonstrations are not pilot participants. The full browser workflow also passed, including 36 workflow checks and 53 automated accessibility audits. Phase 6 is not claimed complete without real pilot results.

@@ -1,6 +1,15 @@
 # Phase 6 result ledger
 
-**Phase 6 is not complete.** This package provides reproducible local engineering evidence. Real Redis/container execution, a fresh paid-model comparison, consenting pilot results and public publication remain pending.
+**The real user pilot is the remaining completion gate.** The technical follow-up passed real Redis/database container faults, live-model comparison and full browser acceptance. The package is being published through the public `codex/phase6-engineering-evidence` branch; the original local measurements below remain dated to their measured source.
+
+## Technical follow-up — 10 November 2026
+
+- Real Docker drills passed Redis outage with MongoDB worker recovery, producer/worker separation, private archive/deletion, and MongoDB stop/start readiness. [Raw container result](PHASE6_CONTAINER_RESULTS.json)
+- Both Groq GPT-OSS models completed all 16 frozen fictional cases each. The 20B model met the fixture gate at lower estimated token cost. The 32 requests reserved $0.074594 against a $0.20 limit. [Comparison and limitations](PHASE6_LIVE_MODELS.md)
+- The merged publication branch passed 372 server tests, 52 client tests, build, lint, 36 full browser workflow checks and 53 automated accessibility audits.
+- Architecture, decisions, raw measurements, screenshots, 21-second demo and the prototype model policy are included in the publication package. Recruitment is still pending by user direction; no human-pilot outcomes are claimed.
+
+## Original local workload — 9 November 2026
 
 Measured 2026-11-09T14:38:58.381Z on Node v24.22.1, win32, 12 logical CPUs and 15.75 GiB RAM. Source revision: `ba31d6746277f9216f7602c156cc3979b945a4f7` with uncommitted changes. The raw report records the measured source digest: `7ab5d8db1aeef5787ff87b2b6a71abbeb29e5ce293fd3abfbc88d8ffd0616d3d`.
 
@@ -28,7 +37,7 @@ All 90 local assessment jobs completed with zero rejection/failure under this fi
 
 Additional regression checks cover atomic job admission and spending races, provider cooldown/concurrency, a real slow HTTP timeout, schema-repair accounting, output limits and actual OTLP export to a loopback collector. Majority and journaled write acknowledgements were added after the outage drill exposed an accepted-write durability gap. The final passing run compares every accepted job ID before/after restart.
 
-Validation: **370 server tests; 52 client tests; build and lint passed; zero server dependency-audit advisories.** The recorded browser demo passed its actual-suggestion-review and PDF-download assertions. This is a focused demo, not a claim that the full browser suite was rerun for Phase 6.
+Original 9 November validation: **370 server tests; 52 client tests; build and lint passed; zero server dependency-audit advisories.** The recorded demo passed its suggestion-review and PDF-download assertions. The full browser workflow was subsequently rerun on 10 November, as recorded above.
 
 ## Presentation artifacts
 
@@ -46,9 +55,9 @@ The video uses fictional preloaded source facts and real local UI/API/export wit
 | Area | Evidence state |
 |---|---|
 | Local operational controls, load, fault and privacy drills | Passed within the documented local boundary |
-| Real Redis/container failures | Script and CI job added; local attempt failed because Docker daemon is unavailable; no passing result claimed |
-| Live-model selection quality/cost | Policy gate implemented; fresh vendor/model comparison pending; default external traffic remains disabled |
+| Real Redis/container failures | Passed on 10 November after starting the installed Docker engine; raw result retained |
+| Live-model selection quality/cost | Both candidates measured with frozen inputs; 20B selected for the prototype; policy remains opt-in |
 | Consenting user pilot | Consent/tasks/measurement kit prepared; recruitment pending by user direction |
-| Professional package | Architecture, decisions, results, limitations, screenshots and short video prepared locally; public publication pending |
+| Professional package | Architecture, decisions, results, limitations, screenshots and short video included in the public publication branch |
 
 Resume-safe claim: implemented trace-correlated jobs, atomic per-user admission and conservative provider-budget reservations, then demonstrated local crash/database recovery, privacy restoration/deletion and measured deterministic workload behavior. Do not claim production scale, live-model attack resistance, pilot usability outcomes or full-project completion from this evidence.
