@@ -74,6 +74,8 @@ This fragmentation makes the process slow, inconsistent, and difficult to optimi
 
 The [Phase 5 guide](PHASE5.md) describes the application assistant: import several opportunities, compare them using saved preferences, prepare grounded drafts and manage records, reminders and follow-ups from linked workspaces.
 
+The [Phase 6 engineering package](PHASE6.md) adds trace correlation, atomic job/spending controls and reproducible load, failure and privacy drills. See the [measured results and remaining gates](docs/PHASE6_RESULTS.md), [technical decisions](docs/PHASE6_DECISIONS.md), and [pilot kit](docs/PHASE6_PILOT.md). External model calls now also require a reviewed model policy; credentials and account consent alone do not enable them. Phase 6 and the project are not presented as complete while the pilot and external operational evidence remain pending.
+
 The [Phase 3 workflow guide](docs/PHASE3_WORKFLOWS.md) explains evidence collection, controlled imports, copilot review and factual-check limitations. See [Phase 3 validation](PHASE3.md) for test results.
 
 The [Phase 4 guide](PHASE4.md) demonstrates adaptive assessment and interview flows. The [published evaluation report](docs/PHASE4_EVALUATION_RESULTS.md) measures 40 synthetic cases with a separate holdout and reports formatting weaknesses. These are offline parsing and rubric results; live-provider quality and independent human scoring agreement remain unmeasured. Run `npm run evaluate:phase4` for development-set measurements.

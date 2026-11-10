@@ -169,7 +169,10 @@ const downloadTailoredPdf = async (req, res, next) => {
     if (result.pages) res.setHeader('X-Page-Count', result.pages);
     res.setHeader('X-Content-Revision', result.version.contentRevision || 1);
     res.setHeader('X-Layout-Revision', result.version.layoutRevision || 1);
-    if (req.query.preview !== '1') await require('../models/ProductEvent').create({ owner: req.user._id, type: format + '_export', resumeId: version.resumeId, versionId });
+    if (req.query.preview !== '1') {
+      const job = version.processingJobId ? await require('../models/ProcessingJob').findOne({ _id: version.processingJobId, owner: req.user._id }).select('traceId') : null;
+      await require('../models/ProductEvent').create({ owner: req.user._id, type: format + '_export', resumeId: version.resumeId, versionId, traceId: req.traceId, processingTraceId: job?.traceId });
+    }
     res.send(result.buffer);
   } catch (err) {
     next(err);

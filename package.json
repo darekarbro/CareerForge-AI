@@ -16,6 +16,8 @@
     "start:client": "npm --prefix client start",
     "test": "npm --prefix server test && npm --prefix client test",
     "evaluate:phase4": "node server/scripts/evaluatePhase4.cjs",
+    "evidence:phase6": "node server/scripts/phase6Evidence.cjs",
+    "test:phase6:containers": "node scripts/testPhase6Containers.cjs",
     "lint": "npm --prefix client run lint",
     "build": "npm run build:client"
   }

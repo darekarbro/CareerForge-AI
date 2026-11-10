@@ -5,6 +5,11 @@ const factory = require('../src/providers/providerFactory');
 const schemas = require('../src/providers/responseSchemas');
 const GroqProvider = require('../src/providers/groqProvider');
 const { context } = require('../src/services/jobContext');
+// Transport/schema unit fixtures stub the admission boundary. The Phase 6 suite
+// exercises the real MongoDB reservations, wire limits and failed attempts.
+const controls = require('../src/services/operationalControls'), networkCall = controls.networkCall;
+test.before(() => { controls.networkCall = async (_options, work) => work(); });
+test.after(() => { controls.networkCall = networkCall; });
 const facts = { contactInfo: { name: 'Synthetic Candidate', email: 'synthetic@example.test' },
   summary: 'Built Python tools.', skills: { all: ['Python'] }, workExperience: [], education: [], projects: [], certifications: [] };
 const params = {
@@ -71,7 +76,9 @@ test('Groq uses strict structured outputs and valid responses for all six AI act
     return { data: { choices: [{ message: { content: JSON.stringify(action === 'generateQuestions' ? { questions: output } : output) } }] } };
   };
   try {
-    assert.equal(factory.getProvidersStatus().activeProvider, 'groq');
+    assert.equal(factory.getProvidersStatus().groq.configured, true);
+    assert.equal(factory.getProvidersStatus().groq.approved, false);
+    assert.equal(factory.getProvidersStatus().activeProvider, 'deterministic-fallback');
     for (const [action, input] of Object.entries(params)) {
       const attempts = [];
       const result = await factory.execute(action, input, (name) => attempts.push(name));

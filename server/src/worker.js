@@ -7,7 +7,7 @@ async function startWorker() {
   await connectDB(); initQueue(); await background.start();
   console.log('CareerForge background worker ready');
   let closing;
-  const shutdown = () => closing ||= (async () => { await background.stop(); await closeQueue(); await require('./config/socket').closeSocket(); await disconnectDB(); })();
+  const shutdown = () => closing ||= (async () => { await background.stop(); await closeQueue(); await require('./config/socket').closeSocket(); await require('./services/telemetry').shutdown(); await disconnectDB(); })();
   for (const signal of ['SIGINT', 'SIGTERM']) process.once(signal, () => shutdown().then(() => process.exit(0)).catch(() => process.exit(1)));
   return { shutdown };
 }

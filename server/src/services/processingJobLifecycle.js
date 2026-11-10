@@ -14,6 +14,10 @@ async function runProcessingJob(jobOrId, task) {
     { $set: { status: 'RUNNING', startedAt: new Date(), leaseOwner, leaseExpiresAt: new Date(Date.now() + 90000), executionOwner: leaseOwner, executionExpiresAt: new Date(Date.now() + 90000) } }, { new: true }
   );
   if (!job) return (await ProcessingJob.findById(id))?.output;
+  const telemetry = require('./telemetry');
+  job.queueWaitMs = Math.max(0, job.startedAt - (job.queuedAt || job.createdAt));
+  await ProcessingJob.updateOne({ _id: id, leaseOwner }, { $set: { queueWaitMs: job.queueWaitMs } });
+  telemetry.measure('careerforge.queue.wait_ms', job.queueWaitMs, { jobType: job.jobType }, true);
   const controller = new AbortController();
   let release;
   const done = new Promise((resolve) => { release = resolve; });
@@ -46,7 +50,7 @@ async function runProcessingJob(jobOrId, task) {
   const executionHeartbeat = setInterval(() => ProcessingJob.updateOne({ _id: id, executionOwner: leaseOwner }, { $set: { executionExpiresAt: new Date(Date.now() + 90000) } }).catch(() => {}), 10000);
   executionHeartbeat.unref?.();
   try {
-    return await context.run({ signal: controller.signal, jobId: id, owner: job.owner }, async () => {
+    return await telemetry.span('job.execute', { jobType: job.jobType, retryCount: job.retryCount }, () => context.run({ signal: controller.signal, jobId: id, owner: job.owner }, async () => {
       await monitoring.logEvent({ jobId: id, userId: job.owner, agent: 'orchestrator',
         message: 'Processing started', step: 'job_started' });
       try {
@@ -60,6 +64,8 @@ async function runProcessingJob(jobOrId, task) {
           $unset: { 'inputRef.rawInput': 1, leaseOwner: 1, leaseExpiresAt: 1 },
         }, { new: true });
         if (!completed) throw cancellationError();
+        telemetry.measure('careerforge.jobs', 1, { jobType: job.jobType, status: 'COMPLETED' });
+        telemetry.measure('careerforge.job.duration_ms', completed.durationMs, { jobType: job.jobType }, true);
         await require('./jobPayloads').remove(job);
         await monitoring.logEvent({ jobId: id, userId: job.owner, agent: 'orchestrator',
           level: 'success', message: 'Processing completed', step: 'job_completed' });
@@ -68,6 +74,7 @@ async function runProcessingJob(jobOrId, task) {
       } catch (error) {
         const cancelled = error.code === 'JOB_CANCELLED' || controller.signal.aborted && !committing;
         const state = cancelled ? 'CANCELLED' : 'FAILED';
+        telemetry.measure('careerforge.jobs', 1, { jobType: job.jobType, status: state });
         const failed = await ProcessingJob.findOneAndUpdate({ _id: id, leaseOwner,
           status: { $in: ['RUNNING', 'COMMITTING', 'RETRYING'] } }, {
           $set: { status: state, completedAt: new Date(), durationMs: Date.now() - job.startedAt.getTime(),
@@ -90,14 +97,13 @@ async function runProcessingJob(jobOrId, task) {
         if (!cancelled) throw error;
         return undefined;
       }
-    });
+    }), job.traceContext?.traceparent ? { traceparent: job.traceContext.traceparent } : undefined);
   } finally {
     clearInterval(poll);
     clearInterval(heartbeat);
     clearInterval(executionHeartbeat);
-    await ProcessingJob.updateOne({ _id: id, executionOwner: leaseOwner }, { $unset: { executionOwner: 1, executionExpiresAt: 1 } });
-    active.delete(String(id));
-    release();
+    try { await ProcessingJob.updateOne({ _id: id, executionOwner: leaseOwner }, { $unset: { executionOwner: 1, executionExpiresAt: 1 } }); }
+    finally { active.delete(String(id)); release(); }
   }
 }
 async function notify(job, type, message) {

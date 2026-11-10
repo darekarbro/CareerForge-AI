@@ -22,11 +22,13 @@ async function retry(id, owner) {
   if (!job) throw fail('Only a failed request can be retried', 409);
   if (job.retryCount >= 5) throw fail('Retry limit reached. Start this action again from its resume or job workspace.', 409);
   await require('./jobPayloads').read(job); await prepareAnswer(job);
+  await require('./operationalControls').reserveJob(owner, job._id);
   const reset = await Job.findOneAndUpdate({ _id: id, owner, status: 'FAILED', retryCount: job.retryCount }, {
-    $set: { status: 'PENDING', recoveredAt: new Date() }, $inc: { retryCount: 1 },
+    $set: { status: 'PENDING', recoveredAt: new Date(), queuedAt: new Date() }, $inc: { retryCount: 1 },
     $unset: { error: 1, output: 1, completedAt: 1, leaseOwner: 1, leaseExpiresAt: 1 },
   }, { new: true });
   if (!reset) throw fail('This request is already being retried', 409);
+  require('./telemetry').measure('careerforge.job.retries', 1, { source: 'user', jobType: job.jobType });
   try { await enqueue(reset); } catch (error) { await failRecovery(reset, error); throw error; }
   return { jobId: reset._id, status: 'PENDING' };
 }
@@ -50,7 +52,8 @@ async function recoverStalled({ now = new Date(), enqueueJob = enqueue } = {}) {
       if (result.matchedCount) await releaseFailedWork(job);
       continue;
     }
-    await Job.updateOne(filter, { $set: { status: 'RETRYING', recoveredAt: now }, $inc: { retryCount: 1 }, $unset: { leaseOwner: 1, leaseExpiresAt: 1 } });
+    const recovered = await Job.updateOne(filter, { $set: { status: 'RETRYING', recoveredAt: now, queuedAt: now }, $inc: { retryCount: 1 }, $unset: { leaseOwner: 1, leaseExpiresAt: 1 } });
+    if (recovered.matchedCount) require('./telemetry').measure('careerforge.job.retries', 1, { source: 'lease_recovery', jobType: job.jobType });
   }
   const queued = await Job.find({ status: { $in: ['PENDING', 'RETRYING'] }, createdAt: { $lte: new Date(now - 3000) } }).limit(100);
   for (const job of queued) {

@@ -55,7 +55,8 @@ async function start() {
   }
   const executablePath = process.env.BROWSER_PATH || (await fs.stat('C:/Program Files/Google/Chrome/Application/chrome.exe').then(() => 'C:/Program Files/Google/Chrome/Application/chrome.exe', () => undefined));
   browser = await chromium.launch({ headless: true, ...(executablePath ? { executablePath } : {}) });
-  const context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, acceptDownloads: true });
+  const context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, acceptDownloads: true,
+    ...(process.env.PHASE6_DEMO === '1' ? { recordVideo: { dir: path.join(testRoot, 'phase6-video'), size: { width: 1440, height: 1000 } } } : {}) });
   page = await context.newPage();
   await page.context().tracing.start({ screenshots: true, snapshots: true });
   page.setDefaultTimeout(20000); page.on('pageerror', (error) => errors.push(error.message));
@@ -197,15 +198,21 @@ async function run() {
   assert.deepEqual(report.accessibility.filter((item) => item.violations.length), [], 'WCAG accessibility violations; see browser-results.json'); pass('Automated WCAG 2.0/2.1 A and AA audits across all main routes and new workflows');
 }
 (async () => {
-  try { await start(); await run(); }
+  try { await start(); if (process.env.PHASE6_DEMO === '1') await require('./phase6Demo.cjs')({ page, saved, screenshot, pass, report }); else await run(); }
   catch (error) { failed = true; report.error = error.message; console.error(error.stack); if (page) { await screenshot('failure').catch(() => {}); } }
   finally {
     if (page) await page.context().tracing.stop({ path: path.join(testRoot, 'browser-trace.zip') }).catch(() => {});
-    await browser?.close(); frontend?.kill(); await closeSocket();
+    const recording = page?.video() ? await page.video().path() : null;
+    await browser?.close();
+    if (recording && !failed) {
+      try { const media = path.join(root, 'docs/media'); await fs.mkdir(media, { recursive: true }); await fs.copyFile(recording, path.join(media, 'phase6-demo.webm')); }
+      catch (error) { report.mediaError = error.message; failed = true; }
+    }
+    frontend?.kill(); await closeSocket();
     if (apiServer?.listening) await new Promise((resolve) => apiServer.close(resolve));
-    await closeQueue(); await disconnectDB(); await db?.stop();
+    await closeQueue(); await disconnectDB(); await db?.stop(); await require('../../server/src/services/telemetry').shutdown();
     if (directory && path.resolve(directory).startsWith(testRoot + path.sep)) await fs.rm(directory, { recursive: true, force: true, maxRetries: 10, retryDelay: 250 }).catch((error) => { report.cleanupError = error.code; failed = true; });
-    report.passed = !failed; await fs.writeFile(path.join(testRoot, 'browser-results.json'), JSON.stringify(report, null, 2));
+    report.passed = !failed; await fs.writeFile(path.join(testRoot, process.env.PHASE6_DEMO === '1' ? 'phase6-demo-results.json' : 'browser-results.json'), JSON.stringify(report, null, 2));
     process.exitCode = failed ? 1 : 0;
   }
 })();

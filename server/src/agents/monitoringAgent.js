@@ -2,7 +2,7 @@ const ProcessingLog = require('../models/ProcessingLog');
 const { emitAgentEvent } = require('../config/socket');
 class MonitoringAgent {
   async logEvent({ jobId, userId, agent, level = 'info', message, step, durationMs = 0, metadata = {} }) {
-    const event = { agent, level, message, step, durationMs, metadata, timestamp: new Date() };
+    const event = { agent, level, message, step, durationMs, metadata, ...require('../services/telemetry').ids(), timestamp: new Date() };
     try {
       if (jobId) {
         const log = await ProcessingLog.create({ jobId, owner: userId, ...event });

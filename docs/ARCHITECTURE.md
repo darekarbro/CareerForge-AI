@@ -1,5 +1,28 @@
 # Architecture and data relationships
 
+## Phase 6 operations
+
+```mermaid
+flowchart LR
+  Request[Authenticated API request] -->|W3C trace| Job[Durable job and trace carrier]
+  Request --> Admission[(Atomic account slots)]
+  Job --> Queue[Redis or local queue]
+  Queue --> Execution[Worker claim and lease]
+  Execution --> Policy[Measured policy and consent]
+  Policy --> Budget[(Daily reservations)]
+  Policy --> Gate[(Provider slots and cooldown)]
+  Budget --> Provider[Bounded provider HTTP]
+  Gate --> Provider
+  Execution --> Cache[(Owned cache)]
+  Execution --> Version[Owned version]
+  Version --> Export[Export with linked trace IDs]
+  Request --> Collector[OTLP traces and metrics / correlated logs]
+  Execution --> Collector
+  Provider --> Collector
+```
+
+JobAdmission and UsageBudget are owned and erased with the account. ProviderGate stores configured provider names, random tokens and lease/cooldown timestamps, without candidate data. Metric labels omit owner/job identities. See [methodology and boundaries](../PHASE6.md) and [decisions](PHASE6_DECISIONS.md).
+
 CareerForge joins a candidate's verified career facts, job-specific resume versions, interview practice and application history. Node 24 is the supported runtime. The frontend is Next.js; Express owns authorization and domain rules; MongoDB is the durable source of truth. Redis distributes jobs and Socket.IO events. External AI and Cloudinary are optional.
 
 ```mermaid

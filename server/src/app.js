@@ -1,7 +1,6 @@
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
-const morgan = require('morgan');
 const compression = require('compression');
 const { authLimiter, aiIpLimiter } = require('./middlewares/rateLimits');
 
@@ -19,6 +18,7 @@ const processingRoutes = require('./routes/processingRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
 
 const app = express();
+app.use(require('./services/telemetry').http);
 if (env.TRUST_PROXY) {
   app.set('trust proxy', /^\d+$/.test(env.TRUST_PROXY) ? Number(env.TRUST_PROXY) : env.TRUST_PROXY);
 }
@@ -44,13 +44,14 @@ app.use(
       }
     },
     credentials: true,
-    exposedHeaders: ['X-Page-Count', 'X-Content-Revision', 'X-Layout-Revision', 'Content-Disposition'],
+    exposedHeaders: ['X-Page-Count', 'X-Content-Revision', 'X-Layout-Revision', 'Content-Disposition', 'X-Trace-Id', 'traceparent'],
   })
 );
 
 app.use(compression());
 app.use('/api', (_req, res, next) => { res.setHeader('Cache-Control', 'private, no-store'); next(); });
-if (env.NODE_ENV !== 'test') app.use(morgan(env.NODE_ENV === 'development' ? 'dev' : 'combined'));
+// Raw URLs can contain sensitive search text. Log method, status and correlation only.
+if (env.NODE_ENV !== 'test') app.use((req, res, next) => { res.once('finish', () => console.log(JSON.stringify({ event: 'http.completed', method: req.method, status: res.statusCode, traceId: req.traceId }))); next(); });
 app.use(express.json({ limit: '20mb' }));
 app.use(express.urlencoded({ extended: true, limit: '20mb' }));
 

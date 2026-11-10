@@ -3,7 +3,7 @@ const Redis = require('ioredis');
 const env = require('../config/env');
 
 class InMemoryQueue {
-  constructor({ processor = (data) => require('../agents/orchestrator').runJob(data.jobId), concurrency = 5 } = {}) {
+  constructor({ processor = (data) => require('../agents/orchestrator').runJob(data.jobId), concurrency = env.WORKER_CONCURRENCY } = {}) {
     this.jobs = new Map(); this.pending = []; this.running = 0; this.processor = processor;
     this.concurrency = concurrency; this.closed = false; this.idle = [];
   }
@@ -52,7 +52,7 @@ function initQueue() {
     workerConnection = new Redis(env.REDIS_URL, { maxRetriesPerRequest: null, connectTimeout: 2000 });
     workerConnection.on('error', () => {});
     worker = new Worker('careerforge_jobs', (job) => require('../agents/orchestrator').runJob(job.data.jobId), {
-      connection: workerConnection, concurrency: 5, lockDuration: 180000, lockRenewTime: 60000,
+      connection: workerConnection, concurrency: env.WORKER_CONCURRENCY, lockDuration: 180000, lockRenewTime: 60000,
     });
     worker.on('error', () => { available = false; });
     worker.on('failed', (_job, error) => console.error('Background processing failed:', error.message));

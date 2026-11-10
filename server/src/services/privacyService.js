@@ -4,7 +4,7 @@ const Deletion = require('../models/AccountDeletion');
 const { digest, emailHash } = require('./privatePayload');
 const { fail } = require('./resumeContent');
 const ownedCollections = ['CareerProfile', 'CareerEvidence', 'EvidenceSource', 'CopilotRun', 'Resume', 'TailoredResume', 'JobWorkspace', 'JobDescription', 'GapAnalysis', 'InterviewSession',
-  'Application', 'ApplicationPack', 'OpportunityPreferences', 'JobSearchQuery', 'ProcessingJob', 'ProcessingLog', 'Notification', 'AssessmentCache', 'ProductEvent', 'JobPayload', 'AuthSession'];
+  'Application', 'ApplicationPack', 'OpportunityPreferences', 'JobSearchQuery', 'ProcessingJob', 'ProcessingLog', 'Notification', 'AssessmentCache', 'ProductEvent', 'JobPayload', 'AuthSession', 'JobAdmission', 'UsageBudget'];
 const model = (name) => require('../models/' + name);
 function preferences(user) {
   const privacy = user.privacy || {};
@@ -120,6 +120,7 @@ async function applyRetention(user) {
   await model('ProcessingJob').deleteMany({ owner, _id: { $in: ids } });
   await model('Notification').deleteMany({ owner, createdAt: { $lt: cutoff } });
   await model('ProductEvent').deleteMany({ owner, createdAt: { $lt: cutoff } });
+  await model('UsageBudget').deleteMany({ owner, createdAt: { $lt: cutoff } });
   await model('AssessmentCache').deleteMany({ owner, $or: [{ createdAt: { $lt: new Date(Date.now() - settings.cacheDays * 86400000) } }, { expiresAt: { $lte: new Date() } }] });
 }
 async function finishDeletion(record) {

@@ -14,13 +14,19 @@ router.get('/', async (req, res, next) => { try {
 } catch (error) { next(error); } });
 router.get('/usage', async (req, res, next) => { try {
   const Job = require('../models/ProcessingJob'), since = new Date(Date.now() - 86400000);
-  const jobs = await Job.find({ owner: req.user._id, createdAt: { $gte: since } }).select('status durationMs usage');
+  const jobs = await Job.find({ owner: req.user._id, createdAt: { $gte: since } }).select('status durationMs usage queueWaitMs retryCount');
+  const env = require('../config/env'), budgetDay = new Date().toISOString().slice(0, 10);
+  const budget = await require('../models/UsageBudget').findOne({ owner: req.user._id, day: budgetDay });
+  const activeJobs = await Job.countDocuments({ owner: req.user._id, status: { $in: ['PENDING', 'RUNNING', 'RETRYING', 'COMMITTING'] } });
   const attempts = jobs.flatMap((job) => job.usage || []), successes = attempts.filter((entry) => entry.status === 'success');
   res.json({ success: true, data: { windowHours: 24, requests: jobs.length, completed: jobs.filter((job) => job.status === 'COMPLETED').length,
     failed: jobs.filter((job) => job.status === 'FAILED').length, providerAttempts: attempts.length, offlineResponses: successes.filter((entry) => entry.provider === 'deterministic-fallback').length,
     averageDurationMs: jobs.length ? Math.round(jobs.reduce((sum, job) => sum + job.durationMs, 0) / jobs.length) : 0,
     inputTokens: successes.reduce((sum, entry) => sum + (entry.inputTokens || 0), 0), outputTokens: successes.reduce((sum, entry) => sum + (entry.outputTokens || 0), 0),
     providerTokenReports: successes.filter((entry) => entry.inputTokens !== undefined).length,
+    averageQueueWaitMs: jobs.length ? Math.round(jobs.reduce((sum, job) => sum + (job.queueWaitMs || 0), 0) / jobs.length) : 0,
+    retries: jobs.reduce((sum, job) => sum + job.retryCount, 0), activeJobs, maxActiveJobs: env.MAX_ACTIVE_JOBS_PER_USER,
+    budget: { day: budgetDay, currency: 'USD', reservedMicrousd: budget?.reservedMicrousd || 0, limitMicrousd: env.USER_DAILY_BUDGET_MICROUSD, kind: 'conservative reservation, not invoice' },
     requestLimit: require('../config/env').AI_RATE_LIMIT_MAX, limitWindowMinutes: 15,
   } });
 } catch (error) { next(error); } });

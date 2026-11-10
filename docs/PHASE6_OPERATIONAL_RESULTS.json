@@ -1,0 +1,282 @@
+{
+  "schemaVersion": 1,
+  "startedAt": "2026-11-09T14:37:14.757Z",
+  "runtime": "v24.22.1",
+  "platform": "win32",
+  "cpus": 12,
+  "memoryBytes": 16909594624,
+  "boundary": "loopback HTTP, real disposable MongoDB, local queue, deterministic AI; no Redis or live AI provider",
+  "checks": [
+    {
+      "name": "actual worker process termination leaves a recoverable lease",
+      "passed": true,
+      "durationMs": 831.0061000000005,
+      "details": {
+        "processKilled": true,
+        "leaseMs": 90000,
+        "crossProcessTraceContinued": true
+      }
+    },
+    {
+      "name": "trace context joins API, job, provider, cache and export",
+      "passed": true,
+      "durationMs": 618.392600000001,
+      "details": {
+        "traceId": "52031d4b7e74a3fe1244bb5503f931ea",
+        "spans": 275,
+        "correlatedLogs": 8,
+        "exportBytes": 14914
+      }
+    },
+    {
+      "name": "malicious JD instructions and cross-account evidence probes cannot retrieve another account",
+      "passed": true,
+      "durationMs": 888.7057000000004,
+      "details": {
+        "maliciousJobDescriptions": 3,
+        "maliciousResumes": 1,
+        "retrievalsIsolated": true,
+        "directMutationStatus": 404,
+        "provider": "deterministic only"
+      }
+    },
+    {
+      "name": "database interruption returns unavailable and recovers without losing accepted jobs",
+      "passed": true,
+      "durationMs": 25670.142200000002,
+      "details": {
+        "unavailableStatus": 503,
+        "failureResponseMs": 5008.896500000001,
+        "persistedJobs": 97
+      }
+    },
+    {
+      "name": "JWT rotation revokes old sessions while separate payload encryption survives",
+      "passed": true,
+      "durationMs": 41.61769999999524,
+      "details": {
+        "oldJwtRejected": true,
+        "freshJwtAccepted": true,
+        "independentEncryptionSurvived": true,
+        "replacedEncryptionRejectedOldPayload": true
+      }
+    },
+    {
+      "name": "killed worker recovers after its real 90 second lease and duplicate deliveries execute once",
+      "passed": true,
+      "durationMs": 64521.9955,
+      "details": {
+        "recoveryElapsedMs": 96368,
+        "executions": 2,
+        "recoveredJobs": 2,
+        "duplicateDeliveriesPerJob": 12,
+        "retryCount": 1
+      }
+    },
+    {
+      "name": "consistent logical backup restores records, indexes and original bytes into an empty database",
+      "passed": true,
+      "durationMs": 1343.1460999999981,
+      "details": {
+        "collections": 29,
+        "originals": 2,
+        "restoredSessions": 0,
+        "tamperRejected": true,
+        "consistentCapture": "writers quiesced in isolated harness"
+      }
+    },
+    {
+      "name": "complete private account deletion removes owned records, encrypted inputs and local originals",
+      "passed": true,
+      "durationMs": 391.8451999999961,
+      "details": {
+        "activeStoreErased": true,
+        "originalRemoved": true,
+        "backupErasure": "requires operator ledger replay; separate from active-store deletion"
+      }
+    },
+    {
+      "name": "restored backup replays a restricted erasure ledger before reopening traffic",
+      "passed": true,
+      "durationMs": 201.27019999999902,
+      "details": {
+        "resurrectedPrivateDataErased": true,
+        "restoredOriginalErased": true,
+        "publicTrafficReopened": false
+      }
+    }
+  ],
+  "load": [
+    {
+      "concurrency": 1,
+      "submitted": 30,
+      "accepted": 30,
+      "failures": 0,
+      "rejected": [],
+      "apiMs": {
+        "count": 30,
+        "p50": 30.19470000000001,
+        "p95": 56.27859999999964,
+        "p99": 92.22639999999956,
+        "max": 92.22639999999956
+      },
+      "readMs": {
+        "count": 30,
+        "p50": 14.044700000000375,
+        "p95": 57.19290000000001,
+        "p99": 67.46360000000004,
+        "max": 67.46360000000004
+      },
+      "queueWaitMs": {
+        "count": 30,
+        "p50": 9,
+        "p95": 16,
+        "p99": 25,
+        "max": 25
+      },
+      "executionMs": {
+        "count": 30,
+        "p50": 32,
+        "p95": 98,
+        "p99": 102,
+        "max": 102
+      },
+      "elapsedSeconds": 1.6774550999999993,
+      "completedJobsPerSecond": 17.88423427846147
+    },
+    {
+      "concurrency": 5,
+      "submitted": 30,
+      "accepted": 30,
+      "failures": 0,
+      "rejected": [],
+      "apiMs": {
+        "count": 30,
+        "p50": 91.35419999999976,
+        "p95": 104.94640000000072,
+        "p99": 105.71969999999965,
+        "max": 105.71969999999965
+      },
+      "readMs": {
+        "count": 30,
+        "p50": 59.80199999999968,
+        "p95": 73.87439999999879,
+        "p99": 74.97390000000087,
+        "max": 74.97390000000087
+      },
+      "queueWaitMs": {
+        "count": 30,
+        "p50": 18,
+        "p95": 26,
+        "p99": 27,
+        "max": 27
+      },
+      "executionMs": {
+        "count": 30,
+        "p50": 99,
+        "p95": 122,
+        "p99": 125,
+        "max": 125
+      },
+      "elapsedSeconds": 0.9422977999999984,
+      "completedJobsPerSecond": 31.837068918127635
+    },
+    {
+      "concurrency": 10,
+      "submitted": 30,
+      "accepted": 30,
+      "failures": 0,
+      "rejected": [],
+      "apiMs": {
+        "count": 30,
+        "p50": 174.6895000000004,
+        "p95": 205.39370000000054,
+        "p99": 205.66690000000017,
+        "max": 205.66690000000017
+      },
+      "readMs": {
+        "count": 30,
+        "p50": 100.95889999999963,
+        "p95": 127.96699999999873,
+        "p99": 137.2566999999999,
+        "max": 137.2566999999999
+      },
+      "queueWaitMs": {
+        "count": 30,
+        "p50": 252,
+        "p95": 471,
+        "p99": 473,
+        "max": 473
+      },
+      "executionMs": {
+        "count": 30,
+        "p50": 103,
+        "p95": 188,
+        "p99": 193,
+        "max": 193
+      },
+      "elapsedSeconds": 1.1749691999999996,
+      "completedJobsPerSecond": 25.53258417327025
+    }
+  ],
+  "pending": [
+    "real Redis outage/container drill",
+    "live paid-model quality/cost benchmark",
+    "consenting user pilot",
+    "public publication"
+  ],
+  "sourceSha256": "7ab5d8db1aeef5787ff87b2b6a71abbeb29e5ce293fd3abfbc88d8ffd0616d3d",
+  "commit": "ba31d6746277f9216f7602c156cc3979b945a4f7",
+  "worktreeDirty": true,
+  "metricNames": [
+    "careerforge.http.duration_ms",
+    "careerforge.queue.wait_ms",
+    "careerforge.cache",
+    "careerforge.provider.attempts",
+    "careerforge.provider.duration_ms",
+    "careerforge.jobs",
+    "careerforge.job.duration_ms",
+    "careerforge.exports"
+  ],
+  "completedAt": "2026-11-09T14:38:58.381Z",
+  "passed": true,
+  "validation": {
+    "server": {
+      "tests": 370,
+      "passed": 370,
+      "failed": 0
+    },
+    "client": {
+      "tests": 52,
+      "passed": 52,
+      "failed": 0
+    },
+    "build": "passed",
+    "lint": "passed",
+    "demo": {
+      "data": "fictional only",
+      "checks": [
+        "Fictional source, real generation, explicit review and successful PDF export",
+        "Activity shows trace correlation, queue time, execution and daily budget"
+      ],
+      "screenshots": [
+        "browser-phase6-source.png",
+        "browser-phase6-review.png",
+        "browser-phase6-activity.png"
+      ],
+      "accessibility": [],
+      "boundary": "fictional preloaded source; real local UI/API/PDF; deterministic AI; automated demonstration, no pilot participants",
+      "passed": true,
+      "durationSeconds": 20.84
+    },
+    "containers": {
+      "passed": false,
+      "checks": [],
+      "reason": "Docker daemon unavailable on local Windows host; real Redis drill remains pending"
+    },
+    "dependencyAudit": {
+      "vulnerabilities": 0,
+      "boundary": "server installed locked dependency tree"
+    }
+  }
+}

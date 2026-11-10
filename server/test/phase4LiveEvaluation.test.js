@@ -15,6 +15,7 @@ const feedback = { clarityScore: 50, relevanceScore: 60, structureScore: 50, tec
   strengths: [], improvements: [], starAdherence: '', comments: '' };
 
 async function mockRun(t, { invalidFirstResponse = false } = {}) {
+  t.mock.method(require('../src/services/operationalControls'), 'networkCall', async (_options, work) => work());
   const dir = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'phase4-live-test-'));
   const oldEnv = { GROQ_API_KEY: env.GROQ_API_KEY, GROQ_MODEL: env.GROQ_MODEL };
   Object.assign(env, { GROQ_API_KEY: 'fixture-test-key', GROQ_MODEL: 'openai/gpt-oss-120b' });

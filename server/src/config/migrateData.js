@@ -1,5 +1,8 @@
 const mongoose = require('mongoose');
 async function migrateData() {
+  // These lazily used models must have their unique indexes before traffic.
+  // autoIndex is disabled in production; first-request upserts alone are unsafe.
+  for (const name of ['JobAdmission', 'UsageBudget', 'ProviderGate']) require('../models/' + name);
   const User = require('../models/User'), Resume = require('../models/Resume');
   const Tailored = require('../models/TailoredResume'), Session = require('../models/InterviewSession');
   const Question = require('../models/InterviewQuestion');

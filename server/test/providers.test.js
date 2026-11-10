@@ -7,6 +7,9 @@ const factory = require('../src/providers/providerFactory');
 const { requestWithTimeout } = require('../src/providers/requestWithTimeout');
 const { context } = require('../src/services/jobContext');
 const { InMemoryQueue } = require('../src/queues/processingQueue');
+const controls = require('../src/services/operationalControls'), networkCall = controls.networkCall;
+test.before(() => { controls.networkCall = async (_options, work) => work(); });
+test.after(() => { controls.networkCall = networkCall; });
 const provider = new P();
 const facts = {
   contactInfo: { name: 'Actual Candidate', email: 'actual@example.test', phone: '1234567890' },

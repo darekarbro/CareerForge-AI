@@ -1,7 +1,9 @@
 {
   "name": "careerforge-ai-server",
   "version": "1.0.0",
-  "engines": { "node": "24.x" },
+  "engines": {
+    "node": "24.x"
+  },
   "description": "Backend API for CareerForge AI Career Readiness Platform",
   "main": "src/server.js",
   "scripts": {
@@ -23,6 +25,12 @@
   "author": "CareerForge AI Team",
   "license": "MIT",
   "dependencies": {
+    "@opentelemetry/api": "1.10.0",
+    "@opentelemetry/exporter-metrics-otlp-http": "0.301.0",
+    "@opentelemetry/exporter-trace-otlp-http": "0.301.0",
+    "@opentelemetry/sdk-metrics": "3.1.0",
+    "@opentelemetry/sdk-node": "0.301.0",
+    "@opentelemetry/sdk-trace": "3.1.0",
     "@socket.io/redis-adapter": "^8.3.0",
     "@socket.io/redis-emitter": "^5.1.0",
     "axios": "^1.7.9",
