@@ -23,6 +23,7 @@ module.exports = async ({ page, saved, screenshot, pass, audit, resumeId, worksp
     const preview = page.getByRole('region', { name: 'Job import preview', exact: true });
     await preview.getByRole('heading', { name: importedTitle, exact: true }).waitFor();
     assert((await preview.innerText()).includes('Python required. SQL preferred.'));
+    await require('./buttonContrast.cjs')(page, page.getByRole('button', { name: 'Preview import', exact: true }));
     await audit('phase5-job-import-preview');
     await page.getByRole('button', { name: 'Use preview in editable job form', exact: true }).click();
     assert.equal(await page.getByLabel('Company', { exact: true }).inputValue(), importedCompany);
