@@ -313,7 +313,11 @@
     "publication": {
       "branch": "codex/phase6-engineering-evidence",
       "url": "https://github.com/darekarbro/CareerForge-AI/tree/codex/phase6-engineering-evidence",
-      "state": "prepared-for-push"
+      "state": "published",
+      "pullRequest": "https://github.com/darekarbro/CareerForge-AI/pull/13",
+      "draft": true,
+      "merged": false,
+      "verifiedSourceCommit": "cd9e9cb19b190dffe96f2c8e221e192660ef7c8d"
     },
     "pilot": {
       "state": "recruitment-pending",

@@ -1,6 +1,6 @@
 # Phase 6 — Engineering evidence
 
-**The consenting pilot is still pending.** Local measurements, real Redis/database container drills, and a bounded live-model comparison have passing evidence. The engineering package is prepared for the public publication branch. See the [result ledger](docs/PHASE6_RESULTS.md).
+**The consenting pilot is still pending.** Local measurements, real Redis/database container drills, and a bounded live-model comparison have passing evidence. The engineering package is published in [draft PR #13](https://github.com/darekarbro/CareerForge-AI/pull/13). See the [result ledger](docs/PHASE6_RESULTS.md).
 
 ## Reproduce
 

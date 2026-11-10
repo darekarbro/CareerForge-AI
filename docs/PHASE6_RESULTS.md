@@ -1,6 +1,6 @@
 # Phase 6 result ledger
 
-**The real user pilot is the remaining completion gate.** The technical follow-up passed real Redis/database container faults, live-model comparison and full browser acceptance. The package is being published through the public `codex/phase6-engineering-evidence` branch; the original local measurements below remain dated to their measured source.
+**The real user pilot is the remaining completion gate.** The technical follow-up passed real Redis/database container faults, live-model comparison and full browser acceptance. The package is published in [draft PR #13](https://github.com/darekarbro/CareerForge-AI/pull/13) on the public `codex/phase6-engineering-evidence` branch; the original local measurements below remain dated to their measured source. The draft is unmerged and does not claim human-pilot completion.
 
 ## Technical follow-up — 10 November 2026
 
